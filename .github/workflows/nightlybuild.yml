@@ -1,0 +1,49 @@
+name: Nightly Build
+
+on:
+  schedule:
+  - cron: "* 23 * * *"
+
+jobs:
+  build:
+    name: "Nightly Build"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: ubuntu-16.04
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.100
+
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
+
+    - name: Run Unit Tests
+      run: |
+        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
+        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
+
+    - name: Setup Node.js for use with actions
+      uses: actions/setup-node@v1.1.0
+    
+    - name: Combine Coverage
+      run: |
+        npm i lcov-result-merger
+        ./node_modules/lcov-result-merger/bin/lcov-result-merger.js '*.info' 'lcov.info' 
+    
+    - name: Upload Code Coverage
+      uses: coverallsapp/github-action@master
+      with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: lcov.info    
+
+    - name: Build Docker Image
+      run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
