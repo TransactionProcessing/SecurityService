@@ -1,0 +1,53 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28711.60
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{892940BA-FF36-468A-B8AD-34379F15CFA5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{A4EF772C-5311-4633-94C5-2D45BFD25432}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.Manager", "SecurityService.Manager\SecurityService.Manager.csproj", "{5B6E1756-8A03-4AEF-BD69-DB216E7C1768}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.DataTransferObjects", "SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj", "{50FF6ECD-4223-4262-B14F-433A502E0CEB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.UnitTests", "SecurityService.UnitTests\SecurityService.UnitTests.csproj", "{BAAC4343-4F17-4B3C-80F0-DA7BB647180C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService", "SecurityService\SecurityService.csproj", "{54A4CB95-033D-4D83-A1E7-D6184F54A61D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5B6E1756-8A03-4AEF-BD69-DB216E7C1768}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5B6E1756-8A03-4AEF-BD69-DB216E7C1768}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5B6E1756-8A03-4AEF-BD69-DB216E7C1768}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5B6E1756-8A03-4AEF-BD69-DB216E7C1768}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50FF6ECD-4223-4262-B14F-433A502E0CEB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50FF6ECD-4223-4262-B14F-433A502E0CEB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50FF6ECD-4223-4262-B14F-433A502E0CEB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50FF6ECD-4223-4262-B14F-433A502E0CEB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAAC4343-4F17-4B3C-80F0-DA7BB647180C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAAC4343-4F17-4B3C-80F0-DA7BB647180C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAAC4343-4F17-4B3C-80F0-DA7BB647180C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAAC4343-4F17-4B3C-80F0-DA7BB647180C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54A4CB95-033D-4D83-A1E7-D6184F54A61D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54A4CB95-033D-4D83-A1E7-D6184F54A61D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54A4CB95-033D-4D83-A1E7-D6184F54A61D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54A4CB95-033D-4D83-A1E7-D6184F54A61D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5B6E1756-8A03-4AEF-BD69-DB216E7C1768} = {892940BA-FF36-468A-B8AD-34379F15CFA5}
+		{50FF6ECD-4223-4262-B14F-433A502E0CEB} = {892940BA-FF36-468A-B8AD-34379F15CFA5}
+		{BAAC4343-4F17-4B3C-80F0-DA7BB647180C} = {A4EF772C-5311-4633-94C5-2D45BFD25432}
+		{54A4CB95-033D-4D83-A1E7-D6184F54A61D} = {892940BA-FF36-468A-B8AD-34379F15CFA5}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C2243F66-F2ED-4AD3-9E7B-169E12725BB9}
+	EndGlobalSection
+EndGlobal
