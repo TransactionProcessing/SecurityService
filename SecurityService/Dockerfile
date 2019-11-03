@@ -3,19 +3,18 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.0-buster AS build
 WORKDIR /src
-COPY ["SecurityService.Service/NuGet.Config", "."]
-COPY ["SecurityService.Service/SecurityService.Service.csproj", "SecurityService.Service/"]
-COPY ["SecurityService.Service/NuGet.Config", "SecurityService.Service/"]
+COPY ["SecurityService/NuGet.Config", "."]
+COPY ["SecurityService/SecurityService.csproj", "SecurityService/"]
 COPY ["SecurityService.Manager/SecurityService.Manager.csproj", "SecurityService.Manager/"]
-COPY ["SecurityService.DataTransferObjects/SecurityService.DataTransferObjects.csproj", "SecurityService.Manager/"]
+COPY ["SecurityService.DataTransferObjects/SecurityService.DataTransferObjects.csproj", "SecurityService.DataTransferObjects/"]
 
-RUN dotnet restore "SecurityService.Service/SecurityService.Service.csproj"
+RUN dotnet restore "SecurityService/SecurityService.csproj"
 COPY . .
-WORKDIR "/src/SecurityService.Service"
-RUN dotnet build "SecurityService.Service.csproj" -c Release -o /app
+WORKDIR "/src/SecurityService"
+RUN dotnet build "SecurityService.csproj" -c Release -o /app
 
 FROM build AS publish
-RUN dotnet publish "SecurityService.Service.csproj" -c Release -o /app
+RUN dotnet publish "SecurityService.csproj" -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
