@@ -1,0 +1,14 @@
+﻿[
+  {
+    "outputFileName": "wwwroot/css/site.min.css",
+    "inputFiles": [
+      "wwwroot/css/site.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/css/lipaspotwebui.site.min.css",
+    "inputFiles": [
+      "wwwroot/css/lipaspotwebui.site.css"
+    ]
+  }
+]
