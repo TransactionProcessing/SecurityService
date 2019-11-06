@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace SecurityService.Manager.Migrations.PersistedGrantDbContext
+namespace SecurityService.Database.Migrations.PersistedGrantDbContext
 {
     public partial class InitialDbMigration : Migration
     {
@@ -46,6 +46,16 @@ namespace SecurityService.Manager.Migrations.PersistedGrantDbContext
                 table: "DeviceCodes",
                 column: "DeviceCode",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_DeviceCodes_Expiration",
+                table: "DeviceCodes",
+                column: "Expiration");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PersistedGrants_Expiration",
+                table: "PersistedGrants",
+                column: "Expiration");
 
             migrationBuilder.CreateIndex(
                 name: "IX_PersistedGrants_SubjectId_ClientId_Type",

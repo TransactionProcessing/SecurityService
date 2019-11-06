@@ -6,10 +6,16 @@
     using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
+    using IdentityServer4.EntityFramework.DbContexts;
+    using IdentityServer4.EntityFramework.Entities;
     using IdentityServer4.EntityFramework.Interfaces;
+    using IdentityServer4.EntityFramework.Options;
     using Manager;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore.Diagnostics;
+    using Microsoft.EntityFrameworkCore.Query.Internal;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.Extensions.Options;
     using MockQueryable.Moq;
@@ -100,7 +106,7 @@
             this.ServiceProvider.Setup(sp => sp.GetService(It.IsAny<Type>())).Returns(tokenProvider.Object);
         }
 
-        private SecurityServiceManager SetupSecurityServiceManager()
+        private SecurityServiceManager SetupSecurityServiceManager(IConfigurationDbContext configurationDbContext = null)
         {
             this.SetupServiceProvider();
             this.SetupErrorDescriber();
@@ -121,21 +127,29 @@
 
             Mock<Func<IConfigurationDbContext>> configurationDbContextResolver =
                 new Mock<Func<IConfigurationDbContext>>();
-
+            if (configurationDbContext != null)
+            {
+                configurationDbContextResolver.Setup(m => m.Invoke()).Returns(configurationDbContext);
+            }
+            
             SignInManager<IdentityUser> signInManager = new SignInManager<IdentityUser>(userManager, this.ContextAccessor.Object, this.ClaimsFactory.Object, null, null, null, null);
-            //Mock<IOptions<ServiceOptions>> serviceOptions = new Mock<IOptions<ServiceOptions>>();
-            //serviceOptions.Setup(so => so.Value).Returns(new ServiceOptions
-            //{
-            //    PublicOrigin = "http://localhost"
-            //});
-            //Mock<IMessagingService> messagingService = new Mock<IMessagingService>();
             
             SecurityServiceManager securityServiceManager =
-                new SecurityServiceManager(this.PasswordHasher.Object, userManager, roleManager, signInManager);
+                new SecurityServiceManager(this.PasswordHasher.Object, userManager, roleManager, signInManager, configurationDbContextResolver.Object);
 
             return securityServiceManager;
         }
 
+
+        private IConfigurationDbContext GetConfigurationDbContext(String databaseName)
+        {
+            DbContextOptionsBuilder<ConfigurationDbContext> builder = new DbContextOptionsBuilder<ConfigurationDbContext>()
+                                                                      .UseInMemoryDatabase(databaseName)
+                                                                      .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+            IConfigurationDbContext context = new ConfigurationDbContext(builder.Options, new ConfigurationStoreOptions());
+
+            return context;
+        }
 
     }
 }

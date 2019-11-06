@@ -6,12 +6,15 @@
     using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
-    using DataTransferObjects;
     using Exceptions;
     using Extensions;
     using IdentityModel;
+    using IdentityServer4.EntityFramework.Interfaces;
+    using IdentityServer4.EntityFramework.Mappers;
+    using IdentityServer4.Models;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
+    using Models;
     using Shared.Exceptions;
     using Shared.General;
 
@@ -23,6 +26,8 @@
     public class SecurityServiceManager : ISecurityServiceManager
     {
         #region Fields
+
+        private readonly Func<IConfigurationDbContext> ConfigurationDbContextResolver;
 
         /// <summary>
         /// The password hasher
@@ -55,15 +60,18 @@
         /// <param name="userManager">The user manager.</param>
         /// <param name="roleManager">The role manager.</param>
         /// <param name="signInManager">The sign in manager.</param>
+        /// <param name="configurationDbContextResolver">The configuration database context resolver.</param>
         public SecurityServiceManager(IPasswordHasher<IdentityUser> passwordHasher,
                                       UserManager<IdentityUser> userManager,
                                       RoleManager<IdentityRole> roleManager,
-                                      SignInManager<IdentityUser> signInManager)
+                                      SignInManager<IdentityUser> signInManager,
+                                      Func<IConfigurationDbContext> configurationDbContextResolver)
         {
             this.PasswordHasher = passwordHasher;
             this.UserManager = userManager;
             this.RoleManager = roleManager;
             this.SignInManager = signInManager;
+            this.ConfigurationDbContextResolver = configurationDbContextResolver;
         }
 
         #endregion
@@ -71,38 +79,144 @@
         #region Methods
 
         /// <summary>
+        /// Creates the client.
+        /// </summary>
+        /// <param name="clientId">The client identifier.</param>
+        /// <param name="secret">The secret.</param>
+        /// <param name="clientName">Name of the client.</param>
+        /// <param name="clientDescription">The client description.</param>
+        /// <param name="allowedScopes">The allowed scopes.</param>
+        /// <param name="allowedGrantTypes">The allowed grant types.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<String> CreateClient(String clientId,
+                                               String secret,
+                                               String clientName,
+                                               String clientDescription,
+                                               List<String> allowedScopes,
+                                               List<String> allowedGrantTypes,
+                                               CancellationToken cancellationToken)
+        {
+
+            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            {
+                // Create the model from the request
+                Client client = new Client
+                                {
+                                    ClientId = clientId,
+                                    ClientName = clientName,
+                                    Description = clientDescription,
+                                    ClientSecrets =
+                                    {
+                                        new Secret(secret.ToSha256())
+                                    },
+                                    AllowedGrantTypes = allowedGrantTypes,
+                                    AllowedScopes = allowedScopes
+                                };
+
+                // Now translate the model to the entity
+                await context.Clients.AddAsync(client.ToEntity(), cancellationToken);
+
+                // Save the changes
+                await context.SaveChangesAsync();
+            }
+
+            return clientId;
+        }
+
+        /// <summary>
+        /// Gets the client.
+        /// </summary>
+        /// <param name="clientId">The client identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException">No client found with Client Id [{clientId}]</exception>
+        public async Task<Client> GetClient(String clientId,
+                                    CancellationToken cancellationToken)
+        {
+            IdentityServer4.EntityFramework.Entities.Client clientEntity = null;
+            using (IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            {
+                clientEntity = await context.Clients.Where(c => c.ClientId == clientId)
+                                                    .SingleOrDefaultAsync(cancellationToken:cancellationToken);
+
+                if (clientEntity == null)
+                {
+                    throw new NotFoundException($"No client found with Client Id [{clientId}]");
+                }
+            }
+
+            return clientEntity.ToModel();
+        }
+
+        /// <summary>
+        /// Gets the clients.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<Client>> GetClients(CancellationToken cancellationToken)
+        {
+            List<Client> clientModels = new List<Client>();
+            using (IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            {
+                List<IdentityServer4.EntityFramework.Entities.Client> clientEntities = await context.Clients.ToListAsync(cancellationToken:cancellationToken);
+                
+                if (clientEntities.Any())
+                {
+                    foreach (IdentityServer4.EntityFramework.Entities.Client clientEntity in clientEntities)
+                    {
+                        clientModels.Add(clientEntity.ToModel());
+                    }
+                }
+            }
+
+            return clientModels;
+        }
+
+        /// <summary>
         /// Registers the user.
         /// </summary>
-        /// <param name="request">The request.</param>
+        /// <param name="givenName">Name of the given.</param>
+        /// <param name="middleName">Name of the middle.</param>
+        /// <param name="familyName">Name of the family.</param>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="emailAddress">The email address.</param>
+        /// <param name="phoneNumber">The phone number.</param>
+        /// <param name="claims">The claims.</param>
+        /// <param name="roles">The roles.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         /// <exception cref="System.NullReferenceException">Error generating password hash value, hash was null or empty</exception>
-        /// <exception cref="IdentityResultException">
-        /// Error creating user {newIdentityUser.UserName}
+        /// <exception cref="IdentityResultException">Error creating user {newIdentityUser.UserName}
         /// or
         /// Error adding roles [{string.Join(",", request.Roles)}] to user {newIdentityUser.UserName}
         /// or
         /// Error adding claims [{string.Join(",", claims)}] to user {newIdentityUser.UserName}
         /// or
-        /// Error deleting user {newIdentityUser.UserName} as part of cleanup
-        /// </exception>
-        public async Task<Guid> CreateUser(CreateUserRequest request,
+        /// Error deleting user {newIdentityUser.UserName} as part of cleanup</exception>
+        public async Task<Guid> CreateUser(String givenName,
+                                           String middleName,
+                                           String familyName,
+                                           String userName,
+                                           String password,
+                                           String emailAddress,
+                                           String phoneNumber,
+                                           Dictionary<String, String> claims,
+                                           List<String> roles,
                                            CancellationToken cancellationToken)
         {
-            // Validate the input request
-            this.ValidateRequest(request);
-
             Guid userId = Guid.NewGuid();
 
             // request is valid now add the user
             IdentityUser newIdentityUser = new IdentityUser
                                            {
                                                Id = userId.ToString(),
-                                               Email = request.EmailAddress,
+                                               Email = emailAddress,
                                                EmailConfirmed = true,
-                                               UserName = request.EmailAddress,
-                                               NormalizedEmail = request.EmailAddress.ToUpper(),
-                                               NormalizedUserName = request.EmailAddress.ToUpper(),
+                                               UserName = userName,
+                                               NormalizedEmail = emailAddress.ToUpper(),
+                                               NormalizedUserName = userName.ToUpper(),
                                                SecurityStamp = Guid.NewGuid().ToString("D")
                                            };
 
@@ -110,7 +224,7 @@
             //String password = String.IsNullOrEmpty(request.Password) ? GenerateRandomPassword() : request.Password;
 
             // Hash the new password
-            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, request.Password);
+            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, password);
 
             if (string.IsNullOrEmpty(newIdentityUser.PasswordHash))
             {
@@ -133,13 +247,13 @@
                 }
 
                 // Add the requested roles to the user
-                if (request.Roles != null && request.Roles.Any())
+                if (roles != null && roles.Any())
                 {
-                    addRolesResult = await this.UserManager.AddToRolesAsync(newIdentityUser, request.Roles);
+                    addRolesResult = await this.UserManager.AddToRolesAsync(newIdentityUser, roles);
 
                     if (!addRolesResult.Succeeded)
                     {
-                        throw new IdentityResultException($"Error adding roles [{string.Join(",", request.Roles)}] to user {newIdentityUser.UserName}", addRolesResult);
+                        throw new IdentityResultException($"Error adding roles [{string.Join(",", roles)}] to user {newIdentityUser.UserName}", addRolesResult);
                     }
                 }
                 else
@@ -148,32 +262,35 @@
                 }
 
                 // Add the requested claims
-                if (request.Claims != null && request.Claims.Any())
+                if (claims != null && claims.Any())
                 {
-                    List<Claim> claims = request.Claims.Select(x => new Claim(x.Key, x.Value)).ToList();
+                    List<Claim> claimsToAdd = claims.Select(x => new Claim(x.Key, x.Value)).ToList();
 
                     // Add the email address and role as claims
-                    foreach (String requestRole in request.Roles)
+                    if (roles != null)
                     {
-                        claims.Add(new Claim(JwtClaimTypes.Role, requestRole));
+                        foreach (String requestRole in roles)
+                        {
+                            claimsToAdd.Add(new Claim(JwtClaimTypes.Role, requestRole));
+                        }
+                    }
+                    
+                    claimsToAdd.Add(new Claim(JwtClaimTypes.Email, emailAddress));
+                    claimsToAdd.Add(new Claim(JwtClaimTypes.GivenName, givenName));
+                    claimsToAdd.Add(new Claim(JwtClaimTypes.FamilyName, familyName));
+
+                    if (string.IsNullOrEmpty(middleName) == false)
+                    {
+                        claimsToAdd.Add(new Claim(JwtClaimTypes.MiddleName, middleName));
                     }
 
-                    claims.Add(new Claim(JwtClaimTypes.Email, request.EmailAddress));
-                    claims.Add(new Claim(JwtClaimTypes.GivenName, request.GivenName));
-                    claims.Add(new Claim(JwtClaimTypes.FamilyName, request.FamilyName));
-
-                    if (string.IsNullOrEmpty(request.MiddleName) == false)
-                    {
-                        claims.Add(new Claim(JwtClaimTypes.MiddleName, request.MiddleName));
-                    }
-
-                    addClaimsResult = await this.UserManager.AddClaimsAsync(newIdentityUser, claims);
+                    addClaimsResult = await this.UserManager.AddClaimsAsync(newIdentityUser, claimsToAdd);
 
                     if (!addClaimsResult.Succeeded)
                     {
                         List<String> claimList = new List<String>();
-                        claims.ForEach(c => claimList.Add($"Name: {c.Type} Value: {c.Value}"));
-                        throw new IdentityResultException($"Error adding claims [{string.Join(",", claims)}] to user {newIdentityUser.UserName}", addClaimsResult);
+                        claimsToAdd.ForEach(c => claimList.Add($"Name: {c.Type} Value: {c.Value}"));
+                        throw new IdentityResultException($"Error adding claims [{string.Join(",", claimsToAdd)}] to user {newIdentityUser.UserName}", addClaimsResult);
                     }
                 }
 
@@ -198,76 +315,6 @@
             }
 
             return userId;
-        }
-
-        /// <summary>
-        /// Gets the users.
-        /// </summary>
-        /// <param name="userName">Name of the user.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<List<UserDetails>> GetUsers(String userName,
-                                   CancellationToken cancellationToken)
-        {
-            List<UserDetails> response = new List<UserDetails>();
-
-            IQueryable<IdentityUser> query = this.UserManager.Users;
-
-            if (String.IsNullOrEmpty(userName) == false)
-            {
-                query = query.Where(u => u.UserName.Contains(userName));
-            }
-
-            List<IdentityUser> users = await query.ToListAsyncSafe(cancellationToken);
-            //users.ForEach(async u => response.Add(new UserDetails
-            //                                           {
-            //                                               UserId = Guid.Parse(u.Id),
-            //                                               UserName = u.UserName,
-            //                                               Claims = await this.ConvertUsersClaims(u),
-            //                                               Email = u.Email,
-            //                                               PhoneNumber = u.PhoneNumber,
-            //                                               Roles = await this.ConvertUsersRoles(u)
-            //                                           }));
-            foreach (IdentityUser identityUser in users)
-            {
-                var claims = await this.ConvertUsersClaims(identityUser);
-                var roles = await this.ConvertUsersRoles(identityUser);
-
-                response.Add(new UserDetails
-                             {
-                                 UserId = Guid.Parse(identityUser.Id),
-                                 UserName = identityUser.UserName,
-                                 Claims = claims,
-                                 Email = identityUser.Email,
-                                 PhoneNumber = identityUser.PhoneNumber,
-                                 Roles = roles
-                             });
-            }
-
-            return response;
-        }
-
-        private async Task<List<String>> ConvertUsersRoles(IdentityUser identityUser)
-        {
-            IList<String> roles = await this.UserManager.GetRolesAsync(identityUser);
-            return roles.ToList();
-        }
-
-        /// <summary>
-        /// Converts the users claims.
-        /// </summary>
-        /// <param name="identityUser">The identity user.</param>
-        /// <returns></returns>
-        private async Task<Dictionary<String, String>> ConvertUsersClaims(IdentityUser identityUser)
-        {
-            Dictionary<String, String> response = new Dictionary<String, String>();
-            IList<Claim> claims = await this.UserManager.GetClaimsAsync(identityUser);
-            foreach (Claim claim in claims)
-            {
-                response.Add(claim.Type, claim.Value);
-            }
-
-            return response;
         }
 
         /// <summary>
@@ -305,20 +352,65 @@
         }
 
         /// <summary>
-        /// Validates the request.
+        /// Gets the users.
         /// </summary>
-        /// <param name="request">The request.</param>
-        /// <exception cref="System.NotImplementedException"></exception>
-        private void ValidateRequest(CreateUserRequest request)
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<UserDetails>> GetUsers(String userName,
+                                                      CancellationToken cancellationToken)
         {
-            Guard.ThrowIfNull(request, typeof(ArgumentNullException), "CreateUserRequest cannot be null");
-            Guard.ThrowIfNullOrEmpty(request.EmailAddress, typeof(ArgumentNullException), "CreateUserRequest Email Address cannot be null or empty");
-            Guard.ThrowIfNullOrEmpty(request.PhoneNumber, typeof(ArgumentNullException), "CreateUserRequest Phone Number cannot be null or empty");
-            // TODO: Make a decision on these rules later :|
-            //Guard.ThrowIfNull(request.Claims, typeof(ArgumentNullException), "CreateUserRequest Claims cannot be null or empty");
-            //Guard.ThrowIfNull(request.Roles, typeof(ArgumentNullException), "CreateUserRequest Roles cannot be null or empty");
-            Guard.ThrowIfNullOrEmpty(request.GivenName, typeof(ArgumentNullException), "CreateUserRequest Given Name cannot be null or empty");
-            Guard.ThrowIfNullOrEmpty(request.FamilyName, typeof(ArgumentNullException), "CreateUserRequest Family Name cannot be null or empty");
+            List<UserDetails> response = new List<UserDetails>();
+
+            IQueryable<IdentityUser> query = this.UserManager.Users;
+
+            if (string.IsNullOrEmpty(userName) == false)
+            {
+                query = query.Where(u => u.UserName.Contains(userName));
+            }
+
+            List<IdentityUser> users = await query.ToListAsyncSafe(cancellationToken);
+
+            foreach (IdentityUser identityUser in users)
+            {
+                Dictionary<String, String> claims = await this.ConvertUsersClaims(identityUser);
+                List<String> roles = await this.ConvertUsersRoles(identityUser);
+
+                response.Add(new UserDetails
+                             {
+                                 UserId = Guid.Parse(identityUser.Id),
+                                 UserName = identityUser.UserName,
+                                 Claims = claims,
+                                 Email = identityUser.Email,
+                                 PhoneNumber = identityUser.PhoneNumber,
+                                 Roles = roles
+                             });
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Converts the users claims.
+        /// </summary>
+        /// <param name="identityUser">The identity user.</param>
+        /// <returns></returns>
+        private async Task<Dictionary<String, String>> ConvertUsersClaims(IdentityUser identityUser)
+        {
+            Dictionary<String, String> response = new Dictionary<String, String>();
+            IList<Claim> claims = await this.UserManager.GetClaimsAsync(identityUser);
+            foreach (Claim claim in claims)
+            {
+                response.Add(claim.Type, claim.Value);
+            }
+
+            return response;
+        }
+
+        private async Task<List<String>> ConvertUsersRoles(IdentityUser identityUser)
+        {
+            IList<String> roles = await this.UserManager.GetRolesAsync(identityUser);
+            return roles.ToList();
         }
 
         #endregion

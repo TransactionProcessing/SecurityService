@@ -2,11 +2,13 @@ namespace SecurityService.Service.Extensions
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
     using IdentityServer4.Stores;
     using Microsoft.EntityFrameworkCore;
 
+    [ExcludeFromCodeCoverage]
     public static class Extensions
     {
         /// <summary>

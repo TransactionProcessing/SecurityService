@@ -1,10 +1,12 @@
 ﻿namespace SecurityService.Manager.Exceptions
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Text;
     using Microsoft.AspNetCore.Identity;
 
+    [ExcludeFromCodeCoverage]
     public class IdentityResultException : Exception
     {
         #region Public Properties

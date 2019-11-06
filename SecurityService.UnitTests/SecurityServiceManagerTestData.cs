@@ -21,37 +21,24 @@
         public static String Password = "123456";
         public static String PhoneNumber = "07777777777";
 
-        public static List<String> Roles = new List<String>
-        {
-            //"Role1",
-            //"Role2"
-        };
+        public static List<String> NullRoles = null;
 
+        public static List<String> EmptyRoles = new List<String>();
+
+        public static List<String> Roles = new List<String>
+                                           {
+                                               "Role 1",
+                                               "Role 2"
+                                           };
+
+        public static Dictionary<String, String> NullClaims = new Dictionary<String, String>();
+        public static Dictionary<String, String> EmptyClaims = new Dictionary<String, String>();
         public static Dictionary<String, String> Claims = new Dictionary<String, String>()
         {
-            //{"Claim1", "Claim1Value"},
-            //{"Claim2", "Claim2Value"}
+            {"Claim1", "Claim1Value"},
+            {"Claim2", "Claim2Value"}
         };
-
-        public static CreateUserRequest GetCreateUserRequest
-        {
-            get
-            {
-                CreateUserRequest request = new CreateUserRequest();
-
-                request.GivenName = SecurityServiceManagerTestData.GivenName;
-                request.MiddleName = SecurityServiceManagerTestData.MiddleName;
-                request.FamilyName = SecurityServiceManagerTestData.FamilyName;
-                request.EmailAddress = SecurityServiceManagerTestData.EmailAddress;
-                request.Password = SecurityServiceManagerTestData.Password;
-                request.PhoneNumber = SecurityServiceManagerTestData.PhoneNumber;
-                request.Roles = SecurityServiceManagerTestData.Roles;
-                request.Claims = SecurityServiceManagerTestData.Claims;
-
-                return request;
-            }
-        }
-
+        
         public static String TestDataUserId = "92BEFFCD-CA30-4E71-B8EC-F38E7DD63A25";
         public static String User1Id = "04911949-321d-4a9b-af31-b259160ba94f";
         public static String User2Id = "b8937737-ec2c-488f-bd95-7d053cb1d36e";
@@ -114,10 +101,10 @@
             },
         };
 
-        private static String GivenName = "GivenName";
+        public static String GivenName = "GivenName";
 
-        private static String MiddleName = "MiddleName";
-        private static String FamilyName = "FamilyName";
+        public static String MiddleName = "MiddleName";
+        public static String FamilyName = "FamilyName";
         
         public static IdentityUser IdentityUser = new IdentityUser
                                                   {
@@ -126,6 +113,24 @@
             Email = SecurityServiceManagerTestData.EmailAddress,
             PhoneNumber = SecurityServiceManagerTestData.PhoneNumber,
                                                   };
+
+        public static String ClientId = "testclient";
+
+        public static String ClientSecret = "secretvalue";
+
+        public static String ClientName="Test Client";
+
+        public static String ClientDescription = "This is a test client";
+
+        public static List<String> AllowedScopes = new List<String>
+                                                   {
+                                                       "Scope1", "Scope2"
+                                                   };
+
+        public static List<String> AllowedGrantTypes = new List<String>
+                                                       {
+                                                           "client_credentials"
+                                                       };
 
         public async static Task<IQueryable<IdentityUser>> IdentityUsers()
         {

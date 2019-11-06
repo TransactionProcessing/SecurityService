@@ -1,4 +1,4 @@
-namespace SecurityService.Manager.DbContexts
+namespace SecurityService.Database.DbContexts
 {
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -7,7 +7,7 @@ namespace SecurityService.Manager.DbContexts
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext{Microsoft.AspNetCore.Identity.IdentityUser}" />
+    /// <seealso cref="IdentityUser" />
     public class AuthenticationDbContext : IdentityDbContext<IdentityUser>
     {
         #region Constructors

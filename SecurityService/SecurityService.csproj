@@ -57,6 +57,9 @@
     <Content Update="hosting.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Update="nlog.development.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Update="nlog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -70,7 +73,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />
     <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
     <ProjectReference Include="..\SecurityService.Manager\SecurityService.Manager.csproj" />
+    <ProjectReference Include="..\SecurityService.Models\SecurityService.Models.csproj" />
   </ItemGroup>
 </Project>
