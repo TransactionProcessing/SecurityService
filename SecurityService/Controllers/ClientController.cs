@@ -94,30 +94,13 @@
 
         [HttpGet]
         [Route("")]
-        [SwaggerResponse(200, type: typeof(ClientDetails))]
+        [SwaggerResponse(200, type: typeof(List<ClientDetails>))]
         public async Task<IActionResult> GetClients(CancellationToken cancellationToken)
         {
             List<Client> clientList = await this.Manager.GetClients(cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(clientList));
         }
-
-        ///// <summary>
-        ///// Gets the users.
-        ///// </summary>
-        ///// <param name="userName">Name of the user.</param>
-        ///// <param name="cancellationToken">The cancellation token.</param>
-        ///// <returns></returns>
-        //[HttpGet]
-        //[Route("")]
-        //[SwaggerResponse(200, type: typeof(List<UserDetails>))]
-        //public async Task<IActionResult> GetUsers([FromQuery] String userName,
-        //                                         CancellationToken cancellationToken)
-        //{
-        //    List<UserDetails> userList = await this.Manager.GetUsers(userName, cancellationToken);
-
-        //    return this.Ok(userList);
-        //}
 
         #endregion
 
