@@ -2,6 +2,7 @@ namespace SecurityService.Service
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using IdentityServer4.EntityFramework.Services;
     using IdentityServer4.EntityFramework.Stores;
     using IdentityServer4.Services;
@@ -9,9 +10,7 @@ namespace SecurityService.Service
     using Microsoft.AspNetCore.Identity;
     using Microsoft.Extensions.DependencyInjection;
 
-    /// <summary>
-    /// 
-    /// </summary>
+    [ExcludeFromCodeCoverage]
     public static class StartupExtensions
     {
         #region Methods

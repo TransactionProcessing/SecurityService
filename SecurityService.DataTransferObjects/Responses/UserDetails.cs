@@ -1,11 +1,10 @@
-﻿namespace SecurityService.DataTransferObjects
+﻿namespace SecurityService.DataTransferObjects.Responses
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
 
-    /// <summary>
-    /// 
-    /// </summary>
+    [ExcludeFromCodeCoverage]
     public class UserDetails
     {
         #region Properties

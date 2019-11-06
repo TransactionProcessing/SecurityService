@@ -6,10 +6,11 @@
     using System.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
+    using Database.DbContexts;
+    using Factories;
     using IdentityServer4.EntityFramework.DbContexts;
     using Lamar;
     using Manager;
-    using Manager.DbContexts;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.HttpOverrides;
@@ -36,9 +37,7 @@
     using Swashbuckle.AspNetCore.SwaggerGen;
     using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
-    /// <summary>
-    /// 
-    /// </summary>
+    [ExcludeFromCodeCoverage]
     public class Startup
     {
         #region Properties
@@ -347,6 +346,7 @@
             // TODO: Build a registry file
             //services.IncludeRegistry<CommonRegistry>();
             services.AddSingleton<ISecurityServiceManager, SecurityServiceManager>();
+            services.AddSingleton<IModelFactory, ModelFactory>();
 
             container.Configure(services);
 

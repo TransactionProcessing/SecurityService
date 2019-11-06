@@ -2,9 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
     using DataTransferObjects;
+    using DataTransferObjects.Responses;
+    using Factories;
     using Manager;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
@@ -18,6 +21,7 @@
     [Route(UserController.ControllerRoute)]
     [ApiController]
     [ApiVersion("1.0")]
+    [ExcludeFromCodeCoverage]
     public class UserController : ControllerBase
     {
         #region Fields
@@ -27,6 +31,8 @@
         /// </summary>
         private readonly ISecurityServiceManager Manager;
 
+        private readonly IModelFactory ModelFactory;
+
         #endregion
 
         #region Constructors
@@ -35,9 +41,11 @@
         /// Initializes a new instance of the <see cref="UserController" /> class.
         /// </summary>
         /// <param name="manager">The manager.</param>
-        public UserController(ISecurityServiceManager manager)
+        /// <param name="modelFactory">The model factory.</param>
+        public UserController(ISecurityServiceManager manager, IModelFactory modelFactory)
         {
             this.Manager = manager;
+            this.ModelFactory = modelFactory;
         }
 
         #endregion
@@ -56,7 +64,16 @@
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest, CancellationToken cancellationToken)
         {
             // Create the user
-            Guid userId = await this.Manager.CreateUser(createUserRequest, cancellationToken);
+            Guid userId = await this.Manager.CreateUser(createUserRequest.GivenName,
+                                                        createUserRequest.MiddleName,
+                                                        createUserRequest.FamilyName,
+                                                        createUserRequest.EmailAddress,
+                                                        createUserRequest.Password,
+                                                        createUserRequest.EmailAddress,
+                                                        createUserRequest.PhoneNumber,
+                                                        createUserRequest.Claims,
+                                                        createUserRequest.Roles,
+                                                        cancellationToken);
 
             // return the result
             return this.Created($"{UserController.ControllerRoute}/{userId}",
@@ -78,9 +95,9 @@
         public async Task<IActionResult> GetUser([FromRoute] Guid userId,
                                                  CancellationToken cancellationToken)
         {
-            UserDetails userDetails = await this.Manager.GetUser(userId, cancellationToken);
+            Models.UserDetails userDetailsModel = await this.Manager.GetUser(userId, cancellationToken);
 
-            return this.Ok(userDetails);
+            return this.Ok(this.ModelFactory.ConvertFrom(userDetailsModel));
         }
 
         /// <summary>
@@ -95,9 +112,9 @@
         public async Task<IActionResult> GetUsers([FromQuery] String userName,
                                                  CancellationToken cancellationToken)
         {
-            List<UserDetails> userList = await this.Manager.GetUsers(userName, cancellationToken);
-
-            return this.Ok(userList);
+            List<Models.UserDetails> userModelList = await this.Manager.GetUsers(userName, cancellationToken);
+            
+            return this.Ok(this.ModelFactory.ConvertFrom(userModelList));
         }
 
         #endregion
