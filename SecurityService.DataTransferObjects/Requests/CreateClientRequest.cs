@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.ComponentModel.DataAnnotations;
     using System.Diagnostics.CodeAnalysis;
+    using Newtonsoft.Json;
 
     /// <summary>
     /// 
@@ -19,6 +20,7 @@
         /// <value>
         /// The allowed grant types.
         /// </value>
+        [JsonProperty("allowed_grant_types")]
         public List<String> AllowedGrantTypes { get; set; }
 
         /// <summary>
@@ -27,6 +29,7 @@
         /// <value>
         /// The allowed scopes.
         /// </value>
+        [JsonProperty("allowed_scopes")]
         public List<String> AllowedScopes { get; set; }
 
         /// <summary>
@@ -35,6 +38,7 @@
         /// <value>
         /// The client description.
         /// </value>
+        [JsonProperty("client_description")]
         public String ClientDescription { get; set; }
 
         /// <summary>
@@ -44,6 +48,7 @@
         /// The client identifier.
         /// </value>
         [Required]
+        [JsonProperty("client_id")]
         public String ClientId { get; set; }
 
         /// <summary>
@@ -53,6 +58,7 @@
         /// The name of the client.
         /// </value>
         [Required]
+        [JsonProperty("client_name")]
         public String ClientName { get; set; }
 
         /// <summary>
@@ -62,6 +68,7 @@
         /// The secret.
         /// </value>
         [Required]
+        [JsonProperty("secret")]
         public String Secret { get; set; }
 
         #endregion

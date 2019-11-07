@@ -32,7 +32,7 @@
                        Roles = model.Roles,
                        Claims = model.Claims,
                        UserId = model.UserId,
-                       Email = model.Email
+                       EmailAddress = model.Email
                    };
         }
 
@@ -96,6 +96,51 @@
             }
 
             return clientDetailsList;
+        }
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        public ApiResourceDetails ConvertFrom(ApiResource model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            return new ApiResourceDetails
+                   {
+                       Description = model.Description,
+                       Scopes = model.Scopes.Select(m => m.Name).ToList(),
+                       Name = model.Name,
+                       DisplayName = model.DisplayName,
+                       UserClaims = model.UserClaims.ToList(),
+                       Enabled = model.Enabled
+                   };
+        }
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        public List<ApiResourceDetails> ConvertFrom(List<ApiResource> model)
+        {
+            if (model == null || model.Any() == false)
+            {
+                return null;
+            }
+
+            List<ApiResourceDetails> apiResourceDetailsList = new List<ApiResourceDetails>();
+
+            foreach (ApiResource apiResource in model)
+            {
+                apiResourceDetailsList.Add(this.ConvertFrom(apiResource));
+            }
+
+            return apiResourceDetailsList;
         }
 
         #endregion

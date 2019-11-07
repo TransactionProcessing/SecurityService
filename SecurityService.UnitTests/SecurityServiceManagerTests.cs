@@ -7,6 +7,7 @@
     using System.Threading;
     using System.Threading.Tasks;
     using DataTransferObjects;
+    using IdentityModel;
     using IdentityServer4.EntityFramework.Entities;
     using IdentityServer4.EntityFramework.Interfaces;
     using Manager;
@@ -554,6 +555,156 @@
             clients.ShouldNotBeEmpty();
             clients.Count.ShouldBe(1);
             clients.First().ClientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
+        }
+
+        [Theory]
+        [InlineData(true, false)]
+        [InlineData(false, false)]
+        public async Task SecurityServiceManager_CreateApiResource_ApiResourceIsCreated(Boolean nullScopes, Boolean emptyScopes)
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            List<String> scopes = null;
+
+            if (nullScopes == false)
+            {
+                if (emptyScopes == false)
+                {
+                    scopes = SecurityServiceManagerTestData.ApiResourceScopes;
+                }
+                else
+                {
+                    scopes = SecurityServiceManagerTestData.EmptyApiResourceScopes;
+                }
+            }
+
+            String apiResourceName = await securityServiceManager.CreateApiResource(SecurityServiceManagerTestData.ApiResourceName,
+                                                                        SecurityServiceManagerTestData.ApiResourceDisplayName,
+                                                                        SecurityServiceManagerTestData.ApiResourceDescription,
+                                                                        SecurityServiceManagerTestData.ApiResourceSecret,
+                                                                        scopes,
+                                                                        SecurityServiceManagerTestData.ApiResourceUserClaims,
+                                                                        CancellationToken.None);
+
+            apiResourceName.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_GetApiResource_ApiResourceIsReturned()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            await context.ApiResources.AddAsync(new ApiResource
+            {
+                Id = 1,
+                Name = SecurityServiceManagerTestData.ApiResourceName,
+                DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
+                Description = SecurityServiceManagerTestData.ApiResourceDescription,
+                Scopes = new List<ApiScope>
+                                       {
+                                           new ApiScope
+                                           {
+                                               Id = 1,
+                                               Name = SecurityServiceManagerTestData.ApiResourceScopes.First()
+                                           }
+                                       },
+                Secrets = new List<ApiSecret>
+                          {
+                              new ApiSecret
+                              {
+                                  Value = SecurityServiceManagerTestData.ApiResourceSecret.ToSha256()
+                              }
+                          },
+                UserClaims = new List<ApiResourceClaim>
+                             {
+                                 new ApiResourceClaim
+                                 {
+                                     Type = SecurityServiceManagerTestData.ApiResourceUserClaims.First()
+                                 }
+                             }
+
+            });
+            await context.SaveChangesAsync();
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            IdentityServer4.Models.ApiResource apiResource = await securityServiceManager.GetApiResource(SecurityServiceManagerTestData.ApiResourceName, CancellationToken.None);
+
+            apiResource.Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
+            apiResource.Description.ShouldBe(SecurityServiceManagerTestData.ApiResourceDescription);
+            apiResource.DisplayName.ShouldBe(SecurityServiceManagerTestData.ApiResourceDisplayName);
+            apiResource.Scopes.ShouldNotBeEmpty();
+            apiResource.Scopes.ShouldNotBeNull();
+            apiResource.Scopes.Count.ShouldBe(1);
+            apiResource.Scopes.First().Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceScopes.First());
+            apiResource.UserClaims.ShouldNotBeEmpty();
+            apiResource.UserClaims.ShouldNotBeNull();
+            apiResource.UserClaims.Count.ShouldBe(1);
+            apiResource.UserClaims.First().ShouldBe(SecurityServiceManagerTestData.ApiResourceUserClaims.First());
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_GetApiResource_ApiResourceNotFound_ErrorThrown()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            await Should.ThrowAsync<NotFoundException>(async () =>
+            {
+                await securityServiceManager.GetApiResource(SecurityServiceManagerTestData.ApiResourceName, CancellationToken.None);
+            });
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_GetApiResources_ApiResourcesAreReturned()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            await context.ApiResources.AddAsync(new ApiResource
+                                                {
+                                                    Id = 1,
+                                                    Name = SecurityServiceManagerTestData.ApiResourceName,
+                                                    DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
+                                                    Description = SecurityServiceManagerTestData.ApiResourceDescription,
+                                                    Scopes = new List<ApiScope>
+                                                             {
+                                                                 new ApiScope
+                                                                 {
+                                                                     Id = 1,
+                                                                     Name = SecurityServiceManagerTestData.ApiResourceScopes.First()
+                                                                 }
+                                                             },
+                                                    Secrets = new List<ApiSecret>
+                                                              {
+                                                                  new ApiSecret
+                                                                  {
+                                                                      Value = SecurityServiceManagerTestData.ApiResourceSecret.ToSha256()
+                                                                  }
+                                                              },
+                                                    UserClaims = new List<ApiResourceClaim>
+                                                                 {
+                                                                     new ApiResourceClaim
+                                                                     {
+                                                                         Type = SecurityServiceManagerTestData.ApiResourceUserClaims.First()
+                                                                     }
+                                                                 }
+
+                                                });
+            await context.SaveChangesAsync();
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            List<IdentityServer4.Models.ApiResource> apiResources = await securityServiceManager.GetApiResources(CancellationToken.None);
+
+            apiResources.ShouldNotBeNull();
+            apiResources.ShouldNotBeEmpty();
+            apiResources.Count.ShouldBe(1);
+            apiResources.First().Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
         }
 
         #endregion

@@ -132,6 +132,26 @@
                                                            "client_credentials"
                                                        };
 
+        public static String ApiResourceName = "Test Resource Name";
+
+        public static String ApiResourceDisplayName = "Test Resource Display Name";
+
+        public static String ApiResourceDescription = "Api Resource Description";
+
+        public static String ApiResourceSecret = "ApiResourceSecret";
+
+        public static List<String> EmptyApiResourceScopes = new List<String>();
+
+        public static List<String> ApiResourceScopes = new List<String>
+                                                       {
+                                                           "ApiResourceScope1", "ApiResourceScope2"
+                                                       };
+
+        public static List<String> ApiResourceUserClaims = new List<String>
+                                                           {
+                                                               "ApiResourceClaim1", "ApiResourceClaim2"
+                                                           };
+
         public async static Task<IQueryable<IdentityUser>> IdentityUsers()
         {
 
