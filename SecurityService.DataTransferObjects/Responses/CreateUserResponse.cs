@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using Newtonsoft.Json;
 
     [ExcludeFromCodeCoverage]
     public class CreateUserResponse
@@ -14,6 +15,7 @@
         /// <value>
         /// The user identifier.
         /// </value>
+        [JsonProperty("user_id")]
         public Guid UserId { get; set; }
 
         #endregion

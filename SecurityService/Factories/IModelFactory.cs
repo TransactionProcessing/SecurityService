@@ -42,6 +42,20 @@ namespace SecurityService.Factories
         /// <returns></returns>
         List<ClientDetails> ConvertFrom(List<Client> model);
 
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        ApiResourceDetails ConvertFrom(ApiResource model);
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        List<ApiResourceDetails> ConvertFrom(List<ApiResource> model);
+
         #endregion
     }
 }

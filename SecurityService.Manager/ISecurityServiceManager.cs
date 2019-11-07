@@ -2,11 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
     using IdentityServer4.Models;
-    using Microsoft.AspNetCore.Identity;
     using Models;
 
     /// <summary>
@@ -15,6 +13,25 @@
     public interface ISecurityServiceManager
     {
         #region Methods
+
+        /// <summary>
+        /// Creates the API resource.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="displayName">The display name.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="secret">The secret.</param>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="userClaims">The user claims.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<String> CreateApiResource(String name,
+                                       String displayName,
+                                       String description,
+                                       String secret,
+                                       List<String> scopes,
+                                       List<String> userClaims,
+                                       CancellationToken cancellationToken);
 
         /// <summary>
         /// Creates the client.
@@ -34,39 +51,6 @@
                                   List<String> allowedScopes,
                                   List<String> allowedGrantTypes,
                                   CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the users.
-        /// </summary>
-        /// <param name="userName">Name of the user.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<List<UserDetails>> GetUsers(String userName,
-                                         CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the user by user identifier.
-        /// </summary>
-        /// <param name="userId">The user identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<UserDetails> GetUser(Guid userId, CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the client.
-        /// </summary>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<Client> GetClient(String clientId,
-                               CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the clients.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<List<Client>> GetClients(CancellationToken cancellationToken);
 
         /// <summary>
         /// Registers the user.
@@ -92,6 +76,56 @@
                               Dictionary<String, String> claims,
                               List<String> roles,
                               CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the API resource.
+        /// </summary>
+        /// <param name="apiResourceName">Name of the API resource.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<ApiResource> GetApiResource(String apiResourceName,
+                                         CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the API resources.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<ApiResource>> GetApiResources(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the client.
+        /// </summary>
+        /// <param name="clientId">The client identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<Client> GetClient(String clientId,
+                               CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the clients.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<Client>> GetClients(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the user by user identifier.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<UserDetails> GetUser(Guid userId,
+                                  CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the users.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<UserDetails>> GetUsers(String userName,
+                                         CancellationToken cancellationToken);
 
         #endregion
     }

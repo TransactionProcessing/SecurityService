@@ -5,6 +5,7 @@
     using System.ComponentModel.DataAnnotations;
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.CompilerServices;
+    using Newtonsoft.Json;
 
     [ExcludeFromCodeCoverage]
     public class CreateUserRequest
@@ -16,6 +17,7 @@
         /// The email address.
         /// </value>
         [Required]
+        [JsonProperty("email_address")]
         public String EmailAddress { get; set; }
 
         /// <summary>
@@ -25,6 +27,7 @@
         /// The phone number.
         /// </value>
         [Required]
+        [JsonProperty("phone_number")]
         public String PhoneNumber { get; set; }
 
         /// <summary>
@@ -34,6 +37,7 @@
         /// The password.
         /// </value>
         [Required]
+        [JsonProperty("password")]
         public String Password { get; set; }
 
         /// <summary>
@@ -42,6 +46,7 @@
         /// <value>
         /// The claims.
         /// </value>
+        [JsonProperty("claims")]
         public Dictionary<String, String> Claims { get; set; }
 
         /// <summary>
@@ -50,6 +55,7 @@
         /// <value>
         /// The roles.
         /// </value>
+        [JsonProperty("roles")]
         public List<String> Roles { get; set; }
 
         /// <summary>
@@ -59,6 +65,7 @@
         /// The name of the given.
         /// </value>
         [Required]
+        [JsonProperty("given_name")]
         public String GivenName { get; set; }
 
         /// <summary>
@@ -67,6 +74,7 @@
         /// <value>
         /// The name of the middle.
         /// </value>
+        [JsonProperty("middle_name")]
         public String MiddleName { get; set; }
 
         /// <summary>
@@ -76,6 +84,7 @@
         /// The name of the family.
         /// </value>
         [Required]
+        [JsonProperty("family_name")]
         public String FamilyName { get; set; }
     }
 }

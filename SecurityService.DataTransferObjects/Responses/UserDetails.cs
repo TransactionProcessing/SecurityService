@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
+    using Newtonsoft.Json;
 
     [ExcludeFromCodeCoverage]
     public class UserDetails
@@ -15,6 +16,7 @@
         /// <value>
         /// The claims.
         /// </value>
+        [JsonProperty("claims")]
         public Dictionary<String, String> Claims { get; set; }
 
         /// <summary>
@@ -23,7 +25,8 @@
         /// <value>
         /// The email.
         /// </value>
-        public String Email { get; set; }
+        [JsonProperty("email_address")]
+        public String EmailAddress { get; set; }
 
         /// <summary>
         /// Gets or sets the phone number.
@@ -31,6 +34,7 @@
         /// <value>
         /// The phone number.
         /// </value>
+        [JsonProperty("phone_number")]
         public String PhoneNumber { get; set; }
 
         /// <summary>
@@ -39,6 +43,7 @@
         /// <value>
         /// The roles.
         /// </value>
+        [JsonProperty("roles")]
         public List<String> Roles { get; set; }
 
         /// <summary>
@@ -47,6 +52,7 @@
         /// <value>
         /// The user identifier.
         /// </value>
+        [JsonProperty("user_id")]
         public Guid UserId { get; set; }
 
         /// <summary>
@@ -55,6 +61,7 @@
         /// <value>
         /// The name of the user.
         /// </value>
+        [JsonProperty("user_name")]
         public String UserName { get; set; }
 
         #endregion

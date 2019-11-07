@@ -33,6 +33,9 @@
         /// </summary>
         private readonly ISecurityServiceManager Manager;
 
+        /// <summary>
+        /// The model factory
+        /// </summary>
         private readonly IModelFactory ModelFactory;
 
         #endregion
@@ -43,6 +46,7 @@
         /// Initializes a new instance of the <see cref="UserController" /> class.
         /// </summary>
         /// <param name="manager">The manager.</param>
+        /// <param name="modelFactory">The model factory.</param>
         public ClientController(ISecurityServiceManager manager, IModelFactory modelFactory)
         {
             this.Manager = manager;
@@ -81,6 +85,12 @@
                                 });
         }
 
+        /// <summary>
+        /// Gets the client.
+        /// </summary>
+        /// <param name="clientId">The client identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{clientId}")]
         [SwaggerResponse(200, type: typeof(ClientDetails))]
@@ -92,6 +102,11 @@
             return this.Ok(this.ModelFactory.ConvertFrom(clientModel));
         }
 
+        /// <summary>
+        /// Gets the clients.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
         [HttpGet]
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ClientDetails>))]

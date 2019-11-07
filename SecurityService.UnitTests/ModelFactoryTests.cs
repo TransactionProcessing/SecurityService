@@ -32,7 +32,7 @@ namespace SecurityService.UnitTests
             DataTransferObjects.Responses.UserDetails userDetailsDto = modelFactory.ConvertFrom(userDetailsModel);
 
             userDetailsDto.UserName.ShouldBe(SecurityServiceManagerTestData.UserName);
-            userDetailsDto.Email.ShouldBe(SecurityServiceManagerTestData.EmailAddress);
+            userDetailsDto.EmailAddress.ShouldBe(SecurityServiceManagerTestData.EmailAddress);
             userDetailsDto.PhoneNumber.ShouldBe(SecurityServiceManagerTestData.PhoneNumber);
             userDetailsDto.UserId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.User1Id));
             userDetailsDto.Claims.ShouldBe(SecurityServiceManagerTestData.Claims);
@@ -74,7 +74,7 @@ namespace SecurityService.UnitTests
             userDetailsDtoList.ShouldNotBeEmpty();
             userDetailsDtoList.Count.ShouldBe(userDetailsModelList.Count);
             userDetailsDtoList.First().UserName.ShouldBe(SecurityServiceManagerTestData.UserName);
-            userDetailsDtoList.First().Email.ShouldBe(SecurityServiceManagerTestData.EmailAddress);
+            userDetailsDtoList.First().EmailAddress.ShouldBe(SecurityServiceManagerTestData.EmailAddress);
             userDetailsDtoList.First().PhoneNumber.ShouldBe(SecurityServiceManagerTestData.PhoneNumber);
             userDetailsDtoList.First().UserId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.User1Id));
             userDetailsDtoList.First().Claims.ShouldBe(SecurityServiceManagerTestData.Claims);
@@ -194,6 +194,93 @@ namespace SecurityService.UnitTests
             List<ClientDetails> clientDtoList = modelFactory.ConvertFrom(clientModelList);
 
             clientDtoList.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ApiResource_ModelConverted()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            ApiResource apiResourceModel = new ApiResource
+            {
+                                     Scopes = new List<Scope>
+                                              {
+                                                  new Scope(SecurityServiceManagerTestData.AllowedScopes.First())
+                                              },
+                                     Description = SecurityServiceManagerTestData.ApiResourceDescription,
+                                     Name = SecurityServiceManagerTestData.ApiResourceName,
+                                     DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
+                                     UserClaims = SecurityServiceManagerTestData.ApiResourceUserClaims,
+                                     Enabled = true
+                                 };
+
+            ApiResourceDetails apiResourceDto = modelFactory.ConvertFrom(apiResourceModel);
+
+            apiResourceDto.Scopes.First().ShouldBe(SecurityServiceManagerTestData.AllowedScopes.First());
+            apiResourceDto.Description.ShouldBe(SecurityServiceManagerTestData.ApiResourceDescription);
+            apiResourceDto.DisplayName.ShouldBe(SecurityServiceManagerTestData.ApiResourceDisplayName);
+            apiResourceDto.Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
+            apiResourceDto.UserClaims.ShouldBe(SecurityServiceManagerTestData.ApiResourceUserClaims);
+            apiResourceDto.Enabled.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ApiResourceList_ModelsConverted()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            ApiResource apiResourceModel = new ApiResource
+                                           {
+                                               Scopes = new List<Scope>
+                                                        {
+                                                            new Scope(SecurityServiceManagerTestData.AllowedScopes.First())
+                                                        },
+                                               Description = SecurityServiceManagerTestData.ApiResourceDescription,
+                                               Name = SecurityServiceManagerTestData.ApiResourceName,
+                                               DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
+                                               UserClaims = SecurityServiceManagerTestData.ApiResourceUserClaims,
+                                               Enabled = true
+                                           };
+
+            List<ApiResource> apiResourceModelList = new List<ApiResource>();
+            apiResourceModelList.Add(apiResourceModel);
+
+            List<ApiResourceDetails> apiResourceDtoList = modelFactory.ConvertFrom(apiResourceModelList);
+
+
+            apiResourceDtoList.ShouldNotBeNull();
+            apiResourceDtoList.ShouldNotBeEmpty();
+            apiResourceDtoList.Count.ShouldBe(apiResourceModelList.Count);
+            apiResourceDtoList.First().Scopes.First().ShouldBe(SecurityServiceManagerTestData.AllowedScopes.First());
+            apiResourceDtoList.First().Description.ShouldBe(SecurityServiceManagerTestData.ApiResourceDescription);
+            apiResourceDtoList.First().DisplayName.ShouldBe(SecurityServiceManagerTestData.ApiResourceDisplayName);
+            apiResourceDtoList.First().Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
+            apiResourceDtoList.First().UserClaims.ShouldBe(SecurityServiceManagerTestData.ApiResourceUserClaims);
+            apiResourceDtoList.First().Enabled.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ApiResourceList_ListIsNull_NullReturned()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            List<ApiResource> apiResourceList = null;
+
+            List<ApiResourceDetails> apiResourceDtoList = modelFactory.ConvertFrom(apiResourceList);
+
+            apiResourceDtoList.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ApiResourceList_ListIsEmpty_NullReturned()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            List<ApiResource> apiResourceList = new List<ApiResource>();
+
+            List<ApiResourceDetails> apiResourceDtoList = modelFactory.ConvertFrom(apiResourceList);
+
+            apiResourceDtoList.ShouldBeNull();
         }
     }
 }

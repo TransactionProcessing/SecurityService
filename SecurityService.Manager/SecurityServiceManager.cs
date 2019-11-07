@@ -27,6 +27,9 @@
     {
         #region Fields
 
+        /// <summary>
+        /// The configuration database context resolver
+        /// </summary>
         private readonly Func<IConfigurationDbContext> ConfigurationDbContextResolver;
 
         /// <summary>
@@ -79,6 +82,57 @@
         #region Methods
 
         /// <summary>
+        /// Creates the API resource.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="displayName">The display name.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="secret">The secret.</param>
+        /// <param name="scopes">The scopes.</param>
+        /// <param name="userClaims">The user claims.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<String> CreateApiResource(String name,
+                                                    String displayName,
+                                                    String description,
+                                                    String secret,
+                                                    List<String> scopes,
+                                                    List<String> userClaims,
+                                                    CancellationToken cancellationToken)
+        {
+            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            {
+                ApiResource apiResource = new ApiResource
+                                          {
+                                              ApiSecrets = new List<Secret>
+                                                           {
+                                                               new Secret(secret.ToSha256())
+                                                           },
+                                              Description = description,
+                                              DisplayName = displayName,
+                                              Name = name,
+                                              UserClaims = userClaims
+                                          };
+
+                if (scopes != null && scopes.Any())
+                {
+                    foreach (String scope in scopes)
+                    {
+                        apiResource.Scopes.Add(new Scope(scope));
+                    }
+                }
+
+                // Now translate the model to the entity
+                await context.ApiResources.AddAsync(apiResource.ToEntity(), cancellationToken);
+
+                // Save the changes
+                await context.SaveChangesAsync();
+
+                return name;
+            }
+        }
+
+        /// <summary>
         /// Creates the client.
         /// </summary>
         /// <param name="clientId">The client identifier.</param>
@@ -97,7 +151,6 @@
                                                List<String> allowedGrantTypes,
                                                CancellationToken cancellationToken)
         {
-
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
                 // Create the model from the request
@@ -125,55 +178,6 @@
         }
 
         /// <summary>
-        /// Gets the client.
-        /// </summary>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="NotFoundException">No client found with Client Id [{clientId}]</exception>
-        public async Task<Client> GetClient(String clientId,
-                                    CancellationToken cancellationToken)
-        {
-            IdentityServer4.EntityFramework.Entities.Client clientEntity = null;
-            using (IConfigurationDbContext context = this.ConfigurationDbContextResolver())
-            {
-                clientEntity = await context.Clients.Where(c => c.ClientId == clientId)
-                                                    .SingleOrDefaultAsync(cancellationToken:cancellationToken);
-
-                if (clientEntity == null)
-                {
-                    throw new NotFoundException($"No client found with Client Id [{clientId}]");
-                }
-            }
-
-            return clientEntity.ToModel();
-        }
-
-        /// <summary>
-        /// Gets the clients.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<List<Client>> GetClients(CancellationToken cancellationToken)
-        {
-            List<Client> clientModels = new List<Client>();
-            using (IConfigurationDbContext context = this.ConfigurationDbContextResolver())
-            {
-                List<IdentityServer4.EntityFramework.Entities.Client> clientEntities = await context.Clients.ToListAsync(cancellationToken:cancellationToken);
-                
-                if (clientEntities.Any())
-                {
-                    foreach (IdentityServer4.EntityFramework.Entities.Client clientEntity in clientEntities)
-                    {
-                        clientModels.Add(clientEntity.ToModel());
-                    }
-                }
-            }
-
-            return clientModels;
-        }
-
-        /// <summary>
         /// Registers the user.
         /// </summary>
         /// <param name="givenName">Name of the given.</param>
@@ -187,7 +191,7 @@
         /// <param name="roles">The roles.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        /// <exception cref="System.NullReferenceException">Error generating password hash value, hash was null or empty</exception>
+        /// <exception cref="NullReferenceException">Error generating password hash value, hash was null or empty</exception>
         /// <exception cref="IdentityResultException">Error creating user {newIdentityUser.UserName}
         /// or
         /// Error adding roles [{string.Join(",", request.Roles)}] to user {newIdentityUser.UserName}
@@ -195,6 +199,7 @@
         /// Error adding claims [{string.Join(",", claims)}] to user {newIdentityUser.UserName}
         /// or
         /// Error deleting user {newIdentityUser.UserName} as part of cleanup</exception>
+        /// <exception cref="System.NullReferenceException">Error generating password hash value, hash was null or empty</exception>
         public async Task<Guid> CreateUser(String givenName,
                                            String middleName,
                                            String familyName,
@@ -274,7 +279,7 @@
                             claimsToAdd.Add(new Claim(JwtClaimTypes.Role, requestRole));
                         }
                     }
-                    
+
                     claimsToAdd.Add(new Claim(JwtClaimTypes.Email, emailAddress));
                     claimsToAdd.Add(new Claim(JwtClaimTypes.GivenName, givenName));
                     claimsToAdd.Add(new Claim(JwtClaimTypes.FamilyName, familyName));
@@ -315,6 +320,103 @@
             }
 
             return userId;
+        }
+
+        /// <summary>
+        /// Gets the API resource.
+        /// </summary>
+        /// <param name="apiResourceName">Name of the API resource.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException">No Api Resource found with Name [{apiResourceName}]</exception>
+        public async Task<ApiResource> GetApiResource(String apiResourceName,
+                                                      CancellationToken cancellationToken)
+        {
+            IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = null;
+            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            {
+                apiResourceEntity = await context.ApiResources.Where(a => a.Name == apiResourceName).SingleOrDefaultAsync(cancellationToken:cancellationToken);
+
+                if (apiResourceEntity == null)
+                {
+                    throw new NotFoundException($"No Api Resource found with Name [{apiResourceName}]");
+                }
+            }
+
+            return apiResourceEntity.ToModel();
+        }
+
+        /// <summary>
+        /// Gets the API resources.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<ApiResource>> GetApiResources(CancellationToken cancellationToken)
+        {
+            List<ApiResource> apiResourceModels = new List<ApiResource>();
+            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            {
+                List<IdentityServer4.EntityFramework.Entities.ApiResource> apiResourceEntities =
+                    await context.ApiResources.ToListAsync(cancellationToken:cancellationToken);
+
+                if (apiResourceEntities.Any())
+                {
+                    foreach (IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity in apiResourceEntities)
+                    {
+                        apiResourceModels.Add(apiResourceEntity.ToModel());
+                    }
+                }
+            }
+
+            return apiResourceModels;
+        }
+
+        /// <summary>
+        /// Gets the client.
+        /// </summary>
+        /// <param name="clientId">The client identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException">No client found with Client Id [{clientId}]</exception>
+        public async Task<Client> GetClient(String clientId,
+                                            CancellationToken cancellationToken)
+        {
+            IdentityServer4.EntityFramework.Entities.Client clientEntity = null;
+            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            {
+                clientEntity = await context.Clients.Where(c => c.ClientId == clientId).SingleOrDefaultAsync(cancellationToken:cancellationToken);
+
+                if (clientEntity == null)
+                {
+                    throw new NotFoundException($"No client found with Client Id [{clientId}]");
+                }
+            }
+
+            return clientEntity.ToModel();
+        }
+
+        /// <summary>
+        /// Gets the clients.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<Client>> GetClients(CancellationToken cancellationToken)
+        {
+            List<Client> clientModels = new List<Client>();
+            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            {
+                List<IdentityServer4.EntityFramework.Entities.Client> clientEntities = await context.Clients.ToListAsync(cancellationToken:cancellationToken);
+
+                if (clientEntities.Any())
+                {
+                    foreach (IdentityServer4.EntityFramework.Entities.Client clientEntity in clientEntities)
+                    {
+                        clientModels.Add(clientEntity.ToModel());
+                    }
+                }
+            }
+
+            return clientModels;
         }
 
         /// <summary>
@@ -407,6 +509,11 @@
             return response;
         }
 
+        /// <summary>
+        /// Converts the users roles.
+        /// </summary>
+        /// <param name="identityUser">The identity user.</param>
+        /// <returns></returns>
         private async Task<List<String>> ConvertUsersRoles(IdentityUser identityUser)
         {
             IList<String> roles = await this.UserManager.GetRolesAsync(identityUser);
