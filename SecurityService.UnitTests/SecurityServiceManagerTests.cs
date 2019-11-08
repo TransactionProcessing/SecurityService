@@ -457,6 +457,33 @@
         }
 
         [Fact]
+        public async Task SecurityServiceManager_CreateClient_InvalidAllowedGrantType_ClientIsCreated()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            List<String> allowedGrantTypes = new List<String>
+                                             {
+                                                 "InvalidGrant"
+                                             };
+
+            var exception = await Should.ThrowAsync<ArgumentException>(async () =>
+                                                 {
+                                                     await securityServiceManager.CreateClient(SecurityServiceManagerTestData.ClientId,
+                                                                                               SecurityServiceManagerTestData.ClientSecret,
+                                                                                               SecurityServiceManagerTestData.ClientName,
+                                                                                               SecurityServiceManagerTestData.ClientDescription,
+                                                                                               SecurityServiceManagerTestData.AllowedScopes,
+                                                                                               allowedGrantTypes,
+                                                                                               CancellationToken.None);
+                                                 });
+
+            exception.Message.ShouldContain($"The grant types [{allowedGrantTypes.First()}] are not valid to create a new client");
+        }
+
+        [Fact]
         public async Task SecurityServiceManager_GetClient_ClientIsReturned()
         {
             String databaseName = Guid.NewGuid().ToString("N");

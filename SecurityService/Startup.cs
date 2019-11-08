@@ -3,8 +3,9 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    using System.Linq;
+    using System.Net;
     using System.Reflection;
+    using System.Text;
     using System.Threading.Tasks;
     using Database.DbContexts;
     using Factories;
@@ -13,10 +14,11 @@
     using Manager;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Http;
+    using Microsoft.AspNetCore.Http.Extensions;
     using Microsoft.AspNetCore.HttpOverrides;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.Abstractions;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
     using Microsoft.AspNetCore.Mvc.Versioning;
     using Microsoft.EntityFrameworkCore;
@@ -25,13 +27,13 @@
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
-    using Microsoft.OpenApi.Models;
     using Newtonsoft.Json;
-    using Newtonsoft.Json.Linq;
     using Newtonsoft.Json.Serialization;
     using NLog.Extensions.Logging;
+    using Shared.Exceptions;
     using Shared.Extensions;
     using Shared.General;
+    using Shared.Middleware;
     using Swashbuckle.AspNetCore.Filters;
     using Swashbuckle.AspNetCore.Swagger;
     using Swashbuckle.AspNetCore.SwaggerGen;
@@ -130,10 +132,10 @@
  
             ConfigurationReader.Initialise(Startup.Configuration);
 
-            app.AddExceptionHandler();
             app.AddRequestLogging();
             app.AddResponseLogging();
-
+            app.AddExceptionHandler();
+            
             app.UseRouting();
 
             app.UseStaticFiles();            
@@ -168,159 +170,6 @@
         #endregion
 
         #endregion
-
-        //#region public IServiceProvider ConfigureServices(IServiceCollection services)        
-        ///// <summary>
-        ///// Configures the services.
-        ///// </summary>
-        ///// <param name="services">The services.</param>
-        ///// <returns></returns>
-        //public void ConfigureContainer(ServiceRegistry services)
-        //{
-        //    Startup.ConfigureMiddlewareServices(services);
-
-        //    Startup.GetConfiguredContainer(services, Startup.WebHostEnvironment);
-        //}
-        //#endregion
-
-        //#region public static IContainer GetConfiguredContainer(IServiceCollection services, IHostingEnvironment hostingEnvironment)        
-        ///// <summary>
-        ///// Gets the configured container.
-        ///// </summary>
-        ///// <param name="services">The services.</param>
-        ///// <param name="hostingEnvironment">The hosting environment.</param>
-        ///// <returns></returns>
-        //public static IContainer GetConfiguredContainer(ServiceRegistry services,
-        //                                                IWebHostEnvironment webHostEnvironment)
-        //{
-        //    Startup.ConfigureCommonServices(services);
-
-        //    Container container = new Container(services);
-
-        //    return container;
-        //}
-        //#endregion
-
-        //#region Private Methods
-
-        //#region private static void ConfigureMiddlewareServices(IServiceCollection services)        
-        ///// <summary>
-        ///// Configures the middleware services.
-        ///// </summary>
-        ///// <param name="services">The services.</param>
-        //private static void ConfigureMiddlewareServices(IServiceCollection services)
-        //{            
-        //    services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);;
-
-        //    services.AddIdentity<IdentityUser, IdentityRole>(o =>
-        //    {
-        //        o.Password.RequireDigit = Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireDigit");
-        //        o.Password.RequireLowercase =
-        //            Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireLowercase");
-        //        o.Password.RequireUppercase =
-        //            Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireUppercase");
-        //        o.Password.RequireNonAlphanumeric =
-        //            Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireNonAlphanumeric");
-        //        o.Password.RequiredLength = Startup.Configuration.GetValue<Int32>("IdentityOptions:PasswordOptions:RequiredLength");
-        //    }).AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders();
-
-        //        String migrationsAssembly = typeof(AuthenticationDbContext).GetTypeInfo().Assembly.GetName().Name;
-
-        //        services.AddDbContext<ConfigurationDbContext>(builder =>
-        //                builder.UseSqlServer(Startup.ConfigurationConnectionString, sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
-        //            .AddTransient<ConfigurationDbContext>();
-
-        //        services.AddDbContext<PersistedGrantDbContext>(builder =>
-        //                builder.UseSqlServer(Startup.PersistedGrantStoreConenctionString, sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
-        //            .AddTransient<PersistedGrantDbContext>();
-
-        //        services.AddDbContext<AuthenticationDbContext>(builder =>
-        //                builder.UseSqlServer(Startup.AuthenticationConenctionString, sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
-        //            .AddTransient<AuthenticationDbContext>();
-
-        //        services.AddIdentityServer(options =>
-        //                {
-        //                    options.Events.RaiseSuccessEvents = true;
-        //                    options.Events.RaiseFailureEvents = true;
-        //                    options.Events.RaiseErrorEvents = true;
-        //                    options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-        //                    options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-        //                })
-        //            .AddConfigurationStore()
-        //            .AddOperationalStore()
-        //            .AddDeveloperSigningCredential()
-        //            .AddIdentityServerStorage(Startup.ConfigurationConnectionString)
-        //            .AddAspNetIdentity<IdentityUser>()
-        //            .AddJwtBearerClientAuthentication();
-
-        //        services.AddCors();
-
-        //    // Read the authentication configuration
-        //    //var securityConfig = new SecurityServiceConfiguration();
-        //    //Configuration.GetSection("SecurityConfiguration").Bind(securityConfig);
-
-        //    //services.AddAuthentication("Bearer")
-        //    //    .AddIdentityServerAuthentication("token", options =>
-        //    //    {
-        //    //        options.Authority = securityConfig.SecurityService;
-        //    //        options.RequireHttpsMetadata = false;
-        //    //        options.ApiName = securityConfig.ApiName;
-        //    //    });
-
-        //    services.AddSwaggerGen(c =>
-        //    {
-        //        c.SwaggerDoc("v1", new Info { Title = "Security Service", Version = "v1" });
-        //    });
-        //}
-        //#endregion
-
-        //#region private static void ConfigureCommonServices(IServiceCollection services)        
-        ///// <summary>
-        ///// Configures the common services.
-        ///// </summary>
-        ///// <param name="services">The services.</param>
-        //private static void ConfigureCommonServices(IServiceCollection services)
-        //{
-        //    services.AddSingleton<ISecurityServiceManager, SecurityServiceManager>();
-        //    services.AddSingleton<IPasswordHasher<IdentityUser>, PasswordHasher<IdentityUser>>();
-        //    services.AddSingleton<IUserClaimsPrincipalFactory<IdentityUser>, UserClaimsPrincipalFactory<IdentityUser>>();
-        //    services.AddSingleton<ILogger<SignInManager<IdentityUser>>, Logger<SignInManager<IdentityUser>>>();
-
-        //    Boolean useDummyMessagingService = Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseDummyMessagingService");
-        //    if (useDummyMessagingService)
-        //    {
-        //        services.AddSingleton<IMessagingService, DummyMessagingService>();
-        //    }
-        //    else
-        //    {
-        //        //services.AddSingleton<IMessagingService, MessagingService>();
-        //    }            
-        //}
-        //#endregion
-
-        //#region private async Task InitialiseDatabase(IApplicationBuilder app, IHostingEnvironment environment)
-        ///// <summary>
-        ///// Initialises the database.
-        ///// </summary>
-        ///// <param name="app">The application.</param>
-        ///// <param name="environment">The environment.</param>
-        //private async Task InitialiseDatabase(IApplicationBuilder app, IHostingEnvironment environment)
-        //{
-        //    using(IServiceScope scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-        //    {
-        //        PersistedGrantDbContext persistedGrantDbContext = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
-        //        ConfigurationDbContext configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-        //        AuthenticationDbContext authenticationDbContext = scope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
-
-        //        DatabaseSeeding.InitialisePersistedGrantDatabase(persistedGrantDbContext);
-        //        DatabaseSeeding.InitialiseConfigurationDatabase(configurationDbContext);
-        //        DatabaseSeeding.InitialiseAuthenticationDatabase(authenticationDbContext);
-        //    }
-        //}
-
-        //#endregion
-
-        //#endregion
 
         public void ConfigureContainer(ServiceRegistry services)
         {
@@ -459,179 +308,5 @@
                 }
             }
         }
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
-    {
-        #region Fields
-
-        /// <summary>
-        /// The provider
-        /// </summary>
-        private readonly IApiVersionDescriptionProvider provider;
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ConfigureSwaggerOptions"/> class.
-        /// </summary>
-        /// <param name="provider">The <see cref="IApiVersionDescriptionProvider">provider</see> used to generate Swagger documents.</param>
-        public ConfigureSwaggerOptions(IApiVersionDescriptionProvider provider) => this.provider = provider;
-
-        #endregion
-
-        #region Methods
-
-        /// <inheritdoc />
-        public void Configure(SwaggerGenOptions options)
-        {
-            // add a swagger document for each discovered API version
-            // note: you might choose to skip or document deprecated API versions differently
-            foreach (ApiVersionDescription description in this.provider.ApiVersionDescriptions)
-            {
-                options.SwaggerDoc(description.GroupName, ConfigureSwaggerOptions.CreateInfoForApiVersion(description));
-            }
-        }
-
-        /// <summary>
-        /// Creates the information for API version.
-        /// </summary>
-        /// <param name="description">The description.</param>
-        /// <returns></returns>
-        private static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
-        {
-            OpenApiInfo info = new OpenApiInfo
-            {
-                Title = "Golf Handicapping API",
-                Version = description.ApiVersion.ToString(),
-                Description = "A REST Api to manage the golf club handicapping system.",
-                Contact = new OpenApiContact
-                {
-                    Name = "Stuart Ferguson",
-                    Email = "golfhandicapping@btinternet.com"
-                },
-                License = new OpenApiLicense
-                {
-                    Name = "TODO"
-                }
-            };
-
-            if (description.IsDeprecated)
-            {
-                info.Description += " This API version has been deprecated.";
-            }
-
-            return info;
-        }
-        
-        #endregion
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class SwaggerDefaultValues : IOperationFilter
-    {
-        /// <summary>
-        /// Applies the filter to the specified operation using the given context.
-        /// </summary>
-        /// <param name="operation">The operation to apply the filter to.</param>
-        /// <param name="context">The current operation filter context.</param>
-        public void Apply(OpenApiOperation operation,
-                          OperationFilterContext context)
-        {
-            ApiDescription apiDescription = context.ApiDescription;
-            ApiVersion apiVersion = apiDescription.GetApiVersion();
-            ApiVersionModel model = apiDescription.ActionDescriptor.GetApiVersionModel(ApiVersionMapping.Explicit | ApiVersionMapping.Implicit);
-
-            operation.Deprecated = model.DeprecatedApiVersions.Contains(apiVersion);
-
-            if (operation.Parameters == null)
-            {
-                return;
-            }
-
-            foreach (OpenApiParameter parameter in operation.Parameters)
-            {
-                ApiParameterDescription description = apiDescription.ParameterDescriptions.First(p => p.Name == parameter.Name);
-
-                if (parameter.Description == null)
-                {
-                    parameter.Description = description.ModelMetadata?.Description;
-                }
-
-                parameter.Required |= description.IsRequired;
-            }
-        }
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class SwaggerJsonConverter : JsonConverter
-    {
-        #region Properties
-
-        /// <summary>
-        /// Gets a value indicating whether this <see cref="T:Newtonsoft.Json.JsonConverter" /> can read JSON.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this <see cref="T:Newtonsoft.Json.JsonConverter" /> can read JSON; otherwise, <c>false</c>.
-        /// </value>
-        public override Boolean CanRead => false;
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Determines whether this instance can convert the specified object type.
-        /// </summary>
-        /// <param name="objectType">Type of the object.</param>
-        /// <returns>
-        ///   <c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
-        /// </returns>
-        public override Boolean CanConvert(Type objectType)
-        {
-            return true;
-        }
-
-        /// <summary>
-        /// Reads the JSON representation of the object.
-        /// </summary>
-        /// <param name="reader">The <see cref="T:Newtonsoft.Json.JsonReader" /> to read from.</param>
-        /// <param name="objectType">Type of the object.</param>
-        /// <param name="existingValue">The existing value of object being read.</param>
-        /// <param name="serializer">The calling serializer.</param>
-        /// <returns>
-        /// The object value.
-        /// </returns>
-        /// <exception cref="System.NotImplementedException"></exception>
-        /// <exception cref="NotImplementedException"></exception>
-        public override Object ReadJson(JsonReader reader,
-                                        Type objectType,
-                                        Object existingValue,
-                                        JsonSerializer serializer)
-        {
-            throw new NotImplementedException();
-        }
-
-        /// <summary>
-        /// Writes the JSON representation of the object.
-        /// </summary>
-        /// <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
-        /// <param name="value">The value.</param>
-        /// <param name="serializer">The calling serializer.</param>
-        public override void WriteJson(JsonWriter writer,
-                                       Object value,
-                                       JsonSerializer serializer)
-        {
-            // Disable sending the $type in the serialized json
-            serializer.TypeNameHandling = TypeNameHandling.None;
-
-            JToken t = JToken.FromObject(value);
-            t.WriteTo(writer);
-        }
-
-        #endregion
     }
 }
