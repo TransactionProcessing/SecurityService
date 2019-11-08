@@ -225,6 +225,18 @@ namespace SecurityService.UnitTests
         }
 
         [Fact]
+        public void ModelFactory_ConvertFrom_ApiResource_ModelIsNull_NullReturned()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            ApiResource apiResourceModel = null;
+
+            ApiResourceDetails apiResourceDto = modelFactory.ConvertFrom(apiResourceModel);
+
+            apiResourceDto.ShouldBeNull();
+        }
+
+        [Fact]
         public void ModelFactory_ConvertFrom_ApiResourceList_ModelsConverted()
         {
             IModelFactory modelFactory = new ModelFactory();

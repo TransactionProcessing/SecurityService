@@ -151,6 +151,9 @@
                                                List<String> allowedGrantTypes,
                                                CancellationToken cancellationToken)
         {
+            // Validate the grant types list
+            this.ValidateGrantTypes(allowedGrantTypes);
+
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
                 // Create the model from the request
@@ -518,6 +521,31 @@
         {
             IList<String> roles = await this.UserManager.GetRolesAsync(identityUser);
             return roles.ToList();
+        }
+
+        /// <summary>
+        /// Validates the grant types.
+        /// </summary>
+        /// <param name="allowedGrantTypes">The allowed grant types.</param>
+        /// <exception cref="ArgumentException">allowedGrantTypes - The grant types [{string.Join(", ", invalidGrantTypes)}] are not valid to create a new client</exception>
+        private void ValidateGrantTypes(List<String> allowedGrantTypes)
+        {
+            // Get a list of valid grant types
+            List<String> validTypesList = new List<String>();
+
+            validTypesList.AddRange(GrantTypes.ClientCredentials);
+            validTypesList.AddRange(GrantTypes.Code);
+            validTypesList.AddRange(GrantTypes.DeviceFlow);
+            validTypesList.AddRange(GrantTypes.Hybrid);
+            validTypesList.AddRange(GrantTypes.Implicit);
+            validTypesList.AddRange(GrantTypes.ResourceOwnerPassword);
+
+            List<String> invalidGrantTypes = allowedGrantTypes.Where(a => validTypesList.All(v => v != a)).ToList();
+
+            if (invalidGrantTypes.Any())
+            {
+                throw new ArgumentException(nameof(allowedGrantTypes), $"The grant types [{string.Join(", ", invalidGrantTypes)}] are not valid to create a new client");
+            }
         }
 
         #endregion
