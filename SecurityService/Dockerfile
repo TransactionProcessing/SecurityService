@@ -19,4 +19,4 @@ RUN dotnet publish "SecurityService.csproj" -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
-ENTRYPOINT ["dotnet", "SecurityService.Service.dll"]
+ENTRYPOINT ["dotnet", "SecurityService.dll"]

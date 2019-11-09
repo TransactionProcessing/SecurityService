@@ -15,9 +15,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.UnitTests",
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService", "SecurityService\SecurityService.csproj", "{54A4CB95-033D-4D83-A1E7-D6184F54A61D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityService.Models", "SecurityService.Models\SecurityService.Models.csproj", "{BA43067E-A3F4-4939-A465-F3270F273C34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.Models", "SecurityService.Models\SecurityService.Models.csproj", "{BA43067E-A3F4-4939-A465-F3270F273C34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityService.Database", "SecurityService.Database\SecurityService.Database.csproj", "{BE33088C-6CDC-47C1-938E-431661AEEBDB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.Database", "SecurityService.Database\SecurityService.Database.csproj", "{BE33088C-6CDC-47C1-938E-431661AEEBDB}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.IntergrationTests", "SecurityService.IntergrationTests\SecurityService.IntergrationTests.csproj", "{F49D537A-BD95-42BD-80AB-C1744A306769}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -49,6 +51,10 @@ Global
 		{BE33088C-6CDC-47C1-938E-431661AEEBDB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE33088C-6CDC-47C1-938E-431661AEEBDB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE33088C-6CDC-47C1-938E-431661AEEBDB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F49D537A-BD95-42BD-80AB-C1744A306769}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F49D537A-BD95-42BD-80AB-C1744A306769}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F49D537A-BD95-42BD-80AB-C1744A306769}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F49D537A-BD95-42BD-80AB-C1744A306769}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -60,6 +66,7 @@ Global
 		{54A4CB95-033D-4D83-A1E7-D6184F54A61D} = {892940BA-FF36-468A-B8AD-34379F15CFA5}
 		{BA43067E-A3F4-4939-A465-F3270F273C34} = {892940BA-FF36-468A-B8AD-34379F15CFA5}
 		{BE33088C-6CDC-47C1-938E-431661AEEBDB} = {892940BA-FF36-468A-B8AD-34379F15CFA5}
+		{F49D537A-BD95-42BD-80AB-C1744A306769} = {A4EF772C-5311-4633-94C5-2D45BFD25432}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C2243F66-F2ED-4AD3-9E7B-169E12725BB9}
