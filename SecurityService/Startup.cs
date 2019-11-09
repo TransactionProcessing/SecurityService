@@ -7,7 +7,9 @@
     using System.Reflection;
     using System.Text;
     using System.Threading.Tasks;
+    using Database;
     using Database.DbContexts;
+    using Database.Seeding;
     using Factories;
     using IdentityServer4.EntityFramework.DbContexts;
     using Lamar;
@@ -148,7 +150,7 @@
             app.UseIdentityServer();
             
             // Setup the database
-            //this.InitialiseDatabase(app, env).Wait();
+            this.InitialiseDatabase(app).Wait();
 
             app.UseEndpoints(endpoints =>
                              {
@@ -292,20 +294,11 @@
                 ConfigurationDbContext configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
                 AuthenticationDbContext authenticationDbContext = scope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
 
-                if (persistedGrantDbContext.Database.IsSqlServer())
-                {
-                    persistedGrantDbContext.Database.Migrate();
-                }
+                SeedingType seedingType = Startup.Configuration.GetValue<SeedingType>("SeedingType");
 
-                if (configurationDbContext.Database.IsSqlServer())
-                {
-                    configurationDbContext.Database.Migrate();
-                }
-
-                if (authenticationDbContext.Database.IsSqlServer())
-                {
-                    authenticationDbContext.Database.Migrate();
-                }
+                DatabaseSeeding.InitialiseAuthenticationDatabase(authenticationDbContext, seedingType);
+                DatabaseSeeding.InitialiseConfigurationDatabase(configurationDbContext, seedingType);
+                DatabaseSeeding.InitialisePersistedGrantDatabase(persistedGrantDbContext, seedingType);
             }
         }
     }
