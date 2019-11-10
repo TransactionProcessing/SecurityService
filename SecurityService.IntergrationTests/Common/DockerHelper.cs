@@ -17,14 +17,13 @@ namespace SecurityService.IntergrationTests.Common
 
     public class DockerHelper
     {
-        protected INetworkService TestNetwork;
+        public INetworkService TestNetwork;
 
-        protected IContainerService SecurityServiceContainer;
+        public IContainerService SecurityServiceContainer;
 
-        protected String SecurityServiceContainerName;
+        public String SecurityServiceContainerName;
 
-        protected Guid TestId;
-
+        public Guid TestId;
         private void SetupTestNetwork()
         {
             // Build a network
@@ -33,7 +32,7 @@ namespace SecurityService.IntergrationTests.Common
 
         public async Task StartContainersForScenarioRun(String scenarioName)
         {
-            String traceFolder = $"/home/txnproc/estatemanagement/trace/{scenarioName}/";
+            String traceFolder = $"/home/txnproc/trace/{scenarioName}/";
 
             Logging.Enabled();
 
@@ -49,70 +48,74 @@ namespace SecurityService.IntergrationTests.Common
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
         }
 
-        protected Int32 SecurityServicePort;
+        public Int32 SecurityServicePort;
 
         private void SetupSecurityServiceContainer(String traceFolder)
         {
-            String persistedGrantDbContextConnectionString =
-                $"\"ConnectionStrings:PersistedGrantDbContext={Setup.GetConnectionString($"PersistedGrantStore{this.TestId:N}")}\"";
-            String configurationDbContextConnectionString = $"\"ConnectionStrings:ConfigurationDbContext={Setup.GetConnectionString($"Configuration{this.TestId:N}")}\"";
-            String authenticationDbContextConnectionString =
-                $"\"ConnectionStrings:AuthenticationDbContext={Setup.GetConnectionString($"Authentication{this.TestId:N}")}\"";
-
             // Management API Container
             this.SecurityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
-                                                         .WithEnvironment(persistedGrantDbContextConnectionString,
-                                                                          configurationDbContextConnectionString,
-                                                                          authenticationDbContextConnectionString,
+                                                         .WithEnvironment("ASPNETCORE_ENVIRONMENT=IntegrationTest",
                                                                           $"ServiceOptions:PublicOrigin=http://{this.SecurityServiceContainerName}:5001",
                                                                           $"ServiceOptions:IssuerUrl=http://{this.SecurityServiceContainerName}:5001")
                                                          .UseImage("securityservice").ExposePort(5001).UseNetwork(new List<INetworkService>
                                                                                                                   {
-                                                                                                                      this.TestNetwork,
-                                                                                                                      Setup.DatabaseServerNetwork
+                                                                                                                      this.TestNetwork
                                                                                                                   }.ToArray())
                                                          .Mount(traceFolder, "/home", MountType.ReadWrite).Build().Start().WaitForPort("5001/tcp", 30000);
         }
 
         public async Task StopContainersForScenarioRun()
         {
-            DeleteDatabase($"PersistedGrantStore{this.TestId:N}");
-            DeleteDatabase($"Configuration{this.TestId:N}");
-            DeleteDatabase($"Authentication{this.TestId:N}");
-
-            if (this.SecurityServiceContainer != null)
+            try
             {
-                this.SecurityServiceContainer.StopOnDispose = true;
-                this.SecurityServiceContainer.RemoveOnDispose = true;
-                this.SecurityServiceContainer.Dispose();
+
+                //DeleteDatabase($"PersistedGrantStore{this.TestId:N}");
+                //DeleteDatabase($"Configuration{this.TestId:N}");
+                //DeleteDatabase($"Authentication{this.TestId:N}");
+
+                if (this.SecurityServiceContainer != null)
+                {
+                    this.SecurityServiceContainer.StopOnDispose = true;
+                    this.SecurityServiceContainer.RemoveOnDispose = true;
+                    this.SecurityServiceContainer.Dispose();
+                }
+
+                if (this.TestNetwork != null)
+                {
+                    this.TestNetwork.Stop();
+                    this.TestNetwork.Remove(true);
+                }
             }
-
-            if (this.TestNetwork != null)
+            catch (Exception e)
             {
-                this.TestNetwork.Stop();
-                this.TestNetwork.Remove(true);
+                Console.WriteLine(e);
             }
         }
 
-        private void DeleteDatabase(String database)
-        {
-            IPEndPoint sqlEndpoint = Setup.DatabaseServerContainer.ToHostExposedEndpoint("1433/tcp");
+        //private void DeleteDatabase(String database)
+        //{
+        //    IPEndPoint sqlEndpoint = Setup.DatabaseServerContainer.ToHostExposedEndpoint("1433/tcp");
 
-            String server = "127.0.0.1";
-            String user = "sa";
-            String password = "thisisalongpassword123!";
-            String port = sqlEndpoint.Port.ToString();
+        //    String server = "127.0.0.1";
+        //    String user = "sa";
+        //    String password = "thisisalongpassword123!";
+        //    String port = sqlEndpoint.Port.ToString();
 
-            String connectionString = $"server={server},{port};user id={user}; password={password}; database={database};";
+        //    String connectionString = $"server={server},{port};user id={user}; password={password}; database={"master"};";
 
-            SqlConnection connection = new SqlConnection(connectionString);
+        //    SqlConnection connection = new SqlConnection(connectionString);
 
-            connection.Open();
+        //    connection.Open();
 
-            SqlCommand command = connection.CreateCommand();
-            command.CommandText = $"DROP DATABASE {database}";
-            command.ExecuteNonQuery();
-            connection.Close();
-        }
+        //    SqlCommand setSingleUserCommand = connection.CreateCommand();
+        //    setSingleUserCommand.CommandText = $"alter database {database} set single_user with rollback immediate";
+        //    setSingleUserCommand.ExecuteNonQuery();
+
+        //    SqlCommand dropDatabaseCommand = connection.CreateCommand();
+        //    dropDatabaseCommand.CommandText = $"DROP DATABASE {database}";
+        //    dropDatabaseCommand.ExecuteNonQuery();
+            
+        //    connection.Close();
+        //}
     }
 }
