@@ -5,6 +5,7 @@ namespace SecurityService.Service
     using System.Diagnostics.CodeAnalysis;
     using IdentityServer4.EntityFramework.Services;
     using IdentityServer4.EntityFramework.Stores;
+    using IdentityServer4.Models;
     using IdentityServer4.Services;
     using IdentityServer4.Stores;
     using Microsoft.AspNetCore.Identity;
@@ -75,6 +76,20 @@ namespace SecurityService.Service
                                                                  String connectionString)
         {
             builder.Services.AddTransient<IPersistedGrantStore, PersistedGrantStore>();
+
+            return builder;
+        }
+
+        public static IIdentityServerBuilder AddIntegrationTestConfiguration(this IIdentityServerBuilder builder)
+        {
+            builder.AddInMemoryClients(new List<Client>());
+            builder.AddInMemoryApiResources(new List<ApiResource>());
+            //builder.AddInMemoryUsers(IdentityUserSeedData.GetIdentityUsers(SeedingType.IntegrationTest));
+            //builder.AddInMemoryRoles(RoleSeedData.GetIdentityRoles(SeedingType.IntegrationTest));
+            //builder.AddInMemoryUserRoles(IdentityUserRoleSeedData.GetIdentityUserRoles(SeedingType.IntegrationTest));
+            builder.AddInMemoryIdentityResources(new List<IdentityResource>());
+
+            builder.AddInMemoryPersistedGrants();
 
             return builder;
         }

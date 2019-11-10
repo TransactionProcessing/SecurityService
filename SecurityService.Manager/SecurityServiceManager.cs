@@ -225,7 +225,8 @@
                                                UserName = userName,
                                                NormalizedEmail = emailAddress.ToUpper(),
                                                NormalizedUserName = userName.ToUpper(),
-                                               SecurityStamp = Guid.NewGuid().ToString("D")
+                                               SecurityStamp = Guid.NewGuid().ToString("D"),
+                                               PhoneNumber = phoneNumber
                                            };
 
             // Set the password
@@ -270,41 +271,37 @@
                 }
 
                 // Add the requested claims
+                List<Claim> claimsToAdd =new List<Claim>();
                 if (claims != null && claims.Any())
                 {
-                    List<Claim> claimsToAdd = claims.Select(x => new Claim(x.Key, x.Value)).ToList();
+                    claimsToAdd.AddRange(claims.Select(x => new Claim(x.Key, x.Value)).ToList());
+                }
 
-                    // Add the email address and role as claims
-                    if (roles != null)
+                // Add the email address and role as claims
+                if (roles != null)
+                {
+                    foreach (String requestRole in roles)
                     {
-                        foreach (String requestRole in roles)
-                        {
-                            claimsToAdd.Add(new Claim(JwtClaimTypes.Role, requestRole));
-                        }
-                    }
-
-                    claimsToAdd.Add(new Claim(JwtClaimTypes.Email, emailAddress));
-                    claimsToAdd.Add(new Claim(JwtClaimTypes.GivenName, givenName));
-                    claimsToAdd.Add(new Claim(JwtClaimTypes.FamilyName, familyName));
-
-                    if (string.IsNullOrEmpty(middleName) == false)
-                    {
-                        claimsToAdd.Add(new Claim(JwtClaimTypes.MiddleName, middleName));
-                    }
-
-                    addClaimsResult = await this.UserManager.AddClaimsAsync(newIdentityUser, claimsToAdd);
-
-                    if (!addClaimsResult.Succeeded)
-                    {
-                        List<String> claimList = new List<String>();
-                        claimsToAdd.ForEach(c => claimList.Add($"Name: {c.Type} Value: {c.Value}"));
-                        throw new IdentityResultException($"Error adding claims [{string.Join(",", claimsToAdd)}] to user {newIdentityUser.UserName}", addClaimsResult);
+                        claimsToAdd.Add(new Claim(JwtClaimTypes.Role, requestRole));
                     }
                 }
 
-                else
+                claimsToAdd.Add(new Claim(JwtClaimTypes.Email, emailAddress));
+                claimsToAdd.Add(new Claim(JwtClaimTypes.GivenName, givenName));
+                claimsToAdd.Add(new Claim(JwtClaimTypes.FamilyName, familyName));
+
+                if (string.IsNullOrEmpty(middleName) == false)
                 {
-                    addClaimsResult = IdentityResult.Success;
+                    claimsToAdd.Add(new Claim(JwtClaimTypes.MiddleName, middleName));
+                }
+
+                addClaimsResult = await this.UserManager.AddClaimsAsync(newIdentityUser, claimsToAdd);
+
+                if (!addClaimsResult.Succeeded)
+                {
+                    List<String> claimList = new List<String>();
+                    claimsToAdd.ForEach(c => claimList.Add($"Name: {c.Type} Value: {c.Value}"));
+                    throw new IdentityResultException($"Error adding claims [{string.Join(",", claimsToAdd)}] to user {newIdentityUser.UserName}", addClaimsResult);
                 }
             }
             finally
