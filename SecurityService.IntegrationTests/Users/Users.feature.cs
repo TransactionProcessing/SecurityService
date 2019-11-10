@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace SecurityService.IntergrationTests.Users
+namespace SecurityService.IntegrationTests.Users
 {
     using TechTalk.SpecFlow;
     using System;
@@ -222,11 +222,14 @@ this.ScenarioInitialize(scenarioInfo);
         [Xunit.SkippableFactAttribute(DisplayName="Get Users")]
         [Xunit.TraitAttribute("FeatureTitle", "Users")]
         [Xunit.TraitAttribute("Description", "Get Users")]
+        [Xunit.TraitAttribute("Category", "PRTest")]
         public virtual void GetUsers()
         {
-            string[] tagsOfScenario = ((string[])(null));
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Users", null, ((string[])(null)));
-#line 18
+            string[] tagsOfScenario = new string[] {
+                    "PRTest"};
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Users", null, new string[] {
+                        "PRTest"});
+#line 19
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -282,7 +285,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "User 3",
                             "",
                             ""});
-#line 19
+#line 20
  testRunner.Given("I create the following users", ((string)(null)), table4, "Given ");
 #line hidden
                 TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
@@ -317,7 +320,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "User 3",
                             "email:testuser3@testing.co.uk, given_name:Test, family_name:User 3",
                             ""});
-#line 24
+#line 25
  testRunner.When("I get the users 3 users details are returned as follows", ((string)(null)), table5, "When ");
 #line hidden
             }

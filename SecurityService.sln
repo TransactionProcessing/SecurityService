@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.Models", "S
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.Database", "SecurityService.Database\SecurityService.Database.csproj", "{BE33088C-6CDC-47C1-938E-431661AEEBDB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.IntergrationTests", "SecurityService.IntergrationTests\SecurityService.IntergrationTests.csproj", "{F49D537A-BD95-42BD-80AB-C1744A306769}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.IntegrationTests", "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj", "{F49D537A-BD95-42BD-80AB-C1744A306769}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
