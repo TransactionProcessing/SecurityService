@@ -6,6 +6,7 @@ namespace SecurityService.IntergrationTests.Common
 {
     using System.Data.SqlClient;
     using System.Net;
+    using System.Threading;
     using System.Threading.Tasks;
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Model.Builders;
@@ -48,6 +49,8 @@ namespace SecurityService.IntergrationTests.Common
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
 
             Console.Out.WriteLine($"Security Service Port is [{this.SecurityServicePort}]");
+
+            await Task.Delay(30000).ConfigureAwait(false);
         }
 
         public Int32 SecurityServicePort;
