@@ -218,7 +218,7 @@ namespace SecurityService.IntergrationTests.Users
             {
                 client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
 
-                HttpResponseMessage response = await client.PostAsync("/api/users/", content, cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage response = await client.PostAsync("/api/users", content, cancellationToken).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
