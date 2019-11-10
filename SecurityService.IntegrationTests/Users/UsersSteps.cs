@@ -166,7 +166,7 @@ namespace SecurityService.IntergrationTests.Users
             {
                 client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
 
-                HttpResponseMessage response = await client.GetAsync($"/api/users/{userId}", cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage response = await client.GetAsync($"api/users/{userId}", cancellationToken).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -187,9 +187,9 @@ namespace SecurityService.IntergrationTests.Users
             {
                 client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
 
-                Console.Out.WriteLine($"GET Uri is [{client.BaseAddress}/api/users]");
+                Console.Out.WriteLine($"GET Uri is [{client.BaseAddress}api/users]");
 
-                HttpResponseMessage response = await client.GetAsync($"/api/users", cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage response = await client.GetAsync($"api/users", cancellationToken).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
@@ -214,9 +214,9 @@ namespace SecurityService.IntergrationTests.Users
             {
                 client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
 
-                Console.Out.WriteLine($"POST Uri is [{client.BaseAddress}/api/users]");
+                Console.Out.WriteLine($"POST Uri is [{client.BaseAddress}api/users]");
 
-                HttpResponseMessage response = await client.PostAsync("/api/users", content, cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage response = await client.PostAsync("api/users", content, cancellationToken).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
                 {
