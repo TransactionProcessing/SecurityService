@@ -166,16 +166,16 @@ namespace SecurityService.IntergrationTests.Users
             {
                 client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
 
-                HttpResponseMessage response = await client.GetAsync($"api/users/{userId}", cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage response = await client.GetAsync($"api/users/{userId}", cancellationToken);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    String responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    String responseBody = await response.Content.ReadAsStringAsync();
                     return JsonConvert.DeserializeObject<UserDetails>(responseBody);
                 }
                 else
                 {
-                    String responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    String responseBody = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
                 }
             }
@@ -189,16 +189,16 @@ namespace SecurityService.IntergrationTests.Users
 
                 Console.Out.WriteLine($"GET Uri is [{client.BaseAddress}api/users]");
 
-                HttpResponseMessage response = await client.GetAsync($"api/users", cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage response = await client.GetAsync($"api/users", cancellationToken);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    String responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    String responseBody = await response.Content.ReadAsStringAsync();
                     return JsonConvert.DeserializeObject<List<UserDetails>>(responseBody);
                 }
                 else
                 {
-                    String responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    String responseBody = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
                 }
             }
@@ -216,16 +216,16 @@ namespace SecurityService.IntergrationTests.Users
 
                 Console.Out.WriteLine($"POST Uri is [{client.BaseAddress}api/users]");
 
-                HttpResponseMessage response = await client.PostAsync("api/users", content, cancellationToken).ConfigureAwait(false);
+                HttpResponseMessage response = await client.PostAsync("api/users", content, cancellationToken);
 
                 if (response.IsSuccessStatusCode)
                 {
-                    String responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    String responseBody = await response.Content.ReadAsStringAsync();
                     return JsonConvert.DeserializeObject<CreateUserResponse>(responseBody);
                 }
                 else
                 {
-                    String responseBody = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+                    String responseBody = await response.Content.ReadAsStringAsync();
                     throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
                 }
             }
