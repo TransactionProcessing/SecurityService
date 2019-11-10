@@ -187,6 +187,8 @@ namespace SecurityService.IntergrationTests.Users
             {
                 client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
 
+                Console.Out.WriteLine($"GET Uri is [{client.BaseAddress}/api/users]");
+
                 HttpResponseMessage response = await client.GetAsync($"/api/users", cancellationToken).ConfigureAwait(false);
 
                 if (response.IsSuccessStatusCode)
@@ -202,12 +204,6 @@ namespace SecurityService.IntergrationTests.Users
             }
         }
 
-        //[Then(@"The user details are returned as follows")]
-        //public void ThenTheUserDetailsAreReturnedAsFollows(Table table)
-        //{
-        //    ScenarioContext.Current.Pending();
-        //}
-
         private async Task<CreateUserResponse> CreateUser(CreateUserRequest createUserRequest,
                                             CancellationToken cancellationToken)
         {
@@ -217,6 +213,8 @@ namespace SecurityService.IntergrationTests.Users
             using (HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
+
+                Console.Out.WriteLine($"POST Uri is [{client.BaseAddress}/api/users]");
 
                 HttpResponseMessage response = await client.PostAsync("/api/users", content, cancellationToken).ConfigureAwait(false);
 

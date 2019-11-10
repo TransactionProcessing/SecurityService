@@ -46,6 +46,8 @@ namespace SecurityService.IntergrationTests.Common
             this.SetupSecurityServiceContainer(traceFolder);
 
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
+
+            Console.Out.WriteLine($"Security Service Port is [{this.SecurityServicePort}]");
         }
 
         public Int32 SecurityServicePort;
@@ -62,6 +64,8 @@ namespace SecurityService.IntergrationTests.Common
                                                                                                                       this.TestNetwork
                                                                                                                   }.ToArray())
                                                          .Mount(traceFolder, "/home", MountType.ReadWrite).Build().Start().WaitForPort("5001/tcp", 30000);
+
+            Console.Out.WriteLine("Started Security Service");
         }
 
         public async Task StopContainersForScenarioRun()
