@@ -66,7 +66,7 @@ namespace SecurityService.IntergrationTests.Common
                                                                                                                   {
                                                                                                                       this.TestNetwork
                                                                                                                   }.ToArray())
-                                                         .Mount(traceFolder, "/home", MountType.ReadWrite).Build().Start().WaitForPort("5001/tcp", 30000);
+                                                         .Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite).Build().Start().WaitForPort("5001/tcp", 30000);
 
             Console.Out.WriteLine("Started Security Service");
         }

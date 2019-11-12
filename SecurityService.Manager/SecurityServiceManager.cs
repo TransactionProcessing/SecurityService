@@ -332,18 +332,23 @@
         public async Task<ApiResource> GetApiResource(String apiResourceName,
                                                       CancellationToken cancellationToken)
         {
-            IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = null;
+            ApiResource apiResourceModel = null;
+            
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
-                apiResourceEntity = await context.ApiResources.Where(a => a.Name == apiResourceName).SingleOrDefaultAsync(cancellationToken:cancellationToken);
+                IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = await context.ApiResources.Where(a => a.Name == apiResourceName)
+                                                                                                      .Include(a => a.Scopes).Include(a => a.UserClaims)
+                                                                                                      .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
                 if (apiResourceEntity == null)
                 {
                     throw new NotFoundException($"No Api Resource found with Name [{apiResourceName}]");
                 }
+
+                apiResourceModel = apiResourceEntity.ToModel();
             }
 
-            return apiResourceEntity.ToModel();
+            return apiResourceModel;
         }
 
         /// <summary>
@@ -357,7 +362,7 @@
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
                 List<IdentityServer4.EntityFramework.Entities.ApiResource> apiResourceEntities =
-                    await context.ApiResources.ToListAsync(cancellationToken:cancellationToken);
+                    await context.ApiResources.Include(a=> a.Scopes).Include(a=> a.UserClaims).ToListAsync(cancellationToken:cancellationToken);
 
                 if (apiResourceEntities.Any())
                 {
@@ -381,19 +386,22 @@
         public async Task<Client> GetClient(String clientId,
                                             CancellationToken cancellationToken)
         {
-            IdentityServer4.EntityFramework.Entities.Client clientEntity = null;
+            Client clientModel = null;
+
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
-                clientEntity = await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).Where(c => c.ClientId == clientId)
+                IdentityServer4.EntityFramework.Entities.Client clientEntity = await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).Where(c => c.ClientId == clientId)
                                             .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
                 if (clientEntity == null)
                 {
                     throw new NotFoundException($"No client found with Client Id [{clientId}]");
                 }
+
+                clientModel = clientEntity.ToModel();
             }
 
-            return clientEntity.ToModel();
+            return clientModel;
         }
 
         /// <summary>

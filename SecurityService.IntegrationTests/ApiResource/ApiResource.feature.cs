@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace SecurityService.IntegrationTests.Clients
+namespace SecurityService.IntegrationTests.ApiResource
 {
     using TechTalk.SpecFlow;
     using System;
@@ -20,22 +20,22 @@ namespace SecurityService.IntegrationTests.Clients
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
-    [Xunit.TraitAttribute("Category", "clients")]
-    public partial class ClientsFeature : Xunit.IClassFixture<ClientsFeature.FixtureData>, System.IDisposable
+    [Xunit.TraitAttribute("Category", "apiresources")]
+    public partial class ApiResourceFeature : Xunit.IClassFixture<ApiResourceFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
         private string[] _featureTags = new string[] {
                 "base",
-                "clients"};
+                "apiresources"};
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "Clients.feature"
+#line 1 "ApiResource.feature"
 #line hidden
         
-        public ClientsFeature(ClientsFeature.FixtureData fixtureData, InternalSpecFlow.XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public ApiResourceFeature(ApiResourceFeature.FixtureData fixtureData, InternalSpecFlow.XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();
@@ -44,9 +44,9 @@ namespace SecurityService.IntegrationTests.Clients
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Clients", null, ProgrammingLanguage.CSharp, new string[] {
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "ApiResource", null, ProgrammingLanguage.CSharp, new string[] {
                         "base",
-                        "clients"});
+                        "apiresources"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -86,13 +86,13 @@ namespace SecurityService.IntegrationTests.Clients
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Create Client")]
-        [Xunit.TraitAttribute("FeatureTitle", "Clients")]
-        [Xunit.TraitAttribute("Description", "Create Client")]
-        public virtual void CreateClient()
+        [Xunit.SkippableFactAttribute(DisplayName="Create Api Resource")]
+        [Xunit.TraitAttribute("FeatureTitle", "ApiResource")]
+        [Xunit.TraitAttribute("Description", "Create Api Resource")]
+        public virtual void CreateApiResource()
         {
             string[] tagsOfScenario = ((string[])(null));
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create Client", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create Api Resource", null, ((string[])(null)));
 #line 4
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -113,34 +113,34 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
-                            "ClientId",
+                TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
+                            "DisplayName",
                             "Description",
                             "Secret",
                             "Scopes",
-                            "GrantTypes"});
-                table6.AddRow(new string[] {
-                            "testclient1",
-                            "Test Client",
-                            "A test client",
+                            "UserClaims"});
+                table1.AddRow(new string[] {
+                            "testresource",
+                            "Test Resource",
+                            "A resource for testing",
                             "secret1",
-                            "Scope1, Scope2",
-                            "client_credentials"});
+                            "Scope1,Scope2",
+                            "Claim1,Claim2"});
 #line 5
- testRunner.Given("I create the following clients", ((string)(null)), table6, "Given ");
+ testRunner.Given("I create the following api resources", ((string)(null)), table1, "Given ");
 #line hidden
             }
             this.ScenarioCleanup();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Get Client")]
-        [Xunit.TraitAttribute("FeatureTitle", "Clients")]
-        [Xunit.TraitAttribute("Description", "Get Client")]
-        public virtual void GetClient()
+        [Xunit.SkippableFactAttribute(DisplayName="Get Api Resource")]
+        [Xunit.TraitAttribute("FeatureTitle", "ApiResource")]
+        [Xunit.TraitAttribute("Description", "Get Api Resource")]
+        public virtual void GetApiResource()
         {
             string[] tagsOfScenario = ((string[])(null));
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Client", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Api Resource", null, ((string[])(null)));
 #line 9
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -161,59 +161,59 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
-                            "ClientId",
+                TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
+                            "DisplayName",
                             "Description",
                             "Secret",
                             "Scopes",
-                            "GrantTypes"});
-                table7.AddRow(new string[] {
-                            "testclient1",
-                            "Test Client 1",
-                            "A test client 1",
+                            "UserClaims"});
+                table2.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
                             "secret1",
-                            "Scope1, Scope2",
-                            "client_credentials"});
-                table7.AddRow(new string[] {
-                            "testclient2",
-                            "Test Client 2",
-                            "A test client 2",
+                            "Scope1,Scope2",
+                            "Claim1,Claim2"});
+                table2.AddRow(new string[] {
+                            "testresource2",
+                            "Test Resource2",
+                            "A resource for testing 2",
                             "secret2",
-                            "Scope1, Scope2",
-                            "client_credentials"});
+                            "Scope1,Scope2",
+                            "Claim1,Claim2"});
 #line 10
- testRunner.Given("I create the following clients", ((string)(null)), table7, "Given ");
+ testRunner.Given("I create the following api resources", ((string)(null)), table2, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
-                            "ClientId",
+                TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
+                            "DisplayName",
                             "Description",
                             "Scopes",
-                            "GrantTypes"});
-                table8.AddRow(new string[] {
-                            "testclient1",
-                            "Test Client 1",
-                            "A test client 1",
-                            "Scope1, Scope2",
-                            "client_credentials"});
+                            "UserClaims"});
+                table3.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
+                            "Scope1,Scope2",
+                            "Claim1,Claim2"});
 #line 14
- testRunner.When("I get the client with client id \'testclient1\' the client details are returned as " +
-                        "follows", ((string)(null)), table8, "When ");
+ testRunner.When("I get the api resource with name \'testresource1\' the api resource details are ret" +
+                        "urned as follows", ((string)(null)), table3, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Get Clients")]
-        [Xunit.TraitAttribute("FeatureTitle", "Clients")]
-        [Xunit.TraitAttribute("Description", "Get Clients")]
+        [Xunit.SkippableFactAttribute(DisplayName="Get Api Resources")]
+        [Xunit.TraitAttribute("FeatureTitle", "ApiResource")]
+        [Xunit.TraitAttribute("Description", "Get Api Resources")]
         [Xunit.TraitAttribute("Category", "PRTest")]
-        public virtual void GetClients()
+        public virtual void GetApiResources()
         {
             string[] tagsOfScenario = new string[] {
                     "PRTest"};
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Clients", null, new string[] {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Api Resources", null, new string[] {
                         "PRTest"});
 #line 19
 this.ScenarioInitialize(scenarioInfo);
@@ -235,50 +235,50 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
-                            "ClientId",
+                TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
+                            "DisplayName",
                             "Description",
                             "Secret",
                             "Scopes",
-                            "GrantTypes"});
-                table9.AddRow(new string[] {
-                            "testclient1",
-                            "Test Client 1",
-                            "A test client 1",
+                            "UserClaims"});
+                table4.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
                             "secret1",
-                            "Scope1, Scope2",
-                            "client_credentials"});
-                table9.AddRow(new string[] {
-                            "testclient2",
-                            "Test Client 2",
-                            "A test client 2",
+                            "Scope1,Scope2",
+                            "Claim1,Claim2"});
+                table4.AddRow(new string[] {
+                            "testresource2",
+                            "Test Resource2",
+                            "A resource for testing 2",
                             "secret2",
-                            "Scope1, Scope2",
-                            "client_credentials"});
+                            "Scope1,Scope2",
+                            "Claim1,Claim2"});
 #line 20
- testRunner.Given("I create the following clients", ((string)(null)), table9, "Given ");
+testRunner.Given("I create the following api resources", ((string)(null)), table4, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
-                            "ClientId",
+                TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
+                            "DisplayName",
                             "Description",
                             "Scopes",
-                            "GrantTypes"});
-                table10.AddRow(new string[] {
-                            "testclient1",
-                            "Test Client 1",
-                            "A test client 1",
-                            "Scope1, Scope2",
-                            "client_credentials"});
-                table10.AddRow(new string[] {
-                            "testclient2",
-                            "Test Client 2",
-                            "A test client 2",
-                            "Scope1, Scope2",
-                            "client_credentials"});
+                            "UserClaims"});
+                table5.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
+                            "Scope1,Scope2",
+                            "Claim1,Claim2"});
+                table5.AddRow(new string[] {
+                            "testresource2",
+                            "Test Resource2",
+                            "A resource for testing 2",
+                            "Scope1,Scope2",
+                            "Claim1,Claim2"});
 #line 24
- testRunner.When("I get the clients 2 clients details are returned as follows", ((string)(null)), table10, "When ");
+ testRunner.When("I get the api resources 2 api resource details are returned as follows", ((string)(null)), table5, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -291,12 +291,12 @@ this.ScenarioInitialize(scenarioInfo);
             
             public FixtureData()
             {
-                ClientsFeature.FeatureSetup();
+                ApiResourceFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                ClientsFeature.FeatureTearDown();
+                ApiResourceFeature.FeatureTearDown();
             }
         }
     }
