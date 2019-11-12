@@ -82,7 +82,7 @@ namespace SecurityService.Controllers
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         [HttpGet]
-        [Route("apiResourceName")]
+        [Route("{apiResourceName}")]
         [SwaggerResponse(201, type: typeof(ApiResourceDetails))]
         public async Task<IActionResult> GetApiResource([FromRoute] String apiResourceName,
                                                            CancellationToken cancellationToken)

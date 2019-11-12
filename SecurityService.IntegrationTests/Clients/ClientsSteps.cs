@@ -19,6 +19,7 @@
     /// 
     /// </summary>
     [Binding]
+    [Scope(Tag = "clients")]
     public class ClientsSteps
     {
         #region Fields
