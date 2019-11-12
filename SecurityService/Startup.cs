@@ -1,25 +1,19 @@
 ﻿namespace SecurityService.Service
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
-    using System.Net;
     using System.Reflection;
-    using System.Text;
     using System.Threading.Tasks;
-    using Database;
     using Database.DbContexts;
     using Database.Seeding;
     using Factories;
     using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.Models;
+    using IdentityServer4.EntityFramework.Interfaces;
     using Lamar;
     using Manager;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Http;
-    using Microsoft.AspNetCore.Http.Extensions;
     using Microsoft.AspNetCore.HttpOverrides;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Mvc;
@@ -34,35 +28,15 @@
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using NLog.Extensions.Logging;
-    using Shared.Exceptions;
     using Shared.Extensions;
     using Shared.General;
-    using Shared.Middleware;
     using Swashbuckle.AspNetCore.Filters;
-    using Swashbuckle.AspNetCore.Swagger;
     using Swashbuckle.AspNetCore.SwaggerGen;
-    using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 
     [ExcludeFromCodeCoverage]
     public class Startup
     {
-        #region Properties
- 
-        /// <summary>
-        /// Gets or sets the configuration.
-        /// </summary>
-        /// <value>
-        /// The configuration.
-        /// </value>
-        public static IConfigurationRoot Configuration { get; set; }
-
-        /// <summary>
-        /// Gets or sets the hosting environment.
-        /// </summary>
-        /// <value>
-        /// The hosting environment.
-        /// </value>
-        public static IWebHostEnvironment WebHostEnvironment { get; set; }
+        #region Fields
 
         /// <summary>
         /// The authentication conenction string
@@ -78,23 +52,22 @@
         /// The persisted grant store conenction string
         /// </summary>
         private static String PersistedGrantStoreConenctionString;
- 
+
         #endregion
-        
+
         #region Constructors
- 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Startup"/> class.
         /// </summary>
         /// <param name="env">The env.</param>
         public Startup(IWebHostEnvironment webHostEnvironment)
         {
-            IConfigurationBuilder builder =
-                new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
-                    .AddJsonFile("appsettings.json", optional:true, reloadOnChange:true)
-                    .AddJsonFile($"appsettings.{webHostEnvironment.EnvironmentName}.json", optional:true)
-                    .AddEnvironmentVariables();
- 
+            IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
+                                                                      .AddJsonFile("appsettings.json", optional:true, reloadOnChange:true)
+                                                                      .AddJsonFile($"appsettings.{webHostEnvironment.EnvironmentName}.json", optional:true)
+                                                                      .AddEnvironmentVariables();
+
             Startup.Configuration = builder.Build();
             Startup.WebHostEnvironment = webHostEnvironment;
 
@@ -106,9 +79,29 @@
 
         #endregion
 
-        #region Public Methods
+        #region Properties
 
-        #region public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)        
+        /// <summary>
+        /// Gets or sets the configuration.
+        /// </summary>
+        /// <value>
+        /// The configuration.
+        /// </value>
+        public static IConfigurationRoot Configuration { get; set; }
+
+        public static IContainer Container { get; set; }
+
+        /// <summary>
+        /// Gets or sets the hosting environment.
+        /// </summary>
+        /// <value>
+        /// The hosting environment.
+        /// </value>
+        public static IWebHostEnvironment WebHostEnvironment { get; set; }
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Configures the specified application.
@@ -117,10 +110,12 @@
         /// <param name="env">The env.</param>
         /// <param name="loggerFactory">The logger factory.</param>
         /// <param name="provider">The provider.</param>
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory,
+        public void Configure(IApplicationBuilder app,
+                              IWebHostEnvironment env,
+                              ILoggerFactory loggerFactory,
                               IApiVersionDescriptionProvider provider)
         {
-            String nlogConfigFilename = $"nlog.config";
+            String nlogConfigFilename = "nlog.config";
             if (env.IsDevelopment())
             {
                 nlogConfigFilename = $"nlog.{env.EnvironmentName}.config";
@@ -129,40 +124,36 @@
 
             loggerFactory.ConfigureNLog(Path.Combine(Startup.WebHostEnvironment.ContentRootPath, nlogConfigFilename));
             loggerFactory.AddNLog();
- 
+
             ILogger logger = loggerFactory.CreateLogger("Security Service");
-            
+
             Logger.Initialise(logger);
- 
+
             ConfigurationReader.Initialise(Startup.Configuration);
 
             app.AddRequestLogging();
             app.AddResponseLogging();
             app.AddExceptionHandler();
-            
+
             app.UseRouting();
 
-            app.UseStaticFiles();            
+            app.UseStaticFiles();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
-            {
-                ForwardedHeaders = ForwardedHeaders.XForwardedProto
-            });
+                                    {
+                                        ForwardedHeaders = ForwardedHeaders.XForwardedProto
+                                    });
 
             app.UseIdentityServer();
-            
+
             // Setup the database
             this.InitialiseDatabase(app).Wait();
 
-            app.UseEndpoints(endpoints =>
-                             {
-                                 endpoints.MapControllers();
-                             });
+            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(
-                             options =>
+            app.UseSwaggerUI(options =>
                              {
                                  // build a swagger endpoint for each discovered API version
                                  foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
@@ -171,9 +162,6 @@
                                  }
                              });
         }
-        #endregion
-
-        #endregion
 
         public void ConfigureContainer(ServiceRegistry services)
         {
@@ -195,7 +183,7 @@
                                                         IWebHostEnvironment webHostEnvironment)
         {
             Container container = new Container(services);
-            
+
             // TODO: Build a registry file
             //services.IncludeRegistry<CommonRegistry>();
             services.AddSingleton<ISecurityServiceManager, SecurityServiceManager>();
@@ -208,12 +196,9 @@
             return container;
         }
 
-        public static IContainer Container { get; set; }
-
         private void ConfigureMiddlewareServices(IServiceCollection services)
         {
-            services.AddApiVersioning(
-                                      options =>
+            services.AddApiVersioning(options =>
                                       {
                                           // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
                                           options.ReportApiVersions = true;
@@ -222,8 +207,7 @@
                                           options.ApiVersionReader = new HeaderApiVersionReader("api-version");
                                       });
 
-            services.AddVersionedApiExplorer(
-                                             options =>
+            services.AddVersionedApiExplorer(options =>
                                              {
                                                  // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
                                                  // note: the specified format code will format the version as "'v'major[.minor][-status]"
@@ -237,25 +221,27 @@
             services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
 
             services.AddSwaggerGen(c =>
-            {
-                // add a custom operation filter which sets default values
-                c.OperationFilter<SwaggerDefaultValues>();
-                c.ExampleFilters();
-            });
+                                   {
+                                       // add a custom operation filter which sets default values
+                                       c.OperationFilter<SwaggerDefaultValues>();
+                                       c.ExampleFilters();
+                                   });
 
             services.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
 
             services.AddIdentity<IdentityUser, IdentityRole>(o =>
-            {
-                o.Password.RequireDigit = Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireDigit");
-                o.Password.RequireLowercase =
-                    Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireLowercase");
-                o.Password.RequireUppercase =
-                    Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireUppercase");
-                o.Password.RequireNonAlphanumeric =
-                    Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireNonAlphanumeric");
-                o.Password.RequiredLength = Startup.Configuration.GetValue<Int32>("IdentityOptions:PasswordOptions:RequiredLength");
-            }).AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders();
+                                                             {
+                                                                 o.Password.RequireDigit =
+                                                                     Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireDigit");
+                                                                 o.Password.RequireLowercase =
+                                                                     Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireLowercase");
+                                                                 o.Password.RequireUppercase =
+                                                                     Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireUppercase");
+                                                                 o.Password.RequireNonAlphanumeric =
+                                                                     Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireNonAlphanumeric");
+                                                                 o.Password.RequiredLength =
+                                                                     Startup.Configuration.GetValue<Int32>("IdentityOptions:PasswordOptions:RequiredLength");
+                                                             }).AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders();
 
             if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest"))
             {
@@ -266,33 +252,25 @@
                                                options.Events.RaiseErrorEvents = true;
                                                options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
                                                options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-                                           })
-                        .AddDeveloperSigningCredential()
-                        .AddAspNetIdentity<IdentityUser>()
-                        .AddIntegrationTestConfiguration()
+                                           }).AddDeveloperSigningCredential().AddAspNetIdentity<IdentityUser>().AddIntegrationTestConfiguration()
                         .AddJwtBearerClientAuthentication();
 
-                        services.AddDbContext<AuthenticationDbContext>(builder => builder.UseInMemoryDatabase("Authentication")).AddTransient<AuthenticationDbContext>();
+                services.AddDbContext<AuthenticationDbContext>(builder => builder.UseInMemoryDatabase("Authentication")).AddTransient<AuthenticationDbContext>();
 
-                services.AddDbContext<ConfigurationDbContext>(builder =>
-                                                                  builder.UseInMemoryDatabase("Configuration"))
-                        .AddTransient<ConfigurationDbContext>();
+                services.AddDbContext<ConfigurationDbContext>(builder => builder.UseInMemoryDatabase("Configuration")).AddTransient<IConfigurationDbContext, ConfigurationDbContext>();
 
-                services.AddDbContext<PersistedGrantDbContext>(builder =>
-                                                                   builder.UseInMemoryDatabase("PersistedGrantStore"))
-                        .AddTransient<PersistedGrantDbContext>();
+                services.AddDbContext<PersistedGrantDbContext>(builder => builder.UseInMemoryDatabase("PersistedGrantStore")).AddTransient<IPersistedGrantDbContext, PersistedGrantDbContext>();
             }
             else
             {
-
                 String migrationsAssembly = typeof(AuthenticationDbContext).GetTypeInfo().Assembly.GetName().Name;
                 services.AddDbContext<ConfigurationDbContext>(builder => builder.UseSqlServer(Startup.ConfigurationConnectionString,
                                                                                               sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
-                        .AddTransient<ConfigurationDbContext>();
+                        .AddTransient<IConfigurationDbContext, ConfigurationDbContext>();
 
                 services.AddDbContext<PersistedGrantDbContext>(builder => builder.UseSqlServer(Startup.PersistedGrantStoreConenctionString,
                                                                                                sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
-                        .AddTransient<PersistedGrantDbContext>();
+                        .AddTransient<IPersistedGrantDbContext, PersistedGrantDbContext>();
 
                 services.AddDbContext<AuthenticationDbContext>(builder => builder.UseSqlServer(Startup.AuthenticationConenctionString,
                                                                                                sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
@@ -314,7 +292,7 @@
 
         private async Task InitialiseDatabase(IApplicationBuilder app)
         {
-            using (IServiceScope scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            using(IServiceScope scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 PersistedGrantDbContext persistedGrantDbContext = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
                 ConfigurationDbContext configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
@@ -327,5 +305,7 @@
                 DatabaseSeeding.InitialisePersistedGrantDatabase(persistedGrantDbContext, seedingType);
             }
         }
+
+        #endregion
     }
 }
