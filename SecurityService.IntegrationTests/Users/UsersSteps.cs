@@ -1,31 +1,54 @@
-﻿using System;
-using TechTalk.SpecFlow;
-
-namespace SecurityService.IntergrationTests.Users
+﻿namespace SecurityService.IntergrationTests.Users
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Net.Http;
     using System.Text;
-    using SecurityService.DataTransferObjects;
     using System.Threading;
     using System.Threading.Tasks;
     using Common;
+    using DataTransferObjects;
     using DataTransferObjects.Responses;
     using Newtonsoft.Json;
     using Shouldly;
+    using TechTalk.SpecFlow;
 
+    /// <summary>
+    /// 
+    /// </summary>
     [Binding]
     [Scope(Tag = "users")]
     public class UsersSteps
     {
+        #region Fields
+
+        /// <summary>
+        /// The testing context
+        /// </summary>
         private readonly TestingContext TestingContext;
 
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UsersSteps"/> class.
+        /// </summary>
+        /// <param name="testingContext">The testing context.</param>
         public UsersSteps(TestingContext testingContext)
         {
             this.TestingContext = testingContext;
         }
 
+        #endregion
+
+        #region Methods
+
+        /// <summary>
+        /// Givens the i create the following users.
+        /// </summary>
+        /// <param name="table">The table.</param>
         [Given(@"I create the following users")]
         public async Task GivenICreateTheFollowingUsers(Table table)
         {
@@ -34,10 +57,10 @@ namespace SecurityService.IntergrationTests.Users
                 // Get the claims
                 Dictionary<String, String> userClaims = null;
                 String claims = SpecflowTableHelper.GetStringRowValue(tableRow, "Claims");
-                if (String.IsNullOrEmpty(claims) == false)
+                if (string.IsNullOrEmpty(claims) == false)
                 {
                     userClaims = new Dictionary<String, String>();
-                    var claimList = claims.Split(",");
+                    String[] claimList = claims.Split(",");
                     foreach (String claim in claimList)
                     {
                         // Split into claim name and value
@@ -47,7 +70,7 @@ namespace SecurityService.IntergrationTests.Users
                 }
 
                 String roles = SpecflowTableHelper.GetStringRowValue(tableRow, "Roles");
-                
+
                 CreateUserRequest createUserRequest = new CreateUserRequest
                                                       {
                                                           EmailAddress = SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address"),
@@ -56,79 +79,40 @@ namespace SecurityService.IntergrationTests.Users
                                                           PhoneNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "Phone Number"),
                                                           MiddleName = SpecflowTableHelper.GetStringRowValue(tableRow, "Middle name"),
                                                           Claims = userClaims,
-                                                          Roles = String.IsNullOrEmpty(roles) ? null : roles.Split(",").ToList(),
-                                                          Password = SpecflowTableHelper.GetStringRowValue(tableRow, "Password"),
-
-                };
+                                                          Roles = string.IsNullOrEmpty(roles) ? null : roles.Split(",").ToList(),
+                                                          Password = SpecflowTableHelper.GetStringRowValue(tableRow, "Password")
+                                                      };
                 CreateUserResponse createUserResponse = await this.CreateUser(createUserRequest, CancellationToken.None).ConfigureAwait(false);
 
                 createUserResponse.ShouldNotBeNull();
                 createUserResponse.UserId.ShouldNotBe(Guid.Empty);
 
                 this.TestingContext.Users.Add(createUserRequest.EmailAddress, createUserResponse.UserId);
-
             }
         }
 
-        [When(@"I get the user with user name '(.*)' the user details are returned as follows")]
-        public async Task WhenIGetTheUserWithUserNameTheUserDetailsAreReturnedAsFollows(String userName, Table table)
-        {
-            // Get the user id
-            Guid userId = this.TestingContext.Users.Single(u => u.Key == userName).Value;
-
-            UserDetails userDetails = await this.GetUser(userId, CancellationToken.None).ConfigureAwait(false);
-
-            table.Rows.Count.ShouldBe(1);
-            var tableRow = table.Rows.First();
-            userDetails.ShouldNotBeNull();
-
-            Dictionary<String, String> userClaims = new Dictionary<String, String>();
-            String claims = SpecflowTableHelper.GetStringRowValue(tableRow, "Claims");
-            var claimList = claims.Split(",");
-            foreach (String claim in claimList)
-            {
-                // Split into claim name and value
-                String[] c = claim.Split(":");
-                userClaims.Add(c[0].Trim(), c[1].Trim());
-            }
-
-            String roles = SpecflowTableHelper.GetStringRowValue(tableRow, "Roles");
-
-            userDetails.EmailAddress.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address"));
-            userDetails.PhoneNumber.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Phone Number"));
-            userDetails.UserId.ShouldBe(userId);
-            userDetails.UserName.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address"));
-            if (String.IsNullOrEmpty(roles))
-            {
-                userDetails.Roles.ShouldBeEmpty();
-            }
-            else
-            {
-                userDetails.Roles.ShouldBe(roles.Split(",").ToList());
-            }
-
-            foreach (KeyValuePair<String, String> claim in userClaims)
-            {
-                KeyValuePair<String, String> x = userDetails.Claims.Where(c => c.Key == claim.Key).SingleOrDefault();
-                x.Value.ShouldBe(claim.Value);
-            }
-        }
-
+        /// <summary>
+        /// Whens the i get the users users details are returned as follows.
+        /// </summary>
+        /// <param name="p0">The p0.</param>
+        /// <param name="table">The table.</param>
         [When(@"I get the users (.*) users details are returned as follows")]
-        public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(int p0, Table table)
+        public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(Int32 numberOfUsers,
+                                                                           Table table)
         {
-            var userDetailsList = await this.GetUsers(CancellationToken.None).ConfigureAwait(false);
+            List<UserDetails> userDetailsList = await this.GetUsers(CancellationToken.None).ConfigureAwait(false);
+            userDetailsList.Count.ShouldBe(numberOfUsers);
 
             foreach (TableRow tableRow in table.Rows)
             {
-                var emailAddress = SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address");
-                var userDetails = userDetailsList.SingleOrDefault(u => u.EmailAddress == emailAddress);
+                String emailAddress = SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address");
+                UserDetails userDetails = userDetailsList.SingleOrDefault(u => u.EmailAddress == emailAddress);
 
                 userDetails.ShouldNotBeNull();
 
                 Dictionary<String, String> userClaims = new Dictionary<String, String>();
                 String claims = SpecflowTableHelper.GetStringRowValue(tableRow, "Claims");
-                var claimList = claims.Split(",");
+                String[] claimList = claims.Split(",");
                 foreach (String claim in claimList)
                 {
                     // Split into claim name and value
@@ -142,7 +126,7 @@ namespace SecurityService.IntergrationTests.Users
                 userDetails.PhoneNumber.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Phone Number"));
                 userDetails.UserId.ShouldNotBe(Guid.Empty);
                 userDetails.UserName.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address"));
-                if (String.IsNullOrEmpty(roles))
+                if (string.IsNullOrEmpty(roles))
                 {
                     userDetails.Roles.ShouldBeEmpty();
                 }
@@ -158,59 +142,71 @@ namespace SecurityService.IntergrationTests.Users
                 }
             }
         }
-        
-        private async Task<UserDetails> GetUser(Guid userId,
-                             CancellationToken cancellationToken)
+
+        /// <summary>
+        /// Whens the i get the user with user name the user details are returned as follows.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="table">The table.</param>
+        [When(@"I get the user with user name '(.*)' the user details are returned as follows")]
+        public async Task WhenIGetTheUserWithUserNameTheUserDetailsAreReturnedAsFollows(String userName,
+                                                                                        Table table)
         {
-            using (HttpClient client = new HttpClient())
+            // Get the user id
+            Guid userId = this.TestingContext.Users.Single(u => u.Key == userName).Value;
+
+            UserDetails userDetails = await this.GetUser(userId, CancellationToken.None).ConfigureAwait(false);
+
+            table.Rows.Count.ShouldBe(1);
+            TableRow tableRow = table.Rows.First();
+            userDetails.ShouldNotBeNull();
+
+            Dictionary<String, String> userClaims = new Dictionary<String, String>();
+            String claims = SpecflowTableHelper.GetStringRowValue(tableRow, "Claims");
+            String[] claimList = claims.Split(",");
+            foreach (String claim in claimList)
             {
-                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
+                // Split into claim name and value
+                String[] c = claim.Split(":");
+                userClaims.Add(c[0].Trim(), c[1].Trim());
+            }
 
-                HttpResponseMessage response = await client.GetAsync($"api/users/{userId}", cancellationToken);
+            String roles = SpecflowTableHelper.GetStringRowValue(tableRow, "Roles");
 
-                if (response.IsSuccessStatusCode)
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<UserDetails>(responseBody);
-                }
-                else
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
-                }
+            userDetails.EmailAddress.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address"));
+            userDetails.PhoneNumber.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Phone Number"));
+            userDetails.UserId.ShouldBe(userId);
+            userDetails.UserName.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address"));
+            if (string.IsNullOrEmpty(roles))
+            {
+                userDetails.Roles.ShouldBeEmpty();
+            }
+            else
+            {
+                userDetails.Roles.ShouldBe(roles.Split(",").ToList());
+            }
+
+            foreach (KeyValuePair<String, String> claim in userClaims)
+            {
+                KeyValuePair<String, String> x = userDetails.Claims.Where(c => c.Key == claim.Key).SingleOrDefault();
+                x.Value.ShouldBe(claim.Value);
             }
         }
 
-        private async Task<List<UserDetails>> GetUsers(CancellationToken cancellationToken)
-        {
-            using (HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
-
-                Console.Out.WriteLine($"GET Uri is [{client.BaseAddress}api/users]");
-
-                HttpResponseMessage response = await client.GetAsync($"api/users", cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<UserDetails>>(responseBody);
-                }
-                else
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
-                }
-            }
-        }
-
+        /// <summary>
+        /// Creates the user.
+        /// </summary>
+        /// <param name="createUserRequest">The create user request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Http Status Code [{response.StatusCode}] Message [{responseBody}]</exception>
         private async Task<CreateUserResponse> CreateUser(CreateUserRequest createUserRequest,
-                                            CancellationToken cancellationToken)
+                                                          CancellationToken cancellationToken)
         {
             String requestSerialised = JsonConvert.SerializeObject(createUserRequest);
             StringContent content = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
 
-            using (HttpClient client = new HttpClient())
+            using(HttpClient client = new HttpClient())
             {
                 client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
 
@@ -232,5 +228,65 @@ namespace SecurityService.IntergrationTests.Users
 
             return null;
         }
+
+        /// <summary>
+        /// Gets the user.
+        /// </summary>
+        /// <param name="userId">The user identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Http Status Code [{response.StatusCode}] Message [{responseBody}]</exception>
+        private async Task<UserDetails> GetUser(Guid userId,
+                                                CancellationToken cancellationToken)
+        {
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
+
+                HttpResponseMessage response = await client.GetAsync($"api/users/{userId}", cancellationToken);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    String responseBody = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<UserDetails>(responseBody);
+                }
+                else
+                {
+                    String responseBody = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Gets the users.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Http Status Code [{response.StatusCode}] Message [{responseBody}]</exception>
+        private async Task<List<UserDetails>> GetUsers(CancellationToken cancellationToken)
+        {
+            using(HttpClient client = new HttpClient())
+            {
+                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
+
+                Console.Out.WriteLine($"GET Uri is [{client.BaseAddress}api/users]");
+
+                HttpResponseMessage response = await client.GetAsync("api/users", cancellationToken);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    String responseBody = await response.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<List<UserDetails>>(responseBody);
+                }
+                else
+                {
+                    String responseBody = await response.Content.ReadAsStringAsync();
+                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
+                }
+            }
+        }
+
+        #endregion
     }
 }

@@ -384,7 +384,8 @@
             IdentityServer4.EntityFramework.Entities.Client clientEntity = null;
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
-                clientEntity = await context.Clients.Where(c => c.ClientId == clientId).SingleOrDefaultAsync(cancellationToken:cancellationToken);
+                clientEntity = await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).Where(c => c.ClientId == clientId)
+                                            .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
                 if (clientEntity == null)
                 {
@@ -405,7 +406,7 @@
             List<Client> clientModels = new List<Client>();
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
-                List<IdentityServer4.EntityFramework.Entities.Client> clientEntities = await context.Clients.ToListAsync(cancellationToken:cancellationToken);
+                List<IdentityServer4.EntityFramework.Entities.Client> clientEntities = await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
 
                 if (clientEntities.Any())
                 {
