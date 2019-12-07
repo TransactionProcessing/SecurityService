@@ -169,30 +169,8 @@
         private async Task<CreateClientResponse> CreateClient(CreateClientRequest createClientRequest,
                                                               CancellationToken cancellationToken)
         {
-            String requestSerialised = JsonConvert.SerializeObject(createClientRequest);
-            StringContent content = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
-
-            using(HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
-
-                Console.Out.WriteLine($"POST Uri is [{client.BaseAddress}api/clients]");
-
-                HttpResponseMessage response = await client.PostAsync("api/clients", content, cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<CreateClientResponse>(responseBody);
-                }
-                else
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
-                }
-            }
-
-            return null;
+            CreateClientResponse createClientResponse = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateClient(createClientRequest, cancellationToken).ConfigureAwait(false);
+            return createClientResponse;
         }
 
         /// <summary>
@@ -205,23 +183,8 @@
         private async Task<ClientDetails> GetClient(String clientId,
                                                     CancellationToken cancellationToken)
         {
-            using(HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
-
-                HttpResponseMessage response = await client.GetAsync($"api/clients/{clientId}", cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<ClientDetails>(responseBody);
-                }
-                else
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
-                }
-            }
+            ClientDetails clientDetails = await this.TestingContext.DockerHelper.SecurityServiceClient.GetClient(clientId, cancellationToken).ConfigureAwait(false);
+            return clientDetails;
         }
 
         /// <summary>
@@ -232,23 +195,8 @@
         /// <exception cref="Exception">Http Status Code [{response.StatusCode}] Message [{responseBody}]</exception>
         private async Task<List<ClientDetails>> GetClients(CancellationToken cancellationToken)
         {
-            using(HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
-
-                HttpResponseMessage response = await client.GetAsync("api/clients", cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<ClientDetails>>(responseBody);
-                }
-                else
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
-                }
-            }
+            List<ClientDetails> clientDetailsList = await this.TestingContext.DockerHelper.SecurityServiceClient.GetClients(cancellationToken).ConfigureAwait(false);
+            return clientDetailsList;
         }
 
         #endregion
