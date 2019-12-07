@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SecurityService.Client\SecurityService.Client.csproj" />
     <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />
     <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
   </ItemGroup>

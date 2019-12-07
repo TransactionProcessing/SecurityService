@@ -170,30 +170,8 @@
         private async Task<CreateApiResourceResponse> CreateApiResource(CreateApiResourceRequest createApiResourceRequest,
                                                                         CancellationToken cancellationToken)
         {
-            String requestSerialised = JsonConvert.SerializeObject(createApiResourceRequest);
-            StringContent content = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
-
-            using(HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
-
-                Console.Out.WriteLine($"POST Uri is [{client.BaseAddress}api/apiresources]");
-
-                HttpResponseMessage response = await client.PostAsync("api/apiresources", content, cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<CreateApiResourceResponse>(responseBody);
-                }
-                else
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
-                }
-            }
-
-            return null;
+            CreateApiResourceResponse createApiResourceResponse =  await this.TestingContext.DockerHelper.SecurityServiceClient.CreateApiResource(createApiResourceRequest, cancellationToken).ConfigureAwait(false);
+            return createApiResourceResponse;
         }
 
         /// <summary>
@@ -206,23 +184,8 @@
         private async Task<ApiResourceDetails> GetApiResource(String apiResourceName,
                                                               CancellationToken cancellationToken)
         {
-            using(HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
-
-                HttpResponseMessage response = await client.GetAsync($"api/apiresources/{apiResourceName}", cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<ApiResourceDetails>(responseBody);
-                }
-                else
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
-                }
-            }
+            ApiResourceDetails apiResourceDetails = await this.TestingContext.DockerHelper.SecurityServiceClient.GetApiResource(apiResourceName, cancellationToken).ConfigureAwait(false);
+            return apiResourceDetails;
         }
 
         /// <summary>
@@ -233,23 +196,8 @@
         /// <exception cref="Exception">Http Status Code [{response.StatusCode}] Message [{responseBody}]</exception>
         private async Task<List<ApiResourceDetails>> GetApiResources(CancellationToken cancellationToken)
         {
-            using(HttpClient client = new HttpClient())
-            {
-                client.BaseAddress = new Uri($"http://127.0.0.1:{this.TestingContext.DockerHelper.SecurityServicePort}");
-
-                HttpResponseMessage response = await client.GetAsync("api/apiresources", cancellationToken);
-
-                if (response.IsSuccessStatusCode)
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<List<ApiResourceDetails>>(responseBody);
-                }
-                else
-                {
-                    String responseBody = await response.Content.ReadAsStringAsync();
-                    throw new Exception($"Http Status Code [{response.StatusCode}] Message [{responseBody}]");
-                }
-            }
+            List<ApiResourceDetails> apiResourceDetailsList = await this.TestingContext.DockerHelper.SecurityServiceClient.GetApiResources(cancellationToken).ConfigureAwait(false);
+            return apiResourceDetailsList;
         }
 
         #endregion

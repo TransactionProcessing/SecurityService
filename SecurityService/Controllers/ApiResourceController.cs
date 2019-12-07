@@ -101,7 +101,7 @@ namespace SecurityService.Controllers
         [HttpGet]
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ApiResourceDetails>))]
-        public async Task<IActionResult> GetClients(CancellationToken cancellationToken)
+        public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken)
         {
             List<ApiResource> apiResourceList = await this.Manager.GetApiResources(cancellationToken);
 

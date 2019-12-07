@@ -6,8 +6,10 @@ namespace SecurityService.IntergrationTests.Common
 {
     using System.Data.SqlClient;
     using System.Net;
+    using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using Client;
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
@@ -24,6 +26,8 @@ namespace SecurityService.IntergrationTests.Common
 
         public String SecurityServiceContainerName;
 
+        public ISecurityServiceClient SecurityServiceClient;
+        
         public Guid TestId;
         private void SetupTestNetwork()
         {
@@ -47,6 +51,10 @@ namespace SecurityService.IntergrationTests.Common
             this.SetupSecurityServiceContainer(traceFolder);
 
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
+
+            Func<String, String> securityServiceBaseAddressResolver = api => $"http://127.0.0.1:{this.SecurityServicePort}";
+            HttpClient httpClient = new HttpClient();
+            this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver,httpClient);
 
             Console.Out.WriteLine($"Security Service Port is [{this.SecurityServicePort}]");
 
