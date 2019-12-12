@@ -4,8 +4,10 @@ using System.Text;
 
 namespace SecurityService.DataTransferObjects.Responses
 {
+    using System.Diagnostics.CodeAnalysis;
     using Newtonsoft.Json;
 
+    [ExcludeFromCodeCoverage]
     public class TokenResponse
     {
         /// <summary>

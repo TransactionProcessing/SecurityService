@@ -1,5 +1,7 @@
 ﻿using UserDetailsDto = SecurityService.DataTransferObjects.Responses.UserDetails;
+using RoleDetailsDto = SecurityService.DataTransferObjects.Responses.RoleDetails;
 using UserDetailsModel = SecurityService.Models.UserDetails;
+using RoleDetailsModel = SecurityService.Models.RoleDetails;
 
 namespace SecurityService.Factories
 {
@@ -20,6 +22,20 @@ namespace SecurityService.Factories
         /// <param name="model">The model.</param>
         /// <returns></returns>
         UserDetailsDto ConvertFrom(UserDetailsModel model);
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        RoleDetailsDto ConvertFrom(RoleDetailsModel model);
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        List<RoleDetailsDto> ConvertFrom(List<RoleDetailsModel> model);
 
         /// <summary>
         /// Converts from.

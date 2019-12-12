@@ -21,6 +21,7 @@ namespace SecurityService.IntegrationTests.Users
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "users")]
+    [Xunit.TraitAttribute("Category", "roles")]
     public partial class UsersFeature : Xunit.IClassFixture<UsersFeature.FixtureData>, System.IDisposable
     {
         
@@ -28,7 +29,8 @@ namespace SecurityService.IntegrationTests.Users
         
         private string[] _featureTags = new string[] {
                 "base",
-                "users"};
+                "users",
+                "roles"};
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
@@ -46,7 +48,8 @@ namespace SecurityService.IntegrationTests.Users
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Users", null, ProgrammingLanguage.CSharp, new string[] {
                         "base",
-                        "users"});
+                        "users",
+                        "roles"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -81,6 +84,23 @@ namespace SecurityService.IntegrationTests.Users
             testRunner.CollectScenarioErrors();
         }
         
+        public virtual void FeatureBackground()
+        {
+#line 4
+#line hidden
+            TechTalk.SpecFlow.Table table16 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Role Name"});
+            table16.AddRow(new string[] {
+                        "TestRole1"});
+            table16.AddRow(new string[] {
+                        "TestRole2"});
+            table16.AddRow(new string[] {
+                        "TestRole3"});
+#line 5
+ testRunner.Given("I create the following roles", ((string)(null)), table16, "Given ");
+#line hidden
+        }
+        
         void System.IDisposable.Dispose()
         {
             this.TestTearDown();
@@ -93,7 +113,7 @@ namespace SecurityService.IntegrationTests.Users
         {
             string[] tagsOfScenario = ((string[])(null));
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create User", null, ((string[])(null)));
-#line 4
+#line 11
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -113,7 +133,10 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
+#line 4
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Password",
                             "Phone Number",
@@ -122,7 +145,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table11.AddRow(new string[] {
+                table17.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456",
                             "123456789",
@@ -130,9 +153,9 @@ this.ScenarioInitialize(scenarioInfo);
                             "",
                             "User 1",
                             "Claim1:value1,Claim2:value2",
-                            ""});
-#line 5
- testRunner.Given("I create the following users", ((string)(null)), table11, "Given ");
+                            "TestRole1"});
+#line 12
+ testRunner.Given("I create the following users", ((string)(null)), table17, "Given ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -145,7 +168,7 @@ this.ScenarioInitialize(scenarioInfo);
         {
             string[] tagsOfScenario = ((string[])(null));
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get User", null, ((string[])(null)));
-#line 9
+#line 16
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -165,7 +188,10 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
+#line 4
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table18 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Password",
                             "Phone Number",
@@ -174,7 +200,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table12.AddRow(new string[] {
+                table18.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456",
                             "123456789",
@@ -182,8 +208,8 @@ this.ScenarioInitialize(scenarioInfo);
                             "",
                             "User 1",
                             "",
-                            ""});
-                table12.AddRow(new string[] {
+                            "TestRole1"});
+                table18.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456",
                             "123456789",
@@ -191,11 +217,11 @@ this.ScenarioInitialize(scenarioInfo);
                             "",
                             "User 2",
                             "",
-                            ""});
-#line 10
- testRunner.Given("I create the following users", ((string)(null)), table12, "Given ");
+                            "TestRole2"});
+#line 17
+ testRunner.Given("I create the following users", ((string)(null)), table18, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table19 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -203,17 +229,17 @@ this.ScenarioInitialize(scenarioInfo);
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table13.AddRow(new string[] {
+                table19.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
                             "Test",
                             "",
                             "User 1",
                             "email:testuser1@testing.co.uk, given_name:Test, family_name:User 1",
-                            ""});
-#line 14
+                            "TestRole1"});
+#line 21
  testRunner.When("I get the user with user name \'testuser1@testing.co.uk\' the user details are retu" +
-                        "rned as follows", ((string)(null)), table13, "When ");
+                        "rned as follows", ((string)(null)), table19, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -229,7 +255,7 @@ this.ScenarioInitialize(scenarioInfo);
                     "PRTest"};
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Users", null, new string[] {
                         "PRTest"});
-#line 19
+#line 26
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -249,7 +275,10 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table14 = new TechTalk.SpecFlow.Table(new string[] {
+#line 4
+this.FeatureBackground();
+#line hidden
+                TechTalk.SpecFlow.Table table20 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Password",
                             "Phone Number",
@@ -258,7 +287,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table14.AddRow(new string[] {
+                table20.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456",
                             "123456789",
@@ -266,8 +295,8 @@ this.ScenarioInitialize(scenarioInfo);
                             "",
                             "User 1",
                             "",
-                            ""});
-                table14.AddRow(new string[] {
+                            "TestRole1"});
+                table20.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456",
                             "123456789",
@@ -275,8 +304,8 @@ this.ScenarioInitialize(scenarioInfo);
                             "",
                             "User 2",
                             "",
-                            ""});
-                table14.AddRow(new string[] {
+                            "TestRole2"});
+                table20.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456",
                             "123456789",
@@ -284,11 +313,11 @@ this.ScenarioInitialize(scenarioInfo);
                             "",
                             "User 3",
                             "",
-                            ""});
-#line 20
- testRunner.Given("I create the following users", ((string)(null)), table14, "Given ");
+                            "TestRole3"});
+#line 27
+ testRunner.Given("I create the following users", ((string)(null)), table20, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table21 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -296,32 +325,32 @@ this.ScenarioInitialize(scenarioInfo);
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table15.AddRow(new string[] {
+                table21.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
                             "Test",
                             "",
                             "User 1",
                             "email:testuser1@testing.co.uk, given_name:Test, family_name:User 1",
-                            ""});
-                table15.AddRow(new string[] {
+                            "TestRole1"});
+                table21.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456789",
                             "Test",
                             "",
                             "User 2",
                             "email:testuser2@testing.co.uk, given_name:Test, family_name:User 2",
-                            ""});
-                table15.AddRow(new string[] {
+                            "TestRole2"});
+                table21.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456789",
                             "Test",
                             "",
                             "User 3",
                             "email:testuser3@testing.co.uk, given_name:Test, family_name:User 3",
-                            ""});
-#line 25
- testRunner.When("I get the users 3 users details are returned as follows", ((string)(null)), table15, "When ");
+                            "TestRole3"});
+#line 32
+ testRunner.When("I get the users 3 users details are returned as follows", ((string)(null)), table21, "When ");
 #line hidden
             }
             this.ScenarioCleanup();

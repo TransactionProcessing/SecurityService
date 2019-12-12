@@ -34,6 +34,15 @@
                                                 CancellationToken cancellationToken);
 
         /// <summary>
+        /// Creates the role.
+        /// </summary>
+        /// <param name="createRoleRequest">The create role request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<CreateRoleResponse> CreateRole(CreateRoleRequest createRoleRequest,
+                                            CancellationToken cancellationToken);
+
+        /// <summary>
         /// Creates the user.
         /// </summary>
         /// <param name="createUserRequest">The create user request.</param>
@@ -73,6 +82,22 @@
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task<List<ClientDetails>> GetClients(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the role.
+        /// </summary>
+        /// <param name="roleId">The role identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<RoleDetails> GetRole(Guid roleId,
+                                  CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the roles.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the token.

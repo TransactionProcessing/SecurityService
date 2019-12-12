@@ -41,6 +41,25 @@
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns></returns>
+        public RoleDetails ConvertFrom(Models.RoleDetails model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            return new RoleDetails
+                   {
+                       RoleId = model.RoleId,
+                       RoleName = model.RoleName
+                   };
+        }
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
         public List<UserDetails> ConvertFrom(List<Models.UserDetails> model)
         {
             if (model == null || model.Any() == false)
@@ -56,6 +75,28 @@
             }
 
             return userDetailsList;
+        }
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        public List<RoleDetails> ConvertFrom(List<Models.RoleDetails> model)
+        {
+            if (model == null || model.Any() == false)
+            {
+                return null;
+            }
+
+            List<RoleDetails> roleDetailsList = new List<RoleDetails>();
+
+            foreach (Models.RoleDetails roleDetails in model)
+            {
+                roleDetailsList.Add(this.ConvertFrom(roleDetails));
+            }
+
+            return roleDetailsList;
         }
 
         public ClientDetails ConvertFrom(Client model)
