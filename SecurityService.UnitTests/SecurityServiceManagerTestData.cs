@@ -152,6 +152,10 @@
                                                                "ApiResourceClaim1", "ApiResourceClaim2"
                                                            };
 
+        public static String RoleName = "TestRole1";
+
+        public static String Role1Id = "12225B6E-36E9-41E0-B786-A1FBFC86C932";
+
         public async static Task<IQueryable<IdentityUser>> IdentityUsers()
         {
 
@@ -182,6 +186,12 @@
 
             return await Task.FromResult(result);
         }
+
+        public static IdentityRole IdentityRole = new IdentityRole
+        {
+                                                      Id = SecurityServiceManagerTestData.Role1Id,
+                                                      Name = SecurityServiceManagerTestData.RoleName
+        };
     }
 }
 

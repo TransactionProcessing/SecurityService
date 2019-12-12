@@ -181,6 +181,48 @@
         }
 
         /// <summary>
+        /// Creates the role.
+        /// </summary>
+        /// <param name="roleName">Name of the role.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="IdentityResultException">
+        /// Role {newIdentityRole.Name} already exists
+        /// or
+        /// Error creating role {newIdentityRole.Name}
+        /// </exception>
+        public async Task<Guid> CreateRole(String roleName,
+                                           CancellationToken cancellationToken)
+        {
+            Guid roleId = Guid.NewGuid();
+
+            IdentityRole newIdentityRole = new IdentityRole
+                                           {
+                                               Id = roleId.ToString(),
+                                               Name = roleName,
+                                               NormalizedName = roleName.ToUpper()
+                                           };
+
+            // Default all IdentityResults to failed
+            IdentityResult createResult = IdentityResult.Failed();
+
+            // Ensure role name is not a duplicate
+            if (await this.RoleManager.RoleExistsAsync(newIdentityRole.Name))
+            {
+                throw new IdentityResultException($"Role {newIdentityRole.Name} already exists", IdentityResult.Failed());
+            }
+
+            createResult = await this.RoleManager.CreateAsync(newIdentityRole);
+
+            if (!createResult.Succeeded)
+            {
+                throw new IdentityResultException($"Error creating role {newIdentityRole.Name}", createResult);
+            }
+
+            return roleId;
+        }
+
+        /// <summary>
         /// Registers the user.
         /// </summary>
         /// <param name="givenName">Name of the given.</param>
@@ -271,7 +313,7 @@
                 }
 
                 // Add the requested claims
-                List<Claim> claimsToAdd =new List<Claim>();
+                List<Claim> claimsToAdd = new List<Claim>();
                 if (claims != null && claims.Any())
                 {
                     claimsToAdd.AddRange(claims.Select(x => new Claim(x.Key, x.Value)).ToList());
@@ -333,7 +375,7 @@
                                                       CancellationToken cancellationToken)
         {
             ApiResource apiResourceModel = null;
-            
+
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
                 IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = await context.ApiResources.Where(a => a.Name == apiResourceName)
@@ -362,7 +404,7 @@
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
                 List<IdentityServer4.EntityFramework.Entities.ApiResource> apiResourceEntities =
-                    await context.ApiResources.Include(a=> a.Scopes).Include(a=> a.UserClaims).ToListAsync(cancellationToken:cancellationToken);
+                    await context.ApiResources.Include(a => a.Scopes).Include(a => a.UserClaims).ToListAsync(cancellationToken:cancellationToken);
 
                 if (apiResourceEntities.Any())
                 {
@@ -390,8 +432,10 @@
 
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
-                IdentityServer4.EntityFramework.Entities.Client clientEntity = await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).Where(c => c.ClientId == clientId)
-                                            .SingleOrDefaultAsync(cancellationToken:cancellationToken);
+                IdentityServer4.EntityFramework.Entities.Client clientEntity = await context
+                                                                                     .Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes)
+                                                                                     .Where(c => c.ClientId == clientId)
+                                                                                     .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
                 if (clientEntity == null)
                 {
@@ -414,7 +458,8 @@
             List<Client> clientModels = new List<Client>();
             using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
             {
-                List<IdentityServer4.EntityFramework.Entities.Client> clientEntities = await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
+                List<IdentityServer4.EntityFramework.Entities.Client> clientEntities =
+                    await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
 
                 if (clientEntities.Any())
                 {
@@ -426,6 +471,58 @@
             }
 
             return clientModels;
+        }
+
+        /// <summary>
+        /// Gets the role.
+        /// </summary>
+        /// <param name="roleId">The role identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException">No role found with Id {roleId}</exception>
+        public async Task<RoleDetails> GetRole(Guid roleId,
+                                               CancellationToken cancellationToken)
+        {
+            IdentityRole identityRole = await this.RoleManager.FindByIdAsync(roleId.ToString());
+
+            if (identityRole == null)
+            {
+                throw new NotFoundException($"No role found with Id {roleId}");
+            }
+
+            // Role has been found
+            RoleDetails response = new RoleDetails
+                                   {
+                                       RoleId = Guid.Parse(identityRole.Id),
+                                       RoleName = identityRole.Name
+                                   };
+
+            return response;
+        }
+
+        /// <summary>
+        /// Gets the roles.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken)
+        {
+            List<RoleDetails> response = new List<RoleDetails>();
+
+            IQueryable<IdentityRole> query = this.RoleManager.Roles;
+
+            List<IdentityRole> roles = await query.ToListAsyncSafe(cancellationToken);
+
+            foreach (IdentityRole identityRole in roles)
+            {
+                response.Add(new RoleDetails
+                             {
+                                 RoleId = Guid.Parse(identityRole.Id),
+                                 RoleName = identityRole.Name
+                             });
+            }
+
+            return response;
         }
 
         /// <summary>

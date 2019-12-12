@@ -131,6 +131,47 @@
         }
 
         /// <summary>
+        /// Creates the role.
+        /// </summary>
+        /// <param name="createRoleRequest">The create role request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<CreateRoleResponse> CreateRole(CreateRoleRequest createRoleRequest,
+                                                         CancellationToken cancellationToken)
+        {
+            CreateRoleResponse response = null;
+            String requestUri = $"{this.BaseAddress}/api/roles";
+
+            try
+            {
+                String requestSerialised = JsonConvert.SerializeObject(createRoleRequest);
+
+                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
+
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<CreateRoleResponse>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception($"Error creating role {createRoleRequest.RoleName}.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Creates the user.
         /// </summary>
         /// <param name="createUserRequest">The create user request.</param>
@@ -308,6 +349,78 @@
             {
                 // An exception has occurred, add some additional information to the message
                 Exception exception = new Exception("Error getting clients.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Gets the role.
+        /// </summary>
+        /// <param name="roleId">The role identifier.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<RoleDetails> GetRole(Guid roleId,
+                                               CancellationToken cancellationToken)
+        {
+            RoleDetails response = null;
+            String requestUri = $"{this.BaseAddress}/api/roles/{roleId}";
+
+            try
+            {
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<RoleDetails>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception($"Error get role with Id {roleId}.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Gets the roles.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken)
+        {
+            List<RoleDetails> response = null;
+            String requestUri = $"{this.BaseAddress}/api/roles";
+
+            try
+            {
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<List<RoleDetails>>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception("Error get roles.", ex);
 
                 throw exception;
             }

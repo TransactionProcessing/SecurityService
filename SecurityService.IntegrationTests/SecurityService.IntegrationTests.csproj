@@ -35,6 +35,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Clients.feature</DependentUpon>
     </Compile>
+    <Compile Update="Roles\Roles.feature.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Roles.feature</DependentUpon>
+    </Compile>
     <Compile Update="Users\Users.feature.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -47,6 +52,10 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Clients.feature.cs</LastGenOutput>
       <Generator Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'"></Generator>
+    </SpecFlowFeatureFiles>
+    <SpecFlowFeatureFiles Update="Roles\Roles.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>Roles.feature.cs</LastGenOutput>
     </SpecFlowFeatureFiles>
     <SpecFlowFeatureFiles Update="Users\Users.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

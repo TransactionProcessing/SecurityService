@@ -734,6 +734,62 @@
             apiResources.First().Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
         }
 
+        [Fact]
+        public async Task SecurityServiceManager_CreateRole_RoleIsCreated()
+        {
+            this.RoleStore.Setup(r => r.CreateAsync(It.IsAny<IdentityRole>(), It.IsAny<CancellationToken>())).ReturnsAsync(IdentityResult.Success);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
+
+            Guid roleId = await securityServiceManager.CreateRole(SecurityServiceManagerTestData.RoleName, CancellationToken.None);
+
+            roleId.ShouldNotBe(Guid.Empty);
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_CreateRole_RoleAlreadyExists_ErrorThrown()
+        {
+            this.RoleStore.Setup(r => r.FindByNameAsync(It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(new IdentityRole(SecurityServiceManagerTestData.RoleName));
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
+
+            Should.Throw<IdentityResultException>(async () => { await securityServiceManager.CreateRole(SecurityServiceManagerTestData.RoleName, CancellationToken.None); });
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_CreateRole_CreateFailed_ErrorThrown()
+        {
+            this.RoleStore.Setup(r => r.CreateAsync(It.IsAny<IdentityRole>(), It.IsAny<CancellationToken>())).ReturnsAsync(IdentityResult.Failed());
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
+
+            Should.Throw<IdentityResultException>(async () => { await securityServiceManager.CreateRole(SecurityServiceManagerTestData.RoleName, CancellationToken.None); });
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_GetRole_RoleDataReturned()
+        {
+            this.RoleStore.Setup(r => r.FindByIdAsync(It.IsAny<String>(), It.IsAny<CancellationToken>())).ReturnsAsync(SecurityServiceManagerTestData.IdentityRole);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
+
+            RoleDetails roleDetails = await securityServiceManager.GetRole(Guid.Parse(SecurityServiceManagerTestData.Role1Id), CancellationToken.None);
+
+            roleDetails.RoleId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.Role1Id));
+            roleDetails.RoleName.ShouldBe(SecurityServiceManagerTestData.RoleName);
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_GetRole_RoleNotFound_ErrorThrown()
+        {
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
+
+            Should.Throw<NotFoundException>(async () =>
+                                            {
+                                                await securityServiceManager.GetRole(Guid.Parse(SecurityServiceManagerTestData.Role1Id), CancellationToken.None);
+                                            });
+        }
+
         #endregion
     }
 }

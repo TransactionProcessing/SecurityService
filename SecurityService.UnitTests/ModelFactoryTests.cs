@@ -11,6 +11,7 @@ namespace SecurityService.UnitTests
     using Shouldly;
     using Xunit;
     using UserDetails = Models.UserDetails;
+    using RoleDetails = Models.RoleDetails;
 
     public class ModelFactoryTests
     {
@@ -293,6 +294,81 @@ namespace SecurityService.UnitTests
             List<ApiResourceDetails> apiResourceDtoList = modelFactory.ConvertFrom(apiResourceList);
 
             apiResourceDtoList.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_RoleDetails_ModelConverted()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            RoleDetails roleDetailsModel = new RoleDetails
+            {
+                                               RoleId = Guid.Parse(SecurityServiceManagerTestData.Role1Id),
+                                               RoleName = SecurityServiceManagerTestData.RoleName
+                                           };
+
+            DataTransferObjects.Responses.RoleDetails roleDetailsDto = modelFactory.ConvertFrom(roleDetailsModel);
+
+            roleDetailsDto.RoleId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.Role1Id));
+            roleDetailsDto.RoleName.ShouldBe(SecurityServiceManagerTestData.RoleName);
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_RoleDetails_ModelIsNull_NullReturned()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            RoleDetails roleDetailsModel = null;
+
+            DataTransferObjects.Responses.RoleDetails roleDetailsDto = modelFactory.ConvertFrom(roleDetailsModel);
+
+            roleDetailsModel.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ListRoleDetails_ModelsConverted()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            RoleDetails roleDetailsModel = new RoleDetails
+            {
+                RoleId = Guid.Parse(SecurityServiceManagerTestData.Role1Id),
+                RoleName = SecurityServiceManagerTestData.RoleName
+            };
+            List<RoleDetails> roleDetailsModelList = new List<RoleDetails>();
+            roleDetailsModelList.Add(roleDetailsModel);
+
+            List<DataTransferObjects.Responses.RoleDetails> rolesDetailsDtoList = modelFactory.ConvertFrom(roleDetailsModelList);
+
+            rolesDetailsDtoList.ShouldNotBeNull();
+            rolesDetailsDtoList.ShouldNotBeEmpty();
+            rolesDetailsDtoList.Count.ShouldBe(roleDetailsModelList.Count);
+            rolesDetailsDtoList.First().RoleId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.Role1Id));
+            rolesDetailsDtoList.First().RoleName.ShouldBe(SecurityServiceManagerTestData.RoleName);
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ListRoleDetails_ListIsNull_NullReturned()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            List<RoleDetails> roleDetailsModelList = null;
+
+            List<DataTransferObjects.Responses.RoleDetails> roleDetailsDtoList = modelFactory.ConvertFrom(roleDetailsModelList);
+
+            roleDetailsDtoList.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_ListRoleDetails_ListIsEmpty_NullReturned()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            List<RoleDetails> roleDetailsModelList = new List<RoleDetails>();
+
+            List<DataTransferObjects.Responses.RoleDetails> roleDetailsDtoList = modelFactory.ConvertFrom(roleDetailsModelList);
+
+            roleDetailsDtoList.ShouldBeNull();
         }
     }
 }
