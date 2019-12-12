@@ -322,7 +322,7 @@ namespace SecurityService.UnitTests
 
             DataTransferObjects.Responses.RoleDetails roleDetailsDto = modelFactory.ConvertFrom(roleDetailsModel);
 
-            roleDetailsModel.ShouldBeNull();
+            roleDetailsDto.ShouldBeNull();
         }
 
         [Fact]
