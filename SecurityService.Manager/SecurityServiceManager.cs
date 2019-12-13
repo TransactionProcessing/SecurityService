@@ -100,36 +100,34 @@
                                                     List<String> userClaims,
                                                     CancellationToken cancellationToken)
         {
-            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
+            ApiResource apiResource = new ApiResource
+                                      {
+                                          ApiSecrets = new List<Secret>
+                                                       {
+                                                           new Secret(secret.ToSha256())
+                                                       },
+                                          Description = description,
+                                          DisplayName = displayName,
+                                          Name = name,
+                                          UserClaims = userClaims
+                                      };
+
+            if (scopes != null && scopes.Any())
             {
-                ApiResource apiResource = new ApiResource
-                                          {
-                                              ApiSecrets = new List<Secret>
-                                                           {
-                                                               new Secret(secret.ToSha256())
-                                                           },
-                                              Description = description,
-                                              DisplayName = displayName,
-                                              Name = name,
-                                              UserClaims = userClaims
-                                          };
-
-                if (scopes != null && scopes.Any())
+                foreach (String scope in scopes)
                 {
-                    foreach (String scope in scopes)
-                    {
-                        apiResource.Scopes.Add(new Scope(scope));
-                    }
+                    apiResource.Scopes.Add(new Scope(scope));
                 }
-
-                // Now translate the model to the entity
-                await context.ApiResources.AddAsync(apiResource.ToEntity(), cancellationToken);
-
-                // Save the changes
-                await context.SaveChangesAsync();
-
-                return name;
             }
+
+            // Now translate the model to the entity
+            await context.ApiResources.AddAsync(apiResource.ToEntity(), cancellationToken);
+
+            // Save the changes
+            await context.SaveChangesAsync();
+
+            return name;
         }
 
         /// <summary>
@@ -154,28 +152,27 @@
             // Validate the grant types list
             this.ValidateGrantTypes(allowedGrantTypes);
 
-            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
-            {
-                // Create the model from the request
-                Client client = new Client
+            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
+
+            // Create the model from the request
+            Client client = new Client
+                            {
+                                ClientId = clientId,
+                                ClientName = clientName,
+                                Description = clientDescription,
+                                ClientSecrets =
                                 {
-                                    ClientId = clientId,
-                                    ClientName = clientName,
-                                    Description = clientDescription,
-                                    ClientSecrets =
-                                    {
-                                        new Secret(secret.ToSha256())
-                                    },
-                                    AllowedGrantTypes = allowedGrantTypes,
-                                    AllowedScopes = allowedScopes
-                                };
+                                    new Secret(secret.ToSha256())
+                                },
+                                AllowedGrantTypes = allowedGrantTypes,
+                                AllowedScopes = allowedScopes
+                            };
 
-                // Now translate the model to the entity
-                await context.Clients.AddAsync(client.ToEntity(), cancellationToken);
+            // Now translate the model to the entity
+            await context.Clients.AddAsync(client.ToEntity(), cancellationToken);
 
-                // Save the changes
-                await context.SaveChangesAsync();
-            }
+            // Save the changes
+            await context.SaveChangesAsync();
 
             return clientId;
         }
@@ -376,19 +373,18 @@
         {
             ApiResource apiResourceModel = null;
 
-            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
+
+            IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = await context.ApiResources.Where(a => a.Name == apiResourceName)
+                                                                                                  .Include(a => a.Scopes).Include(a => a.UserClaims)
+                                                                                                  .SingleOrDefaultAsync(cancellationToken:cancellationToken);
+
+            if (apiResourceEntity == null)
             {
-                IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = await context.ApiResources.Where(a => a.Name == apiResourceName)
-                                                                                                      .Include(a => a.Scopes).Include(a => a.UserClaims)
-                                                                                                      .SingleOrDefaultAsync(cancellationToken:cancellationToken);
-
-                if (apiResourceEntity == null)
-                {
-                    throw new NotFoundException($"No Api Resource found with Name [{apiResourceName}]");
-                }
-
-                apiResourceModel = apiResourceEntity.ToModel();
+                throw new NotFoundException($"No Api Resource found with Name [{apiResourceName}]");
             }
+
+            apiResourceModel = apiResourceEntity.ToModel();
 
             return apiResourceModel;
         }
@@ -401,17 +397,16 @@
         public async Task<List<ApiResource>> GetApiResources(CancellationToken cancellationToken)
         {
             List<ApiResource> apiResourceModels = new List<ApiResource>();
-            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
-            {
-                List<IdentityServer4.EntityFramework.Entities.ApiResource> apiResourceEntities =
-                    await context.ApiResources.Include(a => a.Scopes).Include(a => a.UserClaims).ToListAsync(cancellationToken:cancellationToken);
+            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
 
-                if (apiResourceEntities.Any())
+            List<IdentityServer4.EntityFramework.Entities.ApiResource> apiResourceEntities =
+                await context.ApiResources.Include(a => a.Scopes).Include(a => a.UserClaims).ToListAsync(cancellationToken:cancellationToken);
+
+            if (apiResourceEntities.Any())
+            {
+                foreach (IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity in apiResourceEntities)
                 {
-                    foreach (IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity in apiResourceEntities)
-                    {
-                        apiResourceModels.Add(apiResourceEntity.ToModel());
-                    }
+                    apiResourceModels.Add(apiResourceEntity.ToModel());
                 }
             }
 
@@ -430,20 +425,19 @@
         {
             Client clientModel = null;
 
-            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
+            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
+
+            IdentityServer4.EntityFramework.Entities.Client clientEntity = await context
+                                                                                 .Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes)
+                                                                                 .Where(c => c.ClientId == clientId)
+                                                                                 .SingleOrDefaultAsync(cancellationToken:cancellationToken);
+
+            if (clientEntity == null)
             {
-                IdentityServer4.EntityFramework.Entities.Client clientEntity = await context
-                                                                                     .Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes)
-                                                                                     .Where(c => c.ClientId == clientId)
-                                                                                     .SingleOrDefaultAsync(cancellationToken:cancellationToken);
-
-                if (clientEntity == null)
-                {
-                    throw new NotFoundException($"No client found with Client Id [{clientId}]");
-                }
-
-                clientModel = clientEntity.ToModel();
+                throw new NotFoundException($"No client found with Client Id [{clientId}]");
             }
+
+            clientModel = clientEntity.ToModel();
 
             return clientModel;
         }
@@ -456,17 +450,16 @@
         public async Task<List<Client>> GetClients(CancellationToken cancellationToken)
         {
             List<Client> clientModels = new List<Client>();
-            using(IConfigurationDbContext context = this.ConfigurationDbContextResolver())
-            {
-                List<IdentityServer4.EntityFramework.Entities.Client> clientEntities =
-                    await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
+            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
 
-                if (clientEntities.Any())
+            List<IdentityServer4.EntityFramework.Entities.Client> clientEntities =
+                await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
+
+            if (clientEntities.Any())
+            {
+                foreach (IdentityServer4.EntityFramework.Entities.Client clientEntity in clientEntities)
                 {
-                    foreach (IdentityServer4.EntityFramework.Entities.Client clientEntity in clientEntities)
-                    {
-                        clientModels.Add(clientEntity.ToModel());
-                    }
+                    clientModels.Add(clientEntity.ToModel());
                 }
             }
 
