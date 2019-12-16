@@ -26,7 +26,7 @@ namespace SecurityService.DataTransferObjects.Responses
         /// The expires
         /// </summary>
         /// <value>The expires in.</value>
-        public Int32 ExpiresIn { get; private set; }
+        public Int64 ExpiresIn { get; private set; }
 
         /// <summary>
         /// Gets the issued.
@@ -44,7 +44,7 @@ namespace SecurityService.DataTransferObjects.Responses
         {
             dynamic auth = JsonConvert.DeserializeObject(token);
 
-            Int32 expiresIn = auth["expires_in"].Value;
+            Int64 expiresIn = auth["expires_in"].Value;
             String accessToken = auth["access_token"].Value;
 
             DateTimeOffset issued = DateTimeOffset.Now;
@@ -62,7 +62,7 @@ namespace SecurityService.DataTransferObjects.Responses
 
         public static TokenResponse Create(String accessToken,
                                            String refreshToken,
-                                           Int32 expiresIn,
+                                           Int64 expiresIn,
                                            DateTimeOffset issued = default(DateTimeOffset),
                                            DateTimeOffset expires = default(DateTimeOffset))
         {
@@ -71,7 +71,7 @@ namespace SecurityService.DataTransferObjects.Responses
 
         private TokenResponse(String accessToken,
                               String refreshToken,
-                              Int32 expiresIn,
+                              Int64 expiresIn,
                               DateTimeOffset issued = default(DateTimeOffset),
                               DateTimeOffset expires = default(DateTimeOffset))
         {
