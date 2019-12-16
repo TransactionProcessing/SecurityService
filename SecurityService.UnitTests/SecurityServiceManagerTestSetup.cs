@@ -106,7 +106,7 @@
             this.ServiceProvider.Setup(sp => sp.GetService(It.IsAny<Type>())).Returns(tokenProvider.Object);
         }
 
-        private SecurityServiceManager SetupSecurityServiceManager(IConfigurationDbContext configurationDbContext = null)
+        private SecurityServiceManager SetupSecurityServiceManager(ConfigurationDbContext configurationDbContext = null)
         {
             this.SetupServiceProvider();
             this.SetupErrorDescriber();
@@ -125,28 +125,26 @@
             RoleManager<IdentityRole> roleManager =
                 new RoleManager<IdentityRole>(this.RoleStore.Object, null, null, null, null);
 
-            Mock<ConfigurationDbContext> configurationDbContextResolver =
-                new Mock<ConfigurationDbContext>();
-            //if (configurationDbContext != null)
-            //{
-            //    configurationDbContextResolver.Setup(m => m.Invoke()).Returns(configurationDbContext);
-            //}
+            if (configurationDbContext != null)
+            {
+                this.GetConfigurationDbContext(Guid.NewGuid().ToString());
+            }
             
             SignInManager<IdentityUser> signInManager = new SignInManager<IdentityUser>(userManager, this.ContextAccessor.Object, this.ClaimsFactory.Object, null, null, null, null);
             
             SecurityServiceManager securityServiceManager =
-                new SecurityServiceManager(this.PasswordHasher.Object, userManager, roleManager, signInManager, configurationDbContextResolver.Object);
+                new SecurityServiceManager(this.PasswordHasher.Object, userManager, roleManager, signInManager, configurationDbContext);
 
             return securityServiceManager;
         }
 
 
-        private IConfigurationDbContext GetConfigurationDbContext(String databaseName)
+        private ConfigurationDbContext GetConfigurationDbContext(String databaseName)
         {
             DbContextOptionsBuilder<ConfigurationDbContext> builder = new DbContextOptionsBuilder<ConfigurationDbContext>()
                                                                       .UseInMemoryDatabase(databaseName)
                                                                       .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-            IConfigurationDbContext context = new ConfigurationDbContext(builder.Options, new ConfigurationStoreOptions());
+            ConfigurationDbContext context = new ConfigurationDbContext(builder.Options, new ConfigurationStoreOptions());
 
             return context;
         }
