@@ -9,6 +9,7 @@
     using Exceptions;
     using Extensions;
     using IdentityModel;
+    using IdentityServer4.EntityFramework.DbContexts;
     using IdentityServer4.EntityFramework.Interfaces;
     using IdentityServer4.EntityFramework.Mappers;
     using IdentityServer4.Models;
@@ -30,7 +31,7 @@
         /// <summary>
         /// The configuration database context resolver
         /// </summary>
-        private readonly Func<IConfigurationDbContext> ConfigurationDbContextResolver;
+        private readonly ConfigurationDbContext ConfigurationDbContext;
 
         /// <summary>
         /// The password hasher
@@ -63,18 +64,18 @@
         /// <param name="userManager">The user manager.</param>
         /// <param name="roleManager">The role manager.</param>
         /// <param name="signInManager">The sign in manager.</param>
-        /// <param name="configurationDbContextResolver">The configuration database context resolver.</param>
+        /// <param name="configurationDbContext">The configuration database context.</param>
         public SecurityServiceManager(IPasswordHasher<IdentityUser> passwordHasher,
                                       UserManager<IdentityUser> userManager,
                                       RoleManager<IdentityRole> roleManager,
                                       SignInManager<IdentityUser> signInManager,
-                                      Func<IConfigurationDbContext> configurationDbContextResolver)
+                                      ConfigurationDbContext configurationDbContext)
         {
             this.PasswordHasher = passwordHasher;
             this.UserManager = userManager;
             this.RoleManager = roleManager;
             this.SignInManager = signInManager;
-            this.ConfigurationDbContextResolver = configurationDbContextResolver;
+            this.ConfigurationDbContext = configurationDbContext;
         }
 
         #endregion
@@ -100,7 +101,6 @@
                                                     List<String> userClaims,
                                                     CancellationToken cancellationToken)
         {
-            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
             ApiResource apiResource = new ApiResource
                                       {
                                           ApiSecrets = new List<Secret>
@@ -122,10 +122,10 @@
             }
 
             // Now translate the model to the entity
-            await context.ApiResources.AddAsync(apiResource.ToEntity(), cancellationToken);
+            await this.ConfigurationDbContext.ApiResources.AddAsync(apiResource.ToEntity(), cancellationToken);
 
             // Save the changes
-            await context.SaveChangesAsync();
+            await this.ConfigurationDbContext.SaveChangesAsync();
 
             return name;
         }
@@ -152,8 +152,6 @@
             // Validate the grant types list
             this.ValidateGrantTypes(allowedGrantTypes);
 
-            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
-
             // Create the model from the request
             Client client = new Client
                             {
@@ -169,10 +167,10 @@
                             };
 
             // Now translate the model to the entity
-            await context.Clients.AddAsync(client.ToEntity(), cancellationToken);
+            await this.ConfigurationDbContext.Clients.AddAsync(client.ToEntity(), cancellationToken);
 
             // Save the changes
-            await context.SaveChangesAsync();
+            await this.ConfigurationDbContext.SaveChangesAsync();
 
             return clientId;
         }
@@ -372,12 +370,10 @@
                                                       CancellationToken cancellationToken)
         {
             ApiResource apiResourceModel = null;
-
-            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
-
-            IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = await context.ApiResources.Where(a => a.Name == apiResourceName)
-                                                                                                  .Include(a => a.Scopes).Include(a => a.UserClaims)
-                                                                                                  .SingleOrDefaultAsync(cancellationToken:cancellationToken);
+            
+            IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = await this.ConfigurationDbContext.ApiResources.Where(a => a.Name == apiResourceName)
+                                                                                               .Include(a => a.Scopes).Include(a => a.UserClaims)
+                                                                                               .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
             if (apiResourceEntity == null)
             {
@@ -397,10 +393,9 @@
         public async Task<List<ApiResource>> GetApiResources(CancellationToken cancellationToken)
         {
             List<ApiResource> apiResourceModels = new List<ApiResource>();
-            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
 
             List<IdentityServer4.EntityFramework.Entities.ApiResource> apiResourceEntities =
-                await context.ApiResources.Include(a => a.Scopes).Include(a => a.UserClaims).ToListAsync(cancellationToken:cancellationToken);
+                await this.ConfigurationDbContext.ApiResources.Include(a => a.Scopes).Include(a => a.UserClaims).ToListAsync(cancellationToken:cancellationToken);
 
             if (apiResourceEntities.Any())
             {
@@ -425,12 +420,10 @@
         {
             Client clientModel = null;
 
-            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
-
-            IdentityServer4.EntityFramework.Entities.Client clientEntity = await context
-                                                                                 .Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes)
-                                                                                 .Where(c => c.ClientId == clientId)
-                                                                                 .SingleOrDefaultAsync(cancellationToken:cancellationToken);
+            IdentityServer4.EntityFramework.Entities.Client clientEntity = await this.ConfigurationDbContext
+                                                                                     .Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes)
+                                                                                     .Where(c => c.ClientId == clientId)
+                                                                                     .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
             if (clientEntity == null)
             {
@@ -450,10 +443,9 @@
         public async Task<List<Client>> GetClients(CancellationToken cancellationToken)
         {
             List<Client> clientModels = new List<Client>();
-            IConfigurationDbContext context = this.ConfigurationDbContextResolver();
 
             List<IdentityServer4.EntityFramework.Entities.Client> clientEntities =
-                await context.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
+                await this.ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
 
             if (clientEntities.Any())
             {

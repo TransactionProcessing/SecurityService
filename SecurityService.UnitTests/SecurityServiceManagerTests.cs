@@ -8,12 +8,15 @@
     using System.Threading.Tasks;
     using DataTransferObjects;
     using IdentityModel;
+    using IdentityServer4.EntityFramework.DbContexts;
     using IdentityServer4.EntityFramework.Entities;
     using IdentityServer4.EntityFramework.Interfaces;
+    using IdentityServer4.EntityFramework.Options;
     using Manager;
     using Manager.Exceptions;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
     using Models;
     using Moq;
     using Shared.Exceptions;
@@ -36,9 +39,12 @@
             Mock<IUserClaimsPrincipalFactory<IdentityUser>> claimsFactory = new Mock<IUserClaimsPrincipalFactory<IdentityUser>>();
             SignInManager<IdentityUser> signInManager =
                 new SignInManager<IdentityUser>(userManager, contextAccessor.Object, claimsFactory.Object, null, null, null, null);
-            Mock<Func<IConfigurationDbContext>> configurationDbContextResolver = new Mock<Func<IConfigurationDbContext>>();
+
+            // Run the test against one instance of the context
+            ConfigurationDbContext configurationDbContext = this.GetConfigurationDbContext(Guid.NewGuid().ToString());
+            
             SecurityServiceManager securityServiceManager =
-                new SecurityServiceManager(passwordHasher.Object, userManager, roleManager, signInManager, configurationDbContextResolver.Object);
+                new SecurityServiceManager(passwordHasher.Object, userManager, roleManager, signInManager, configurationDbContext);
 
             securityServiceManager.ShouldNotBeNull();
         }
@@ -441,7 +447,7 @@
         public async Task SecurityServiceManager_CreateClient_ClientIsCreated()
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
@@ -460,7 +466,7 @@
         public async Task SecurityServiceManager_CreateClient_InvalidAllowedGrantType_ClientIsCreated()
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
@@ -487,7 +493,7 @@
         public async Task SecurityServiceManager_GetClient_ClientIsReturned()
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
             await context.Clients.AddAsync(new Client
                                            {
                                                Id = 1,
@@ -534,7 +540,7 @@
         public async Task SecurityServiceManager_GetClient_ClientNotFound_ErrorThrown()
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
@@ -548,7 +554,7 @@
         public async Task SecurityServiceManager_GetClients_ClientsAreReturned()
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
             await context.Clients.AddAsync(new Client
             {
                 Id = 1,
@@ -590,7 +596,7 @@
         public async Task SecurityServiceManager_CreateApiResource_ApiResourceIsCreated(Boolean nullScopes, Boolean emptyScopes)
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
@@ -623,7 +629,7 @@
         public async Task SecurityServiceManager_GetApiResource_ApiResourceIsReturned()
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
             await context.ApiResources.AddAsync(new ApiResource
             {
                 Id = 1,
@@ -677,7 +683,7 @@
         public async Task SecurityServiceManager_GetApiResource_ApiResourceNotFound_ErrorThrown()
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
@@ -691,7 +697,7 @@
         public async Task SecurityServiceManager_GetApiResources_ApiResourcesAreReturned()
         {
             String databaseName = Guid.NewGuid().ToString("N");
-            IConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
             await context.ApiResources.AddAsync(new ApiResource
                                                 {
                                                     Id = 1,
