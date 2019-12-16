@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using DataTransferObjects;
     using IdentityModel;
+    using IdentityServer4.EntityFramework.DbContexts;
     using IdentityServer4.EntityFramework.Entities;
     using IdentityServer4.EntityFramework.Interfaces;
     using Manager;
@@ -36,7 +37,7 @@
             Mock<IUserClaimsPrincipalFactory<IdentityUser>> claimsFactory = new Mock<IUserClaimsPrincipalFactory<IdentityUser>>();
             SignInManager<IdentityUser> signInManager =
                 new SignInManager<IdentityUser>(userManager, contextAccessor.Object, claimsFactory.Object, null, null, null, null);
-            Mock<Func<IConfigurationDbContext>> configurationDbContextResolver = new Mock<Func<IConfigurationDbContext>>();
+            Mock<ConfigurationDbContext> configurationDbContextResolver = new Mock<ConfigurationDbContext>();
             SecurityServiceManager securityServiceManager =
                 new SecurityServiceManager(passwordHasher.Object, userManager, roleManager, signInManager, configurationDbContextResolver.Object);
 

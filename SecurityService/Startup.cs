@@ -186,7 +186,7 @@
 
             // TODO: Build a registry file
             //services.IncludeRegistry<CommonRegistry>();
-            services.AddSingleton<ISecurityServiceManager, SecurityServiceManager>();
+            services.AddScoped<ISecurityServiceManager, SecurityServiceManager>();
             services.AddSingleton<IModelFactory, ModelFactory>();
 
             container.Configure(services);
@@ -243,48 +243,29 @@
                                                                      Startup.Configuration.GetValue<Int32>("IdentityOptions:PasswordOptions:RequiredLength");
                                                              }).AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders();
 
+            IIdentityServerBuilder identityServerBuilder = services.AddIdentityServer(options =>
+                                                                                      {
+                                                                                          options.Events.RaiseSuccessEvents = true;
+                                                                                          options.Events.RaiseFailureEvents = true;
+                                                                                          options.Events.RaiseErrorEvents = true;
+                                                                                          options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
+                                                                                          options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
+                                                                                      })
+                                                                   .AddAspNetIdentity<IdentityUser>()
+                                                                   .AddJwtBearerClientAuthentication()
+                                                                   .AddDeveloperSigningCredential();
+
             if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest"))
             {
-                services.AddIdentityServer(options =>
-                                           {
-                                               options.Events.RaiseSuccessEvents = true;
-                                               options.Events.RaiseFailureEvents = true;
-                                               options.Events.RaiseErrorEvents = true;
-                                               options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-                                               options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-                                           }).AddDeveloperSigningCredential().AddAspNetIdentity<IdentityUser>().AddIntegrationTestConfiguration()
-                        .AddJwtBearerClientAuthentication();
-
-                services.AddDbContext<AuthenticationDbContext>(builder => builder.UseInMemoryDatabase("Authentication")).AddTransient<AuthenticationDbContext>();
-
-                services.AddDbContext<ConfigurationDbContext>(builder => builder.UseInMemoryDatabase("Configuration")).AddTransient<IConfigurationDbContext, ConfigurationDbContext>();
-
-                services.AddDbContext<PersistedGrantDbContext>(builder => builder.UseInMemoryDatabase("PersistedGrantStore")).AddTransient<IPersistedGrantDbContext, PersistedGrantDbContext>();
+                identityServerBuilder.AddIntegrationTestConfiguration();
             }
             else
             {
                 String migrationsAssembly = typeof(AuthenticationDbContext).GetTypeInfo().Assembly.GetName().Name;
-                services.AddDbContext<ConfigurationDbContext>(builder => builder.UseSqlServer(Startup.ConfigurationConnectionString,
-                                                                                              sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
-                        .AddTransient<IConfigurationDbContext, ConfigurationDbContext>();
-
-                services.AddDbContext<PersistedGrantDbContext>(builder => builder.UseSqlServer(Startup.PersistedGrantStoreConenctionString,
-                                                                                               sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
-                        .AddTransient<IPersistedGrantDbContext, PersistedGrantDbContext>();
-
-                services.AddDbContext<AuthenticationDbContext>(builder => builder.UseSqlServer(Startup.AuthenticationConenctionString,
-                                                                                               sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)))
-                        .AddTransient<AuthenticationDbContext>();
-
-                services.AddIdentityServer(options =>
-                                           {
-                                               options.Events.RaiseSuccessEvents = true;
-                                               options.Events.RaiseFailureEvents = true;
-                                               options.Events.RaiseErrorEvents = true;
-                                               options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-                                               options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-                                           }).AddConfigurationStore().AddOperationalStore().AddDeveloperSigningCredential()
-                        .AddIdentityServerStorage(Startup.ConfigurationConnectionString).AddAspNetIdentity<IdentityUser>().AddJwtBearerClientAuthentication();
+                identityServerBuilder.AddIdentityServerStorage(Startup.ConfigurationConnectionString,
+                                                               Startup.PersistedGrantStoreConenctionString,
+                                                               Startup.AuthenticationConenctionString,
+                                                               migrationsAssembly);
             }
 
             services.AddCors();

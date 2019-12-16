@@ -125,12 +125,12 @@
             RoleManager<IdentityRole> roleManager =
                 new RoleManager<IdentityRole>(this.RoleStore.Object, null, null, null, null);
 
-            Mock<Func<IConfigurationDbContext>> configurationDbContextResolver =
-                new Mock<Func<IConfigurationDbContext>>();
-            if (configurationDbContext != null)
-            {
-                configurationDbContextResolver.Setup(m => m.Invoke()).Returns(configurationDbContext);
-            }
+            Mock<ConfigurationDbContext> configurationDbContextResolver =
+                new Mock<ConfigurationDbContext>();
+            //if (configurationDbContext != null)
+            //{
+            //    configurationDbContextResolver.Setup(m => m.Invoke()).Returns(configurationDbContext);
+            //}
             
             SignInManager<IdentityUser> signInManager = new SignInManager<IdentityUser>(userManager, this.ContextAccessor.Object, this.ClaimsFactory.Object, null, null, null, null);
             
