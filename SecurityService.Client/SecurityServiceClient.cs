@@ -445,7 +445,7 @@
         {
             StringBuilder queryString = new StringBuilder();
 
-            queryString.Append("grant_type=client_credentials");
+            queryString.Append("grant_type=password");
             queryString.Append($"&client_id={clientId}");
             queryString.Append($"&client_secret={clientSecret}");
             queryString.Append($"&username={username}");
