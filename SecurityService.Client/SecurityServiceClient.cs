@@ -24,8 +24,12 @@
         /// <summary>
         /// The base address
         /// </summary>
-        private readonly String BaseAddress;
+        private String BaseAddress;
 
+        /// <summary>
+        /// The base address resolver
+        /// </summary>
+        private readonly Func<String, String> BaseAddressResolver;
         #endregion
 
         #region Constructors
@@ -38,6 +42,7 @@
         public SecurityServiceClient(Func<String, String> baseAddressResolver,
                                      HttpClient httpClient) : base(httpClient)
         {
+            this.BaseAddressResolver = baseAddressResolver;
             this.BaseAddress = baseAddressResolver("SecurityService");
 
             // Add the API version header
@@ -45,6 +50,17 @@
         }
 
         #endregion
+
+        private String BuildRequestUrl(String route)
+        {
+            if (String.IsNullOrEmpty(this.BaseAddress))
+            {
+                this.BaseAddress = this.BaseAddressResolver("SecurityService");
+            }
+
+            String requestUri = $"{this.BaseAddress}{route}";
+            return requestUri;
+        }
 
         #region Methods
 
@@ -58,7 +74,7 @@
                                                                        CancellationToken cancellationToken)
         {
             CreateApiResourceResponse response = null;
-            String requestUri = $"{this.BaseAddress}/api/apiresources";
+            String requestUri = BuildRequestUrl("/api/apiresources");
 
             try
             {
@@ -99,7 +115,7 @@
                                                              CancellationToken cancellationToken)
         {
             CreateClientResponse response = null;
-            String requestUri = $"{this.BaseAddress}/api/clients";
+            String requestUri = BuildRequestUrl("/api/clients");
 
             try
             {
@@ -140,7 +156,7 @@
                                                          CancellationToken cancellationToken)
         {
             CreateRoleResponse response = null;
-            String requestUri = $"{this.BaseAddress}/api/roles";
+            String requestUri = BuildRequestUrl("/api/roles");
 
             try
             {
@@ -181,7 +197,7 @@
                                                          CancellationToken cancellationToken)
         {
             CreateUserResponse response = null;
-            String requestUri = $"{this.BaseAddress}/api/users";
+            String requestUri = BuildRequestUrl("/api/users");
 
             try
             {
@@ -222,7 +238,7 @@
                                                              CancellationToken cancellationToken)
         {
             ApiResourceDetails response = null;
-            String requestUri = $"{this.BaseAddress}/api/apiresources/{apiResourceName}";
+            String requestUri = BuildRequestUrl("$/api/apiresources/{apiResourceName}");
 
             try
             {
@@ -257,7 +273,7 @@
         public async Task<List<ApiResourceDetails>> GetApiResources(CancellationToken cancellationToken)
         {
             List<ApiResourceDetails> response = null;
-            String requestUri = $"{this.BaseAddress}/api/apiresources";
+            String requestUri = BuildRequestUrl("/api/apiresources");
 
             try
             {
@@ -294,7 +310,7 @@
                                                    CancellationToken cancellationToken)
         {
             ClientDetails response = null;
-            String requestUri = $"{this.BaseAddress}/api/clients/{clientId}";
+            String requestUri = BuildRequestUrl($"/api/clients/{clientId}");
 
             try
             {
@@ -329,7 +345,7 @@
         public async Task<List<ClientDetails>> GetClients(CancellationToken cancellationToken)
         {
             List<ClientDetails> response = null;
-            String requestUri = $"{this.BaseAddress}/api/clients";
+            String requestUri = BuildRequestUrl("/api/clients");
 
             try
             {
@@ -366,7 +382,7 @@
                                                CancellationToken cancellationToken)
         {
             RoleDetails response = null;
-            String requestUri = $"{this.BaseAddress}/api/roles/{roleId}";
+            String requestUri = BuildRequestUrl($"/api/roles/{roleId}");
 
             try
             {
@@ -401,7 +417,7 @@
         public async Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken)
         {
             List<RoleDetails> response = null;
-            String requestUri = $"{this.BaseAddress}/api/roles";
+            String requestUri = BuildRequestUrl($"/api/roles");
 
             try
             {
@@ -513,7 +529,7 @@
                                                CancellationToken cancellationToken)
         {
             UserDetails response = null;
-            String requestUri = $"{this.BaseAddress}/api/users/{userId}";
+            String requestUri = BuildRequestUrl($"/api/users/{userId}");
 
             try
             {
@@ -550,7 +566,7 @@
                                                       CancellationToken cancellationToken)
         {
             List<UserDetails> response = null;
-            String requestUri = $"{this.BaseAddress}/api/users";
+            String requestUri = BuildRequestUrl("/api/users");
 
             try
             {
@@ -591,7 +607,7 @@
         private async Task<String> GetToken(String tokenRequest,
                                             CancellationToken cancellationToken)
         {
-            String requestUri = $"{this.BaseAddress}/connect/token";
+            String requestUri = BuildRequestUrl("/connect/token");
             String content = null;
 
             try
