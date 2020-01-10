@@ -238,7 +238,7 @@
                                                              CancellationToken cancellationToken)
         {
             ApiResourceDetails response = null;
-            String requestUri = BuildRequestUrl("$/api/apiresources/{apiResourceName}");
+            String requestUri = BuildRequestUrl($"/api/apiresources/{apiResourceName}");
 
             try
             {
