@@ -2,6 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
+    using DataTransferObjects.Responses;
+    using Microsoft.EntityFrameworkCore.Query.Internal;
 
     public class TestingContext
     {
@@ -13,6 +15,8 @@
         public List<String> Clients;
 
         public List<String> ApiResources;
+
+        public TokenResponse TokenResponse;
 
         public TestingContext()
         {
