@@ -22,7 +22,7 @@ namespace SecurityService.IntegrationTests.Users
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "users")]
     [Xunit.TraitAttribute("Category", "roles")]
-    public partial class UsersFeature : Xunit.IClassFixture<UsersFeature.FixtureData>, System.IDisposable
+    public partial class UsersFeature : object, Xunit.IClassFixture<UsersFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -37,7 +37,7 @@ namespace SecurityService.IntegrationTests.Users
 #line 1 "Users.feature"
 #line hidden
         
-        public UsersFeature(UsersFeature.FixtureData fixtureData, InternalSpecFlow.XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public UsersFeature(UsersFeature.FixtureData fixtureData, SecurityService_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();

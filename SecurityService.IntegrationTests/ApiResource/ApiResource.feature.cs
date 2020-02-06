@@ -21,7 +21,7 @@ namespace SecurityService.IntegrationTests.ApiResource
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "apiresources")]
-    public partial class ApiResourceFeature : Xunit.IClassFixture<ApiResourceFeature.FixtureData>, System.IDisposable
+    public partial class ApiResourceFeature : object, Xunit.IClassFixture<ApiResourceFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -35,7 +35,7 @@ namespace SecurityService.IntegrationTests.ApiResource
 #line 1 "ApiResource.feature"
 #line hidden
         
-        public ApiResourceFeature(ApiResourceFeature.FixtureData fixtureData, InternalSpecFlow.XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public ApiResourceFeature(ApiResourceFeature.FixtureData fixtureData, SecurityService_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();
