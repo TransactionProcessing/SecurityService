@@ -637,5 +637,35 @@
         }
 
         #endregion
+
+        /// <summary>
+        /// Signouts this instance.
+        /// </summary>
+        /// <returns></returns>
+        public async Task Signout()
+        {
+            await this.SignInManager.SignOutAsync();
+        }
+
+        /// <summary>
+        /// Validates the credentials.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<Boolean> ValidateCredentials(String userName,
+                                                       String password,
+                                                       CancellationToken cancellationToken)
+        {
+            // Get the user record by name
+            IdentityUser user = await this.UserManager.FindByNameAsync(userName);
+
+            // Now validate the entered password
+            PasswordVerificationResult verificationResult = this.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+
+            // Return the result
+            return verificationResult == PasswordVerificationResult.Success;
+        }
     }
 }

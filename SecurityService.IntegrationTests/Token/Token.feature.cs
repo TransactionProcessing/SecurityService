@@ -25,7 +25,7 @@ namespace SecurityService.IntegrationTests.Token
     [Xunit.TraitAttribute("Category", "apiresources")]
     [Xunit.TraitAttribute("Category", "users")]
     [Xunit.TraitAttribute("Category", "roles")]
-    public partial class TokenFeature : Xunit.IClassFixture<TokenFeature.FixtureData>, System.IDisposable
+    public partial class TokenFeature : object, Xunit.IClassFixture<TokenFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -43,7 +43,7 @@ namespace SecurityService.IntegrationTests.Token
 #line 1 "Token.feature"
 #line hidden
         
-        public TokenFeature(TokenFeature.FixtureData fixtureData, InternalSpecFlow.XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public TokenFeature(TokenFeature.FixtureData fixtureData, SecurityService_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();
@@ -185,13 +185,13 @@ namespace SecurityService.IntegrationTests.Token
         [Xunit.SkippableFactAttribute(DisplayName="Get Client Token")]
         [Xunit.TraitAttribute("FeatureTitle", "Token")]
         [Xunit.TraitAttribute("Description", "Get Client Token")]
-        [Xunit.TraitAttribute("Category", "mytag")]
+        [Xunit.TraitAttribute("Category", "PRTest")]
         public virtual void GetClientToken()
         {
             string[] tagsOfScenario = new string[] {
-                    "mytag"};
+                    "PRTest"};
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Client Token", null, new string[] {
-                        "mytag"});
+                        "PRTest"});
 #line 27
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -234,11 +234,14 @@ this.FeatureBackground();
         [Xunit.SkippableFactAttribute(DisplayName="Get Password Token")]
         [Xunit.TraitAttribute("FeatureTitle", "Token")]
         [Xunit.TraitAttribute("Description", "Get Password Token")]
+        [Xunit.TraitAttribute("Category", "PRTest")]
         public virtual void GetPasswordToken()
         {
-            string[] tagsOfScenario = ((string[])(null));
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Password Token", null, ((string[])(null)));
-#line 33
+            string[] tagsOfScenario = new string[] {
+                    "PRTest"};
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Password Token", null, new string[] {
+                        "PRTest"});
+#line 34
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -271,10 +274,10 @@ this.FeatureBackground();
                             "Secret1",
                             "merchantuser@testmerchant1.co.uk",
                             "123456"});
-#line 34
+#line 35
  testRunner.When("I request a password token with the following values", ((string)(null)), table21, "When ");
 #line hidden
-#line 37
+#line 38
  testRunner.Then("my token is returned", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }

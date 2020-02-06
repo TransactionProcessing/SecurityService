@@ -21,7 +21,7 @@ namespace SecurityService.IntegrationTests.Clients
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "clients")]
-    public partial class ClientsFeature : Xunit.IClassFixture<ClientsFeature.FixtureData>, System.IDisposable
+    public partial class ClientsFeature : object, Xunit.IClassFixture<ClientsFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -35,7 +35,7 @@ namespace SecurityService.IntegrationTests.Clients
 #line 1 "Clients.feature"
 #line hidden
         
-        public ClientsFeature(ClientsFeature.FixtureData fixtureData, InternalSpecFlow.XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public ClientsFeature(ClientsFeature.FixtureData fixtureData, SecurityService_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();

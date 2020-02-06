@@ -24,7 +24,11 @@ namespace SecurityService.IntergrationTests.Common
 
         public IContainerService SecurityServiceContainer;
 
+        public IContainerService SecurityServiceTestUIContainer;
+
         public String SecurityServiceContainerName;
+
+        public String SecurityServiceTestUIContainerName;
 
         public ISecurityServiceClient SecurityServiceClient;
         
@@ -46,11 +50,14 @@ namespace SecurityService.IntergrationTests.Common
 
             // Setup the container names
             this.SecurityServiceContainerName = $"securityservice{testGuid:N}";
+            this.SecurityServiceTestUIContainerName = $"securityservicetestui{testGuid:N}";
 
             this.SetupTestNetwork();
             this.SetupSecurityServiceContainer(traceFolder);
+            //this.SetupSecurityServiceTestUIContainer(traceFolder);
 
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
+            //this.SecurityServiceTestUIPort = this.SecurityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
 
             Func<String, String> securityServiceBaseAddressResolver = api => $"http://127.0.0.1:{this.SecurityServicePort}";
             HttpClient httpClient = new HttpClient();
@@ -62,6 +69,7 @@ namespace SecurityService.IntergrationTests.Common
         }
 
         public Int32 SecurityServicePort;
+        public Int32 SecurityServiceTestUIPort;
 
         private void SetupSecurityServiceContainer(String traceFolder)
         {
@@ -75,6 +83,22 @@ namespace SecurityService.IntergrationTests.Common
                                                                                                                       this.TestNetwork
                                                                                                                   }.ToArray())
                                                          .Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite).Build().Start().WaitForPort("5001/tcp", 30000);
+
+            Console.Out.WriteLine("Started Security Service");
+        }
+
+        private void SetupSecurityServiceTestUIContainer(String traceFolder)
+        {
+            // Management API Container
+            this.SecurityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
+                                                         .WithEnvironment($"Authority=http://{this.SecurityServiceContainerName}:5001",
+                                                                          $"ClientId=estateUIClient",
+                                                                          "ClientSecret=Secret1")
+                                                         .UseImage("securityservicetestwebclient").ExposePort(5004).UseNetwork(new List<INetworkService>
+                                                                                                                  {
+                                                                                                                      this.TestNetwork
+                                                                                                                  }.ToArray())
+                                                         .Build().Start().WaitForPort("5004/tcp", 30000);
 
             Console.Out.WriteLine("Started Security Service");
         }
@@ -93,6 +117,13 @@ namespace SecurityService.IntergrationTests.Common
                     this.SecurityServiceContainer.StopOnDispose = true;
                     this.SecurityServiceContainer.RemoveOnDispose = true;
                     this.SecurityServiceContainer.Dispose();
+                }
+
+                if (this.SecurityServiceTestUIContainer != null)
+                {
+                    this.SecurityServiceTestUIContainer.StopOnDispose = true;
+                    this.SecurityServiceTestUIContainer.RemoveOnDispose = true;
+                    this.SecurityServiceTestUIContainer.Dispose();
                 }
 
                 if (this.TestNetwork != null)

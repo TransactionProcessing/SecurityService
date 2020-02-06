@@ -21,7 +21,7 @@ namespace SecurityService.IntegrationTests.Roles
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "roles")]
-    public partial class RolesFeature : Xunit.IClassFixture<RolesFeature.FixtureData>, System.IDisposable
+    public partial class RolesFeature : object, Xunit.IClassFixture<RolesFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -35,7 +35,7 @@ namespace SecurityService.IntegrationTests.Roles
 #line 1 "Roles.feature"
 #line hidden
         
-        public RolesFeature(RolesFeature.FixtureData fixtureData, InternalSpecFlow.XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public RolesFeature(RolesFeature.FixtureData fixtureData, SecurityService_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();

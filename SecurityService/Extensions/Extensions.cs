@@ -5,6 +5,7 @@ namespace SecurityService.Service.Extensions
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
+    using IdentityServer4.Models;
     using IdentityServer4.Stores;
     using Microsoft.EntityFrameworkCore;
 
@@ -21,7 +22,7 @@ namespace SecurityService.Service.Extensions
         {
             if (!string.IsNullOrWhiteSpace(client_id))
             {
-                var client = await store.FindEnabledClientByIdAsync(client_id);
+                Client client = await store.FindEnabledClientByIdAsync(client_id);
                 return client?.RequirePkce == true;
             }
 

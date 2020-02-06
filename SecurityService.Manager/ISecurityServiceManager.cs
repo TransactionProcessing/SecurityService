@@ -152,6 +152,23 @@
         /// <returns></returns>
         Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken);
 
+        /// <summary>
+        /// Validates the credentials.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<Boolean> ValidateCredentials(String userName,
+                                          String password,
+                                          CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Signouts this instance.
+        /// </summary>
+        /// <returns></returns>
+        Task Signout();
+
         #endregion
     }
 }

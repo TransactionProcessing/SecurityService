@@ -30,8 +30,10 @@
     using NLog.Extensions.Logging;
     using Shared.Extensions;
     using Shared.General;
+    using Shared.Logger;
     using Swashbuckle.AspNetCore.Filters;
     using Swashbuckle.AspNetCore.SwaggerGen;
+    using ILogger = Microsoft.Extensions.Logging.ILogger;
 
     [ExcludeFromCodeCoverage]
     public class Startup
@@ -136,6 +138,18 @@
             app.AddExceptionHandler();
 
             app.UseRouting();
+            // Block 4:
+            //  UseIdentityServer include a call to UseAuthentication
+            app.UseIdentityServer();
+            app.UseAuthorization();
+
+            //app.UseMvcWithDefaultRoute();
+            app.UseEndpoints(endpoints =>
+                             {
+                                 endpoints.MapControllerRoute(
+                                                              name: "default",
+                                                              pattern: "{controller=Home}/{action=Index}/{id?}");
+                             });
 
             app.UseStaticFiles();
 
@@ -167,7 +181,7 @@
         {
             this.ConfigureMiddlewareServices(services);
 
-            services.AddControllers().AddNewtonsoftJson(options =>
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
                                                         {
                                                             options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                                                             options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
