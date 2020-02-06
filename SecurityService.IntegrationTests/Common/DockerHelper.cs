@@ -54,10 +54,10 @@ namespace SecurityService.IntergrationTests.Common
 
             this.SetupTestNetwork();
             this.SetupSecurityServiceContainer(traceFolder);
-            this.SetupSecurityServiceTestUIContainer(traceFolder);
+            //this.SetupSecurityServiceTestUIContainer(traceFolder);
 
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
-            this.SecurityServiceTestUIPort = this.SecurityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
+            //this.SecurityServiceTestUIPort = this.SecurityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
 
             Func<String, String> securityServiceBaseAddressResolver = api => $"http://127.0.0.1:{this.SecurityServicePort}";
             HttpClient httpClient = new HttpClient();
