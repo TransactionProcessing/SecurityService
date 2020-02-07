@@ -113,12 +113,12 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
                             "Role Name"});
-                table11.AddRow(new string[] {
+                table12.AddRow(new string[] {
                             "TestRole1"});
 #line 5
- testRunner.Given("I create the following roles", ((string)(null)), table11, "Given ");
+ testRunner.Given("I create the following roles", ((string)(null)), table12, "Given ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -151,19 +151,19 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table12.AddRow(new string[] {
-                            "TestRole1"});
-#line 10
- testRunner.Given("I create the following roles", ((string)(null)), table12, "Given ");
-#line hidden
                 TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
                             "Role Name"});
                 table13.AddRow(new string[] {
                             "TestRole1"});
+#line 10
+ testRunner.Given("I create the following roles", ((string)(null)), table13, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table14 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Role Name"});
+                table14.AddRow(new string[] {
+                            "TestRole1"});
 #line 13
- testRunner.When("I get the role with name \'TestRole1\' the role details are returned as follows", ((string)(null)), table13, "When ");
+ testRunner.When("I get the role with name \'TestRole1\' the role details are returned as follows", ((string)(null)), table14, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -199,17 +199,6 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table14 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table14.AddRow(new string[] {
-                            "TestRole1"});
-                table14.AddRow(new string[] {
-                            "TestRole2"});
-                table14.AddRow(new string[] {
-                            "TestRole3"});
-#line 19
- testRunner.Given("I create the following roles", ((string)(null)), table14, "Given ");
-#line hidden
                 TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
                             "Role Name"});
                 table15.AddRow(new string[] {
@@ -218,8 +207,19 @@ this.ScenarioInitialize(scenarioInfo);
                             "TestRole2"});
                 table15.AddRow(new string[] {
                             "TestRole3"});
+#line 19
+ testRunner.Given("I create the following roles", ((string)(null)), table15, "Given ");
+#line hidden
+                TechTalk.SpecFlow.Table table16 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Role Name"});
+                table16.AddRow(new string[] {
+                            "TestRole1"});
+                table16.AddRow(new string[] {
+                            "TestRole2"});
+                table16.AddRow(new string[] {
+                            "TestRole3"});
 #line 24
- testRunner.When("I get the roles 3 roles details are returned as follows", ((string)(null)), table15, "When ");
+ testRunner.When("I get the roles 3 roles details are returned as follows", ((string)(null)), table16, "When ");
 #line hidden
             }
             this.ScenarioCleanup();

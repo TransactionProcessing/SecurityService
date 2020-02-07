@@ -3,8 +3,10 @@ using IdentityServer4.Stores;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
     using IdentityServer4.Models;
 
+    [ExcludeFromCodeCoverage]
     public static class Extensions
     {
         /// <summary>

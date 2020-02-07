@@ -14,6 +14,7 @@
     using IdentityServer4.EntityFramework.Options;
     using Manager;
     using Manager.Exceptions;
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
@@ -457,6 +458,97 @@
                                                                         SecurityServiceManagerTestData.ClientDescription,
                                                                         SecurityServiceManagerTestData.AllowedScopes,
                                                                         SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.ClientRedirectUris,
+                                                                        SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
+                                                                        SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        CancellationToken.None);
+
+            clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_CreateClient_NullRedirectUris_ClientIsCreated()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            String clientId = await securityServiceManager.CreateClient(SecurityServiceManagerTestData.ClientId,
+                                                                        SecurityServiceManagerTestData.ClientSecret,
+                                                                        SecurityServiceManagerTestData.ClientName,
+                                                                        SecurityServiceManagerTestData.ClientDescription,
+                                                                        SecurityServiceManagerTestData.AllowedScopes,
+                                                                        SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        null,
+                                                                        SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
+                                                                        SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        CancellationToken.None);
+
+            clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_CreateClient_EmptyRedirectUris_ClientIsCreated()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            String clientId = await securityServiceManager.CreateClient(SecurityServiceManagerTestData.ClientId,
+                                                                        SecurityServiceManagerTestData.ClientSecret,
+                                                                        SecurityServiceManagerTestData.ClientName,
+                                                                        SecurityServiceManagerTestData.ClientDescription,
+                                                                        SecurityServiceManagerTestData.AllowedScopes,
+                                                                        SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.EmptyClientRedirectUris,
+                                                                        SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
+                                                                        SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        CancellationToken.None);
+
+            clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_CreateClient_NullPostLogoutRedirectUris_ClientIsCreated()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            String clientId = await securityServiceManager.CreateClient(SecurityServiceManagerTestData.ClientId,
+                                                                        SecurityServiceManagerTestData.ClientSecret,
+                                                                        SecurityServiceManagerTestData.ClientName,
+                                                                        SecurityServiceManagerTestData.ClientDescription,
+                                                                        SecurityServiceManagerTestData.AllowedScopes,
+                                                                        SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.ClientRedirectUris,
+                                                                        null,
+                                                                        SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        CancellationToken.None);
+
+            clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_CreateClient_EmptyPostLogoutRedirectUris_ClientIsCreated()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            String clientId = await securityServiceManager.CreateClient(SecurityServiceManagerTestData.ClientId,
+                                                                        SecurityServiceManagerTestData.ClientSecret,
+                                                                        SecurityServiceManagerTestData.ClientName,
+                                                                        SecurityServiceManagerTestData.ClientDescription,
+                                                                        SecurityServiceManagerTestData.AllowedScopes,
+                                                                        SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.ClientRedirectUris,
+                                                                        SecurityServiceManagerTestData.EmptyClientPostLogoutRedirectUris,
+                                                                        SecurityServiceManagerTestData.RequireConsentTrue,
                                                                         CancellationToken.None);
 
             clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
@@ -475,16 +567,19 @@
                                                  "InvalidGrant"
                                              };
 
-            var exception = await Should.ThrowAsync<ArgumentException>(async () =>
-                                                 {
-                                                     await securityServiceManager.CreateClient(SecurityServiceManagerTestData.ClientId,
-                                                                                               SecurityServiceManagerTestData.ClientSecret,
-                                                                                               SecurityServiceManagerTestData.ClientName,
-                                                                                               SecurityServiceManagerTestData.ClientDescription,
-                                                                                               SecurityServiceManagerTestData.AllowedScopes,
-                                                                                               allowedGrantTypes,
-                                                                                               CancellationToken.None);
-                                                 });
+            ArgumentException exception = await Should.ThrowAsync<ArgumentException>(async () =>
+                                                                                     {
+                                                                                         await securityServiceManager.CreateClient(SecurityServiceManagerTestData.ClientId,
+                                                                                                                                   SecurityServiceManagerTestData.ClientSecret,
+                                                                                                                                   SecurityServiceManagerTestData.ClientName,
+                                                                                                                                   SecurityServiceManagerTestData.ClientDescription,
+                                                                                                                                   SecurityServiceManagerTestData.AllowedScopes,
+                                                                                                                                   allowedGrantTypes,
+                                                                                                                                   SecurityServiceManagerTestData.ClientRedirectUris,
+                                                                                                                                   SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
+                                                                                                                                   SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                                                                                   CancellationToken.None);
+                                                                                     });
 
             exception.Message.ShouldContain($"The grant types [{allowedGrantTypes.First()}] are not valid to create a new client");
         }
@@ -515,7 +610,24 @@
                                                                        Id = 1,
                                                                        Scope = SecurityServiceManagerTestData.AllowedScopes.First()
                                                                    }
-                                                               }
+                                                               },
+                                               RedirectUris = new List<ClientRedirectUri>
+                                                              {
+                                                                  new ClientRedirectUri
+                                                                  {
+                                                                      Id = 1,
+                                                                      RedirectUri = SecurityServiceManagerTestData.ClientRedirectUris.First()
+                                                                  },
+                                                              },
+                                               PostLogoutRedirectUris = new List<ClientPostLogoutRedirectUri>()
+                                                                        {
+                                                                            new ClientPostLogoutRedirectUri
+                                                                            {
+                                                                                Id = 1,
+                                                                                PostLogoutRedirectUri = SecurityServiceManagerTestData.ClientPostLogoutRedirectUris.First()
+                                                                            }
+                                                                        },
+                                               RequireConsent = SecurityServiceManagerTestData.RequireConsentTrue
                                            });
             await context.SaveChangesAsync();
 
@@ -534,6 +646,15 @@
             client.AllowedScopes.ShouldNotBeNull();
             client.AllowedScopes.Count.ShouldBe(1);
             client.AllowedScopes.First().ShouldBe(SecurityServiceManagerTestData.AllowedScopes.First());
+            client.RedirectUris.ShouldNotBeEmpty();
+            client.RedirectUris.ShouldNotBeNull();
+            client.RedirectUris.Count.ShouldBe(1);
+            client.RedirectUris.First().ShouldBe(SecurityServiceManagerTestData.ClientRedirectUris.First());
+            client.PostLogoutRedirectUris.ShouldNotBeEmpty();
+            client.PostLogoutRedirectUris.ShouldNotBeNull();
+            client.PostLogoutRedirectUris.Count.ShouldBe(1);
+            client.PostLogoutRedirectUris.First().ShouldBe(SecurityServiceManagerTestData.ClientPostLogoutRedirectUris.First());
+            client.RequireConsent.ShouldBe(SecurityServiceManagerTestData.RequireConsentTrue);
         }
 
         [Fact]
@@ -794,6 +915,55 @@
                                             {
                                                 await securityServiceManager.GetRole(Guid.Parse(SecurityServiceManagerTestData.Role1Id), CancellationToken.None);
                                             });
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_GetRoles_RoleDataReturned()
+        {
+            List<IdentityRole> identityRoles = new List<IdentityRole>
+                                               {
+                                                   SecurityServiceManagerTestData.IdentityRole
+                                               };
+
+            this.RoleStore.Setup(r => r.Roles).Returns(identityRoles.AsQueryable());
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
+
+            List<RoleDetails> roleDetailsList = await securityServiceManager.GetRoles(CancellationToken.None);
+
+            roleDetailsList.ShouldHaveSingleItem();
+            roleDetailsList.Single().RoleId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.Role1Id));
+            roleDetailsList.Single().RoleName.ShouldBe(SecurityServiceManagerTestData.RoleName);
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_ValidateCredentials_ResultIsTrue()
+        {
+            this.UserStore.Setup(u => u.FindByNameAsync(It.IsAny<String>(), CancellationToken.None)).ReturnsAsync(SecurityServiceManagerTestData.IdentityUser);
+
+            this.PasswordHasher.Setup(p => p.VerifyHashedPassword(It.IsAny<IdentityUser>(), It.IsAny<String>(), It.IsAny<String>()))
+                .Returns(PasswordVerificationResult.Success);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
+
+            Boolean validateResult = await securityServiceManager.ValidateCredentials(SecurityServiceManagerTestData.UserName, SecurityServiceManagerTestData.Password, CancellationToken.None);
+
+            validateResult.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_ValidateCredentials_InvalidCredentials_ResultIsFalse()
+        {
+            this.UserStore.Setup(u => u.FindByNameAsync(It.IsAny<String>(), CancellationToken.None)).ReturnsAsync(SecurityServiceManagerTestData.IdentityUser);
+
+            this.PasswordHasher.Setup(p => p.VerifyHashedPassword(It.IsAny<IdentityUser>(), It.IsAny<String>(), It.IsAny<String>()))
+                .Returns(PasswordVerificationResult.Failed);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
+
+            Boolean validateResult = await securityServiceManager.ValidateCredentials(SecurityServiceManagerTestData.UserName, SecurityServiceManagerTestData.Password, CancellationToken.None);
+
+            validateResult.ShouldBeFalse();
         }
 
         #endregion

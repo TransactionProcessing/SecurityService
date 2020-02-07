@@ -14,6 +14,7 @@ using IdentityServer4.Extensions;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
     using IdentityServer4.Models;
 
     /// <summary>
@@ -21,6 +22,7 @@ namespace SecurityService
     /// </summary>
     [SecurityHeaders]
     [Authorize]
+    [ExcludeFromCodeCoverage]
     public class GrantsController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;

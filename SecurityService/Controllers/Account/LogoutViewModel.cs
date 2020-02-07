@@ -4,6 +4,9 @@
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class LogoutViewModel : LogoutInputModel
     {
         public bool ShowLogoutPrompt { get; set; } = true;

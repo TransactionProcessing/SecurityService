@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 namespace SecurityService
 {
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using Manager;
     using Models;
@@ -32,6 +33,7 @@ namespace SecurityService
     /// </summary>
     [SecurityHeaders]
     [AllowAnonymous]
+    [ExcludeFromCodeCoverage]
     public class AccountController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;

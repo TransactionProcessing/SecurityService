@@ -7,11 +7,15 @@ using System.Collections.Generic;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class GrantsViewModel
     {
         public IEnumerable<GrantViewModel> Grants { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class GrantViewModel
     {
         public string ClientId { get; set; }

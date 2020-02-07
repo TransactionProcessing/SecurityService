@@ -12,10 +12,12 @@ using System.Threading.Tasks;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
     using IdentityServer4.Models;
 
     [SecurityHeaders]
     [AllowAnonymous]
+    [ExcludeFromCodeCoverage]
     public class HomeController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;

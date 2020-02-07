@@ -5,8 +5,10 @@ using System.Text;
 namespace SecurityService.DataTransferObjects.Requests
 {
     using System.ComponentModel.DataAnnotations;
+    using System.Diagnostics.CodeAnalysis;
     using Newtonsoft.Json;
 
+    [ExcludeFromCodeCoverage]
     public class CreateRoleRequest
     {
         /// <summary>

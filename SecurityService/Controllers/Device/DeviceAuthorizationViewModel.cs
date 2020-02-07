@@ -4,6 +4,9 @@
 
 namespace SecurityService.Device
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class DeviceAuthorizationViewModel : ConsentViewModel
     {
         public string UserCode { get; set; }

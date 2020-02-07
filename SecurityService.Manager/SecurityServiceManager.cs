@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading;
@@ -139,6 +140,9 @@
         /// <param name="clientDescription">The client description.</param>
         /// <param name="allowedScopes">The allowed scopes.</param>
         /// <param name="allowedGrantTypes">The allowed grant types.</param>
+        /// <param name="clientRedirectUris">The client redirect uris.</param>
+        /// <param name="clientPostLogoutRedirectUris">The client post logout redirect uris.</param>
+        /// <param name="requireConsent">if set to <c>true</c> [require consent].</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         public async Task<String> CreateClient(String clientId,
@@ -147,6 +151,9 @@
                                                String clientDescription,
                                                List<String> allowedScopes,
                                                List<String> allowedGrantTypes,
+                                               List<String> clientRedirectUris,
+                                               List<String> clientPostLogoutRedirectUris,
+                                               Boolean requireConsent,
                                                CancellationToken cancellationToken)
         {
             // Validate the grant types list
@@ -163,8 +170,27 @@
                                     new Secret(secret.ToSha256())
                                 },
                                 AllowedGrantTypes = allowedGrantTypes,
-                                AllowedScopes = allowedScopes
+                                AllowedScopes = allowedScopes,
+                                RequireConsent = requireConsent
                             };
+
+            if (clientRedirectUris != null && clientRedirectUris.Any())
+            {
+                client.RedirectUris = new List<String>();
+                foreach (String clientRedirectUri in clientRedirectUris)
+                {
+                    client.RedirectUris.Add(clientRedirectUri);
+                }
+            }
+
+            if (clientPostLogoutRedirectUris != null && clientPostLogoutRedirectUris.Any())
+            {
+                client.PostLogoutRedirectUris = new List<String>();
+                foreach (String clientPostLogoutRedirectUri in clientPostLogoutRedirectUris)
+                {
+                    client.PostLogoutRedirectUris.Add(clientPostLogoutRedirectUri);
+                }
+            }
 
             // Now translate the model to the entity
             await this.ConfigurationDbContext.Clients.AddAsync(client.ToEntity(), cancellationToken);

@@ -11,7 +11,9 @@ using System.Text;
 namespace SecurityService
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
+    [ExcludeFromCodeCoverage]
     public class DiagnosticsViewModel
     {
         public DiagnosticsViewModel(AuthenticateResult result)

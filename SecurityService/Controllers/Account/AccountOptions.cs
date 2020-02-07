@@ -6,6 +6,9 @@ using System;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class AccountOptions
     {
         public static bool AllowLocalLogin = true;

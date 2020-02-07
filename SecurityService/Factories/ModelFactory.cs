@@ -113,7 +113,10 @@
                        AllowedGrantTypes = model.AllowedGrantTypes.ToList(),
                        ClientName = model.ClientName,
                        ClientDescription = model.Description,
-                       Enabled = model.Enabled
+                       Enabled = model.Enabled,
+                       ClientPostLogoutRedirectUris = model.PostLogoutRedirectUris.ToList(),
+                       RequireConsent = model.RequireConsent,
+                       ClientRedirectUris = model.RedirectUris.ToList()
                    };
         }
 

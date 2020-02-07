@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class ConsentViewModel : ConsentInputModel
     {
         public string ClientName { get; set; }

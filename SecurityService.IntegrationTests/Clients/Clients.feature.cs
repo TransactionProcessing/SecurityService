@@ -119,14 +119,30 @@ this.ScenarioInitialize(scenarioInfo);
                             "Description",
                             "Secret",
                             "Scopes",
-                            "GrantTypes"});
+                            "GrantTypes",
+                            "RedirectUris",
+                            "PostLogoutRedirectUris",
+                            "RequireConsent"});
                 table6.AddRow(new string[] {
                             "testclient1",
                             "Test Client",
                             "A test client",
                             "secret1",
                             "Scope1, Scope2",
-                            "client_credentials"});
+                            "client_credentials",
+                            "",
+                            "",
+                            ""});
+                table6.AddRow(new string[] {
+                            "testclient2",
+                            "Test Client 2",
+                            "A second test client",
+                            "Secret2",
+                            "Scope1, Scope2",
+                            "hybrid",
+                            "http://localhost/signin-oidc",
+                            "http://localhost/signout-oidc",
+                            "true"});
 #line 5
  testRunner.Given("I create the following clients", ((string)(null)), table6, "Given ");
 #line hidden
@@ -141,7 +157,7 @@ this.ScenarioInitialize(scenarioInfo);
         {
             string[] tagsOfScenario = ((string[])(null));
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Client", null, ((string[])(null)));
-#line 9
+#line 10
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -167,22 +183,31 @@ this.ScenarioInitialize(scenarioInfo);
                             "Description",
                             "Secret",
                             "Scopes",
-                            "GrantTypes"});
+                            "GrantTypes",
+                            "RedirectUris",
+                            "PostLogoutRedirectUris",
+                            "RequireConsent"});
                 table7.AddRow(new string[] {
                             "testclient1",
                             "Test Client 1",
                             "A test client 1",
                             "secret1",
                             "Scope1, Scope2",
-                            "client_credentials"});
+                            "client_credentials",
+                            "",
+                            "",
+                            ""});
                 table7.AddRow(new string[] {
                             "testclient2",
                             "Test Client 2",
-                            "A test client 2",
-                            "secret2",
+                            "A second test client",
+                            "Secret2",
                             "Scope1, Scope2",
-                            "client_credentials"});
-#line 10
+                            "hybrid",
+                            "http://localhost/signin-oidc",
+                            "http://localhost/signout-oidc",
+                            "true"});
+#line 11
  testRunner.Given("I create the following clients", ((string)(null)), table7, "Given ");
 #line hidden
                 TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
@@ -190,16 +215,44 @@ this.ScenarioInitialize(scenarioInfo);
                             "Name",
                             "Description",
                             "Scopes",
-                            "GrantTypes"});
+                            "GrantTypes",
+                            "RedirectUris",
+                            "PostLogoutRedirectUris",
+                            "RequireConsent"});
                 table8.AddRow(new string[] {
                             "testclient1",
                             "Test Client 1",
                             "A test client 1",
                             "Scope1, Scope2",
-                            "client_credentials"});
-#line 14
+                            "client_credentials",
+                            "",
+                            "",
+                            ""});
+#line 16
  testRunner.When("I get the client with client id \'testclient1\' the client details are returned as " +
                         "follows", ((string)(null)), table8, "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                            "ClientId",
+                            "Name",
+                            "Description",
+                            "Scopes",
+                            "GrantTypes",
+                            "RedirectUris",
+                            "PostLogoutRedirectUris",
+                            "RequireConsent"});
+                table9.AddRow(new string[] {
+                            "testclient2",
+                            "Test Client 2",
+                            "A second test client",
+                            "Scope1, Scope2",
+                            "hybrid",
+                            "http://localhost/signin-oidc",
+                            "http://localhost/signout-oidc",
+                            "true"});
+#line 20
+ testRunner.When("I get the client with client id \'testclient2\' the client details are returned as " +
+                        "follows", ((string)(null)), table9, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -215,7 +268,7 @@ this.ScenarioInitialize(scenarioInfo);
                     "PRTest"};
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Clients", null, new string[] {
                         "PRTest"});
-#line 19
+#line 25
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -235,50 +288,68 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
                             "ClientId",
                             "Name",
                             "Description",
                             "Secret",
                             "Scopes",
-                            "GrantTypes"});
-                table9.AddRow(new string[] {
+                            "GrantTypes",
+                            "RedirectUris",
+                            "PostLogoutRedirectUris",
+                            "RequireConsent"});
+                table10.AddRow(new string[] {
                             "testclient1",
                             "Test Client 1",
                             "A test client 1",
                             "secret1",
                             "Scope1, Scope2",
-                            "client_credentials"});
-                table9.AddRow(new string[] {
+                            "client_credentials",
+                            "",
+                            "",
+                            ""});
+                table10.AddRow(new string[] {
                             "testclient2",
                             "Test Client 2",
-                            "A test client 2",
-                            "secret2",
+                            "A second test client",
+                            "Secret2",
                             "Scope1, Scope2",
-                            "client_credentials"});
-#line 20
- testRunner.Given("I create the following clients", ((string)(null)), table9, "Given ");
+                            "hybrid",
+                            "http://localhost/signin-oidc",
+                            "http://localhost/signout-oidc",
+                            "true"});
+#line 26
+ testRunner.Given("I create the following clients", ((string)(null)), table10, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
                             "ClientId",
                             "Name",
                             "Description",
                             "Scopes",
-                            "GrantTypes"});
-                table10.AddRow(new string[] {
+                            "GrantTypes",
+                            "RedirectUris",
+                            "PostLogoutRedirectUris",
+                            "RequireConsent"});
+                table11.AddRow(new string[] {
                             "testclient1",
                             "Test Client 1",
                             "A test client 1",
                             "Scope1, Scope2",
-                            "client_credentials"});
-                table10.AddRow(new string[] {
+                            "client_credentials",
+                            "",
+                            "",
+                            ""});
+                table11.AddRow(new string[] {
                             "testclient2",
                             "Test Client 2",
-                            "A test client 2",
+                            "A second test client",
                             "Scope1, Scope2",
-                            "client_credentials"});
-#line 24
- testRunner.When("I get the clients 2 clients details are returned as follows", ((string)(null)), table10, "When ");
+                            "hybrid",
+                            "http://localhost/signin-oidc",
+                            "http://localhost/signout-oidc",
+                            "true"});
+#line 31
+ testRunner.When("I get the clients 2 clients details are returned as follows", ((string)(null)), table11, "When ");
 #line hidden
             }
             this.ScenarioCleanup();

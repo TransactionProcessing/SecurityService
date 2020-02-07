@@ -17,9 +17,11 @@ using Microsoft.Extensions.Logging;
 namespace SecurityService.Device
 {
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
 
     [Authorize]
     [SecurityHeaders]
+    [ExcludeFromCodeCoverage]
     public class DeviceController : Controller
     {
         private readonly IDeviceFlowInteractionService _interaction;

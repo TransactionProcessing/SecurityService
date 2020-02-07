@@ -11,15 +11,6 @@
         #region Properties
 
         /// <summary>
-        /// Gets or sets a value indicating whether this <see cref="ClientDetails"/> is enabled.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if enabled; otherwise, <c>false</c>.
-        /// </value>
-        [JsonProperty("enabled")]
-        public Boolean Enabled { get; set; }
-
-        /// <summary>
         /// Gets or sets the allowed grant types.
         /// </summary>
         /// <value>
@@ -63,6 +54,42 @@
         /// </value>
         [JsonProperty("client_name")]
         public String ClientName { get; set; }
+
+        /// <summary>
+        /// Gets or sets the client post logout redirect uris.
+        /// </summary>
+        /// <value>
+        /// The client post logout redirect uris.
+        /// </value>
+        [JsonProperty("client_post_logout_redirect_uris")]
+        public List<String> ClientPostLogoutRedirectUris { get; set; }
+
+        /// <summary>
+        /// Gets or sets the client redirect uris.
+        /// </summary>
+        /// <value>
+        /// The client redirect uris.
+        /// </value>
+        [JsonProperty("client_redirect_uris")]
+        public List<String> ClientRedirectUris { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="ClientDetails"/> is enabled.
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if enabled; otherwise, <c>false</c>.
+        /// </value>
+        [JsonProperty("enabled")]
+        public Boolean Enabled { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether [require consent].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [require consent]; otherwise, <c>false</c>.
+        /// </value>
+        [JsonProperty("require_content")]
+        public Boolean RequireConsent { get; set; }
 
         #endregion
     }

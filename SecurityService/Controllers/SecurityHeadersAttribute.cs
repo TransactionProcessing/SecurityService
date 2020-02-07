@@ -8,7 +8,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 namespace SecurityService
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
+    [ExcludeFromCodeCoverage]
     public class SecurityHeadersAttribute : ActionFilterAttribute
     {
         public override void OnResultExecuting(ResultExecutingContext context)

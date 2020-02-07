@@ -57,7 +57,12 @@
             {
                 // Get the scopes
                 String scopes = SpecflowTableHelper.GetStringRowValue(tableRow, "Scopes");
+                // Get the grant types
                 String grantTypes = SpecflowTableHelper.GetStringRowValue(tableRow, "GrantTypes");
+                // Get the redirect uris
+                String redirectUris = SpecflowTableHelper.GetStringRowValue(tableRow, "RedirectUris");
+                // Get the post logout redirect uris
+                String postLogoutRedirectUris = SpecflowTableHelper.GetStringRowValue(tableRow, "PostLogoutRedirectUris");
 
                 CreateClientRequest createClientRequest = new CreateClientRequest
                                                           {
@@ -66,7 +71,10 @@
                                                               ClientName = SpecflowTableHelper.GetStringRowValue(tableRow, "Name"),
                                                               AllowedScopes = string.IsNullOrEmpty(scopes) ? null : scopes.Split(",").ToList(),
                                                               AllowedGrantTypes = string.IsNullOrEmpty(grantTypes) ? null : grantTypes.Split(",").ToList(),
-                                                              ClientDescription = SpecflowTableHelper.GetStringRowValue(tableRow, "Description")
+                                                              ClientRedirectUris = string.IsNullOrEmpty(redirectUris) ? null : redirectUris.Split(",").ToList(),
+                                                              ClientPostLogoutRedirectUris = string.IsNullOrEmpty(postLogoutRedirectUris) ? null : postLogoutRedirectUris.Split(",").ToList(),
+                                                              ClientDescription = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
+                                                              RequireConsent = SpecflowTableHelper.GetBooleanValue(tableRow, "RequireConsent")
                                                           };
                 CreateClientResponse createClientResponse = await this.CreateClient(createClientRequest, CancellationToken.None).ConfigureAwait(false);
 
