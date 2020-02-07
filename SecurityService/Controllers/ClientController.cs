@@ -75,6 +75,9 @@
                                                               createClientRequest.ClientDescription,
                                                               createClientRequest.AllowedScopes,
                                                               createClientRequest.AllowedGrantTypes,
+                                                              createClientRequest.ClientRedirectUris,
+                                                              createClientRequest.ClientPostLogoutRedirectUris,
+                                                              createClientRequest.RequireConsent,
                                                               cancellationToken);
 
             // return the result

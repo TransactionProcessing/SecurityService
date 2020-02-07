@@ -17,12 +17,14 @@ namespace SecurityService
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
 
     /// <summary>
     /// This controller processes the consent UI
     /// </summary>
     [SecurityHeaders]
     [Authorize]
+    [ExcludeFromCodeCoverage]
     public class ConsentController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;

@@ -132,6 +132,24 @@
                                                            "client_credentials"
                                                        };
 
+        public static Boolean RequireConsentTrue = true;
+
+        public static Boolean RequireConsentFalse = false;
+
+        public static List<String> EmptyClientRedirectUris = new List<String>();
+
+        public static List<String> ClientRedirectUris = new List<String>
+                                                        {
+                                                            "http://localhost/signin-oidc"
+                                                        };
+
+        public static List<String> EmptyClientPostLogoutRedirectUris = new List<String>();
+
+        public static List<String> ClientPostLogoutRedirectUris = new List<String>
+                                                                  {
+                                                                      "http://localhost/signout-oidc"
+                                                                  };
+
         public static String ApiResourceName = "Test Resource Name";
 
         public static String ApiResourceDisplayName = "Test Resource Display Name";

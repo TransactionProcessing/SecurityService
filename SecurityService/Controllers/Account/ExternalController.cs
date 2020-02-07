@@ -17,13 +17,14 @@ using System.Threading.Tasks;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
     using IdentityServer4.Models;
 
     [SecurityHeaders]
     [AllowAnonymous]
+    [ExcludeFromCodeCoverage]
     public class ExternalController : Controller
     {
-        private readonly TestUserStore _users;
         private readonly IIdentityServerInteractionService _interaction;
         private readonly IClientStore _clientStore;
         private readonly ILogger<ExternalController> _logger;
@@ -33,12 +34,11 @@ namespace SecurityService
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IEventService events,
-            ILogger<ExternalController> logger,
-            TestUserStore users = null)
+            ILogger<ExternalController> logger)
+        
         {
             // if the TestUserStore is not in DI, then we'll just use the global users collection
             // this is where you would plug in your own custom identity management library (e.g. ASP.NET Identity)
-            _users = users ?? new TestUserStore(TestUsers.Users);
 
             _interaction = interaction;
             _clientStore = clientStore;
@@ -213,15 +213,18 @@ namespace SecurityService
             String providerUserId = userIdClaim.Value;
 
             // find external user
-            TestUser user = _users.FindByExternalProvider(provider, providerUserId);
-
+            //TestUser user = _users.FindByExternalProvider(provider, providerUserId);
+            // TODO: External provider
+            TestUser user = null; 
             return (user, provider, providerUserId, claims);
         }
 
         private TestUser AutoProvisionUser(string provider, string providerUserId, IEnumerable<Claim> claims)
         {
-            TestUser user = _users.AutoProvisionUser(provider, providerUserId, claims.ToList());
-            return user;
+            // TODO: AutoProvisionUser
+            //TestUser user = _users.AutoProvisionUser(provider, providerUserId, claims.ToList());
+            //return user;
+            return null;
         }
 
         private void ProcessLoginCallbackForOidc(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)

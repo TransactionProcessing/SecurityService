@@ -4,6 +4,9 @@
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class ProcessConsentResult
     {
         public bool IsRedirect => RedirectUri != null;

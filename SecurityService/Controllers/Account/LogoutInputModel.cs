@@ -4,6 +4,9 @@
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class LogoutInputModel
     {
         public string LogoutId { get; set; }

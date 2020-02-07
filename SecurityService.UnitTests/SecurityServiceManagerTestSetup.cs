@@ -30,7 +30,7 @@
             PasswordValidators = new List<IPasswordValidator<IdentityUser>>();
 
         private List<IUserValidator<IdentityUser>> UserValidators = new List<IUserValidator<IdentityUser>>();
-        private Mock<IRoleStore<IdentityRole>> RoleStore = new Mock<IRoleStore<IdentityRole>>();
+        private Mock<IQueryableRoleStore<IdentityRole>> RoleStore = new Mock<IQueryableRoleStore<IdentityRole>>();
         private Mock<IdentityErrorDescriber> ErrorDescriber = new Mock<IdentityErrorDescriber>();
         private Mock<IServiceProvider> ServiceProvider = new Mock<IServiceProvider>();
         private Mock<IHttpContextAccessor> ContextAccessor = new Mock<IHttpContextAccessor>();

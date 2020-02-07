@@ -5,6 +5,9 @@
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class RedirectViewModel
     {
         public string RedirectUrl { get; set; }

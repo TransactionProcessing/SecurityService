@@ -8,6 +8,9 @@ using System.Linq;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class LoginViewModel : LoginInputModel
     {
         public bool AllowRememberLogin { get; set; } = true;

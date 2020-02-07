@@ -11,9 +11,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace SecurityService
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
 
     [SecurityHeaders]
     [Authorize]
+    [ExcludeFromCodeCoverage]
     public class DiagnosticsController : Controller
     {
         public async Task<IActionResult> Index()

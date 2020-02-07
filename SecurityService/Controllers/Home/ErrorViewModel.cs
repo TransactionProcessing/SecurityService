@@ -6,6 +6,9 @@ using IdentityServer4.Models;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class ErrorViewModel
     {
         public ErrorViewModel()
