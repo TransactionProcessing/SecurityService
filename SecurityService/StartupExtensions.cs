@@ -47,9 +47,6 @@ namespace SecurityService.Service
         {
             builder.AddInMemoryClients(new List<Client>());
             builder.AddInMemoryApiResources(new List<ApiResource>());
-            //builder.AddInMemoryUsers(IdentityUserSeedData.GetIdentityUsers(SeedingType.IntegrationTest));
-            //builder.AddInMemoryRoles(RoleSeedData.GetIdentityRoles(SeedingType.IntegrationTest));
-            //builder.AddInMemoryUserRoles(IdentityUserRoleSeedData.GetIdentityUserRoles(SeedingType.IntegrationTest));
             builder.AddInMemoryIdentityResources(new List<IdentityResource>());
 
             builder.AddConfigurationStore(options => { options.ConfigureDbContext = c => c.UseInMemoryDatabase("Configuration"); });

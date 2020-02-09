@@ -269,7 +269,7 @@
                                                                    .AddJwtBearerClientAuthentication()
                                                                    .AddDeveloperSigningCredential();
 
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest"))
+            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") || Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase") == true)
             {
                 identityServerBuilder.AddIntegrationTestConfiguration();
             }
