@@ -75,8 +75,8 @@ jobs:
     - name: Push Package to Octopus
       run: >-
         /opt/octo/Octo push
-        --server http://sferguson.ddns.net:9001
-        --apiKey API-UTN58QCF8HSATACNUBY41XPUC
+        --server https://stuartferguson.octopus.app
+        --apiKey ${{ secrets.OCTOPUS_APIKEY }}
         --package /home/runner/work/SecurityService/SecurityService/SecurityService.${{ steps.get_version.outputs.VERSION }}.zip
         --overwrite-mode IgnoreIfExists
     
@@ -95,11 +95,11 @@ jobs:
           json: ${{ steps.getrelease.outputs.data }}
           releasenote: "body"
     
-    - name: Create & Deploy Release in Octopus
+    - name: Create & Deploy Release in Octopus (Security Service)
       run: >-
         /opt/octo/Octo create-release
-        --server http://sferguson.ddns.net:9001
-        --apiKey API-UTN58QCF8HSATACNUBY41XPUC
+        --server https://stuartferguson.octopus.app
+        --apiKey ${{ secrets.OCTOPUS_APIKEY }}
         --project "Security Service"
         --version ${{ steps.get_version.outputs.VERSION }}
         --channel Default
@@ -107,11 +107,24 @@ jobs:
         --waitfordeployment
         --deploymenttimeout 00:05:00
         --releasenotes "${{ steps.buildreleasenotes.outputs.releasenote }}" 
+
+    - name: Create & Deploy Release in Octopus (Security Service (For Testing))
+      run: >-
+        /opt/octo/Octo create-release
+        --server https://stuartferguson.octopus.app
+        --apiKey ${{ secrets.OCTOPUS_APIKEY }}
+        --project "Security Service (For Testing)"
+        --version ${{ steps.get_version.outputs.VERSION }}
+        --channel Default
+        --deployTo Development
+        --waitfordeployment
+        --deploymenttimeout 00:05:00
+        --releasenotes "${{ steps.buildreleasenotes.outputs.releasenote }}" 
     
-    - name: Setup .NET Core 3.0
+    - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.0.100          
+        dotnet-version: 3.1.100          
 
     - name: Build and Publish Nuget Packages
       run: |
