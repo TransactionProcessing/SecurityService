@@ -121,10 +121,10 @@ jobs:
         --deploymenttimeout 00:05:00
         --releasenotes "${{ steps.buildreleasenotes.outputs.releasenote }}" 
     
-    - name: Setup .NET Core 3.0
+    - name: Setup .NET Core
       uses: actions/setup-dotnet@v1
       with:
-        dotnet-version: 3.0.100          
+        dotnet-version: 3.1.100          
 
     - name: Build and Publish Nuget Packages
       run: |
