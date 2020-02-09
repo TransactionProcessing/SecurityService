@@ -1,4 +1,4 @@
-﻿namespace SecurityService.Service.Controllers
+﻿namespace SecurityService.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -9,10 +9,8 @@
     using DataTransferObjects.Responses;
     using Factories;
     using Manager;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
-    using Swashbuckle.AspNetCore.Filters;
 
     /// <summary>
     /// 

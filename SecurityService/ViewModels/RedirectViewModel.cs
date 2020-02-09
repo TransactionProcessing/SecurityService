@@ -2,13 +2,14 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-namespace SecurityService.Device
+
+namespace SecurityService.ViewModels
 {
     using System.Diagnostics.CodeAnalysis;
 
     [ExcludeFromCodeCoverage]
-    public class DeviceAuthorizationInputModel : ConsentInputModel
+    public class RedirectViewModel
     {
-        public string UserCode { get; set; }
+        public string RedirectUrl { get; set; }
     }
 }

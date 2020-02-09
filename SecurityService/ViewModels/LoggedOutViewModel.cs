@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
 
-namespace SecurityService
+namespace SecurityService.ViewModels
 {
     using System.Diagnostics.CodeAnalysis;
 
@@ -16,7 +16,7 @@ namespace SecurityService
         public bool AutomaticRedirectAfterSignOut { get; set; }
 
         public string LogoutId { get; set; }
-        public bool TriggerExternalSignout => ExternalAuthenticationScheme != null;
+        public bool TriggerExternalSignout => this.ExternalAuthenticationScheme != null;
         public string ExternalAuthenticationScheme { get; set; }
     }
 }

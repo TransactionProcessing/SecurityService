@@ -14,7 +14,6 @@ namespace SecurityService.Controllers
     using IdentityServer4.Models;
     using Manager;
     using Microsoft.AspNetCore.Mvc;
-    using Service.Controllers;
     using Swashbuckle.AspNetCore.Annotations;
 
     /// <summary>

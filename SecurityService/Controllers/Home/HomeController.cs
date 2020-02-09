@@ -1,19 +1,18 @@
 // Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
 
-
-using IdentityServer4.Services;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
-
-namespace SecurityService
+namespace SecurityService.Controllers.Home
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading.Tasks;
     using IdentityServer4.Models;
+    using IdentityServer4.Services;
+    using Microsoft.AspNetCore.Authorization;
+    using Microsoft.AspNetCore.Hosting;
+    using Microsoft.AspNetCore.Mvc;
+    using Microsoft.Extensions.Hosting;
+    using Microsoft.Extensions.Logging;
+    using ViewModels;
 
     [SecurityHeaders]
     [AllowAnonymous]
@@ -26,21 +25,21 @@ namespace SecurityService
 
         public HomeController(IIdentityServerInteractionService interaction, IWebHostEnvironment environment, ILogger<HomeController> logger)
         {
-            _interaction = interaction;
-            _environment = environment;
-            _logger = logger;
+            this._interaction = interaction;
+            this._environment = environment;
+            this._logger = logger;
         }
 
         public IActionResult Index()
         {
-            if (_environment.IsDevelopment())
+            if (this._environment.IsDevelopment())
             {
                 // only show in development
-                return View();
+                return this.View();
             }
 
-            _logger.LogInformation("Homepage is disabled in production. Returning 404.");
-            return NotFound();
+            this._logger.LogInformation("Homepage is disabled in production. Returning 404.");
+            return this.NotFound();
         }
 
         /// <summary>
@@ -51,19 +50,19 @@ namespace SecurityService
             ErrorViewModel vm = new ErrorViewModel();
 
             // retrieve error details from identityserver
-            ErrorMessage message = await _interaction.GetErrorContextAsync(errorId);
+            ErrorMessage message = await this._interaction.GetErrorContextAsync(errorId);
             if (message != null)
             {
                 vm.Error = message;
 
-                if (!_environment.IsDevelopment())
+                if (!this._environment.IsDevelopment())
                 {
                     // only show in development
                     message.ErrorDescription = null;
                 }
             }
 
-            return View("Error", vm);
+            return this.View("Error", vm);
         }
     }
 }
