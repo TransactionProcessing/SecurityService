@@ -88,16 +88,16 @@ namespace SecurityService.IntegrationTests.Users
         {
 #line 4
 #line hidden
-            TechTalk.SpecFlow.Table table23 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table27 = new TechTalk.SpecFlow.Table(new string[] {
                         "Role Name"});
-            table23.AddRow(new string[] {
+            table27.AddRow(new string[] {
                         "TestRole1"});
-            table23.AddRow(new string[] {
+            table27.AddRow(new string[] {
                         "TestRole2"});
-            table23.AddRow(new string[] {
+            table27.AddRow(new string[] {
                         "TestRole3"});
 #line 5
- testRunner.Given("I create the following roles", ((string)(null)), table23, "Given ");
+ testRunner.Given("I create the following roles", ((string)(null)), table27, "Given ");
 #line hidden
         }
         
@@ -136,7 +136,7 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 this.FeatureBackground();
 #line hidden
-                TechTalk.SpecFlow.Table table24 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table28 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Password",
                             "Phone Number",
@@ -145,7 +145,7 @@ this.FeatureBackground();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table24.AddRow(new string[] {
+                table28.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456",
                             "123456789",
@@ -155,7 +155,7 @@ this.FeatureBackground();
                             "Claim1:value1,Claim2:value2",
                             "TestRole1"});
 #line 12
- testRunner.Given("I create the following users", ((string)(null)), table24, "Given ");
+ testRunner.Given("I create the following users", ((string)(null)), table28, "Given ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -191,7 +191,7 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 this.FeatureBackground();
 #line hidden
-                TechTalk.SpecFlow.Table table25 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table29 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Password",
                             "Phone Number",
@@ -200,7 +200,7 @@ this.FeatureBackground();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table25.AddRow(new string[] {
+                table29.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456",
                             "123456789",
@@ -209,7 +209,7 @@ this.FeatureBackground();
                             "User 1",
                             "",
                             "TestRole1"});
-                table25.AddRow(new string[] {
+                table29.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456",
                             "123456789",
@@ -219,9 +219,9 @@ this.FeatureBackground();
                             "",
                             "TestRole2"});
 #line 17
- testRunner.Given("I create the following users", ((string)(null)), table25, "Given ");
+ testRunner.Given("I create the following users", ((string)(null)), table29, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table26 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table30 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -229,7 +229,7 @@ this.FeatureBackground();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table26.AddRow(new string[] {
+                table30.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
                             "Test",
@@ -239,7 +239,7 @@ this.FeatureBackground();
                             "TestRole1"});
 #line 21
  testRunner.When("I get the user with user name \'testuser1@testing.co.uk\' the user details are retu" +
-                        "rned as follows", ((string)(null)), table26, "When ");
+                        "rned as follows", ((string)(null)), table30, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -278,7 +278,7 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 this.FeatureBackground();
 #line hidden
-                TechTalk.SpecFlow.Table table27 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table31 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Password",
                             "Phone Number",
@@ -287,7 +287,7 @@ this.FeatureBackground();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table27.AddRow(new string[] {
+                table31.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456",
                             "123456789",
@@ -296,7 +296,7 @@ this.FeatureBackground();
                             "User 1",
                             "",
                             "TestRole1"});
-                table27.AddRow(new string[] {
+                table31.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456",
                             "123456789",
@@ -305,7 +305,7 @@ this.FeatureBackground();
                             "User 2",
                             "",
                             "TestRole2"});
-                table27.AddRow(new string[] {
+                table31.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456",
                             "123456789",
@@ -315,9 +315,9 @@ this.FeatureBackground();
                             "",
                             "TestRole3"});
 #line 27
- testRunner.Given("I create the following users", ((string)(null)), table27, "Given ");
+ testRunner.Given("I create the following users", ((string)(null)), table31, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table28 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table32 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -325,7 +325,7 @@ this.FeatureBackground();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table28.AddRow(new string[] {
+                table32.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
                             "Test",
@@ -333,7 +333,7 @@ this.FeatureBackground();
                             "User 1",
                             "email:testuser1@testing.co.uk, given_name:Test, family_name:User 1",
                             "TestRole1"});
-                table28.AddRow(new string[] {
+                table32.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456789",
                             "Test",
@@ -341,7 +341,7 @@ this.FeatureBackground();
                             "User 2",
                             "email:testuser2@testing.co.uk, given_name:Test, family_name:User 2",
                             "TestRole2"});
-                table28.AddRow(new string[] {
+                table32.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456789",
                             "Test",
@@ -350,7 +350,7 @@ this.FeatureBackground();
                             "email:testuser3@testing.co.uk, given_name:Test, family_name:User 3",
                             "TestRole3"});
 #line 32
- testRunner.When("I get the users 3 users details are returned as follows", ((string)(null)), table28, "When ");
+ testRunner.When("I get the users 3 users details are returned as follows", ((string)(null)), table32, "When ");
 #line hidden
             }
             this.ScenarioCleanup();

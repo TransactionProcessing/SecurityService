@@ -9,7 +9,9 @@ namespace SecurityService.IntergrationTests.Common
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
+    using BoDi;
     using Client;
+    using Coypu;
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
@@ -17,6 +19,7 @@ namespace SecurityService.IntergrationTests.Common
     using IdentityServer4.EntityFramework.DbContexts;
     using IdentityServer4.EntityFramework.Options;
     using Microsoft.EntityFrameworkCore;
+    using TechTalk.SpecFlow;
 
     public class DockerHelper
     {
@@ -53,17 +56,19 @@ namespace SecurityService.IntergrationTests.Common
             this.SecurityServiceTestUIContainerName = $"securityservicetestui{testGuid:N}";
 
             this.SetupTestNetwork();
+            
             this.SetupSecurityServiceContainer(traceFolder);
-            //this.SetupSecurityServiceTestUIContainer(traceFolder);
-
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
-            //this.SecurityServiceTestUIPort = this.SecurityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
+            
+            this.SetupSecurityServiceTestUIContainer(traceFolder);
+            this.SecurityServiceTestUIPort = this.SecurityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
 
             Func<String, String> securityServiceBaseAddressResolver = api => $"http://127.0.0.1:{this.SecurityServicePort}";
             HttpClient httpClient = new HttpClient();
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver,httpClient);
 
             Console.Out.WriteLine($"Security Service Port is [{this.SecurityServicePort}]");
+            Console.Out.WriteLine($"Security Service Test UI Port is [{this.SecurityServiceTestUIPort}]");
 
             await Task.Delay(30000).ConfigureAwait(false);
         }
@@ -73,16 +78,21 @@ namespace SecurityService.IntergrationTests.Common
 
         private void SetupSecurityServiceContainer(String traceFolder)
         {
+
+
             // Management API Container
             this.SecurityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
                                                          .WithEnvironment("ASPNETCORE_ENVIRONMENT=IntegrationTest",
-                                                                          $"ServiceOptions:PublicOrigin=http://{this.SecurityServiceContainerName}:5001",
-                                                                          $"ServiceOptions:IssuerUrl=http://{this.SecurityServiceContainerName}:5001")
-                                                         .UseImage("securityservice").ExposePort(5001).UseNetwork(new List<INetworkService>
+                                                                          $"ServiceOptions:PublicOrigin=http://127.0.0.1:5001",
+                                                                          $"ServiceOptions:IssuerUrl=http://127.0.0.1:5001")
+                                                         .UseImage("securityservice").ExposePort(5001,5001).UseNetwork(new List<INetworkService>
                                                                                                                   {
                                                                                                                       this.TestNetwork
                                                                                                                   }.ToArray())
-                                                         .Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite).Build().Start().WaitForPort("5001/tcp", 30000);
+                                                         .Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite)
+                                                         .
+                                                         
+                                                         .Build().Start().WaitForPort("5001/tcp", 30000);
 
             Console.Out.WriteLine("Started Security Service");
         }
@@ -90,11 +100,11 @@ namespace SecurityService.IntergrationTests.Common
         private void SetupSecurityServiceTestUIContainer(String traceFolder)
         {
             // Management API Container
-            this.SecurityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
-                                                         .WithEnvironment($"Authority=http://{this.SecurityServiceContainerName}:5001",
+            this.SecurityServiceTestUIContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
+                                                         .WithEnvironment($"Authority=http://127.0.0.1:{this.SecurityServicePort}",
                                                                           $"ClientId=estateUIClient",
                                                                           "ClientSecret=Secret1")
-                                                         .UseImage("securityservicetestwebclient").ExposePort(5004).UseNetwork(new List<INetworkService>
+                                                         .UseImage("securityservicetestwebclient").ExposePort(5004,5004).UseNetwork(new List<INetworkService>
                                                                                                                   {
                                                                                                                       this.TestNetwork
                                                                                                                   }.ToArray())
@@ -107,11 +117,6 @@ namespace SecurityService.IntergrationTests.Common
         {
             try
             {
-
-                //DeleteDatabase($"PersistedGrantStore{this.TestId:N}");
-                //DeleteDatabase($"Configuration{this.TestId:N}");
-                //DeleteDatabase($"Authentication{this.TestId:N}");
-
                 if (this.SecurityServiceContainer != null)
                 {
                     this.SecurityServiceContainer.StopOnDispose = true;
@@ -137,31 +142,39 @@ namespace SecurityService.IntergrationTests.Common
                 Console.WriteLine(e);
             }
         }
+    }
 
-        //private void DeleteDatabase(String database)
-        //{
-        //    IPEndPoint sqlEndpoint = Setup.DatabaseServerContainer.ToHostExposedEndpoint("1433/tcp");
+    [Binding]
+    public class Hooks
+    {
+        private readonly IObjectContainer ObjectContainer;
+        private BrowserSession BrowserSession;
 
-        //    String server = "127.0.0.1";
-        //    String user = "sa";
-        //    String password = "thisisalongpassword123!";
-        //    String port = sqlEndpoint.Port.ToString();
+        public Hooks(IObjectContainer objectContainer)
+        {
+            this.ObjectContainer = objectContainer;
+        }
 
-        //    String connectionString = $"server={server},{port};user id={user}; password={password}; database={"master"};";
+        [BeforeScenario(Order = 0)]
+        public async Task BeforeScenario()
+        {
+            SessionConfiguration sessionConfiguration = new SessionConfiguration
+                                                        {
+                                                            AppHost = "localhost",
+                                                            SSL = false,
+                                                        };
 
-        //    SqlConnection connection = new SqlConnection(connectionString);
+            sessionConfiguration.Driver = Type.GetType("Coypu.Drivers.Selenium.SeleniumWebDriver, Coypu");
+            sessionConfiguration.Browser = Coypu.Drivers.Browser.Parse("chrome");
 
-        //    connection.Open();
+            this.BrowserSession = new BrowserSession(sessionConfiguration);
+            this.ObjectContainer.RegisterInstanceAs(this.BrowserSession);
+        }
 
-        //    SqlCommand setSingleUserCommand = connection.CreateCommand();
-        //    setSingleUserCommand.CommandText = $"alter database {database} set single_user with rollback immediate";
-        //    setSingleUserCommand.ExecuteNonQuery();
-
-        //    SqlCommand dropDatabaseCommand = connection.CreateCommand();
-        //    dropDatabaseCommand.CommandText = $"DROP DATABASE {database}";
-        //    dropDatabaseCommand.ExecuteNonQuery();
-            
-        //    connection.Close();
-        //}
+        [AfterScenario(Order = 0)]
+        public void AfterScenario()
+        {
+            this.BrowserSession.Dispose();
+        }
     }
 }

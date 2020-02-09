@@ -22,7 +22,7 @@ namespace SecurityService.IntergrationTests.Common
             this.TestingContext = testingContext;
         }
 
-        [BeforeScenario()]
+        [BeforeScenario(Order=1)]
         public async Task StartSystem()
         {
             String scenarioName = this.ScenarioContext.ScenarioInfo.Title.Replace(" ", "");
@@ -30,7 +30,7 @@ namespace SecurityService.IntergrationTests.Common
             await this.TestingContext.DockerHelper.StartContainersForScenarioRun(scenarioName).ConfigureAwait(false);
         }
 
-        [AfterScenario()]
+        [AfterScenario(Order=1)]
         public async Task StopSystem()
         {
             await this.TestingContext.DockerHelper.StopContainersForScenarioRun().ConfigureAwait(false);

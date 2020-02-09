@@ -9,18 +9,35 @@ using Microsoft.Extensions.Logging;
 
 namespace SecurityServiceTestWebClient
 {
+    using System.IO;
+
     public class Program
     {
-        public static void Main(string[] args)
+        #region Methods
+
+        public static IHostBuilder CreateHostBuilder(String[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            Console.Title = "Security Service Test UI";
+
+            //At this stage, we only need our hosting file for ip and ports
+            IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("hosting.json", optional: true)
+                                                                  .AddJsonFile("hosting.development.json", optional: true).AddEnvironmentVariables().Build();
+
+            IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
+            hostBuilder.ConfigureWebHostDefaults(webBuilder =>
+                                                            {
+                                                                webBuilder.UseStartup<Startup>();
+                                                                webBuilder.UseConfiguration(config);
+                                                                webBuilder.UseKestrel();
+                                                            });
+            return hostBuilder;
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
+        public static void Main(String[] args)
+        {
+            Program.CreateHostBuilder(args).Build().Run();
+        }
+
+        #endregion
     }
 }

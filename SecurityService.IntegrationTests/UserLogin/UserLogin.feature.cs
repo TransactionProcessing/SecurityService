@@ -19,12 +19,24 @@ namespace SecurityService.IntegrationTests.UserLogin
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
+    [Xunit.TraitAttribute("Category", "base")]
+    [Xunit.TraitAttribute("Category", "roles")]
+    [Xunit.TraitAttribute("Category", "apiresources")]
+    [Xunit.TraitAttribute("Category", "clients")]
+    [Xunit.TraitAttribute("Category", "users")]
+    [Xunit.TraitAttribute("Category", "userlogin")]
     public partial class UserLoginFeature : object, Xunit.IClassFixture<UserLoginFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
-        private string[] _featureTags = ((string[])(null));
+        private string[] _featureTags = new string[] {
+                "base",
+                "roles",
+                "apiresources",
+                "clients",
+                "users",
+                "userlogin"};
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
@@ -40,7 +52,13 @@ namespace SecurityService.IntegrationTests.UserLogin
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "UserLogin", null, ProgrammingLanguage.CSharp, ((string[])(null)));
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "UserLogin", null, ProgrammingLanguage.CSharp, new string[] {
+                        "base",
+                        "roles",
+                        "apiresources",
+                        "clients",
+                        "users",
+                        "userlogin"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -75,9 +93,125 @@ namespace SecurityService.IntegrationTests.UserLogin
             testRunner.CollectScenarioErrors();
         }
         
+        public virtual void FeatureBackground()
+        {
+#line 4
+#line hidden
+            TechTalk.SpecFlow.Table table23 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Role Name"});
+            table23.AddRow(new string[] {
+                        "Estate"});
+#line 6
+ testRunner.Given("I create the following roles", ((string)(null)), table23, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table24 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Name",
+                        "DisplayName",
+                        "Secret",
+                        "Scopes",
+                        "UserClaims"});
+            table24.AddRow(new string[] {
+                        "estateManagement",
+                        "Estate Managememt REST",
+                        "Secret1",
+                        "estateManagement",
+                        "MerchantId, EstateId, role"});
+#line 10
+ testRunner.Given("I create the following api resources", ((string)(null)), table24, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table25 = new TechTalk.SpecFlow.Table(new string[] {
+                        "ClientId",
+                        "Name",
+                        "Secret",
+                        "Scopes",
+                        "GrantTypes",
+                        "RedirectUris",
+                        "PostLogoutRedirectUris",
+                        "RequireConsent"});
+            table25.AddRow(new string[] {
+                        "estateUIClient",
+                        "Merchant Client",
+                        "Secret1",
+                        "estateManagement",
+                        "password",
+                        "http://localhost:[port]/signin-oidc",
+                        "http://localhost:[port]/signout-oidc",
+                        "false"});
+#line 14
+ testRunner.Given("I create the following clients", ((string)(null)), table25, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table26 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Email Address",
+                        "Password",
+                        "Phone Number",
+                        "Given Name",
+                        "Middle Name",
+                        "Family Name",
+                        "Claims",
+                        "Roles"});
+            table26.AddRow(new string[] {
+                        "estateuser@testestate1.co.uk",
+                        "123456",
+                        "123456789",
+                        "Test",
+                        "",
+                        "User 1",
+                        "EstateId:1",
+                        "Estate"});
+#line 18
+ testRunner.Given("I create the following users", ((string)(null)), table26, "Given ");
+#line hidden
+        }
+        
         void System.IDisposable.Dispose()
         {
             this.TestTearDown();
+        }
+        
+        [Xunit.SkippableFactAttribute(DisplayName="Access Secure Area In Application")]
+        [Xunit.TraitAttribute("FeatureTitle", "UserLogin")]
+        [Xunit.TraitAttribute("Description", "Access Secure Area In Application")]
+        [Xunit.TraitAttribute("Category", "PRTest")]
+        public virtual void AccessSecureAreaInApplication()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "PRTest"};
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Access Secure Area In Application", null, new string[] {
+                        "PRTest"});
+#line 23
+this.ScenarioInitialize(scenarioInfo);
+#line hidden
+            bool isScenarioIgnored = default(bool);
+            bool isFeatureIgnored = default(bool);
+            if ((tagsOfScenario != null))
+            {
+                isScenarioIgnored = tagsOfScenario.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((this._featureTags != null))
+            {
+                isFeatureIgnored = this._featureTags.Where(__entry => __entry != null).Where(__entry => String.Equals(__entry, "ignore", StringComparison.CurrentCultureIgnoreCase)).Any();
+            }
+            if ((isScenarioIgnored || isFeatureIgnored))
+            {
+                testRunner.SkipScenario();
+            }
+            else
+            {
+                this.ScenarioStart();
+#line 4
+this.FeatureBackground();
+#line hidden
+#line 24
+ testRunner.Given("I am on the application home page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+#line hidden
+#line 25
+ testRunner.When("I click the \'Privacy\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 26
+ testRunner.Then("I am presented with a login screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+            }
+            this.ScenarioCleanup();
         }
         
         [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.1.0.0")]

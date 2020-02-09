@@ -53,6 +53,7 @@ namespace SecurityServiceTestWebClient
                                                                                                       {
                                                                                                           options.SignInScheme = "Cookies";
                                                                                                           options.Authority = Configuration.GetValue<String>("Authority");
+                                                                                                          
                                                                                                           options.RequireHttpsMetadata = false;
 
                                                                                                           options.ClientSecret =
