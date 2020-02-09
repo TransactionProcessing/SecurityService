@@ -12,7 +12,6 @@ namespace SecurityService.Controllers
     using Factories;
     using Manager;
     using Microsoft.AspNetCore.Mvc;
-    using Service.Controllers;
     using Swashbuckle.AspNetCore.Annotations;
 
     [Route(RoleController.ControllerRoute)]

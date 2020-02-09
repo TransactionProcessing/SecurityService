@@ -1,10 +1,9 @@
-using System.Threading.Tasks;
-using IdentityServer4.Stores;
-
-namespace SecurityService
+namespace SecurityService.Controllers
 {
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading.Tasks;
     using IdentityServer4.Models;
+    using IdentityServer4.Stores;
 
     [ExcludeFromCodeCoverage]
     public static class Extensions
