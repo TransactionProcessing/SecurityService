@@ -61,11 +61,11 @@ jobs:
         with:
           name: buildresult
 
-    - name: Build Docker Image
-      run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+      - name: Build Docker Image
+        run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
 
-    - name: Run Integration Tests
-      run: dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+      - name: Run Integration Tests
+        run: dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
 jobs:
   build:
@@ -82,8 +82,8 @@ jobs:
         with:
           name: buildresult
 
-    - name: Build Docker Image
-      run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+      - name: Build Docker Image
+        run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
 
-    - name: Run Integration Tests
-      run: dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+      - name: Run Integration Tests
+        run: dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
