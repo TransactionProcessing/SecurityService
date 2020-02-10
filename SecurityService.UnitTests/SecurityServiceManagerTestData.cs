@@ -136,6 +136,10 @@
 
         public static Boolean RequireConsentFalse = false;
 
+        public static Boolean AllowOfflineAccessTrue = true;
+
+        public static Boolean AllowOfflineAccessFalse = false;
+
         public static List<String> EmptyClientRedirectUris = new List<String>();
 
         public static List<String> ClientRedirectUris = new List<String>

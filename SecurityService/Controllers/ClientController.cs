@@ -1,4 +1,4 @@
-﻿namespace SecurityService.Service.Controllers
+﻿namespace SecurityService.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -11,10 +11,8 @@
     using Factories;
     using IdentityServer4.Models;
     using Manager;
-    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
-    using Swashbuckle.AspNetCore.Filters;
 
     /// <summary>
     /// 
@@ -78,6 +76,7 @@
                                                               createClientRequest.ClientRedirectUris,
                                                               createClientRequest.ClientPostLogoutRedirectUris,
                                                               createClientRequest.RequireConsent,
+                                                              createClientRequest.AllowOfflineAccess,
                                                               cancellationToken);
 
             // return the result

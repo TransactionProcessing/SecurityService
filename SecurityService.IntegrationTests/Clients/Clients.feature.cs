@@ -21,7 +21,7 @@ namespace SecurityService.IntegrationTests.Clients
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "clients")]
-    public partial class ClientsFeature : object, Xunit.IClassFixture<ClientsFeature.FixtureData>, System.IDisposable
+    public partial class ClientsFeature : Xunit.IClassFixture<ClientsFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;

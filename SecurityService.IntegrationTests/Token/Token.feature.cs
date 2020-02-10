@@ -25,7 +25,7 @@ namespace SecurityService.IntegrationTests.Token
     [Xunit.TraitAttribute("Category", "apiresources")]
     [Xunit.TraitAttribute("Category", "users")]
     [Xunit.TraitAttribute("Category", "roles")]
-    public partial class TokenFeature : object, Xunit.IClassFixture<TokenFeature.FixtureData>, System.IDisposable
+    public partial class TokenFeature : Xunit.IClassFixture<TokenFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;

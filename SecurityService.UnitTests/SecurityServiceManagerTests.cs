@@ -461,6 +461,7 @@
                                                                         SecurityServiceManagerTestData.ClientRedirectUris,
                                                                         SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        SecurityServiceManagerTestData.AllowOfflineAccessTrue,
                                                                         CancellationToken.None);
 
             clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
@@ -483,6 +484,7 @@
                                                                         null,
                                                                         SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        SecurityServiceManagerTestData.AllowOfflineAccessTrue,
                                                                         CancellationToken.None);
 
             clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
@@ -505,6 +507,7 @@
                                                                         SecurityServiceManagerTestData.EmptyClientRedirectUris,
                                                                         SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        SecurityServiceManagerTestData.AllowOfflineAccessTrue,
                                                                         CancellationToken.None);
 
             clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
@@ -527,6 +530,7 @@
                                                                         SecurityServiceManagerTestData.ClientRedirectUris,
                                                                         null,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        SecurityServiceManagerTestData.AllowOfflineAccessTrue,
                                                                         CancellationToken.None);
 
             clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
@@ -549,6 +553,7 @@
                                                                         SecurityServiceManagerTestData.ClientRedirectUris,
                                                                         SecurityServiceManagerTestData.EmptyClientPostLogoutRedirectUris,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                        SecurityServiceManagerTestData.AllowOfflineAccessTrue,
                                                                         CancellationToken.None);
 
             clientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
@@ -578,6 +583,7 @@
                                                                                                                                    SecurityServiceManagerTestData.ClientRedirectUris,
                                                                                                                                    SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
                                                                                                                                    SecurityServiceManagerTestData.RequireConsentTrue,
+                                                                                                                                   SecurityServiceManagerTestData.AllowOfflineAccessTrue,
                                                                                                                                    CancellationToken.None);
                                                                                      });
 
