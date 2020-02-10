@@ -21,7 +21,7 @@ namespace SecurityService.IntegrationTests.Roles
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "roles")]
-    public partial class RolesFeature : Xunit.IClassFixture<RolesFeature.FixtureData>, System.IDisposable
+    public partial class RolesFeature : object, Xunit.IClassFixture<RolesFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;

@@ -61,5 +61,21 @@ namespace SecurityService.IntegrationTests.UserLogin
             section.ShouldNotBeNull();
         }
 
+        [When(@"I login with the username '(.*)' and password '(.*)'")]
+        public void WhenILoginWithTheUsernameAndPassword(String userName, String password)
+        {
+            this.BrowserSession.FillIn("Username").With(userName.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")));
+            this.BrowserSession.FillIn("Password").With(password);
+            this.BrowserSession.ClickButton("Login");
+        }
+
+        [Then(@"I am presented with the privacy screen")]
+        public void ThenIAmPresentedWithThePrivacyScreen()
+        {
+            this.BrowserSession.Title.ShouldBe("Privacy Policy - SecurityServiceTestWebClient");
+            //Use this page to detail your site's privacy policy.
+        }
+
+
     }
 }

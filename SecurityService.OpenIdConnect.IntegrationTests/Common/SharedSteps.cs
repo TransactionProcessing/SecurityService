@@ -32,7 +32,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
             {
                 CreateRoleRequest createRoleRequest = new CreateRoleRequest
                                                       {
-                                                          RoleName = SpecflowTableHelper.GetStringRowValue(tableRow, "Role Name")
+                                                          RoleName = SpecflowTableHelper.GetStringRowValue(tableRow, "Role Name").Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N"))
                                                       };
                 CreateRoleResponse createRoleResponse = await this.CreateRole(createRoleRequest, CancellationToken.None).ConfigureAwait(false);
 
@@ -72,11 +72,12 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                 // Get the scopes
                 String scopes = SpecflowTableHelper.GetStringRowValue(tableRow, "Scopes");
                 String userClaims = SpecflowTableHelper.GetStringRowValue(tableRow, "UserClaims");
+                scopes = scopes.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N"));
 
                 CreateApiResourceRequest createApiResourceRequest = new CreateApiResourceRequest
                                                                     {
                                                                         Secret = SpecflowTableHelper.GetStringRowValue(tableRow, "Secret"),
-                                                                        Name = SpecflowTableHelper.GetStringRowValue(tableRow, "Name"),
+                                                                        Name = SpecflowTableHelper.GetStringRowValue(tableRow, "Name").Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")),
                                                                         Scopes = string.IsNullOrEmpty(scopes) ? null : scopes.Split(",").ToList(),
                                                                         UserClaims = string.IsNullOrEmpty(userClaims) ? null : userClaims.Split(",").ToList(),
                                                                         Description = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
@@ -105,12 +106,14 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                 String redirectUris = SpecflowTableHelper.GetStringRowValue(tableRow, "RedirectUris");
                 // Get the post logout redirect uris
                 String postLogoutRedirectUris = SpecflowTableHelper.GetStringRowValue(tableRow, "PostLogoutRedirectUris");
+
+                scopes = scopes.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N"));
                 redirectUris = redirectUris.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString());
                 postLogoutRedirectUris= postLogoutRedirectUris.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString());
 
                 CreateClientRequest createClientRequest = new CreateClientRequest
                 {
-                    ClientId = SpecflowTableHelper.GetStringRowValue(tableRow, "ClientId"),
+                    ClientId = SpecflowTableHelper.GetStringRowValue(tableRow, "ClientId").Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")),
                     Secret = SpecflowTableHelper.GetStringRowValue(tableRow, "Secret"),
                     ClientName = SpecflowTableHelper.GetStringRowValue(tableRow, "Name"),
                     AllowedScopes = string.IsNullOrEmpty(scopes) ? null : scopes.Split(",").ToList(),
@@ -118,7 +121,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                     ClientRedirectUris = string.IsNullOrEmpty(redirectUris) ? null : redirectUris.Split(",").ToList(),
                     ClientPostLogoutRedirectUris = string.IsNullOrEmpty(postLogoutRedirectUris) ? null : postLogoutRedirectUris.Split(",").ToList(),
                     ClientDescription = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
-                    RequireConsent = SpecflowTableHelper.GetBooleanValue(tableRow, "RequireConsent")
+                    RequireConsent = SpecflowTableHelper.GetBooleanValue(tableRow, "RequireConsent"),
+                    AllowOfflineAccess = SpecflowTableHelper.GetBooleanValue(tableRow, "AllowOfflineAccess")
+
                 };
 
                 // Do the replacement on the Uris
@@ -166,10 +171,11 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                 }
 
                 String roles = SpecflowTableHelper.GetStringRowValue(tableRow, "Roles");
+                roles = roles.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N"));
 
                 CreateUserRequest createUserRequest = new CreateUserRequest
                 {
-                    EmailAddress = SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address"),
+                    EmailAddress = SpecflowTableHelper.GetStringRowValue(tableRow, "Email Address").Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")),
                     FamilyName = SpecflowTableHelper.GetStringRowValue(tableRow, "Family Name"),
                     GivenName = SpecflowTableHelper.GetStringRowValue(tableRow, "Given Name"),
                     PhoneNumber = SpecflowTableHelper.GetStringRowValue(tableRow, "Phone Number"),

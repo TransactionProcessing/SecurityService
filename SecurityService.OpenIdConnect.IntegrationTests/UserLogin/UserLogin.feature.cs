@@ -91,7 +91,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
             TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "Role Name"});
             table1.AddRow(new string[] {
-                        "Estate"});
+                        "Estate[id]"});
 #line 6
  testRunner.Given("I create the following roles", ((string)(null)), table1, "Given ");
 #line hidden
@@ -102,11 +102,11 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "Scopes",
                         "UserClaims"});
             table2.AddRow(new string[] {
-                        "estateManagement",
+                        "estateManagement[id]",
                         "Estate Managememt REST",
                         "Secret1",
-                        "estateManagement",
-                        "MerchantId, EstateId, role"});
+                        "estateManagement[id]",
+                        "MerchantId,EstateId,role"});
 #line 10
  testRunner.Given("I create the following api resources", ((string)(null)), table2, "Given ");
 #line hidden
@@ -118,16 +118,18 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "GrantTypes",
                         "RedirectUris",
                         "PostLogoutRedirectUris",
-                        "RequireConsent"});
+                        "RequireConsent",
+                        "AllowOfflineAccess"});
             table3.AddRow(new string[] {
-                        "estateUIClient",
+                        "estateUIClient[id]",
                         "Merchant Client",
                         "Secret1",
-                        "estateManagement",
+                        "estateManagement[id],openid,email,profile",
                         "hybrid",
                         "http://localhost:[port]/signin-oidc",
                         "http://localhost:[port]/signout-oidc",
-                        "false"});
+                        "false",
+                        "true"});
 #line 14
  testRunner.Given("I create the following clients", ((string)(null)), table3, "Given ");
 #line hidden
@@ -141,14 +143,14 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "Claims",
                         "Roles"});
             table4.AddRow(new string[] {
-                        "estateuser@testestate1.co.uk",
+                        "estateuser[id]@testestate1.co.uk",
                         "123456",
                         "123456789",
                         "Test",
                         "",
                         "User 1",
                         "EstateId:1",
-                        "Estate"});
+                        "Estate[id]"});
 #line 18
  testRunner.Given("I create the following users", ((string)(null)), table4, "Given ");
 #line hidden
@@ -200,6 +202,13 @@ this.FeatureBackground();
 #line hidden
 #line 26
  testRunner.Then("I am presented with a login screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+#line 27
+ testRunner.When("I login with the username \'estateuser[id]@testestate1.co.uk\' and password \'123456" +
+                        "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 28
+ testRunner.Then("I am presented with the privacy screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }
             this.ScenarioCleanup();

@@ -69,7 +69,7 @@ namespace SecurityService.IntergrationTests.Common
             // Management API Container
             this.SecurityServiceTestUIContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
                                                          .WithEnvironment($"Authority=http://sferguson.ddns.net:55001",
-                                                                          $"ClientId=estateUIClient",
+                                                                          $"ClientId=estateUIClient{this.TestId.ToString("N")}",
                                                                           "ClientSecret=Secret1")
                                                          .UseImage("securityservicetestwebclient").ExposePort(5004)
                                                          .UseNetwork(new List<INetworkService>
