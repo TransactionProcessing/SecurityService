@@ -36,7 +36,7 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: buildresult
-        path: SecurityService/       
+        path: /home/runner/work/SecurityService/SecurityService/
 
   securityservicespecflow:
     name: "Security Service Specflow"
