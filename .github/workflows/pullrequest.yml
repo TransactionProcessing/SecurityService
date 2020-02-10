@@ -36,17 +36,8 @@ jobs:
       uses: actions/upload-artifact@v1
       with:
         name: buildresult
-        path: SecurityService/
-        
-    #- name: Build Docker Image
-    #  run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+        path: SecurityService/       
 
-    #- name: Run Integration Tests
-    #  run: |
-    #    dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
-#        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
-
-jobs:
   build:
     name: "Security Service Specflow"
     needs: Build and Unit Test
@@ -67,7 +58,6 @@ jobs:
       - name: Run Integration Tests
         run: dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
-jobs:
   build:
     name: "Security Service OpenId Connect Specflow"
     needs: Security Service Specflow
