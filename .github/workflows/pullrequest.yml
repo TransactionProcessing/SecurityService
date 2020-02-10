@@ -38,37 +38,38 @@ jobs:
         name: buildresult
         path: /home/runner/work/SecurityService/SecurityService/
 
-  securityservicespecflow:
-    name: "Security Service Specflow"
-    needs: buildandunittest
-    env:
-        ASPNETCORE_ENVIRONMENT: "Production"
+  #securityservicespecflow:
+  #  name: "Security Service Specflow"
+  #  needs: buildandunittest
+  #  env:
+  #      ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: ubuntu-latest
+  #  runs-on: ubuntu-latest
 
-    steps:
-      - name: Download Build Output
-        uses: actions/download-artifact@v1
-        with:
-          name: buildresult
+  #  steps:
+  #    - name: Download Build Output
+  #      uses: actions/download-artifact@v1
+  #      with:
+  #        name: buildresult
     
-      - name: Build Docker Image
-        run: docker build ./buildresult --file buildresult/SecurityService/Dockerfile --tag securityservice:latest
+  #    - name: Build Docker Image
+  #      run: docker build ./buildresult --file buildresult/SecurityService/Dockerfile --tag securityservice:latest
 
-      - name: Setup .NET Core
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 3.1.100
+  #    - name: Setup .NET Core
+  #      uses: actions/setup-dotnet@v1
+  #      with:
+  #        dotnet-version: 3.1.100
 
-      - name: Restore Nuget Packages
-        run: dotnet restore "buildresult\SecurityService.sln" --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+  #    - name: Restore Nuget Packages
+  #      run: dotnet restore "buildresult\SecurityService.sln" --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
-      - name: Run Integration Tests
-        run: dotnet test "buildresult\SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+  #    - name: Run Integration Tests
+  #      run: dotnet test "buildresult\SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
   securitysserviceopenidconnectspecflow:
     name: "Security Service OpenId Connect Specflow"
-    needs: securityservicespecflow
+    #needs: securityservicespecflow
+    needs: buildandunittest
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
@@ -81,7 +82,7 @@ jobs:
           name: buildresult
 
       - name: Switch Docker Containers
-        run: DockerCli.exe -SwitchLinuxEngine
+        run: "C:\Program Files\Docker\Docker\DockerCli.exe" -SwitchLinuxEngine
 
       - name: Build Docker Image
         run: docker build ./buildresult --file buildresult/SecurityServiceTestWebClient/Dockerfile --tag securityservicetestwebclient:latest
