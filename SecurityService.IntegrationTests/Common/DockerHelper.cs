@@ -74,7 +74,7 @@ namespace SecurityService.IntergrationTests.Common
                                                          .WithEnvironment("ASPNETCORE_ENVIRONMENT=IntegrationTest",
                                                                           $"ServiceOptions:PublicOrigin=http://127.0.0.1:5001",
                                                                           $"ServiceOptions:IssuerUrl=http://127.0.0.1:5001")
-                                                         .UseImage("securityservice").ExposePort(5001,5001).UseNetwork(new List<INetworkService>
+                                                         .UseImage("securityservice").ExposePort(5001).UseNetwork(new List<INetworkService>
                                                                                                                   {
                                                                                                                       this.TestNetwork
                                                                                                                   }.ToArray())
