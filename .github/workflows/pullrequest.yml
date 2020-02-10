@@ -51,7 +51,7 @@ jobs:
         uses: actions/download-artifact@v1
         with:
           name: buildresult
-
+    
       - name: Build Docker Image
         run: docker build ./buildresult --file buildresult/SecurityService/Dockerfile --tag securityservice:latest
 
@@ -59,6 +59,9 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.100
+
+    - name: Restore Nuget Packages
+      run: dotnet restore buildresult\SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
       - name: Run Integration Tests
         run: dotnet test "buildresult\SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
@@ -84,6 +87,9 @@ jobs:
         uses: actions/setup-dotnet@v1
         with:
           dotnet-version: 3.1.100
+
+      - name: Restore Nuget Packages
+        run: dotnet restore buildresult\SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
       - name: Run Integration Tests
         run: dotnet test "buildresult\SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
