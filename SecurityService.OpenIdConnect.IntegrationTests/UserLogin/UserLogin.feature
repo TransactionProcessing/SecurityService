@@ -1,4 +1,4 @@
-﻿@base @roles @apiresources @clients @users @userlogin
+﻿@base @shared @userlogin
 Feature: UserLogin
 
 Background: 
@@ -13,7 +13,7 @@ Background:
 
 	Given I create the following clients
 	| ClientId       | Name            | Secret  | Scopes           | GrantTypes | RedirectUris                        | PostLogoutRedirectUris               | RequireConsent |
-	| estateUIClient | Merchant Client | Secret1 | estateManagement | password   | http://localhost:[port]/signin-oidc | http://localhost:[port]/signout-oidc | false          |
+	| estateUIClient | Merchant Client | Secret1 | estateManagement | hybrid     | http://localhost:[port]/signin-oidc | http://localhost:[port]/signout-oidc | false          |
 
 	Given I create the following users
 	| Email Address                | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles  |

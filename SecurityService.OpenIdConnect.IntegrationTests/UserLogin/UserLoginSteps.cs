@@ -3,7 +3,6 @@ using TechTalk.SpecFlow;
 
 namespace SecurityService.IntegrationTests.UserLogin
 {
-    using Clients;
     using Coypu;
     using IntergrationTests.Common;
     using Shouldly;
@@ -61,7 +60,6 @@ namespace SecurityService.IntegrationTests.UserLogin
             ElementScope section = this.BrowserSession.FindSection("Local Login");
             section.ShouldNotBeNull();
         }
-
 
     }
 }

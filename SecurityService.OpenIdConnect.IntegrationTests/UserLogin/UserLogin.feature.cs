@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace SecurityService.IntegrationTests.UserLogin
+namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
 {
     using TechTalk.SpecFlow;
     using System;
@@ -20,10 +20,7 @@ namespace SecurityService.IntegrationTests.UserLogin
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
-    [Xunit.TraitAttribute("Category", "roles")]
-    [Xunit.TraitAttribute("Category", "apiresources")]
-    [Xunit.TraitAttribute("Category", "clients")]
-    [Xunit.TraitAttribute("Category", "users")]
+    [Xunit.TraitAttribute("Category", "shared")]
     [Xunit.TraitAttribute("Category", "userlogin")]
     public partial class UserLoginFeature : object, Xunit.IClassFixture<UserLoginFeature.FixtureData>, System.IDisposable
     {
@@ -32,10 +29,7 @@ namespace SecurityService.IntegrationTests.UserLogin
         
         private string[] _featureTags = new string[] {
                 "base",
-                "roles",
-                "apiresources",
-                "clients",
-                "users",
+                "shared",
                 "userlogin"};
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
@@ -43,7 +37,7 @@ namespace SecurityService.IntegrationTests.UserLogin
 #line 1 "UserLogin.feature"
 #line hidden
         
-        public UserLoginFeature(UserLoginFeature.FixtureData fixtureData, SecurityService_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public UserLoginFeature(UserLoginFeature.FixtureData fixtureData, SecurityService_OpenIdConnect_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();
@@ -54,10 +48,7 @@ namespace SecurityService.IntegrationTests.UserLogin
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
             TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "UserLogin", null, ProgrammingLanguage.CSharp, new string[] {
                         "base",
-                        "roles",
-                        "apiresources",
-                        "clients",
-                        "users",
+                        "shared",
                         "userlogin"});
             testRunner.OnFeatureStart(featureInfo);
         }
@@ -97,29 +88,29 @@ namespace SecurityService.IntegrationTests.UserLogin
         {
 #line 4
 #line hidden
-            TechTalk.SpecFlow.Table table23 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "Role Name"});
-            table23.AddRow(new string[] {
+            table1.AddRow(new string[] {
                         "Estate"});
 #line 6
- testRunner.Given("I create the following roles", ((string)(null)), table23, "Given ");
+ testRunner.Given("I create the following roles", ((string)(null)), table1, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table24 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table24.AddRow(new string[] {
+            table2.AddRow(new string[] {
                         "estateManagement",
                         "Estate Managememt REST",
                         "Secret1",
                         "estateManagement",
                         "MerchantId, EstateId, role"});
 #line 10
- testRunner.Given("I create the following api resources", ((string)(null)), table24, "Given ");
+ testRunner.Given("I create the following api resources", ((string)(null)), table2, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table25 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
@@ -128,19 +119,19 @@ namespace SecurityService.IntegrationTests.UserLogin
                         "RedirectUris",
                         "PostLogoutRedirectUris",
                         "RequireConsent"});
-            table25.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "estateUIClient",
                         "Merchant Client",
                         "Secret1",
                         "estateManagement",
-                        "password",
+                        "hybrid",
                         "http://localhost:[port]/signin-oidc",
                         "http://localhost:[port]/signout-oidc",
                         "false"});
 #line 14
- testRunner.Given("I create the following clients", ((string)(null)), table25, "Given ");
+ testRunner.Given("I create the following clients", ((string)(null)), table3, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table26 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "Email Address",
                         "Password",
                         "Phone Number",
@@ -149,7 +140,7 @@ namespace SecurityService.IntegrationTests.UserLogin
                         "Family Name",
                         "Claims",
                         "Roles"});
-            table26.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "estateuser@testestate1.co.uk",
                         "123456",
                         "123456789",
@@ -159,7 +150,7 @@ namespace SecurityService.IntegrationTests.UserLogin
                         "EstateId:1",
                         "Estate"});
 #line 18
- testRunner.Given("I create the following users", ((string)(null)), table26, "Given ");
+ testRunner.Given("I create the following users", ((string)(null)), table4, "Given ");
 #line hidden
         }
         

@@ -77,18 +77,7 @@
                                                               ClientDescription = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
                                                               RequireConsent = SpecflowTableHelper.GetBooleanValue(tableRow, "RequireConsent")
                                                           };
-
-                // Do the replacement on the Uris
-                if (createClientRequest.ClientRedirectUris != null && createClientRequest.ClientRedirectUris.Any())
-                {
-                    createClientRequest.ClientRedirectUris.ForEach(c => c= c.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString()));
-                }
-
-                if (createClientRequest.ClientPostLogoutRedirectUris != null && createClientRequest.ClientPostLogoutRedirectUris.Any())
-                {
-                    createClientRequest.ClientPostLogoutRedirectUris.ForEach(c => c = c.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString()));
-                }
-
+                
                 CreateClientResponse createClientResponse = await this.CreateClient(createClientRequest, CancellationToken.None).ConfigureAwait(false);
 
                 createClientResponse.ShouldNotBeNull();
