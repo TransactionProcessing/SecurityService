@@ -7,11 +7,11 @@ on:
 
 jobs:
   build:
-    name: "Build and Test Pull Requests"
+    name: "Build and Unit Test"
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
@@ -31,11 +31,59 @@ jobs:
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
         dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"
+
+    - name: Upload Built Code
+      uses: actions/upload-artifact@v1
+      with:
+        name: buildresult
+        path: SecurityService/
         
+    #- name: Build Docker Image
+    #  run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+
+    #- name: Run Integration Tests
+    #  run: |
+    #    dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+#        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+jobs:
+  build:
+    name: "Security Service Specflow"
+    needs: Build and Unit Test
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download Build Output
+        uses: actions/download-artifact@v1
+        with:
+          name: buildresult
+
     - name: Build Docker Image
       run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
 
     - name: Run Integration Tests
-      run: |
-        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
-        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+      run: dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+
+jobs:
+  build:
+    name: "Security Service OpenId Connect Specflow"
+    needs: Security Service Specflow
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-latest
+
+    steps:
+      - name: Download Build Output
+        uses: actions/download-artifact@v1
+        with:
+          name: buildresult
+
+    - name: Build Docker Image
+      run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+
+    - name: Run Integration Tests
+      run: dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
