@@ -6,7 +6,7 @@ on:
     - master
 
 jobs:
-  build:
+  buildandunittest:
     name: "Build and Unit Test"
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
@@ -38,9 +38,9 @@ jobs:
         name: buildresult
         path: SecurityService/       
 
-  build:
+  securityservicespecflow:
     name: "Security Service Specflow"
-    needs: Build and Unit Test
+    needs: buildandunittest
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
@@ -58,9 +58,9 @@ jobs:
       - name: Run Integration Tests
         run: dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
-  build:
+  securitysserviceopenidconnectspecflow:
     name: "Security Service OpenId Connect Specflow"
-    needs: Security Service Specflow
+    needs: securityservicespecflow
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
