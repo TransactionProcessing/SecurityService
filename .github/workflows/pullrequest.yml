@@ -53,7 +53,7 @@ jobs:
           name: buildresult
 
       - name: Build Docker Image
-        run: docker build . --file buildresult/SecurityService/Dockerfile --tag securityservice:latest
+        run: docker build ./buildresult --file buildresult/SecurityService/Dockerfile --tag securityservice:latest
 
       - name: Run Integration Tests
         run: dotnet test "buildresult\SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
