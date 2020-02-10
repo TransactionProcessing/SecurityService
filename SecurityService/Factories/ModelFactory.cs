@@ -116,7 +116,8 @@
                        Enabled = model.Enabled,
                        ClientPostLogoutRedirectUris = model.PostLogoutRedirectUris.ToList(),
                        RequireConsent = model.RequireConsent,
-                       ClientRedirectUris = model.RedirectUris.ToList()
+                       ClientRedirectUris = model.RedirectUris.ToList(),
+                       AllowOfflineAccess = model.AllowOfflineAccess
                    };
         }
 
