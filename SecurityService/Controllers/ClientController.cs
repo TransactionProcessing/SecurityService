@@ -76,6 +76,7 @@
                                                               createClientRequest.ClientRedirectUris,
                                                               createClientRequest.ClientPostLogoutRedirectUris,
                                                               createClientRequest.RequireConsent,
+                                                              createClientRequest.AllowOfflineAccess,
                                                               cancellationToken);
 
             // return the result

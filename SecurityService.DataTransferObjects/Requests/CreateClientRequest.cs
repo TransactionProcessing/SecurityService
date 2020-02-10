@@ -33,6 +33,15 @@
         public List<String> AllowedScopes { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether [allow offline access].
+        /// </summary>
+        /// <value>
+        ///   <c>true</c> if [allow offline access]; otherwise, <c>false</c>.
+        /// </value>
+        [JsonProperty("allow_offline_access")]
+        public Boolean AllowOfflineAccess { get; set; }
+
+        /// <summary>
         /// Gets or sets the client description.
         /// </summary>
         /// <value>

@@ -45,6 +45,7 @@
         /// <param name="clientRedirectUris">The client redirect uris.</param>
         /// <param name="clientPostLogoutRedirectUris">The client post logout redirect uris.</param>
         /// <param name="requireConsent">if set to <c>true</c> [require consent].</param>
+        /// <param name="allowOfflineAccess">if set to <c>true</c> [allow offline access].</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task<String> CreateClient(String clientId,
@@ -56,6 +57,7 @@
                                   List<String> clientRedirectUris,
                                   List<String> clientPostLogoutRedirectUris,
                                   Boolean requireConsent,
+                                  Boolean allowOfflineAccess,
                                   CancellationToken cancellationToken);
 
         /// <summary>
