@@ -85,7 +85,7 @@ jobs:
 
       - name: Install Chrome WebDriver
         run: |
-            npm -g install chromedriver
+            sudo npm -g install chromedriver
             ln -sf /usr/lib/node_modules/chromedriver/lib/chromedriver/chromedriver ~/bin/chromedriver
 
       - name: Setup .NET Core
