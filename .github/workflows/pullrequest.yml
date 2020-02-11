@@ -81,7 +81,7 @@ jobs:
         with:
           name: buildresult
 
-      - name: 
+      - name: Install ChromeDriver
         uses: nanasess/setup-chromedriver@master
         with:
           # Optional: do not specify to match Chrome's version
