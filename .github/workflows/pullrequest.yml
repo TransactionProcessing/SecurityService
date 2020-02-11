@@ -85,7 +85,7 @@ jobs:
         uses: nanasess/setup-chromedriver@master
         #with:
           # Optional: do not specify to match Chrome's version
-          #chromedriver-version: '77.0.3865.40'
+          chromedriver-version: '78.0.3904.108'
 
       - name: Build Docker Image
         run: docker build ./buildresult --file buildresult/SecurityServiceTestWebClient/Dockerfile --tag securityservicetestwebclient:latest
