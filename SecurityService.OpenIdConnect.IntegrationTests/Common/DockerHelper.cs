@@ -11,11 +11,12 @@ namespace SecurityService.IntergrationTests.Common
     using System.Threading.Tasks;
     using BoDi;
     using Client;
-    using Coypu;
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
+    using OpenQA.Selenium;
+    using OpenQA.Selenium.Chrome;
     using TechTalk.SpecFlow;
 
     public class DockerHelper
@@ -109,7 +110,8 @@ namespace SecurityService.IntergrationTests.Common
     public class Hooks
     {
         private readonly IObjectContainer ObjectContainer;
-        private BrowserSession BrowserSession;
+        //private BrowserSession BrowserSession;
+        private IWebDriver WebDriver;
 
         public Hooks(IObjectContainer objectContainer)
         {
@@ -119,23 +121,14 @@ namespace SecurityService.IntergrationTests.Common
         [BeforeScenario(Order = 0)]
         public async Task BeforeScenario()
         {
-            SessionConfiguration sessionConfiguration = new SessionConfiguration
-                                                        {
-                                                            AppHost = "localhost",
-                                                            SSL = false,
-                                                        };
-
-            sessionConfiguration.Driver = Type.GetType("Coypu.Drivers.Selenium.SeleniumWebDriver, Coypu");
-            sessionConfiguration.Browser = Coypu.Drivers.Browser.Parse("chrome");
-
-            this.BrowserSession = new BrowserSession(sessionConfiguration);
-            this.ObjectContainer.RegisterInstanceAs(this.BrowserSession);
+            this.WebDriver = new ChromeDriver();
+            this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
 
         [AfterScenario(Order = 0)]
         public void AfterScenario()
         {
-            this.BrowserSession.Dispose();
+            this.WebDriver.Dispose();
         }
     }
 }

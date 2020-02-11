@@ -3,8 +3,8 @@ using TechTalk.SpecFlow;
 
 namespace SecurityService.IntegrationTests.UserLogin
 {
-    using Coypu;
     using IntergrationTests.Common;
+    using OpenQA.Selenium;
     using Shouldly;
 
     [Binding]
@@ -21,7 +21,7 @@ namespace SecurityService.IntegrationTests.UserLogin
         /// <summary>
         /// The browser session
         /// </summary>
-        private readonly BrowserSession BrowserSession;
+        private readonly IWebDriver WebDriver;
 
         #endregion
 
@@ -33,10 +33,10 @@ namespace SecurityService.IntegrationTests.UserLogin
         /// <param name="testingContext">The testing context.</param>
         /// <param name="browserSession">The browser session.</param>
         public UserLoginSteps(TestingContext testingContext,
-                              BrowserSession browserSession)
+                              IWebDriver webDriver)
         {
             this.TestingContext = testingContext;
-            this.BrowserSession = browserSession;
+            this.WebDriver = webDriver;
         }
 
         #endregion
@@ -44,38 +44,67 @@ namespace SecurityService.IntegrationTests.UserLogin
         [Given(@"I am on the application home page")]
         public void GivenIAmOnTheApplicationHomePage()
         {
-            this.BrowserSession.Visit($"http://localhost:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
-            this.BrowserSession.Title.ShouldBe("Home Page - SecurityServiceTestWebClient");
+            this.WebDriver.Navigate().GoToUrl($"http://localhost:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
+            //this.BrowserSession.Visit($"http://localhost:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
+            this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestWebClient");
+            //this.BrowserSession.Title.ShouldBe("Home Page - SecurityServiceTestWebClient");
+
         }
 
         [When(@"I click the '(.*)' link")]
-        public void WhenIClickTheLink(string p0)
+        public void WhenIClickTheLink(string linkText)
         {
-            this.BrowserSession.ClickLink("Privacy", Options.FirstExact);
+            this.WebDriver.ClickButton("Privacy");
+            //this.BrowserSession.ClickLink("Privacy", Options.FirstExact);
         }
 
         [Then(@"I am presented with a login screen")]
         public void ThenIAmPresentedWithALoginScreen()
         {
-            ElementScope section = this.BrowserSession.FindSection("Local Login");
-            section.ShouldNotBeNull();
+            IWebElement loginButton = this.WebDriver.FindElement(By.LinkText("Login"));
+            loginButton.ShouldNotBeNull();
         }
 
         [When(@"I login with the username '(.*)' and password '(.*)'")]
         public void WhenILoginWithTheUsernameAndPassword(String userName, String password)
         {
-            this.BrowserSession.FillIn("Username").With(userName.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")));
-            this.BrowserSession.FillIn("Password").With(password);
-            this.BrowserSession.ClickButton("Login");
+            //var userNameTextBox = this.WebDriver.FindElement(By.Name("Username"));
+            //userNameTextBox.ShouldNotBeNull();
+            //userNameTextBox.SendKeys(userName);
+            this.WebDriver.FillIn("Username", userName.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")));
+            this.WebDriver.FillIn("Password", password);
+            this.WebDriver.ClickButton("Login");
+            //this.BrowserSession.FillIn("Username").With(userName.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")));
+            //this.BrowserSession.FillIn("Password").With(password);
+            //this.BrowserSession.ClickButton("Login");
         }
 
         [Then(@"I am presented with the privacy screen")]
         public void ThenIAmPresentedWithThePrivacyScreen()
         {
-            this.BrowserSession.Title.ShouldBe("Privacy Policy - SecurityServiceTestWebClient");
-            //Use this page to detail your site's privacy policy.
+            this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestWebClient");
         }
 
 
+    }
+
+    public static class Extensions
+    {
+        public static void FillIn(this IWebDriver webDriver,
+                                  String elementName,
+                                  String value)
+        {
+            IWebElement webElement = webDriver.FindElement(By.Name(elementName));
+            webElement.ShouldNotBeNull();
+            webElement.SendKeys(value);
+        }
+
+        public static void ClickButton(this IWebDriver webDriver,
+                                       String buttonText)
+        {
+            IWebElement webElement = webDriver.FindElement(By.LinkText(buttonText));
+            webElement.ShouldNotBeNull();
+            webElement.Click();
+        }
     }
 }
