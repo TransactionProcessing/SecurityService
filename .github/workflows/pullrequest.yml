@@ -85,6 +85,7 @@ jobs:
 
       - name: Install Chrome WebDriver
         run: |
+             sudo apt-get update
              sudo apt install chromium-chromedriver
       #      sudo npm -g install chromedriver
       #      #ln -sf /usr/lib/node_modules/chromedriver/lib/chromedriver/chromedriver ~/bin/chromedriver
