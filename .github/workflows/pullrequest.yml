@@ -83,7 +83,7 @@ jobs:
 
       - name: Install ChromeDriver
         uses: nanasess/setup-chromedriver@master
-        #with:
+        with:
           # Optional: do not specify to match Chrome's version
           chromedriver-version: '78.0.3904.108'
 
