@@ -110,7 +110,6 @@ namespace SecurityService.IntergrationTests.Common
     public class Hooks
     {
         private readonly IObjectContainer ObjectContainer;
-        //private BrowserSession BrowserSession;
         private IWebDriver WebDriver;
 
         public Hooks(IObjectContainer objectContainer)
@@ -124,6 +123,7 @@ namespace SecurityService.IntergrationTests.Common
             ChromeOptions option = new ChromeOptions();
             option.AddArgument("--headless");
             this.WebDriver = new ChromeDriver(option);
+            //this.WebDriver = new ChromeDriver();
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
 
