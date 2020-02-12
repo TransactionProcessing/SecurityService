@@ -100,3 +100,7 @@ jobs:
 
       - name: Run Integration Tests
         run: dotnet test "buildresult\SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+      - name: Setup tmate session
+        if: failure()
+        uses: mxschmitt/action-tmate@v1
