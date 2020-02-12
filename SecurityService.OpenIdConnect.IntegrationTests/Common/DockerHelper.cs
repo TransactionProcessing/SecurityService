@@ -121,7 +121,9 @@ namespace SecurityService.IntergrationTests.Common
         [BeforeScenario(Order = 0)]
         public async Task BeforeScenario()
         {
-            this.WebDriver = new ChromeDriver();
+            ChromeOptions option = new ChromeOptions();
+            option.AddArgument("--headless");
+            this.WebDriver = new ChromeDriver(option);
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
 
