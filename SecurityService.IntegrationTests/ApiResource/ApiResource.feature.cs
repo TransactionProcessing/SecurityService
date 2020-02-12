@@ -21,7 +21,7 @@ namespace SecurityService.IntegrationTests.ApiResource
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "apiresources")]
-    public partial class ApiResourceFeature : Xunit.IClassFixture<ApiResourceFeature.FixtureData>, System.IDisposable
+    public partial class ApiResourceFeature : object, Xunit.IClassFixture<ApiResourceFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;

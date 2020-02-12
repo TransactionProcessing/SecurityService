@@ -11,6 +11,7 @@
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using IntergrationTests.Common;
+    using Microsoft.EntityFrameworkCore.Design;
     using Newtonsoft.Json;
     using Shouldly;
     using TechTalk.SpecFlow;
@@ -63,7 +64,7 @@
                 String redirectUris = SpecflowTableHelper.GetStringRowValue(tableRow, "RedirectUris");
                 // Get the post logout redirect uris
                 String postLogoutRedirectUris = SpecflowTableHelper.GetStringRowValue(tableRow, "PostLogoutRedirectUris");
-
+                
                 CreateClientRequest createClientRequest = new CreateClientRequest
                                                           {
                                                               ClientId = SpecflowTableHelper.GetStringRowValue(tableRow, "ClientId"),
@@ -76,6 +77,7 @@
                                                               ClientDescription = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
                                                               RequireConsent = SpecflowTableHelper.GetBooleanValue(tableRow, "RequireConsent")
                                                           };
+                
                 CreateClientResponse createClientResponse = await this.CreateClient(createClientRequest, CancellationToken.None).ConfigureAwait(false);
 
                 createClientResponse.ShouldNotBeNull();

@@ -20,6 +20,12 @@ jobs:
       with:
         dotnet-version: 3.1.100
 
+    - name: Install ChromeDriver
+      uses: nanasess/setup-chromedriver@master
+      with:
+        # Optional: do not specify to match Chrome's version
+        chromedriver-version: '78.0.3904.105'
+
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
@@ -45,8 +51,12 @@ jobs:
           github-token: ${{ secrets.github_token }}
           path-to-lcov: lcov.info    
 
-    - name: Build Docker Image
-      run: docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+        docker build . --file SecurityServiceTestWebClient/Dockerfile --tag securityservicetestwebclient:latest
 
     - name: Run Integration Tests
-      run: dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj"
+      run: |
+        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj"
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj"
