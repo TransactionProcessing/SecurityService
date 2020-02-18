@@ -37,7 +37,7 @@ jobs:
         
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/Dockerfile --tag securityservice:latest --tag stuartferguson/securityservice:latest --tag stuartferguson/securityservice:${{ steps.get_version.outputs.VERSION }}
+        docker build . --file SecurityService/Dockerfile --tag stuartferguson/securityservice:latest --tag stuartferguson/securityservice:${{ steps.get_version.outputs.VERSION }}
    
     - name: Publish Images to Docker Hub
       run: |
@@ -75,7 +75,7 @@ jobs:
     - name: Push Package to Octopus
       run: >-
         /opt/octo/Octo push
-        --server https://stuartferguson.octopus.app
+        --server ${{ secrets.OCTOPUS_URL }}
         --apiKey ${{ secrets.OCTOPUS_APIKEY }}
         --package /home/runner/work/SecurityService/SecurityService/SecurityService.${{ steps.get_version.outputs.VERSION }}.zip
         --overwrite-mode IgnoreIfExists
@@ -98,7 +98,7 @@ jobs:
     - name: Create & Deploy Release in Octopus (Security Service)
       run: >-
         /opt/octo/Octo create-release
-        --server https://stuartferguson.octopus.app
+        --server ${{ secrets.OCTOPUS_URL }}
         --apiKey ${{ secrets.OCTOPUS_APIKEY }}
         --project "Security Service"
         --version ${{ steps.get_version.outputs.VERSION }}
@@ -111,7 +111,7 @@ jobs:
     - name: Create & Deploy Release in Octopus (Security Service (For Testing))
       run: >-
         /opt/octo/Octo create-release
-        --server https://stuartferguson.octopus.app
+        --server ${{ secrets.OCTOPUS_URL }}
         --apiKey ${{ secrets.OCTOPUS_APIKEY }}
         --project "Security Service (For Testing)"
         --version ${{ steps.get_version.outputs.VERSION }}
