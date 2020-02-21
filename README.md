@@ -6,8 +6,9 @@
 [![Last Release Build Status Badge](https://github.com/StuartFerguson/SecurityService/workflows/Release/badge.svg)](https://github.com/StuartFerguson/SecurityService/workflows/Release/badge.svg)
 
 ## Nuget Versions
-
-N/A
+|||
+| --- | --- |
+| **SecurityService.Client** | [![Security Service Client MyGet Badge](https://buildstats.info/myget/transactionprocessing/SecurityService.Client)](https://buildstats.info/myget/transactionprocessing/SecurityService.Client) |
 
 ## Code Coverage Results
 
