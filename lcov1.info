@@ -1,0 +1,523 @@
+SF:D:\Projects\StuartFerguson\SecurityService\SecurityService.Manager\Factories\ModelFactory.cs
+FN:21,SecurityService.DataTransferObjects.Responses.UserDetails SecurityService.Factories.ModelFactory::ConvertFrom(SecurityService.Models.UserDetails)
+FNDA:3,SecurityService.DataTransferObjects.Responses.UserDetails SecurityService.Factories.ModelFactory::ConvertFrom(SecurityService.Models.UserDetails)
+DA:22,3
+DA:23,3
+DA:24,1
+DA:25,1
+DA:28,2
+DA:29,2
+DA:30,2
+DA:31,2
+DA:32,2
+DA:33,2
+DA:34,2
+DA:35,2
+DA:36,2
+DA:37,3
+BRDA:23,7,0,1
+BRDA:23,7,1,2
+FN:44,SecurityService.DataTransferObjects.Responses.RoleDetails SecurityService.Factories.ModelFactory::ConvertFrom(SecurityService.Models.RoleDetails)
+FNDA:3,SecurityService.DataTransferObjects.Responses.RoleDetails SecurityService.Factories.ModelFactory::ConvertFrom(SecurityService.Models.RoleDetails)
+DA:45,3
+DA:46,3
+DA:47,1
+DA:48,1
+DA:51,2
+DA:52,2
+DA:53,2
+DA:54,2
+DA:55,2
+DA:56,3
+BRDA:46,7,0,1
+BRDA:46,7,1,2
+FN:63,System.Collections.Generic.List`1<SecurityService.DataTransferObjects.Responses.UserDetails> SecurityService.Factories.ModelFactory::ConvertFrom(System.Collections.Generic.List`1<SecurityService.Models.UserDetails>)
+FNDA:3,System.Collections.Generic.List`1<SecurityService.DataTransferObjects.Responses.UserDetails> SecurityService.Factories.ModelFactory::ConvertFrom(System.Collections.Generic.List`1<SecurityService.Models.UserDetails>)
+DA:64,3
+DA:65,3
+DA:66,2
+DA:67,2
+DA:70,1
+DA:72,5
+DA:73,1
+DA:74,1
+DA:75,1
+DA:77,1
+DA:78,3
+BRDA:65,2,0,2
+BRDA:65,2,1,1
+BRDA:65,18,0,2
+BRDA:65,18,1,1
+BRDA:72,74,1,1
+BRDA:72,74,0,1
+FN:85,System.Collections.Generic.List`1<SecurityService.DataTransferObjects.Responses.RoleDetails> SecurityService.Factories.ModelFactory::ConvertFrom(System.Collections.Generic.List`1<SecurityService.Models.RoleDetails>)
+FNDA:3,System.Collections.Generic.List`1<SecurityService.DataTransferObjects.Responses.RoleDetails> SecurityService.Factories.ModelFactory::ConvertFrom(System.Collections.Generic.List`1<SecurityService.Models.RoleDetails>)
+DA:86,3
+DA:87,3
+DA:88,2
+DA:89,2
+DA:92,1
+DA:94,5
+DA:95,1
+DA:96,1
+DA:97,1
+DA:99,1
+DA:100,3
+BRDA:87,2,0,2
+BRDA:87,2,1,1
+BRDA:87,18,0,2
+BRDA:87,18,1,1
+BRDA:94,74,1,1
+BRDA:94,74,0,1
+FN:102,SecurityService.DataTransferObjects.Responses.ClientDetails SecurityService.Factories.ModelFactory::ConvertFrom(IdentityServer4.Models.Client)
+FNDA:3,SecurityService.DataTransferObjects.Responses.ClientDetails SecurityService.Factories.ModelFactory::ConvertFrom(IdentityServer4.Models.Client)
+DA:103,3
+DA:104,3
+DA:105,1
+DA:106,1
+DA:109,2
+DA:110,2
+DA:111,2
+DA:112,2
+DA:113,2
+DA:114,2
+DA:115,2
+DA:116,2
+DA:117,2
+DA:118,2
+DA:119,2
+DA:120,2
+DA:121,2
+DA:122,3
+BRDA:104,7,0,1
+BRDA:104,7,1,2
+FN:129,System.Collections.Generic.List`1<SecurityService.DataTransferObjects.Responses.ClientDetails> SecurityService.Factories.ModelFactory::ConvertFrom(System.Collections.Generic.List`1<IdentityServer4.Models.Client>)
+FNDA:3,System.Collections.Generic.List`1<SecurityService.DataTransferObjects.Responses.ClientDetails> SecurityService.Factories.ModelFactory::ConvertFrom(System.Collections.Generic.List`1<IdentityServer4.Models.Client>)
+DA:130,3
+DA:131,3
+DA:132,2
+DA:133,2
+DA:136,1
+DA:138,5
+DA:139,1
+DA:140,1
+DA:141,1
+DA:143,1
+DA:144,3
+BRDA:131,2,0,2
+BRDA:131,2,1,1
+BRDA:131,18,0,2
+BRDA:131,18,1,1
+BRDA:138,74,1,1
+BRDA:138,74,0,1
+FN:151,SecurityService.DataTransferObjects.Responses.ApiResourceDetails SecurityService.Factories.ModelFactory::ConvertFrom(IdentityServer4.Models.ApiResource)
+FNDA:3,SecurityService.DataTransferObjects.Responses.ApiResourceDetails SecurityService.Factories.ModelFactory::ConvertFrom(IdentityServer4.Models.ApiResource)
+DA:152,3
+DA:153,3
+DA:154,1
+DA:155,1
+DA:158,2
+DA:159,2
+DA:160,2
+DA:161,4
+DA:162,2
+DA:163,2
+DA:164,2
+DA:165,2
+DA:166,2
+DA:167,3
+BRDA:153,7,0,1
+BRDA:153,7,1,2
+BRDA:158,48,0,1
+BRDA:158,48,1,2
+FN:174,System.Collections.Generic.List`1<SecurityService.DataTransferObjects.Responses.ApiResourceDetails> SecurityService.Factories.ModelFactory::ConvertFrom(System.Collections.Generic.List`1<IdentityServer4.Models.ApiResource>)
+FNDA:3,System.Collections.Generic.List`1<SecurityService.DataTransferObjects.Responses.ApiResourceDetails> SecurityService.Factories.ModelFactory::ConvertFrom(System.Collections.Generic.List`1<IdentityServer4.Models.ApiResource>)
+DA:175,3
+DA:176,3
+DA:177,2
+DA:178,2
+DA:181,1
+DA:183,5
+DA:184,1
+DA:185,1
+DA:186,1
+DA:188,1
+DA:189,3
+BRDA:176,2,0,2
+BRDA:176,2,1,1
+BRDA:176,18,0,2
+BRDA:176,18,1,1
+BRDA:183,74,1,1
+BRDA:183,74,0,1
+LF:100
+LH:100
+BRF:34
+BRH:34
+FNF:8
+FNH:8
+end_of_record
+SF:D:\Projects\StuartFerguson\SecurityService\SecurityService.Manager\SecurityServiceManager.cs
+FN:648,System.Void SecurityService.Manager.SecurityServiceManager::ValidateGrantTypes(System.Collections.Generic.List`1<System.String>)
+FNDA:6,System.Void SecurityService.Manager.SecurityServiceManager::ValidateGrantTypes(System.Collections.Generic.List`1<System.String>)
+DA:649,6
+DA:651,6
+DA:653,6
+DA:654,6
+DA:655,6
+DA:656,6
+DA:657,6
+DA:658,6
+DA:660,23
+DA:662,6
+DA:663,1
+DA:664,1
+DA:666,5
+BRDA:662,152,0,1
+BRDA:662,152,1,5
+FN:68,System.Void SecurityService.Manager.SecurityServiceManager::.ctor(Microsoft.AspNetCore.Identity.IPasswordHasher`1<Microsoft.AspNetCore.Identity.IdentityUser>,Microsoft.AspNetCore.Identity.UserManager`1<Microsoft.AspNetCore.Identity.IdentityUser>,Microsoft.AspNetCore.Identity.RoleManager`1<Microsoft.AspNetCore.Identity.IdentityRole>,Microsoft.AspNetCore.Identity.SignInManager`1<Microsoft.AspNetCore.Identity.IdentityUser>,IdentityServer4.EntityFramework.DbContexts.ConfigurationDbContext)
+FNDA:42,System.Void SecurityService.Manager.SecurityServiceManager::.ctor(Microsoft.AspNetCore.Identity.IPasswordHasher`1<Microsoft.AspNetCore.Identity.IdentityUser>,Microsoft.AspNetCore.Identity.UserManager`1<Microsoft.AspNetCore.Identity.IdentityUser>,Microsoft.AspNetCore.Identity.RoleManager`1<Microsoft.AspNetCore.Identity.IdentityRole>,Microsoft.AspNetCore.Identity.SignInManager`1<Microsoft.AspNetCore.Identity.IdentityUser>,IdentityServer4.EntityFramework.DbContexts.ConfigurationDbContext)
+DA:69,42
+DA:70,42
+DA:71,42
+DA:72,42
+DA:73,42
+DA:74,42
+DA:75,42
+DA:76,42
+DA:77,42
+DA:78,42
+DA:79,42
+DA:80,42
+FN:103,System.Void SecurityService.Manager.SecurityServiceManager/<CreateApiResource>d__6::MoveNext()
+FNDA:2,System.Void SecurityService.Manager.SecurityServiceManager/<CreateApiResource>d__6::MoveNext()
+DA:104,2
+DA:105,2
+DA:106,2
+DA:107,2
+DA:108,2
+DA:109,2
+DA:110,2
+DA:111,2
+DA:112,2
+DA:113,2
+DA:114,2
+DA:115,2
+DA:117,2
+DA:118,1
+DA:119,7
+DA:120,2
+DA:121,2
+DA:122,2
+DA:123,1
+DA:126,2
+DA:129,2
+DA:131,2
+DA:132,2
+BRDA:104,14,0,2
+BRDA:117,142,0,1
+BRDA:117,142,1,1
+BRDA:117,160,0,1
+BRDA:119,248,1,2
+BRDA:119,248,0,1
+BRDA:117,160,1,2
+BRDA:126,344,0,0
+BRDA:126,344,1,2
+BRDA:104,14,1,0
+FN:159,System.Void SecurityService.Manager.SecurityServiceManager/<CreateClient>d__7::MoveNext()
+FNDA:6,System.Void SecurityService.Manager.SecurityServiceManager/<CreateClient>d__7::MoveNext()
+DA:160,6
+DA:162,6
+DA:165,5
+DA:166,5
+DA:167,5
+DA:168,5
+DA:169,5
+DA:170,5
+DA:171,5
+DA:172,5
+DA:173,5
+DA:174,5
+DA:175,5
+DA:176,5
+DA:177,5
+DA:178,5
+DA:180,5
+DA:181,3
+DA:182,3
+DA:183,15
+DA:184,3
+DA:185,3
+DA:186,3
+DA:187,3
+DA:189,5
+DA:190,3
+DA:191,3
+DA:192,15
+DA:193,3
+DA:194,3
+DA:195,3
+DA:196,3
+DA:199,5
+DA:202,5
+DA:204,5
+DA:205,5
+BRDA:160,14,0,6
+BRDA:180,192,0,4
+BRDA:180,192,1,1
+BRDA:180,210,0,3
+BRDA:183,313,1,3
+BRDA:183,313,0,3
+BRDA:180,210,1,5
+BRDA:189,359,0,4
+BRDA:189,359,1,1
+BRDA:189,379,0,3
+BRDA:192,482,1,3
+BRDA:192,482,0,3
+BRDA:189,379,1,5
+BRDA:199,578,0,0
+BRDA:199,578,1,5
+BRDA:160,14,1,0
+FN:219,System.Void SecurityService.Manager.SecurityServiceManager/<CreateRole>d__8::MoveNext()
+FNDA:3,System.Void SecurityService.Manager.SecurityServiceManager/<CreateRole>d__8::MoveNext()
+DA:220,3
+DA:221,3
+DA:223,3
+DA:224,3
+DA:225,3
+DA:226,3
+DA:227,3
+DA:228,3
+DA:231,3
+DA:234,3
+DA:235,1
+DA:236,1
+DA:239,2
+DA:241,2
+DA:242,1
+DA:243,1
+DA:246,1
+DA:247,1
+BRDA:220,14,0,3
+BRDA:234,253,0,1
+BRDA:234,253,1,2
+BRDA:220,14,1,0
+BRDA:241,456,0,1
+BRDA:241,456,1,1
+FN:368,System.Void SecurityService.Manager.SecurityServiceManager/<>c__DisplayClass9_0::<CreateUser>b__1(System.Security.Claims.Claim)
+FNDA:9,System.Void SecurityService.Manager.SecurityServiceManager/<>c__DisplayClass9_0::<CreateUser>b__1(System.Security.Claims.Claim)
+DA:369,9
+FN:342,System.Security.Claims.Claim SecurityService.Manager.SecurityServiceManager/<>c::<CreateUser>b__9_0(System.Collections.Generic.KeyValuePair`2<System.String,System.String>)
+FNDA:9,System.Security.Claims.Claim SecurityService.Manager.SecurityServiceManager/<>c::<CreateUser>b__9_0(System.Collections.Generic.KeyValuePair`2<System.String,System.String>)
+DA:343,9
+BRDA:343,873,0,1
+BRDA:343,873,1,3
+FN:399,System.Void SecurityService.Manager.SecurityServiceManager/<GetApiResource>d__10::MoveNext()
+FNDA:2,System.Void SecurityService.Manager.SecurityServiceManager/<GetApiResource>d__10::MoveNext()
+DA:400,2
+DA:401,2
+DA:403,2
+DA:404,2
+DA:405,2
+DA:407,2
+DA:408,1
+DA:409,1
+DA:412,1
+DA:414,1
+DA:415,1
+BRDA:407,435,0,1
+BRDA:407,435,1,1
+FN:422,System.Void SecurityService.Manager.SecurityServiceManager/<GetApiResources>d__11::MoveNext()
+FNDA:1,System.Void SecurityService.Manager.SecurityServiceManager/<GetApiResources>d__11::MoveNext()
+DA:423,1
+DA:424,1
+DA:426,1
+DA:427,1
+DA:429,1
+DA:430,1
+DA:431,5
+DA:432,1
+DA:433,1
+DA:434,1
+DA:435,1
+DA:437,1
+DA:438,1
+BRDA:429,310,0,1
+BRDA:431,393,1,1
+BRDA:431,393,0,1
+BRDA:429,310,1,1
+FN:448,System.Void SecurityService.Manager.SecurityServiceManager/<GetClient>d__12::MoveNext()
+FNDA:2,System.Void SecurityService.Manager.SecurityServiceManager/<GetClient>d__12::MoveNext()
+DA:449,2
+DA:450,2
+DA:452,2
+DA:453,2
+DA:454,2
+DA:455,2
+DA:457,2
+DA:458,1
+DA:459,1
+DA:462,1
+DA:464,1
+DA:465,1
+BRDA:457,435,0,1
+BRDA:457,435,1,1
+FN:472,System.Void SecurityService.Manager.SecurityServiceManager/<GetClients>d__13::MoveNext()
+FNDA:1,System.Void SecurityService.Manager.SecurityServiceManager/<GetClients>d__13::MoveNext()
+DA:473,1
+DA:474,1
+DA:476,1
+DA:477,1
+DA:479,1
+DA:480,1
+DA:481,5
+DA:482,1
+DA:483,1
+DA:484,1
+DA:485,1
+DA:487,1
+DA:488,1
+BRDA:479,310,0,1
+BRDA:481,393,1,1
+BRDA:481,393,0,1
+BRDA:479,310,1,1
+FN:498,System.Void SecurityService.Manager.SecurityServiceManager/<GetRole>d__14::MoveNext()
+FNDA:2,System.Void SecurityService.Manager.SecurityServiceManager/<GetRole>d__14::MoveNext()
+DA:499,2
+DA:500,2
+DA:502,2
+DA:503,1
+DA:504,1
+DA:508,1
+DA:509,1
+DA:510,1
+DA:511,1
+DA:512,1
+DA:514,1
+DA:515,1
+BRDA:502,175,0,1
+BRDA:502,175,1,1
+FN:522,System.Void SecurityService.Manager.SecurityServiceManager/<GetRoles>d__15::MoveNext()
+FNDA:1,System.Void SecurityService.Manager.SecurityServiceManager/<GetRoles>d__15::MoveNext()
+DA:523,1
+DA:524,1
+DA:526,1
+DA:528,1
+DA:530,5
+DA:531,1
+DA:532,1
+DA:533,1
+DA:534,1
+DA:535,1
+DA:536,1
+DA:537,1
+DA:539,1
+DA:540,1
+BRDA:530,294,1,1
+BRDA:530,294,0,1
+FN:550,System.Void SecurityService.Manager.SecurityServiceManager/<GetUser>d__16::MoveNext()
+FNDA:3,System.Void SecurityService.Manager.SecurityServiceManager/<GetUser>d__16::MoveNext()
+DA:551,3
+DA:552,3
+DA:554,2
+DA:556,2
+DA:557,1
+DA:558,1
+DA:561,1
+DA:562,1
+DA:563,1
+DA:564,1
+DA:565,1
+DA:568,1
+DA:571,1
+DA:573,1
+DA:574,1
+BRDA:556,217,0,1
+BRDA:556,217,1,1
+FN:583,System.Void SecurityService.Manager.SecurityServiceManager/<GetUsers>d__17::MoveNext()
+FNDA:5,System.Void SecurityService.Manager.SecurityServiceManager/<GetUsers>d__17::MoveNext()
+DA:584,5
+DA:585,5
+DA:587,5
+DA:589,5
+DA:590,3
+DA:591,3
+DA:592,3
+DA:594,5
+DA:596,33
+DA:597,9
+DA:598,9
+DA:599,9
+DA:601,9
+DA:602,9
+DA:603,9
+DA:604,9
+DA:605,9
+DA:606,9
+DA:607,9
+DA:608,9
+DA:609,9
+DA:610,9
+DA:612,5
+DA:613,5
+BRDA:584,16,0,5
+BRDA:589,113,0,3
+BRDA:589,113,1,5
+BRDA:584,16,1,5
+BRDA:596,420,0,5
+BRDA:596,883,1,9
+BRDA:596,420,1,0
+BRDA:596,426,1,0
+BRDA:596,426,0,14
+BRDA:596,883,0,5
+FN:620,System.Void SecurityService.Manager.SecurityServiceManager/<ConvertUsersClaims>d__18::MoveNext()
+FNDA:10,System.Void SecurityService.Manager.SecurityServiceManager/<ConvertUsersClaims>d__18::MoveNext()
+DA:621,10
+DA:622,10
+DA:623,10
+DA:624,32
+DA:625,1
+DA:626,1
+DA:627,1
+DA:629,10
+DA:630,10
+BRDA:624,253,1,1
+BRDA:624,253,0,10
+FN:637,System.Void SecurityService.Manager.SecurityServiceManager/<ConvertUsersRoles>d__19::MoveNext()
+FNDA:10,System.Void SecurityService.Manager.SecurityServiceManager/<ConvertUsersRoles>d__19::MoveNext()
+DA:638,10
+DA:639,10
+DA:640,10
+DA:641,10
+FN:674,System.Void SecurityService.Manager.SecurityServiceManager/<Signout>d__21::MoveNext()
+FNDA:0,System.Void SecurityService.Manager.SecurityServiceManager/<Signout>d__21::MoveNext()
+DA:675,0
+DA:676,0
+DA:677,0
+FN:688,System.Void SecurityService.Manager.SecurityServiceManager/<ValidateCredentials>d__22::MoveNext()
+FNDA:2,System.Void SecurityService.Manager.SecurityServiceManager/<ValidateCredentials>d__22::MoveNext()
+DA:689,2
+DA:691,2
+DA:694,2
+DA:697,2
+DA:698,2
+LF:239
+LH:236
+BRF:66
+BRH:59
+FNF:19
+FNH:18
+end_of_record
+SF:D:\Projects\StuartFerguson\SecurityService\SecurityService.Models\RoleDetails.cs
+FN:14,System.Guid SecurityService.Models.RoleDetails::get_RoleId()
+FNDA:8,System.Guid SecurityService.Models.RoleDetails::get_RoleId()
+DA:15,8
+FN:22,System.String SecurityService.Models.RoleDetails::get_RoleName()
+FNDA:8,System.String SecurityService.Models.RoleDetails::get_RoleName()
+DA:23,8
+LF:2
+LH:2
+BRF:0
+BRH:0
+FNF:2
+FNH:2
+end_of_record
