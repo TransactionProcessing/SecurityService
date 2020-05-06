@@ -4,6 +4,9 @@ using System.Text;
 
 namespace SecurityService.Models
 {
+    using System.Diagnostics.CodeAnalysis;
+
+    [ExcludeFromCodeCoverage]
     public class RoleDetails
     {
         /// <summary>

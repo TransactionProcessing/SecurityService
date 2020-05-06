@@ -30,6 +30,7 @@
         /// The base address resolver
         /// </summary>
         private readonly Func<String, String> BaseAddressResolver;
+
         #endregion
 
         #region Constructors
@@ -51,17 +52,6 @@
 
         #endregion
 
-        private String BuildRequestUrl(String route)
-        {
-            if (String.IsNullOrEmpty(this.BaseAddress))
-            {
-                this.BaseAddress = this.BaseAddressResolver("SecurityService");
-            }
-
-            String requestUri = $"{this.BaseAddress}{route}";
-            return requestUri;
-        }
-
         #region Methods
 
         /// <summary>
@@ -74,7 +64,7 @@
                                                                        CancellationToken cancellationToken)
         {
             CreateApiResourceResponse response = null;
-            String requestUri = BuildRequestUrl("/api/apiresources");
+            String requestUri = this.BuildRequestUrl("/api/apiresources");
 
             try
             {
@@ -115,7 +105,7 @@
                                                              CancellationToken cancellationToken)
         {
             CreateClientResponse response = null;
-            String requestUri = BuildRequestUrl("/api/clients");
+            String requestUri = this.BuildRequestUrl("/api/clients");
 
             try
             {
@@ -147,6 +137,47 @@
         }
 
         /// <summary>
+        /// Creates the identity resource.
+        /// </summary>
+        /// <param name="createIdentityResourceRequest">The create identity resource request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<CreateIdentityResourceResponse> CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
+                                                                                 CancellationToken cancellationToken)
+        {
+            CreateIdentityResourceResponse response = null;
+            String requestUri = this.BuildRequestUrl("/api/identityresources");
+
+            try
+            {
+                String requestSerialised = JsonConvert.SerializeObject(createIdentityResourceRequest);
+
+                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
+
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<CreateIdentityResourceResponse>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception($"Error creating identity resource {createIdentityResourceRequest.DisplayName}.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Creates the role.
         /// </summary>
         /// <param name="createRoleRequest">The create role request.</param>
@@ -156,7 +187,7 @@
                                                          CancellationToken cancellationToken)
         {
             CreateRoleResponse response = null;
-            String requestUri = BuildRequestUrl("/api/roles");
+            String requestUri = this.BuildRequestUrl("/api/roles");
 
             try
             {
@@ -197,7 +228,7 @@
                                                          CancellationToken cancellationToken)
         {
             CreateUserResponse response = null;
-            String requestUri = BuildRequestUrl("/api/users");
+            String requestUri = this.BuildRequestUrl("/api/users");
 
             try
             {
@@ -238,7 +269,7 @@
                                                              CancellationToken cancellationToken)
         {
             ApiResourceDetails response = null;
-            String requestUri = BuildRequestUrl($"/api/apiresources/{apiResourceName}");
+            String requestUri = this.BuildRequestUrl($"/api/apiresources/{apiResourceName}");
 
             try
             {
@@ -273,7 +304,7 @@
         public async Task<List<ApiResourceDetails>> GetApiResources(CancellationToken cancellationToken)
         {
             List<ApiResourceDetails> response = null;
-            String requestUri = BuildRequestUrl("/api/apiresources");
+            String requestUri = this.BuildRequestUrl("/api/apiresources");
 
             try
             {
@@ -310,7 +341,7 @@
                                                    CancellationToken cancellationToken)
         {
             ClientDetails response = null;
-            String requestUri = BuildRequestUrl($"/api/clients/{clientId}");
+            String requestUri = this.BuildRequestUrl($"/api/clients/{clientId}");
 
             try
             {
@@ -345,7 +376,7 @@
         public async Task<List<ClientDetails>> GetClients(CancellationToken cancellationToken)
         {
             List<ClientDetails> response = null;
-            String requestUri = BuildRequestUrl("/api/clients");
+            String requestUri = this.BuildRequestUrl("/api/clients");
 
             try
             {
@@ -373,6 +404,78 @@
         }
 
         /// <summary>
+        /// Gets the identity resource.
+        /// </summary>
+        /// <param name="identityResourceName">Name of the identity resource.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<IdentityResourceDetails> GetIdentityResource(String identityResourceName,
+                                                                       CancellationToken cancellationToken)
+        {
+            IdentityResourceDetails response = null;
+            String requestUri = this.BuildRequestUrl($"/api/identityresources/{identityResourceName}");
+
+            try
+            {
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<IdentityResourceDetails>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception($"Error getting identity resource {identityResourceName}.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Gets the identity resources.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<IdentityResourceDetails>> GetIdentityResources(CancellationToken cancellationToken)
+        {
+            List<IdentityResourceDetails> response = null;
+            String requestUri = this.BuildRequestUrl("/api/identityresources");
+
+            try
+            {
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<List<IdentityResourceDetails>>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception("Error getting identity resources.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Gets the role.
         /// </summary>
         /// <param name="roleId">The role identifier.</param>
@@ -382,7 +485,7 @@
                                                CancellationToken cancellationToken)
         {
             RoleDetails response = null;
-            String requestUri = BuildRequestUrl($"/api/roles/{roleId}");
+            String requestUri = this.BuildRequestUrl($"/api/roles/{roleId}");
 
             try
             {
@@ -417,7 +520,7 @@
         public async Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken)
         {
             List<RoleDetails> response = null;
-            String requestUri = BuildRequestUrl($"/api/roles");
+            String requestUri = this.BuildRequestUrl("/api/roles");
 
             try
             {
@@ -529,7 +632,7 @@
                                                CancellationToken cancellationToken)
         {
             UserDetails response = null;
-            String requestUri = BuildRequestUrl($"/api/users/{userId}");
+            String requestUri = this.BuildRequestUrl($"/api/users/{userId}");
 
             try
             {
@@ -566,7 +669,7 @@
                                                       CancellationToken cancellationToken)
         {
             List<UserDetails> response = null;
-            String requestUri = BuildRequestUrl("/api/users");
+            String requestUri = this.BuildRequestUrl("/api/users");
 
             try
             {
@@ -599,6 +702,22 @@
         }
 
         /// <summary>
+        /// Builds the request URL.
+        /// </summary>
+        /// <param name="route">The route.</param>
+        /// <returns></returns>
+        private String BuildRequestUrl(String route)
+        {
+            if (string.IsNullOrEmpty(this.BaseAddress))
+            {
+                this.BaseAddress = this.BaseAddressResolver("SecurityService");
+            }
+
+            String requestUri = $"{this.BaseAddress}{route}";
+            return requestUri;
+        }
+
+        /// <summary>
         /// Gets the token.
         /// </summary>
         /// <param name="tokenRequest">The token request.</param>
@@ -607,7 +726,7 @@
         private async Task<String> GetToken(String tokenRequest,
                                             CancellationToken cancellationToken)
         {
-            String requestUri = BuildRequestUrl("/connect/token");
+            String requestUri = this.BuildRequestUrl("/connect/token");
             String content = null;
 
             try

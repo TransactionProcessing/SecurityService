@@ -39,6 +39,9 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Clients.feature</DependentUpon>
     </Compile>
+    <Compile Update="IdentityResource\IdentityResource.feature.cs">
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Update="Roles\Roles.feature.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -56,6 +59,10 @@
       <Generator>SpecFlowSingleFileGenerator</Generator>
       <LastGenOutput>Clients.feature.cs</LastGenOutput>
       <Generator Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'"></Generator>
+    </SpecFlowFeatureFiles>
+    <SpecFlowFeatureFiles Update="IdentityResource\IdentityResource.feature">
+      <Generator>SpecFlowSingleFileGenerator</Generator>
+      <LastGenOutput>IdentityResource.feature.cs</LastGenOutput>
     </SpecFlowFeatureFiles>
     <SpecFlowFeatureFiles Update="Roles\Roles.feature">
       <Generator>SpecFlowSingleFileGenerator</Generator>

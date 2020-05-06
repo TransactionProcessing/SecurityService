@@ -70,7 +70,21 @@ namespace SecurityService.Factories
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns></returns>
+        IdentityResourceDetails ConvertFrom(IdentityResource model);
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
         List<ApiResourceDetails> ConvertFrom(List<ApiResource> model);
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        List<IdentityResourceDetails> ConvertFrom(List<IdentityResource> model);
 
         #endregion
     }

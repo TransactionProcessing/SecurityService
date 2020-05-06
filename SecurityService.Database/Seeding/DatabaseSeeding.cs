@@ -69,9 +69,7 @@
                     {
                         configurationDbContext.Database.Migrate();
                     }
-
-                    DatabaseSeeding.AddIdentityResources(configurationDbContext, seedingType);
-
+                    
                     configurationDbContext.SaveChanges();
 
                     isDbInitialised = true;
@@ -128,28 +126,6 @@
 
                 Exception newException = new Exception($"Error initialising Db with Connection String [{connString}]");
                 throw newException;
-            }
-        }
-
-        /// <summary>
-        /// Adds the identity resources.
-        /// </summary>
-        /// <param name="context">The context.</param>
-        /// <param name="seedingType">Type of the seeding.</param>
-        private static void AddIdentityResources(ConfigurationDbContext context,
-                                                 SeedingType seedingType)
-        {
-            List<IdentityResource> identityResources = IdentityResourceSeedData.GetIdentityResources(seedingType);
-
-            foreach (IdentityResource identityResource in identityResources)
-            {
-                Boolean foundResource = context.IdentityResources.Any(a => a.Name == identityResource.Name);
-
-                if (!foundResource)
-                {
-                    context.IdentityResources.Add(identityResource);
-                    context.SaveChanges();
-                }
             }
         }
 

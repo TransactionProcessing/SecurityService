@@ -34,6 +34,15 @@
                                                 CancellationToken cancellationToken);
 
         /// <summary>
+        /// Creates the identity resource.
+        /// </summary>
+        /// <param name="createIdentityResourceRequest">The create identity resource request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<CreateIdentityResourceResponse> CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
+                                                                    CancellationToken cancellationToken);
+
+        /// <summary>
         /// Creates the role.
         /// </summary>
         /// <param name="createRoleRequest">The create role request.</param>
@@ -82,6 +91,22 @@
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task<List<ClientDetails>> GetClients(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the identity resource.
+        /// </summary>
+        /// <param name="identityResourceName">Name of the identity resource.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<IdentityResourceDetails> GetIdentityResource(String identityResourceName,
+                                                          CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the identity resources.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<IdentityResourceDetails>> GetIdentityResources(CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the role.

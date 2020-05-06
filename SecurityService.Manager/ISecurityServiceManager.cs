@@ -61,6 +61,27 @@
                                   CancellationToken cancellationToken);
 
         /// <summary>
+        /// Creates the identity resource.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="displayName">The display name.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="required">if set to <c>true</c> [required].</param>
+        /// <param name="emphasize">if set to <c>true</c> [emphasize].</param>
+        /// <param name="showInDiscoveryDocument">if set to <c>true</c> [show in discovery document].</param>
+        /// <param name="claims">The claims.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<String> CreateIdentityResource(String name, 
+                                            String displayName,
+                                            String description,
+                                            Boolean required,
+                                            Boolean emphasize,
+                                            Boolean showInDiscoveryDocument,
+                                            List<String> claims,
+                                            CancellationToken cancellationToken);
+
+        /// <summary>
         /// Creates the role.
         /// </summary>
         /// <param name="roleName">Name of the role.</param>
@@ -127,6 +148,22 @@
         Task<List<Client>> GetClients(CancellationToken cancellationToken);
 
         /// <summary>
+        /// Gets the identity resource.
+        /// </summary>
+        /// <param name="identityResourceName">Name of the identity resource.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<IdentityResource> GetIdentityResource(String identityResourceName,
+                                                   CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the API resources.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<IdentityResource>> GetIdentityResources(CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets the role.
         /// </summary>
         /// <param name="roleId">The role identifier.</param>
@@ -134,6 +171,13 @@
         /// <returns></returns>
         Task<RoleDetails> GetRole(Guid roleId,
                                   CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the roles.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the user by user identifier.
@@ -154,11 +198,10 @@
                                          CancellationToken cancellationToken);
 
         /// <summary>
-        /// Gets the roles.
+        /// Signouts this instance.
         /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken);
+        Task Signout();
 
         /// <summary>
         /// Validates the credentials.
@@ -170,12 +213,6 @@
         Task<Boolean> ValidateCredentials(String userName,
                                           String password,
                                           CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Signouts this instance.
-        /// </summary>
-        /// <returns></returns>
-        Task Signout();
 
         #endregion
     }

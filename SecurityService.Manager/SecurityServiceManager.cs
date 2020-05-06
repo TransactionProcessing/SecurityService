@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading;
@@ -11,7 +10,6 @@
     using Extensions;
     using IdentityModel;
     using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.EntityFramework.Interfaces;
     using IdentityServer4.EntityFramework.Mappers;
     using IdentityServer4.Models;
     using Microsoft.AspNetCore.Identity;
@@ -205,16 +203,50 @@
         }
 
         /// <summary>
+        /// Creates the identity resource.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="displayName">The display name.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="required">if set to <c>true</c> [required].</param>
+        /// <param name="emphasize">if set to <c>true</c> [emphasize].</param>
+        /// <param name="showInDiscoveryDocument">if set to <c>true</c> [show in discovery document].</param>
+        /// <param name="claims">The claims.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<String> CreateIdentityResource(String name,
+                                                         String displayName,
+                                                         String description,
+                                                         Boolean required,
+                                                         Boolean emphasize,
+                                                         Boolean showInDiscoveryDocument,
+                                                         List<String> claims,
+                                                         CancellationToken cancellationToken)
+        {
+            IdentityResource identityResource = new IdentityResource(name, displayName, claims);
+            identityResource.Emphasize = emphasize;
+            identityResource.Required = required;
+            identityResource.ShowInDiscoveryDocument = showInDiscoveryDocument;
+            identityResource.Description = description;
+
+            // Now translate the model to the entity
+            await this.ConfigurationDbContext.IdentityResources.AddAsync(identityResource.ToEntity(), cancellationToken);
+
+            // Save the changes
+            await this.ConfigurationDbContext.SaveChangesAsync();
+
+            return name;
+        }
+
+        /// <summary>
         /// Creates the role.
         /// </summary>
         /// <param name="roleName">Name of the role.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        /// <exception cref="IdentityResultException">
-        /// Role {newIdentityRole.Name} already exists
+        /// <exception cref="IdentityResultException">Role {newIdentityRole.Name} already exists
         /// or
-        /// Error creating role {newIdentityRole.Name}
-        /// </exception>
+        /// Error creating role {newIdentityRole.Name}</exception>
         public async Task<Guid> CreateRole(String roleName,
                                            CancellationToken cancellationToken)
         {
@@ -399,7 +431,7 @@
                                                       CancellationToken cancellationToken)
         {
             ApiResource apiResourceModel = null;
-            
+
             IdentityServer4.EntityFramework.Entities.ApiResource apiResourceEntity = await this.ConfigurationDbContext.ApiResources.Where(a => a.Name == apiResourceName)
                                                                                                .Include(a => a.Scopes).Include(a => a.UserClaims)
                                                                                                .SingleOrDefaultAsync(cancellationToken:cancellationToken);
@@ -473,8 +505,9 @@
         {
             List<Client> clientModels = new List<Client>();
 
-            List<IdentityServer4.EntityFramework.Entities.Client> clientEntities =
-                await this.ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes).Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
+            List<IdentityServer4.EntityFramework.Entities.Client> clientEntities = await this
+                                                                                         .ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes)
+                                                                                         .Include(c => c.AllowedScopes).ToListAsync(cancellationToken:cancellationToken);
 
             if (clientEntities.Any())
             {
@@ -485,6 +518,57 @@
             }
 
             return clientModels;
+        }
+
+        /// <summary>
+        /// Gets the identity resource.
+        /// </summary>
+        /// <param name="identityResourceName">Name of the identity resource.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException">No Identity Resource found with Name [{identityResourceName}]</exception>
+        public async Task<IdentityResource> GetIdentityResource(String identityResourceName,
+                                                                CancellationToken cancellationToken)
+        {
+            IdentityResource identityResourceModel = null;
+
+            IdentityServer4.EntityFramework.Entities.IdentityResource identityResourceEntity = await this
+                                                                                                     .ConfigurationDbContext.IdentityResources
+                                                                                                     .Where(a => a.Name == identityResourceName)
+                                                                                                     .Include(a => a.UserClaims)
+                                                                                                     .SingleOrDefaultAsync(cancellationToken:cancellationToken);
+
+            if (identityResourceEntity == null)
+            {
+                throw new NotFoundException($"No Identity Resource found with Name [{identityResourceName}]");
+            }
+
+            identityResourceModel = identityResourceEntity.ToModel();
+
+            return identityResourceModel;
+        }
+
+        /// <summary>
+        /// Gets the API resources.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<IdentityResource>> GetIdentityResources(CancellationToken cancellationToken)
+        {
+            List<IdentityResource> identityResourceModels = new List<IdentityResource>();
+
+            List<IdentityServer4.EntityFramework.Entities.IdentityResource> identityResourceEntities =
+                await this.ConfigurationDbContext.IdentityResources.Include(a => a.UserClaims).ToListAsync(cancellationToken:cancellationToken);
+
+            if (identityResourceEntities.Any())
+            {
+                foreach (IdentityServer4.EntityFramework.Entities.IdentityResource identityResourceEntity in identityResourceEntities)
+                {
+                    identityResourceModels.Add(identityResourceEntity.ToModel());
+                }
+            }
+
+            return identityResourceModels;
         }
 
         /// <summary>
@@ -613,6 +697,35 @@
         }
 
         /// <summary>
+        /// Signouts this instance.
+        /// </summary>
+        public async Task Signout()
+        {
+            await this.SignInManager.SignOutAsync();
+        }
+
+        /// <summary>
+        /// Validates the credentials.
+        /// </summary>
+        /// <param name="userName">Name of the user.</param>
+        /// <param name="password">The password.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<Boolean> ValidateCredentials(String userName,
+                                                       String password,
+                                                       CancellationToken cancellationToken)
+        {
+            // Get the user record by name
+            IdentityUser user = await this.UserManager.FindByNameAsync(userName);
+
+            // Now validate the entered password
+            PasswordVerificationResult verificationResult = this.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
+
+            // Return the result
+            return verificationResult == PasswordVerificationResult.Success;
+        }
+
+        /// <summary>
         /// Converts the users claims.
         /// </summary>
         /// <param name="identityUser">The identity user.</param>
@@ -666,35 +779,5 @@
         }
 
         #endregion
-
-        /// <summary>
-        /// Signouts this instance.
-        /// </summary>
-        /// <returns></returns>
-        public async Task Signout()
-        {
-            await this.SignInManager.SignOutAsync();
-        }
-
-        /// <summary>
-        /// Validates the credentials.
-        /// </summary>
-        /// <param name="userName">Name of the user.</param>
-        /// <param name="password">The password.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<Boolean> ValidateCredentials(String userName,
-                                                       String password,
-                                                       CancellationToken cancellationToken)
-        {
-            // Get the user record by name
-            IdentityUser user = await this.UserManager.FindByNameAsync(userName);
-
-            // Now validate the entered password
-            PasswordVerificationResult verificationResult = this.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash, password);
-
-            // Return the result
-            return verificationResult == PasswordVerificationResult.Success;
-        }
     }
 }
