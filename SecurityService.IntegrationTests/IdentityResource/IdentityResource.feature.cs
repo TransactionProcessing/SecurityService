@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace SecurityService.IntegrationTests.Roles
+namespace SecurityService.IntegrationTests.IdentityResource
 {
     using TechTalk.SpecFlow;
     using System;
@@ -20,22 +20,22 @@ namespace SecurityService.IntegrationTests.Roles
     [System.CodeDom.Compiler.GeneratedCodeAttribute("TechTalk.SpecFlow", "3.1.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     [Xunit.TraitAttribute("Category", "base")]
-    [Xunit.TraitAttribute("Category", "roles")]
-    public partial class RolesFeature : object, Xunit.IClassFixture<RolesFeature.FixtureData>, System.IDisposable
+    [Xunit.TraitAttribute("Category", "identityresources")]
+    public partial class IdentityResourceFeature : object, Xunit.IClassFixture<IdentityResourceFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
         
         private string[] _featureTags = new string[] {
                 "base",
-                "roles"};
+                "identityresources"};
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "Roles.feature"
+#line 1 "IdentityResource.feature"
 #line hidden
         
-        public RolesFeature(RolesFeature.FixtureData fixtureData, SecurityService_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public IdentityResourceFeature(IdentityResourceFeature.FixtureData fixtureData, SecurityService_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();
@@ -44,9 +44,9 @@ namespace SecurityService.IntegrationTests.Roles
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Roles", null, ProgrammingLanguage.CSharp, new string[] {
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "IdentityResource", null, ProgrammingLanguage.CSharp, new string[] {
                         "base",
-                        "roles"});
+                        "identityresources"});
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -86,13 +86,13 @@ namespace SecurityService.IntegrationTests.Roles
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Create Role")]
-        [Xunit.TraitAttribute("FeatureTitle", "Roles")]
-        [Xunit.TraitAttribute("Description", "Create Role")]
-        public virtual void CreateRole()
+        [Xunit.SkippableFactAttribute(DisplayName="Create Identity Resource")]
+        [Xunit.TraitAttribute("FeatureTitle", "IdentityResource")]
+        [Xunit.TraitAttribute("Description", "Create Identity Resource")]
+        public virtual void CreateIdentityResource()
         {
             string[] tagsOfScenario = ((string[])(null));
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create Role", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create Identity Resource", null, ((string[])(null)));
 #line 4
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -113,24 +113,30 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table17.AddRow(new string[] {
-                            "TestRole1"});
+                TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description",
+                            "UserClaims"});
+                table12.AddRow(new string[] {
+                            "testresource",
+                            "Test Resource",
+                            "A resource for testing",
+                            "Claim1,Claim2"});
 #line 5
- testRunner.Given("I create the following roles", ((string)(null)), table17, "Given ");
+ testRunner.Given("I create the following identity resources", ((string)(null)), table12, "Given ");
 #line hidden
             }
             this.ScenarioCleanup();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Get Role")]
-        [Xunit.TraitAttribute("FeatureTitle", "Roles")]
-        [Xunit.TraitAttribute("Description", "Get Role")]
-        public virtual void GetRole()
+        [Xunit.SkippableFactAttribute(DisplayName="Get Identity Resource")]
+        [Xunit.TraitAttribute("FeatureTitle", "IdentityResource")]
+        [Xunit.TraitAttribute("Description", "Get Identity Resource")]
+        public virtual void GetIdentityResource()
         {
             string[] tagsOfScenario = ((string[])(null));
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Role", null, ((string[])(null)));
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Identity Resource", null, ((string[])(null)));
 #line 9
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -151,35 +157,53 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table18 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table18.AddRow(new string[] {
-                            "TestRole1"});
+                TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description",
+                            "UserClaims"});
+                table13.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
+                            "Claim1,Claim2"});
+                table13.AddRow(new string[] {
+                            "testresource2",
+                            "Test Resource2",
+                            "A resource for testing 2",
+                            "Claim1,Claim2"});
 #line 10
- testRunner.Given("I create the following roles", ((string)(null)), table18, "Given ");
+ testRunner.Given("I create the following identity resources", ((string)(null)), table13, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table19 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table19.AddRow(new string[] {
-                            "TestRole1"});
-#line 13
- testRunner.When("I get the role with name \'TestRole1\' the role details are returned as follows", ((string)(null)), table19, "When ");
+                TechTalk.SpecFlow.Table table14 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description",
+                            "UserClaims"});
+                table14.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
+                            "Claim1,Claim2"});
+#line 14
+ testRunner.When("I get the identity resource with name \'testresource1\' the identity resource detai" +
+                        "ls are returned as follows", ((string)(null)), table14, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Get Roles")]
-        [Xunit.TraitAttribute("FeatureTitle", "Roles")]
-        [Xunit.TraitAttribute("Description", "Get Roles")]
+        [Xunit.SkippableFactAttribute(DisplayName="Get Identity Resources")]
+        [Xunit.TraitAttribute("FeatureTitle", "IdentityResource")]
+        [Xunit.TraitAttribute("Description", "Get Identity Resources")]
         [Xunit.TraitAttribute("Category", "PRTest")]
-        public virtual void GetRoles()
+        public virtual void GetIdentityResources()
         {
             string[] tagsOfScenario = new string[] {
                     "PRTest"};
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Roles", null, new string[] {
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Identity Resources", null, new string[] {
                         "PRTest"});
-#line 18
+#line 19
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -199,27 +223,41 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table20 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table20.AddRow(new string[] {
-                            "TestRole1"});
-                table20.AddRow(new string[] {
-                            "TestRole2"});
-                table20.AddRow(new string[] {
-                            "TestRole3"});
-#line 19
- testRunner.Given("I create the following roles", ((string)(null)), table20, "Given ");
+                TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description",
+                            "UserClaims"});
+                table15.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
+                            "Claim1,Claim2"});
+                table15.AddRow(new string[] {
+                            "testresource2",
+                            "Test Resource2",
+                            "A resource for testing 2",
+                            "Claim1,Claim2"});
+#line 20
+ testRunner.Given("I create the following identity resources", ((string)(null)), table15, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table21 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table21.AddRow(new string[] {
-                            "TestRole1"});
-                table21.AddRow(new string[] {
-                            "TestRole2"});
-                table21.AddRow(new string[] {
-                            "TestRole3"});
+                TechTalk.SpecFlow.Table table16 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description",
+                            "UserClaims"});
+                table16.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
+                            "Claim1,Claim2"});
+                table16.AddRow(new string[] {
+                            "testresource2",
+                            "Test Resource2",
+                            "A resource for testing 2",
+                            "Claim1,Claim2"});
 #line 24
- testRunner.When("I get the roles 3 roles details are returned as follows", ((string)(null)), table21, "When ");
+ testRunner.When("I get the identity resources 2 identity resource details are returned as follows", ((string)(null)), table16, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
@@ -232,12 +270,12 @@ this.ScenarioInitialize(scenarioInfo);
             
             public FixtureData()
             {
-                RolesFeature.FeatureSetup();
+                IdentityResourceFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                RolesFeature.FeatureTearDown();
+                IdentityResourceFeature.FeatureTearDown();
             }
         }
     }

@@ -97,64 +97,64 @@ namespace SecurityService.IntegrationTests.Token
         {
 #line 4
 #line hidden
-            TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table22 = new TechTalk.SpecFlow.Table(new string[] {
                         "Role Name"});
-            table17.AddRow(new string[] {
+            table22.AddRow(new string[] {
                         "Estate"});
-            table17.AddRow(new string[] {
+            table22.AddRow(new string[] {
                         "Merchant"});
 #line 6
- testRunner.Given("I create the following roles", ((string)(null)), table17, "Given ");
+ testRunner.Given("I create the following roles", ((string)(null)), table22, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table18 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table23 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table18.AddRow(new string[] {
+            table23.AddRow(new string[] {
                         "estateManagement",
                         "Estate Managememt REST",
                         "Secret1",
                         "estateManagement",
                         "MerchantId, EstateId, role"});
-            table18.AddRow(new string[] {
+            table23.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
                         ""});
-            table18.AddRow(new string[] {
+            table23.AddRow(new string[] {
                         "transactionProcessorAcl",
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorAcl",
                         "MerchantId, EstateId, role"});
 #line 11
- testRunner.Given("I create the following api resources", ((string)(null)), table18, "Given ");
+ testRunner.Given("I create the following api resources", ((string)(null)), table23, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table19 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table24 = new TechTalk.SpecFlow.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
                         "Scopes",
                         "GrantTypes"});
-            table19.AddRow(new string[] {
+            table24.AddRow(new string[] {
                         "serviceClient",
                         "Service Client",
                         "Secret1",
                         "estateManagement,transactionProcessor,transactionProcessorAcl",
                         "client_credentials"});
-            table19.AddRow(new string[] {
+            table24.AddRow(new string[] {
                         "merchantClient",
                         "Merchant Client",
                         "Secret1",
                         "transactionProcessorAcl",
                         "password"});
 #line 17
- testRunner.Given("I create the following clients", ((string)(null)), table19, "Given ");
+ testRunner.Given("I create the following clients", ((string)(null)), table24, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table20 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table25 = new TechTalk.SpecFlow.Table(new string[] {
                         "Email Address",
                         "Password",
                         "Phone Number",
@@ -163,7 +163,7 @@ namespace SecurityService.IntegrationTests.Token
                         "Family Name",
                         "Claims",
                         "Roles"});
-            table20.AddRow(new string[] {
+            table25.AddRow(new string[] {
                         "merchantuser@testmerchant1.co.uk",
                         "123456",
                         "123456789",
@@ -173,7 +173,7 @@ namespace SecurityService.IntegrationTests.Token
                         "EstateId:1,MerchantId:2",
                         "Merchant"});
 #line 22
- testRunner.Given("I create the following users", ((string)(null)), table20, "Given ");
+ testRunner.Given("I create the following users", ((string)(null)), table25, "Given ");
 #line hidden
         }
         
@@ -215,14 +215,14 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 this.FeatureBackground();
 #line hidden
-                TechTalk.SpecFlow.Table table21 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table26 = new TechTalk.SpecFlow.Table(new string[] {
                             "ClientId",
                             "ClientSecret"});
-                table21.AddRow(new string[] {
+                table26.AddRow(new string[] {
                             "serviceClient",
                             "Secret1"});
 #line 28
- testRunner.When("I request a client token with the following values", ((string)(null)), table21, "When ");
+ testRunner.When("I request a client token with the following values", ((string)(null)), table26, "When ");
 #line hidden
 #line 31
  testRunner.Then("my token is returned", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
@@ -264,18 +264,18 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 this.FeatureBackground();
 #line hidden
-                TechTalk.SpecFlow.Table table22 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table27 = new TechTalk.SpecFlow.Table(new string[] {
                             "ClientId",
                             "ClientSecret",
                             "Username",
                             "Password"});
-                table22.AddRow(new string[] {
+                table27.AddRow(new string[] {
                             "merchantClient",
                             "Secret1",
                             "merchantuser@testmerchant1.co.uk",
                             "123456"});
 #line 35
- testRunner.When("I request a password token with the following values", ((string)(null)), table22, "When ");
+ testRunner.When("I request a password token with the following values", ((string)(null)), table27, "When ");
 #line hidden
 #line 38
  testRunner.Then("my token is returned", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");

@@ -99,6 +99,11 @@
             return roleDetailsList;
         }
 
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
         public ClientDetails ConvertFrom(Client model)
         {
             if (model == null)
@@ -171,6 +176,30 @@
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns></returns>
+        public IdentityResourceDetails ConvertFrom(IdentityResource model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            return new IdentityResourceDetails
+                   {
+                       Claims = model.UserClaims.ToList(),
+                       DisplayName = model.DisplayName,
+                       Emphasize = model.Emphasize,
+                       Required = model.Required,
+                       ShowInDiscoveryDocument = model.ShowInDiscoveryDocument,
+                       Description = model.Description,
+                       Name = model.Name
+                   };
+        }
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
         public List<ApiResourceDetails> ConvertFrom(List<ApiResource> model)
         {
             if (model == null || model.Any() == false)
@@ -186,6 +215,28 @@
             }
 
             return apiResourceDetailsList;
+        }
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        public List<IdentityResourceDetails> ConvertFrom(List<IdentityResource> model)
+        {
+            if (model == null || model.Any() == false)
+            {
+                return null;
+            }
+
+            List<IdentityResourceDetails> identityResourceDetailsList = new List<IdentityResourceDetails>();
+
+            foreach (IdentityResource identityResource in model)
+            {
+                identityResourceDetailsList.Add(this.ConvertFrom(identityResource));
+            }
+
+            return identityResourceDetailsList;
         }
 
         #endregion

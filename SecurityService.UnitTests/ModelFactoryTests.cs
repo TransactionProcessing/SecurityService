@@ -226,6 +226,43 @@ namespace SecurityService.UnitTests
         }
 
         [Fact]
+        public void ModelFactory_ConvertFrom_IdentityResource_ModelConverted()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            IdentityResource identityResourceModel = new IdentityResource
+                                           {
+                                               Description = SecurityServiceManagerTestData.IdentityResourceDescription,
+                                               DisplayName = SecurityServiceManagerTestData.IdentityResourceDisplayName,
+                                               UserClaims = SecurityServiceManagerTestData.IdentityResourceUserClaims,
+                                               Emphasize = true,
+                                               ShowInDiscoveryDocument = true,
+                                               Required = true
+                                           };
+
+            IdentityResourceDetails identityResourceDto = modelFactory.ConvertFrom(identityResourceModel);
+
+            identityResourceDto.Description.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDescription);
+            identityResourceDto.DisplayName.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDisplayName);
+            identityResourceDto.Claims.ShouldBe(SecurityServiceManagerTestData.IdentityResourceUserClaims);
+            identityResourceDto.Emphasize.ShouldBeTrue();
+            identityResourceDto.ShowInDiscoveryDocument.ShouldBeTrue();
+            identityResourceDto.Required.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_IdentityResource_ModelIsNull_NullReturned()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            IdentityResource identityResourceModel = null;
+
+            IdentityResourceDetails identityResourceDto = modelFactory.ConvertFrom(identityResourceModel);
+
+            identityResourceDto.ShouldBeNull();
+        }
+
+        [Fact]
         public void ModelFactory_ConvertFrom_ApiResource_ModelIsNull_NullReturned()
         {
             IModelFactory modelFactory = new ModelFactory();
@@ -235,6 +272,49 @@ namespace SecurityService.UnitTests
             ApiResourceDetails apiResourceDto = modelFactory.ConvertFrom(apiResourceModel);
 
             apiResourceDto.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_IdentityResourceList_ModelConverted()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            IdentityResource identityResourceModel = new IdentityResource
+                                                     {
+                                                         Description = SecurityServiceManagerTestData.IdentityResourceDescription,
+                                                         DisplayName = SecurityServiceManagerTestData.IdentityResourceDisplayName,
+                                                         UserClaims = SecurityServiceManagerTestData.IdentityResourceUserClaims,
+                                                         Emphasize = true,
+                                                         ShowInDiscoveryDocument = true,
+                                                         Required = true
+                                                     };
+
+            List<IdentityResource> identityResourceModelList = new List<IdentityResource>();
+            identityResourceModelList.Add(identityResourceModel);
+
+            List<IdentityResourceDetails> identityResourceDtoList = modelFactory.ConvertFrom(identityResourceModelList);
+
+            identityResourceDtoList.ShouldNotBeNull();
+            identityResourceDtoList.ShouldNotBeEmpty();
+            identityResourceDtoList.Count.ShouldBe(identityResourceModelList.Count);
+            identityResourceDtoList.First().Description.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDescription);
+            identityResourceDtoList.First().DisplayName.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDisplayName);
+            identityResourceDtoList.First().Claims.ShouldBe(SecurityServiceManagerTestData.IdentityResourceUserClaims);
+            identityResourceDtoList.First().Emphasize.ShouldBeTrue();
+            identityResourceDtoList.First().ShowInDiscoveryDocument.ShouldBeTrue();
+            identityResourceDtoList.First().Required.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ModelFactory_ConvertFrom_IdentityResourceList_ListIsNull_NullReturned()
+        {
+            IModelFactory modelFactory = new ModelFactory();
+
+            List<IdentityResource> identityResourceList = null;
+
+            List<IdentityResourceDetails> identityResourceDtoList = modelFactory.ConvertFrom(identityResourceList);
+
+            identityResourceDtoList.ShouldBeNull();
         }
 
         [Fact]

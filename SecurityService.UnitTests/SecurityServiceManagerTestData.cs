@@ -156,9 +156,15 @@
 
         public static String ApiResourceName = "Test Resource Name";
 
+        public static String IdentityResourceName = "Identity Resource Name";
+
+        public static String IdentityResourceDisplayName = "Identity Display Name";
+
         public static String ApiResourceDisplayName = "Test Resource Display Name";
 
         public static String ApiResourceDescription = "Api Resource Description";
+
+        public static String IdentityResourceDescription = "Identity Resource Description";
 
         public static String ApiResourceSecret = "ApiResourceSecret";
 
@@ -172,6 +178,11 @@
         public static List<String> ApiResourceUserClaims = new List<String>
                                                            {
                                                                "ApiResourceClaim1", "ApiResourceClaim2"
+                                                           };
+
+        public static List<String> IdentityResourceUserClaims = new List<String>
+                                                           {
+                                                               "IdentityResourceClaim1", "IdentityResourceClaim2"
                                                            };
 
         public static String RoleName = "TestRole1";
