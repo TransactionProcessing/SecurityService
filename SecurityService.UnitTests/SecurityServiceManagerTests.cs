@@ -810,6 +810,7 @@
             await context.IdentityResources.AddAsync(new IdentityResource
                                                      {
                                                          Id = 1,
+                                                         Name = SecurityServiceManagerTestData.IdentityResourceName,
                                                          DisplayName = SecurityServiceManagerTestData.IdentityResourceDisplayName,
                                                          Description = SecurityServiceManagerTestData.IdentityResourceDescription,
                                                          UserClaims = new List<IdentityClaim>
@@ -825,8 +826,9 @@
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
             IdentityServer4.Models.IdentityResource identityResource =
-                await securityServiceManager.GetIdentityResource(SecurityServiceManagerTestData.IdentityResourceDisplayName, CancellationToken.None);
+                await securityServiceManager.GetIdentityResource(SecurityServiceManagerTestData.IdentityResourceName, CancellationToken.None);
 
+            identityResource.Name.ShouldBe(SecurityServiceManagerTestData.IdentityResourceName);
             identityResource.Description.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDescription);
             identityResource.DisplayName.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDisplayName);
             identityResource.UserClaims.ShouldNotBeEmpty();
