@@ -11,6 +11,12 @@ Background:
 	| Name                 | DisplayName            | Secret  | Scopes           | UserClaims               |
 	| estateManagement[id] | Estate Managememt REST | Secret1 | estateManagement[id] | MerchantId,EstateId,role |
 
+	Given I create the following identity resources
+	| Name        | DisplayName          | Description                                                 | UserClaims                                                             |
+	| openid  | Your user identifier |                                                             | sub                                                                    |
+	| profile | User profile         | Your user profile information (first name, last name, etc.) | name,role,email,given_name,middle_name,family_name,EstateId,MerchantId |
+	| email   | Email                | Email and Email Verified Flags                              | email_verified,email                                                   |
+
 	Given I create the following clients
 	| ClientId           | Name            | Secret  | Scopes                                    | GrantTypes | RedirectUris                        | PostLogoutRedirectUris               | RequireConsent | AllowOfflineAccess |
 	| estateUIClient[id] | Merchant Client | Secret1 | estateManagement[id],openid,email,profile | hybrid     | http://localhost:[port]/signin-oidc | http://localhost:[port]/signout-oidc | false          | true               |
