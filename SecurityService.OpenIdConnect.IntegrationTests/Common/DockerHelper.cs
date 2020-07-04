@@ -70,7 +70,7 @@ namespace SecurityService.IntergrationTests.Common
             // Management API Container
             this.SecurityServiceTestUIContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
                                                          .WithEnvironment($"Authority=http://sferguson.ddns.net:55001",
-                                                                          $"ClientId=estateUIClient{this.TestId.ToString("N")}",
+                                                                          $"ClientId=estateUIClient{this.TestId:N}",
                                                                           "ClientSecret=Secret1")
                                                          .UseImage("securityservicetestwebclient").ExposePort(5004)
                                                          .UseNetwork(new List<INetworkService>
@@ -120,10 +120,11 @@ namespace SecurityService.IntergrationTests.Common
         [BeforeScenario(Order = 0)]
         public async Task BeforeScenario()
         {
-            ChromeOptions option = new ChromeOptions();
-            option.AddArgument("--headless");
-            this.WebDriver = new ChromeDriver(option);
-            //this.WebDriver = new ChromeDriver();
+            ChromeOptions options = new ChromeOptions();
+            options.AddArguments("--window-size=1920,1080");
+            options.AddArguments("--start-maximized");
+            options.AddArguments("--headless");
+            this.WebDriver = new ChromeDriver(options);
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
 

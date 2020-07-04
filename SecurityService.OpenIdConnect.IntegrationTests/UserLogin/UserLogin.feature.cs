@@ -111,6 +111,29 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
  testRunner.Given("I create the following api resources", ((string)(null)), table2, "Given ");
 #line hidden
             TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+                        "Name",
+                        "DisplayName",
+                        "Description",
+                        "UserClaims"});
+            table3.AddRow(new string[] {
+                        "openid",
+                        "Your user identifier",
+                        "",
+                        "sub"});
+            table3.AddRow(new string[] {
+                        "profile",
+                        "User profile",
+                        "Your user profile information (first name, last name, etc.)",
+                        "name,role,email,given_name,middle_name,family_name,EstateId,MerchantId"});
+            table3.AddRow(new string[] {
+                        "email",
+                        "Email",
+                        "Email and Email Verified Flags",
+                        "email_verified,email"});
+#line 14
+ testRunner.Given("I create the following identity resources", ((string)(null)), table3, "Given ");
+#line hidden
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
@@ -120,7 +143,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "PostLogoutRedirectUris",
                         "RequireConsent",
                         "AllowOfflineAccess"});
-            table3.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "estateUIClient[id]",
                         "Merchant Client",
                         "Secret1",
@@ -130,10 +153,10 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "http://localhost:[port]/signout-oidc",
                         "false",
                         "true"});
-#line 14
- testRunner.Given("I create the following clients", ((string)(null)), table3, "Given ");
+#line 20
+ testRunner.Given("I create the following clients", ((string)(null)), table4, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "Email Address",
                         "Password",
                         "Phone Number",
@@ -142,7 +165,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "Family Name",
                         "Claims",
                         "Roles"});
-            table4.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "estateuser[id]@testestate1.co.uk",
                         "123456",
                         "123456789",
@@ -151,8 +174,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "User 1",
                         "EstateId:1",
                         "Estate[id]"});
-#line 18
- testRunner.Given("I create the following users", ((string)(null)), table4, "Given ");
+#line 24
+ testRunner.Given("I create the following users", ((string)(null)), table5, "Given ");
 #line hidden
         }
         
@@ -171,7 +194,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                     "PRTest"};
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Access Secure Area In Application", null, new string[] {
                         "PRTest"});
-#line 23
+#line 29
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             bool isScenarioIgnored = default(bool);
@@ -194,20 +217,20 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 this.FeatureBackground();
 #line hidden
-#line 24
+#line 30
  testRunner.Given("I am on the application home page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
-#line 25
+#line 31
  testRunner.When("I click the \'Privacy\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 26
+#line 32
  testRunner.Then("I am presented with a login screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
-#line 27
+#line 33
  testRunner.When("I login with the username \'estateuser[id]@testestate1.co.uk\' and password \'123456" +
                         "\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
-#line 28
+#line 34
  testRunner.Then("I am presented with the privacy screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }

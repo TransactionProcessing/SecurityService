@@ -15,6 +15,8 @@
 
         public List<String> ApiResources;
 
+        public List<String> IdentityResources;
+
         public TokenResponse TokenResponse;
 
         public TestingContext()
@@ -23,6 +25,7 @@
             this.Roles= new Dictionary<String, Guid>();
             this.Clients=new List<String>();
             this.ApiResources=new List<String>();
+            this.IdentityResources= new List<String>();
         }
     }
 }
