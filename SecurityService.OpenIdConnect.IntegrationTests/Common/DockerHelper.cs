@@ -5,6 +5,7 @@ using System.Text;
 namespace SecurityService.IntergrationTests.Common
 {
     using System.Data.SqlClient;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
@@ -17,26 +18,100 @@ namespace SecurityService.IntergrationTests.Common
     using Ductus.FluentDocker.Services.Extensions;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
+    using Shared.Logger;
     using TechTalk.SpecFlow;
 
-    public class DockerHelper
+    public class DockerHelper : Shared.IntegrationTesting.DockerHelper
     {
-        public INetworkService TestNetwork;
-
-        public IContainerService SecurityServiceTestUIContainer;
-
-        public String SecurityServiceTestUIContainerName;
-
-        public ISecurityServiceClient SecurityServiceClient;
-        
-        public Guid TestId;
-        private void SetupTestNetwork()
+        private static IContainerService SetupSecurityServiceContainer(String containerName,
+                                                                      ILogger logger,
+                                                                      String imageName,
+                                                                      INetworkService networkService,
+                                                                      Int32 port,
+                                                                      String hostFolder,
+                                                                      (String URL, String UserName, String Password)? dockerCredentials,
+                                                                      Boolean forceLatestImage = false,
+                                                                      List<String> additionalEnvironmentVariables = null)
         {
-            // Build a network
-            this.TestNetwork = new Ductus.FluentDocker.Builders.Builder().UseNetwork($"testnetwork{this.TestId}").Build();
+            logger.LogInformation("About to Start Security Container");
+
+            List<String> environmentVariables = new List<String>();
+            environmentVariables.Add($"ServiceOptions:PublicOrigin=http://{containerName}:{port}");
+            environmentVariables.Add($"ServiceOptions:IssuerUrl=http://{containerName}:{port}");
+            environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
+            environmentVariables.Add($"urls=http://*:{port}");
+
+            if (additionalEnvironmentVariables != null)
+            {
+                environmentVariables.AddRange(additionalEnvironmentVariables);
+            }
+
+            ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(containerName)
+                                                                     .WithEnvironment(environmentVariables.ToArray()).UseImage(imageName, forceLatestImage)
+                                                                     .ExposePort(port, port).UseNetwork(new List<INetworkService>
+                                                                                                                                    {
+                                                                                                                                        networkService
+                                                                                                                                    }.ToArray()).Mount(hostFolder,
+                                                                                                                                                       "/home/txnproc/trace",
+                                                                                                                                                       MountType
+                                                                                                                                                           .ReadWrite);
+
+            if (dockerCredentials.HasValue)
+            {
+                securityServiceContainer.WithCredential(dockerCredentials.Value.URL, dockerCredentials.Value.UserName, dockerCredentials.Value.Password);
+            }
+
+            // Now build and return the container                
+            IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort($"{port}/tcp", 30000);
+            Thread.Sleep(20000); // This hack is in till health checks implemented :|
+
+            logger.LogInformation("Security Service Container Started");
+
+            return builtContainer;
         }
 
-        public async Task StartContainersForScenarioRun(String scenarioName)
+        private static IContainerService SetupSecurityServiceTestUIContainer(String containerName, 
+                                                                String securityServiceContainerName, 
+                                                                Int32 securityServiceContainerPort,
+                                                                INetworkService networkService,
+                                                                (String clientId, String clientSecret) clientDetails)
+        {
+            // Management API Container
+            IContainerService securityServiceTestUIContainer = new Builder().UseContainer().WithName(containerName)
+                                                                            .WithEnvironment($"Authority=http://{securityServiceContainerName}:{securityServiceContainerPort}",
+                                                                                             $"ClientId={clientDetails.clientId}",
+                                                                                             $"ClientSecret={clientDetails.clientSecret}")//,
+                                                                                             //$"MetadataAddress=http://{securityServiceContainerName}:{securityServiceContainerPort}/.well-known/openid-configuration")
+                                                                            .UseImage("securityservicetestwebclient").ExposePort(5004)
+                                                                            .UseNetwork(new List<INetworkService>
+                                                                                        {
+                                                                                            networkService
+                                                                                        }.ToArray())
+                                                                            .Build().Start().WaitForPort("5004/tcp", 30000);
+
+            return securityServiceTestUIContainer;
+
+            //Console.Out.WriteLine("Started Security Service");
+        }
+
+        private readonly NlogLogger Logger;
+        protected List<INetworkService> TestNetworks;
+        protected List<IContainerService> Containers;
+        public Guid TestId;
+        protected String SecurityServiceContainerName;
+        protected String SecurityServiceTestUIContainerName;
+        protected Int32 SecurityServicePort;
+        public Int32 SecurityServiceTestUIPort;
+        public ISecurityServiceClient SecurityServiceClient;
+
+        public DockerHelper(NlogLogger logger)
+        {
+            this.Logger = logger;
+            this.Containers = new List<IContainerService>();
+            this.TestNetworks = new List<INetworkService>();
+        }
+
+        public override async Task StartContainersForScenarioRun(String scenarioName)
         {
             String traceFolder = $"/home/txnproc/trace/{scenarioName}/";
 
@@ -45,63 +120,68 @@ namespace SecurityService.IntergrationTests.Common
             Guid testGuid = Guid.NewGuid();
             this.TestId = testGuid;
 
+            (String, String, String) dockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
+
             // Setup the container names
+            this.SecurityServiceContainerName = $"securityservice{testGuid:N}";
             this.SecurityServiceTestUIContainerName = $"securityservicetestui{testGuid:N}";
 
-            this.SetupTestNetwork();
-            
-            this.SetupSecurityServiceTestUIContainer(traceFolder);
-            this.SecurityServiceTestUIPort = this.SecurityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
+            INetworkService testNetwork = DockerHelper.SetupTestNetwork();
+            this.TestNetworks.Add(testNetwork);
 
-            Func<String, String> securityServiceBaseAddressResolver = api => $"http://sferguson.ddns.net:55001";
+            this.SecurityServicePort = 5551;
+            IContainerService securityServiceContainer = SetupSecurityServiceContainer(this.SecurityServiceContainerName,
+                                                                                                    this.Logger,
+                                                                                                    "stuartferguson/securityservice",
+                                                                                                    testNetwork,
+                                                                                                    this.SecurityServicePort,
+                                                                                                    traceFolder,
+                                                                                                    dockerCredentials);
+
+            this.SecurityServicePort = securityServiceContainer.ToHostExposedEndpoint($"{this.SecurityServicePort}/tcp").Port;
+
+            IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
+                                                                                                   this.SecurityServiceContainerName,
+                                                                                                   this.SecurityServicePort,
+                                                                                                   testNetwork,
+                                                                                                   ("estateUIClient", "Secret1"));
+
+            this.SecurityServiceTestUIPort = securityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
+
+            Func <String, String> securityServiceBaseAddressResolver = api => $"http://127.0.0.1:{this.SecurityServicePort}";
             HttpClient httpClient = new HttpClient();
-            this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver,httpClient);
+            this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient);
 
-            Console.Out.WriteLine($"Security Service Test UI Port is [{this.SecurityServiceTestUIPort}]");
+            this.Containers.AddRange(new List<IContainerService>
+                                     {
+                                         securityServiceContainer,
+                                         securityServiceTestUIContainer
+                                     });
 
-            await Task.Delay(30000).ConfigureAwait(false);
+            //    Console.Out.WriteLine($"Security Service Test UI Port is [{this.SecurityServiceTestUIPort}]");
+
+            //    await Task.Delay(30000).ConfigureAwait(false);
         }
 
-        public Int32 SecurityServiceTestUIPort;
-        
-
-        private void SetupSecurityServiceTestUIContainer(String traceFolder)
+        public override async Task StopContainersForScenarioRun()
         {
-            // Management API Container
-            this.SecurityServiceTestUIContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
-                                                         .WithEnvironment($"Authority=http://sferguson.ddns.net:55001",
-                                                                          $"ClientId=estateUIClient{this.TestId:N}",
-                                                                          "ClientSecret=Secret1")
-                                                         .UseImage("securityservicetestwebclient").ExposePort(5004)
-                                                         .UseNetwork(new List<INetworkService>
-                                                                                                                  {
-                                                                                                                      this.TestNetwork
-                                                                                                                  }.ToArray())
-                                                         .Build().Start().WaitForPort("5004/tcp", 30000);
-
-            Console.Out.WriteLine("Started Security Service");
-        }
-
-        public async Task StopContainersForScenarioRun()
-        {
-            try
+            if (this.Containers.Any())
             {
-                if (this.SecurityServiceTestUIContainer != null)
+                foreach (IContainerService containerService in this.Containers)
                 {
-                    this.SecurityServiceTestUIContainer.StopOnDispose = true;
-                    this.SecurityServiceTestUIContainer.RemoveOnDispose = true;
-                    this.SecurityServiceTestUIContainer.Dispose();
-                }
-
-                if (this.TestNetwork != null)
-                {
-                    this.TestNetwork.Stop();
-                    this.TestNetwork.Remove(true);
+                    containerService.StopOnDispose = true;
+                    containerService.RemoveOnDispose = true;
+                    containerService.Dispose();
                 }
             }
-            catch (Exception e)
+
+            if (this.TestNetworks.Any())
             {
-                Console.WriteLine(e);
+                foreach (INetworkService networkService in this.TestNetworks)
+                {
+                    networkService.Stop();
+                    networkService.Remove(true);
+                }
             }
         }
     }
@@ -123,7 +203,7 @@ namespace SecurityService.IntergrationTests.Common
             ChromeOptions options = new ChromeOptions();
             options.AddArguments("--window-size=1920,1080");
             options.AddArguments("--start-maximized");
-            options.AddArguments("--headless");
+            //options.AddArguments("--headless");
             this.WebDriver = new ChromeDriver(options);
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
