@@ -260,7 +260,6 @@ namespace SecurityService.IntergrationTests.Common
             experimentalFlags.Add("same-site-by-default-cookies@2");
             experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
             options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
-            options.
             this.WebDriver = new ChromeDriver(options);
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
