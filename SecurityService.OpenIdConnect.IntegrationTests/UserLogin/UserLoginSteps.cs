@@ -47,7 +47,7 @@ namespace SecurityService.IntegrationTests.UserLogin
         [Given(@"I am on the application home page")]
         public void GivenIAmOnTheApplicationHomePage()
         {
-            this.WebDriver.Navigate().GoToUrl($"http://localhost:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
+            this.WebDriver.Navigate().GoToUrl($"http://{this.TestingContext.DockerHelper.SecurityServiceContainerName}:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
             this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestWebClient");
         }
 

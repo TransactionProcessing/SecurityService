@@ -5,6 +5,8 @@ using System.Text;
 namespace SecurityService.IntergrationTests.Common
 {
     using System.Data.SqlClient;
+    using System.Diagnostics;
+    using System.IO;
     using System.Linq;
     using System.Net;
     using System.Net.Http;
@@ -13,6 +15,7 @@ namespace SecurityService.IntergrationTests.Common
     using BoDi;
     using Client;
     using Ductus.FluentDocker.Builders;
+    using Ductus.FluentDocker.Common;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
@@ -23,6 +26,46 @@ namespace SecurityService.IntergrationTests.Common
 
     public class DockerHelper : Shared.IntegrationTesting.DockerHelper
     {
+        private static void AddEntryToHostsFile(String ipaddress, String hostname)
+        {
+            if (FdOs.IsWindows())
+            {
+                using (StreamWriter w = File.AppendText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"drivers\etc\hosts")))
+                {
+                    w.WriteLine($"{ipaddress} {hostname}");
+                }
+            }
+            else if (FdOs.IsLinux())
+            {
+                ExecuteBashCommand($"echo {ipaddress} {hostname} | sudo tee -a /etc/hosts");
+            }
+        }
+
+        static string ExecuteBashCommand(string command)
+        {
+            // according to: https://stackoverflow.com/a/15262019/637142
+            // thans to this we will pass everything as one command
+            command = command.Replace("\"", "\"\"");
+
+            var proc = new Process
+                       {
+                           StartInfo = new ProcessStartInfo
+                                       {
+                                           FileName = "/bin/bash",
+                                           Arguments = "-c \"" + command + "\"",
+                                           UseShellExecute = false,
+                                           RedirectStandardOutput = true,
+                                           CreateNoWindow = true
+                                       }
+                       };
+            Console.WriteLine(proc.StartInfo.Arguments);
+
+            proc.Start();
+            proc.WaitForExit();
+
+            return proc.StandardOutput.ReadToEnd();
+        }
+
         private static IContainerService SetupSecurityServiceContainer(String containerName,
                                                                       ILogger logger,
                                                                       String imageName,
@@ -65,6 +108,8 @@ namespace SecurityService.IntergrationTests.Common
             IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort($"{port}/tcp", 30000);
             Thread.Sleep(20000); // This hack is in till health checks implemented :|
 
+            AddEntryToHostsFile("127.0.0.1", containerName);
+
             logger.LogInformation("Security Service Container Started");
 
             return builtContainer;
@@ -98,8 +143,8 @@ namespace SecurityService.IntergrationTests.Common
         protected List<INetworkService> TestNetworks;
         protected List<IContainerService> Containers;
         public Guid TestId;
-        protected String SecurityServiceContainerName;
-        protected String SecurityServiceTestUIContainerName;
+        public String SecurityServiceContainerName;
+        public String SecurityServiceTestUIContainerName;
         protected Int32 SecurityServicePort;
         public Int32 SecurityServiceTestUIPort;
         public ISecurityServiceClient SecurityServiceClient;
@@ -204,6 +249,13 @@ namespace SecurityService.IntergrationTests.Common
             options.AddArguments("--window-size=1920,1080");
             options.AddArguments("--start-maximized");
             //options.AddArguments("--headless");
+            //options.A "same-site-by-default-cookies", "2");
+            //options.AddAdditionalCapability("cookies-without-same-site-must-be-secure", "2");
+            var experimentalFlags = new List<string>();
+            experimentalFlags.Add("same-site-by-default-cookies@2");
+            experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
+            options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
+
             this.WebDriver = new ChromeDriver(options);
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }

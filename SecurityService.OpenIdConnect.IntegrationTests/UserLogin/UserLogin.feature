@@ -19,7 +19,7 @@ Background:
 
 	Given I create the following clients
 	| ClientId           | Name            | Secret  | Scopes                                    | GrantTypes | RedirectUris                        | PostLogoutRedirectUris               | RequireConsent | AllowOfflineAccess |
-	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | http://localhost:[port]/signin-oidc | http://localhost:[port]/signout-oidc | false          | true               |
+	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | http://[url]:[port]/signin-oidc | http://[url]:[port]/signout-oidc | false          | true               |
 
 	Given I create the following users
 	| Email Address                    | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles      |
