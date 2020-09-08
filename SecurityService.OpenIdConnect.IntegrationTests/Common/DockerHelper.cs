@@ -253,7 +253,7 @@ namespace SecurityService.IntergrationTests.Common
             options.AddArguments("--disable-dev-shm-usage");
             options.AddArguments("--browser.enabled_labs_experiments=same-site-by-default-cookies=2");
             options.AddArguments("--browser.enabled_labs_experiments=cookies-without-same-site-must-be-secure=2");
-            //options.AddArguments("--headless");
+            options.AddArguments("--headless");
             //options.A "same-site-by-default-cookies", "2");
             //options.AddAdditionalCapability("cookies-without-same-site-must-be-secure", "2");
             //var experimentalFlags = new List<string>();
