@@ -246,21 +246,21 @@ namespace SecurityService.IntergrationTests.Common
         public async Task BeforeScenario()
         {
             ChromeOptions options = new ChromeOptions();
-            options.AddArguments("--window-size=1920,1080");
-            options.AddArguments("--start-maximized");
+            //options.AddArguments("--window-size=1920,1080");
+            //options.AddArguments("--start-maximized");
             options.AddArguments("--disable-gpu");
             options.AddArguments("--no-sandbox");
             options.AddArguments("--disable-dev-shm-usage");
-            options.AddArguments("--browser.enabled_labs_experiments=same-site-by-default-cookies=2");
-            options.AddArguments("--browser.enabled_labs_experiments=cookies-without-same-site-must-be-secure=2");
-            options.AddArguments("--headless");
+            //options.AddArguments("--browser.enabled_labs_experiments=same-site-by-default-cookies=disabled");
+            //options.AddArguments("--browser.enabled_labs_experiments=cookies-without-same-site-must-be-secure=disabled");
+            //options.AddArguments("--headless");
             //options.A "same-site-by-default-cookies", "2");
             //options.AddAdditionalCapability("cookies-without-same-site-must-be-secure", "2");
-            //var experimentalFlags = new List<string>();
-            //experimentalFlags.Add("same-site-by-default-cookies@2");
-            //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
-            //options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
-
+            var experimentalFlags = new List<string>();
+            experimentalFlags.Add("same-site-by-default-cookies@2");
+            experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
+            options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
+            options.
             this.WebDriver = new ChromeDriver(options);
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
