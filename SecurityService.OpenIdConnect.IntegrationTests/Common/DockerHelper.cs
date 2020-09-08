@@ -248,7 +248,7 @@ namespace SecurityService.IntergrationTests.Common
             ChromeOptions options = new ChromeOptions();
             options.AddArguments("--window-size=1920,1080");
             options.AddArguments("--start-maximized");
-            //options.AddArguments("--headless");
+            options.AddArguments("--headless");
             //options.A "same-site-by-default-cookies", "2");
             //options.AddAdditionalCapability("cookies-without-same-site-must-be-secure", "2");
             var experimentalFlags = new List<string>();
