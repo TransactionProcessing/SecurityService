@@ -84,7 +84,7 @@ namespace SecurityService.IntergrationTests.Common
 
         private void SetupSecurityServiceContainer(String traceFolder)
         {
-
+            String containerFolder = FdOs.IsLinux() ? "/home/txnproc/trace" : "C:\\home\\txnproc\\trace";
 
             // Management API Container
             this.SecurityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
@@ -95,7 +95,7 @@ namespace SecurityService.IntergrationTests.Common
                                                                                                                   {
                                                                                                                       this.TestNetwork
                                                                                                                   }.ToArray())
-                                                         .Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite)
+                                                         .Mount(traceFolder, containerFolder, MountType.ReadWrite)
                                                          .Build().Start().WaitForPort("5001/tcp", 30000);
 
             Console.Out.WriteLine("Started Security Service");
