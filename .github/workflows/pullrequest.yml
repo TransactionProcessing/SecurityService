@@ -11,7 +11,7 @@ jobs:
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v1
@@ -34,14 +34,10 @@ jobs:
     
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
-        docker build . --file SecurityServiceTestWebClient/Dockerfile --tag securityservicetestwebclient:latest
+        docker build . --file SecurityService/Dockerfilewindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestWebClient/Dockerfilewindows --tag securityservicetestwebclient:latest
 
     - name: Run Integration Tests
       run: |
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
-    
-    - name: Setup tmate session
-      if: failure()
-      uses: mxschmitt/action-tmate@v1

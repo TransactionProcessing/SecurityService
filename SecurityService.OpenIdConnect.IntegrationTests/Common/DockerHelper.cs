@@ -5,13 +5,17 @@ using System.Text;
 namespace SecurityService.IntergrationTests.Common
 {
     using System.Data.SqlClient;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using BoDi;
     using Client;
+    using Ductus.FluentDocker;
     using Ductus.FluentDocker.Builders;
+    using Ductus.FluentDocker.Commands;
+    using Ductus.FluentDocker.Common;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
@@ -32,13 +36,26 @@ namespace SecurityService.IntergrationTests.Common
         public Guid TestId;
         private void SetupTestNetwork()
         {
-            // Build a network
-            this.TestNetwork = new Ductus.FluentDocker.Builders.Builder().UseNetwork($"testnetwork{this.TestId}").Build();
+            IList<IHostService> hosts = new Hosts().Discover();
+            IHostService docker = hosts.FirstOrDefault(x => x.IsNative) ?? hosts.FirstOrDefault(x => x.Name == "default");
+
+            if (docker.Host.IsWindowsEngine())
+            {
+                this.TestNetwork = Fd.UseNetwork($"testnetwork{this.TestId:N}").UseDriver("nat").Build();
+            }
+            else
+            {
+                // Build a network
+                this.TestNetwork = new Ductus.FluentDocker.Builders.Builder().UseNetwork($"testnetwork{this.TestId}").Build();
+            }
+            
         }
 
         public async Task StartContainersForScenarioRun(String scenarioName)
         {
-            String traceFolder = $"/home/txnproc/trace/{scenarioName}/";
+            String traceFolder = FdOs.IsWindows()
+                ? $"C:\\home\\txnproc\\trace\\{scenarioName}"
+                : $"/home/txnproc/trace/{scenarioName}";
 
             Logging.Enabled();
 
@@ -123,7 +140,13 @@ namespace SecurityService.IntergrationTests.Common
             ChromeOptions options = new ChromeOptions();
             options.AddArguments("--window-size=1920,1080");
             options.AddArguments("--start-maximized");
-            options.AddArguments("--headless");
+            options.AddArguments("--disable-gpu");
+            options.AddArguments("--no-sandbox");
+            options.AddArguments("--disable-dev-shm-usage");
+            List<String> experimentalFlags = new List<string>();
+            experimentalFlags.Add("same-site-by-default-cookies@2");
+            experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
+            options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
             this.WebDriver = new ChromeDriver(options);
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
