@@ -48,7 +48,6 @@ namespace SecurityService.IntergrationTests.Common
                 // Build a network
                 this.TestNetwork = new Ductus.FluentDocker.Builders.Builder().UseNetwork($"testnetwork{this.TestId}").Build();
             }
-            
         }
 
         public async Task StartContainersForScenarioRun(String scenarioName)

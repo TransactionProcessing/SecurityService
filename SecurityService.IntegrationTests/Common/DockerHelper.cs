@@ -5,13 +5,17 @@ using System.Text;
 namespace SecurityService.IntergrationTests.Common
 {
     using System.Data.SqlClient;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using BoDi;
     using Client;
+    using Ductus.FluentDocker;
     using Ductus.FluentDocker.Builders;
+    using Ductus.FluentDocker.Commands;
+    using Ductus.FluentDocker.Common;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
@@ -34,12 +38,25 @@ namespace SecurityService.IntergrationTests.Common
         private void SetupTestNetwork()
         {
             // Build a network
-            this.TestNetwork = new Ductus.FluentDocker.Builders.Builder().UseNetwork($"testnetwork{this.TestId}").Build();
+            IList<IHostService> hosts = new Hosts().Discover();
+            IHostService docker = hosts.FirstOrDefault(x => x.IsNative) ?? hosts.FirstOrDefault(x => x.Name == "default");
+
+            if (docker.Host.IsWindowsEngine())
+            {
+                this.TestNetwork = Fd.UseNetwork($"testnetwork{this.TestId:N}").UseDriver("nat").Build();
+            }
+            else
+            {
+                // Build a network
+                this.TestNetwork = new Ductus.FluentDocker.Builders.Builder().UseNetwork($"testnetwork{this.TestId}").Build();
+            }
         }
 
         public async Task StartContainersForScenarioRun(String scenarioName)
         {
-            String traceFolder = $"/home/txnproc/trace/{scenarioName}/";
+            String traceFolder = FdOs.IsWindows()
+                ? $"C:\\home\\txnproc\\trace\\{scenarioName}"
+                : $"/home/txnproc/trace/{scenarioName}";
 
             Logging.Enabled();
 
