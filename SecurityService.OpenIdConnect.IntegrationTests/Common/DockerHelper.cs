@@ -115,7 +115,6 @@
                                                                                                     this.Logger,
                                                                                                     "securityservice",
                                                                                                     testNetwork,
-                                                                                                    traceFolder,
                                                                                                     5551,
                                                                                                     dockerCredentials);
 
@@ -191,7 +190,7 @@
         /// </summary>
         /// <param name="command">The command.</param>
         /// <returns></returns>
-        private static String ExecuteBashCommand(String command)
+        private static void ExecuteBashCommand(String command)
         {
             // according to: https://stackoverflow.com/a/15262019/637142
             // thans to this we will pass everything as one command
@@ -212,8 +211,6 @@
 
             proc.Start();
             proc.WaitForExit();
-
-            return proc.StandardOutput.ReadToEnd();
         }
 
         /// <summary>
@@ -233,7 +230,6 @@
                                                                        ILogger logger,
                                                                        String imageName,
                                                                        INetworkService networkService,
-                                                                       String hostFolder,
                                                                        Int32 dockerPort,
                                                                        (String URL, String UserName, String Password)? dockerCredentials,
                                                                        Boolean forceLatestImage = false,
@@ -252,13 +248,12 @@
                 environmentVariables.AddRange(additionalEnvironmentVariables);
             }
 
-            String containerFolder = FdOs.IsLinux() ? "/home/txnproc/trace" : "C:\\home\\txnproc\\trace";
             ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(containerName)
                                                                      .WithEnvironment(environmentVariables.ToArray()).UseImage(imageName, forceLatestImage)
                                                                      .ExposePort(dockerPort, 5551).UseNetwork(new List<INetworkService>
                                                                                                               {
                                                                                                                   networkService
-                                                                                                              }.ToArray()); //.Mount(hostFolder,containerFolder,MountType.ReadWrite);
+                                                                                                              }.ToArray());
 
             if (dockerCredentials.HasValue)
             {
