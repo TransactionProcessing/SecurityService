@@ -5,13 +5,17 @@ using System.Text;
 namespace SecurityService.IntergrationTests.Common
 {
     using System.Data.SqlClient;
+    using System.Linq;
     using System.Net;
     using System.Net.Http;
     using System.Threading;
     using System.Threading.Tasks;
     using BoDi;
     using Client;
+    using Ductus.FluentDocker;
     using Ductus.FluentDocker.Builders;
+    using Ductus.FluentDocker.Commands;
+    using Ductus.FluentDocker.Common;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
@@ -20,7 +24,7 @@ namespace SecurityService.IntergrationTests.Common
     using Microsoft.EntityFrameworkCore;
     using TechTalk.SpecFlow;
 
-    public class DockerHelper
+    public class DockerHelper 
     {
         public INetworkService TestNetwork;
 
@@ -31,15 +35,31 @@ namespace SecurityService.IntergrationTests.Common
         public ISecurityServiceClient SecurityServiceClient;
         
         public Guid TestId;
-        private void SetupTestNetwork()
+        private INetworkService SetupTestNetwork()
         {
-            // Build a network
-            this.TestNetwork = new Ductus.FluentDocker.Builders.Builder().UseNetwork($"testnetwork{this.TestId}").Build();
+            IList<IHostService> hosts = new Hosts().Discover();
+            IHostService docker = hosts.FirstOrDefault(x => x.IsNative) ?? hosts.FirstOrDefault(x => x.Name == "default");
+            String networkName = $"testnetwork{this.TestId:N}";
+            if (docker.Host.IsWindowsEngine())
+            {
+                return Fd.UseNetwork(networkName).UseDriver("nat").Build();
+            }
+
+            if (docker.Host.IsLinuxEngine())
+            {
+                
+                // Build a network
+                NetworkBuilder networkService = new Builder().UseNetwork(networkName).ReuseIfExist();
+
+                return networkService.Build();
+            }
+
+            return null;
         }
 
         public async Task StartContainersForScenarioRun(String scenarioName)
         {
-            String traceFolder = $"/home/txnproc/trace/{scenarioName}/";
+            String traceFolder = FdOs.IsWindows() ? $"C:\\home\\txnproc\\trace\\{scenarioName}" : $"/home/txnproc/trace/{scenarioName}";
 
             Logging.Enabled();
 
@@ -78,7 +98,6 @@ namespace SecurityService.IntergrationTests.Common
                                                                                                                   {
                                                                                                                       this.TestNetwork
                                                                                                                   }.ToArray())
-                                                         .Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite)
                                                          .Build().Start().WaitForPort("5001/tcp", 30000);
 
             Console.Out.WriteLine("Started Security Service");
