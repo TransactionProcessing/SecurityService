@@ -69,7 +69,7 @@ namespace SecurityService.IntergrationTests.Common
             // Setup the container names
             this.SecurityServiceContainerName = $"securityservice{testGuid:N}";
             
-            this.SetupTestNetwork();
+            this.TestNetwork = this.SetupTestNetwork();
             
             this.SetupSecurityServiceContainer(traceFolder);
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
