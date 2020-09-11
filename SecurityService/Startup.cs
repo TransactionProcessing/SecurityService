@@ -263,7 +263,8 @@
                                                                                           options.Events.RaiseFailureEvents = true;
                                                                                           options.Events.RaiseErrorEvents = true;
                                                                                           options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-                                                                                          options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
+                                                                                          options.IssuerUri =
+                                                                                              Startup.Configuration.GetValue<String>("ServiceOptions:IssuerUrl");
                                                                                       })
                                                                    .AddAspNetIdentity<IdentityUser>()
                                                                    .AddJwtBearerClientAuthentication()

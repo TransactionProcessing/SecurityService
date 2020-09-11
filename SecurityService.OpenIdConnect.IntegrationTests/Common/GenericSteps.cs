@@ -5,6 +5,8 @@ using System.Text;
 namespace SecurityService.IntergrationTests.Common
 {
     using System.Threading.Tasks;
+    using NLog;
+    using Shared.Logger;
     using TechTalk.SpecFlow;
 
     [Binding]
@@ -26,7 +28,11 @@ namespace SecurityService.IntergrationTests.Common
         public async Task StartSystem()
         {
             String scenarioName = this.ScenarioContext.ScenarioInfo.Title.Replace(" ", "");
-            this.TestingContext.DockerHelper = new DockerHelper();
+            NlogLogger logger = new NlogLogger();
+            logger.Initialise(LogManager.GetLogger(scenarioName), scenarioName);
+            LogManager.AddHiddenAssembly(typeof(NlogLogger).Assembly);
+
+            this.TestingContext.DockerHelper = new DockerHelper(logger);
             await this.TestingContext.DockerHelper.StartContainersForScenarioRun(scenarioName).ConfigureAwait(false);
         }
 

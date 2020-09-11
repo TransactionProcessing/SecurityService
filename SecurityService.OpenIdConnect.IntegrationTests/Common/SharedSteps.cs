@@ -166,8 +166,10 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                 String postLogoutRedirectUris = SpecflowTableHelper.GetStringRowValue(tableRow, "PostLogoutRedirectUris");
 
                 scopes = scopes.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N"));
+                redirectUris = redirectUris.Replace("[url]", this.TestingContext.DockerHelper.SecurityServiceContainerName);
                 redirectUris = redirectUris.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString());
-                postLogoutRedirectUris= postLogoutRedirectUris.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString());
+                postLogoutRedirectUris = postLogoutRedirectUris.Replace("[url]", this.TestingContext.DockerHelper.SecurityServiceContainerName);
+                postLogoutRedirectUris = postLogoutRedirectUris.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString());
 
                 CreateClientRequest createClientRequest = new CreateClientRequest
                 {

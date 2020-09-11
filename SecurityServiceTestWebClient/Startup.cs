@@ -15,6 +15,7 @@ namespace SecurityServiceTestWebClient
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.AspNetCore.Http;
+    using Microsoft.IdentityModel.Logging;
     using Microsoft.IdentityModel.Tokens;
     using TestClientUserInterface.TokenManagement;
 
@@ -60,6 +61,8 @@ namespace SecurityServiceTestWebClient
                                                                                                               Configuration.GetValue<String>("ClientSecret");
                                                                                                           options.ClientId = Configuration.GetValue<String>("ClientId");
 
+                                                                                                          options.MetadataAddress = $"{Configuration.GetValue<String>("Authority")}/.well-known/openid-configuration";
+
                                                                                                           options.ResponseType = "code id_token";
 
                                                                                                           options.Scope.Clear();
@@ -78,6 +81,13 @@ namespace SecurityServiceTestWebClient
 
                                                                                                           options.GetClaimsFromUserInfoEndpoint = true;
                                                                                                           options.SaveTokens = true;
+
+                                                                                                          options.Events.OnRedirectToIdentityProvider = context =>
+                                                                                                                                                        {
+                                                                                                                                                            // Intercept the redirection so the browser navigates to the right URL in your host
+                                                                                                                                                            context.ProtocolMessage.IssuerAddress = $"{Configuration.GetValue<String>("Authority")}/connect/authorize";
+                                                                                                                                                            return Task.CompletedTask;
+                                                                                                                                                        };
                                                                                                       });
         }
 
