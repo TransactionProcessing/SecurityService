@@ -16,6 +16,7 @@ namespace SecurityService.IntergrationTests.Common
     using Client;
     using Ductus.FluentDocker;
     using Ductus.FluentDocker.Builders;
+    using Ductus.FluentDocker.Commands;
     using Ductus.FluentDocker.Common;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
@@ -125,17 +126,14 @@ namespace SecurityService.IntergrationTests.Common
                                                                             .WithEnvironment($"Authority=http://{securityServiceContainerName}:{securityServiceContainerPort}",
                                                                                              $"ClientId={clientDetails.clientId}",
                                                                                              $"ClientSecret={clientDetails.clientSecret}")//,
-                                                                                             //$"MetadataAddress=http://{securityServiceContainerName}:{securityServiceContainerPort}/.well-known/openid-configuration")
                                                                             .UseImage("securityservicetestwebclient").ExposePort(5004)
                                                                             .UseNetwork(new List<INetworkService>
                                                                                         {
                                                                                             networkService
                                                                                         }.ToArray())
-                                                                            .Build().Start();//.WaitForPort("5004/tcp", 30000);
+                                                                            .Build().Start().WaitForPort("5004/tcp", 30000);
 
             return securityServiceTestUIContainer;
-
-            //Console.Out.WriteLine("Started Security Service");
         }
 
         private readonly NlogLogger Logger;
@@ -155,6 +153,24 @@ namespace SecurityService.IntergrationTests.Common
             this.TestNetworks = new List<INetworkService>();
         }
 
+        private INetworkService SetupTestNetwork()
+        {
+            IList<IHostService> hosts = new Hosts().Discover();
+            IHostService docker = hosts.FirstOrDefault(x => x.IsNative) ?? hosts.FirstOrDefault(x => x.Name == "default");
+
+            if (docker.Host.IsWindowsEngine())
+            {
+                return Fd.UseNetwork($"testnetwork{this.TestId:N}").UseDriver("nat").Build();
+            }
+
+            if (docker.Host.IsLinuxEngine())
+            {
+                return Shared.IntegrationTesting.DockerHelper.SetupTestNetwork();
+            }
+
+            return null;
+        }
+
         public override async Task StartContainersForScenarioRun(String scenarioName)
         {
             String traceFolder = FdOs.IsWindows()
@@ -172,8 +188,7 @@ namespace SecurityService.IntergrationTests.Common
             this.SecurityServiceContainerName = $"securityservice{testGuid:N}";
             this.SecurityServiceTestUIContainerName = $"securityservicetestui{testGuid:N}";
 
-            //INetworkService testNetwork = DockerHelper.SetupTestNetwork();
-            INetworkService testNetwork = Fd.UseNetwork($"testnetwork{this.TestId:N}").UseDriver("nat") .Build();
+            INetworkService testNetwork = this.SetupTestNetwork(); 
             this.TestNetworks.Add(testNetwork);
 
             IContainerService securityServiceContainer = SetupSecurityServiceContainer(this.SecurityServiceContainerName,
@@ -203,10 +218,6 @@ namespace SecurityService.IntergrationTests.Common
                                          securityServiceContainer,
                                          securityServiceTestUIContainer
                                      });
-
-            //    Console.Out.WriteLine($"Security Service Test UI Port is [{this.SecurityServiceTestUIPort}]");
-
-            //    await Task.Delay(30000).ConfigureAwait(false);
         }
 
         public override async Task StopContainersForScenarioRun()
@@ -247,16 +258,9 @@ namespace SecurityService.IntergrationTests.Common
         public async Task BeforeScenario()
         {
             ChromeOptions options = new ChromeOptions();
-            //options.AddArguments("--window-size=1920,1080");
-            //options.AddArguments("--start-maximized");
             options.AddArguments("--disable-gpu");
             options.AddArguments("--no-sandbox");
             options.AddArguments("--disable-dev-shm-usage");
-            //options.AddArguments("--browser.enabled_labs_experiments=same-site-by-default-cookies=disabled");
-            //options.AddArguments("--browser.enabled_labs_experiments=cookies-without-same-site-must-be-secure=disabled");
-            //options.AddArguments("--headless");
-            //options.A "same-site-by-default-cookies", "2");
-            //options.AddAdditionalCapability("cookies-without-same-site-must-be-secure", "2");
             var experimentalFlags = new List<string>();
             experimentalFlags.Add("same-site-by-default-cookies@2");
             experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");

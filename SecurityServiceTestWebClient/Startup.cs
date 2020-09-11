@@ -89,9 +89,6 @@ namespace SecurityServiceTestWebClient
                                                                                                                                                             return Task.CompletedTask;
                                                                                                                                                         };
                                                                                                       });
-
-
-            IdentityModelEventSource.ShowPII = true;
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
