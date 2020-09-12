@@ -55,3 +55,37 @@ jobs:
       run: |
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj"
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj"
+
+  codecoverage:
+    name: "Nightly Build - Code Coverage"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.100
+
+    - name: Run Unit Tests
+      run: |
+        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
+        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
+
+    - name: Setup Node.js for use with actions
+      uses: actions/setup-node@v1.1.0
+    
+    - name: Combine Coverage
+      run: |
+        npm i lcov-result-merger
+        ./node_modules/lcov-result-merger/bin/lcov-result-merger.js '*.info' lcov.info
+    
+    - name: Upload Code Coverage
+      uses: coverallsapp/github-action@master
+      with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: lcov.info    
