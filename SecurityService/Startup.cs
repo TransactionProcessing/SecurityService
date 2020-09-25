@@ -3,16 +3,19 @@
     using System;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
+    using System.Net.Http;
     using System.Reflection;
     using System.Threading.Tasks;
     using Database.DbContexts;
     using Database.Seeding;
     using Factories;
+    using HealthChecks.UI.Client;
     using IdentityServer4.EntityFramework.DbContexts;
     using IdentityServer4.EntityFramework.Interfaces;
     using Lamar;
     using Manager;
     using Microsoft.AspNetCore.Builder;
+    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.HttpOverrides;
     using Microsoft.AspNetCore.Identity;
@@ -22,6 +25,7 @@
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
@@ -131,8 +135,6 @@
 
             Logger.Initialise(logger);
 
-            ConfigurationReader.Initialise(Startup.Configuration);
-
             app.AddRequestLogging();
             app.AddResponseLogging();
             app.AddExceptionHandler();
@@ -163,7 +165,15 @@
             // Setup the database
             this.InitialiseDatabase(app).Wait();
 
-            app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
+            app.UseEndpoints(endpoints =>
+                             {
+                                 endpoints.MapControllers();
+                                 endpoints.MapHealthChecks("health", new HealthCheckOptions()
+                                                                     {
+                                                                         Predicate = _ => true,
+                                                                         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                                                                     });
+                             });
 
             app.UseSwagger();
 
@@ -179,6 +189,8 @@
 
         public void ConfigureContainer(ServiceRegistry services)
         {
+            ConfigurationReader.Initialise(Startup.Configuration);
+
             this.ConfigureMiddlewareServices(services);
 
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
@@ -212,6 +224,28 @@
 
         private void ConfigureMiddlewareServices(IServiceCollection services)
         {
+            services.AddHealthChecks()
+                    .AddSqlServer(connectionString:ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
+                                  healthQuery:"SELECT 1;",
+                                  name:"Persisted Grant DB",
+                                  failureStatus:HealthStatus.Unhealthy,
+                                  tags:new string[] {"db", "sql", "sqlserver", "persistedgrant"})
+                    .AddSqlServer(connectionString:ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
+                                  healthQuery:"SELECT 1;",
+                                  name:"Configuration DB",
+                                  failureStatus:HealthStatus.Unhealthy,
+                                  tags:new string[] {"db", "sql", "sqlserver", "configuration"})
+                    .AddSqlServer(connectionString:ConfigurationReader.GetConnectionString("AuthenticationDbContext"),
+                                  healthQuery:"SELECT 1;",
+                                  name:"Authentication DB",
+                                  failureStatus:HealthStatus.Unhealthy,
+                                  tags:new string[] {"db", "sql", "sqlserver", "authentication"})
+                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("ServiceAddresses", "MessagingService")}/health"),
+                                 name: "Messaging Service",
+                                 httpMethod: HttpMethod.Get,
+                                 failureStatus: HealthStatus.Unhealthy,
+                                 tags: new string[] { "apllication", "messaging" });
+
             services.AddApiVersioning(options =>
                                       {
                                           // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
