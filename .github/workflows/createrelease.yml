@@ -48,22 +48,16 @@ jobs:
     - name: Publish API
       run: dotnet publish "SecurityService\SecurityService.csproj" --configuration Release --output publishOutput
 
-    - name: Setup .NET Core 2.0
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 2.0.0
-
-    - name: Extract Octopus Tools
+    - name: Install Octopus CLI
       run: |
-        mkdir /opt/octo
-        cd /opt/octo
-        wget -O /opt/octo/octopus.zip https://download.octopusdeploy.com/octopus-tools/6.12.0/OctopusTools.6.12.0.portable.zip
-        unzip /opt/octo/octopus.zip
-        chmod +x /opt/octo/Octo
+        sudo apt update && sudo apt install --no-install-recommends gnupg curl ca-certificates apt-transport-https && \
+        curl -sSfL https://apt.octopus.com/public.key | sudo apt-key add - && \
+        sudo sh -c "echo deb https://apt.octopus.com/ stable main > /etc/apt/sources.list.d/octopus.com.list" && \
+        sudo apt update && sudo apt install octopuscli
     
     - name: Pack Files for Octopus
       run: >-
-        /opt/octo/Octo pack
+        octo pack
         --outFolder /home/runner/work/SecurityService/SecurityService
         --basePath /home/runner/work/SecurityService/SecurityService/publishOutput
         --id SecurityService
@@ -74,7 +68,7 @@ jobs:
     
     - name: Push Package to Octopus
       run: >-
-        /opt/octo/Octo push
+        octo push
         --server ${{ secrets.OCTOPUS_URL }}
         --apiKey ${{ secrets.OCTOPUS_APIKEY }}
         --package /home/runner/work/SecurityService/SecurityService/SecurityService.${{ steps.get_version.outputs.VERSION }}.zip
@@ -97,7 +91,7 @@ jobs:
     
     - name: Create & Deploy Release in Octopus (Security Service)
       run: >-
-        /opt/octo/Octo create-release
+        octo create-release
         --server ${{ secrets.OCTOPUS_URL }}
         --apiKey ${{ secrets.OCTOPUS_APIKEY }}
         --project "Security Service"
@@ -110,7 +104,7 @@ jobs:
 
     - name: Create & Deploy Release in Octopus (Security Service (For Testing))
       run: >-
-        /opt/octo/Octo create-release
+        octo create-release
         --server ${{ secrets.OCTOPUS_URL }}
         --apiKey ${{ secrets.OCTOPUS_APIKEY }}
         --project "Security Service (For Testing)"
