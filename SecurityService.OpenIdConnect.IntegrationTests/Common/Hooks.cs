@@ -4,8 +4,10 @@
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using BoDi;
+    using Microsoft.AspNetCore.Mvc.Formatters;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
+    using OpenQA.Selenium.Firefox;
     using TechTalk.SpecFlow;
 
     /// <summary>
@@ -58,15 +60,27 @@
         [BeforeScenario(Order = 0)]
         public async Task BeforeScenario()
         {
-            ChromeOptions options = new ChromeOptions();
-            options.AddArguments("--disable-gpu");
-            options.AddArguments("--no-sandbox");
-            options.AddArguments("--disable-dev-shm-usage");
-            var experimentalFlags = new List<String>();
-            experimentalFlags.Add("same-site-by-default-cookies@2");
-            experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
-            options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
-            this.WebDriver = new ChromeDriver(options);
+            String? browser = Environment.GetEnvironmentVariable("Browser");
+
+            if (browser == null || browser == "Chrome")
+            {
+                ChromeOptions options = new ChromeOptions();
+                options.AddArguments("--disable-gpu");
+                options.AddArguments("--no-sandbox");
+                options.AddArguments("--disable-dev-shm-usage");
+                var experimentalFlags = new List<String>();
+                experimentalFlags.Add("same-site-by-default-cookies@2");
+                experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
+                options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
+                this.WebDriver = new ChromeDriver(options);
+            }
+
+            if (browser == "Firefox")
+            {
+                FirefoxOptions options = new FirefoxOptions();
+                this.WebDriver = new FirefoxDriver(options);
+            }
+
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
 

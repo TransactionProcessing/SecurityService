@@ -37,9 +37,20 @@ jobs:
         docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
         docker build . --file SecurityServiceTestWebClient/DockerfileWindows --tag securityservicetestwebclient:latest
 
-    - name: Run Integration Tests
+    - name: Run Integration Tests (Non UI)
       run: |
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+
+    - name: Run Integration Tests (UI Chrome)
+      env:
+        Browser: Chrome
+      run: |  
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+    - name: Run Integration Tests (UI Firefox)
+      env:
+        Browser: Firefox
+      run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
     
     - name: Setup tmate session
