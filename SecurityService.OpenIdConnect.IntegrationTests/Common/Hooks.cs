@@ -61,6 +61,7 @@
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
+            //browser = "Firefox";
 
             if (browser == null || browser == "Chrome")
             {
@@ -78,6 +79,7 @@
             if (browser == "Firefox")
             {
                 FirefoxOptions options = new FirefoxOptions();
+                options.AddArguments("--headless");
                 this.WebDriver = new FirefoxDriver(options);
             }
 
