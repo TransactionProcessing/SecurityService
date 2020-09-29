@@ -52,7 +52,10 @@
         [AfterScenario(Order = 0)]
         public void AfterScenario()
         {
-            this.WebDriver.Dispose();
+            if (this.WebDriver != null)
+            {
+                this.WebDriver.Dispose();
+            }
         }
 
         /// <summary>
@@ -62,7 +65,7 @@
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
-            //browser = "Firefox";
+            //browser = "Edge";
 
             if (browser == null || browser == "Chrome")
             {
@@ -87,7 +90,10 @@
             if (browser == "Edge")
             {
                 EdgeOptions options = new EdgeOptions();
-                this.WebDriver = new EdgeDriver(options);
+                //EdgeDriverService service = EdgeDriverService.CreateDefaultService(@"D:\Program Files (x86)\EdgeDriver\", "msedgedriver.exe");
+                EdgeDriverService service = EdgeDriverService.CreateDefaultService("C:\\SeleniumWebDrivers\\EdgeDriver\\", "msedgedriver.exe");
+                this.WebDriver = new EdgeDriver(service,options);
+                
             }
 
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
