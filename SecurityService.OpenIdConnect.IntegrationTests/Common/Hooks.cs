@@ -79,7 +79,7 @@
             if (browser == "Firefox")
             {
                 FirefoxOptions options = new FirefoxOptions();
-                options.AddArguments("--headless");
+                options.AddArguments("-headless");
                 this.WebDriver = new FirefoxDriver(options);
             }
 
