@@ -89,9 +89,19 @@
 
             if (browser == "Edge")
             {
+                String? driverPath = Environment.GetEnvironmentVariable("DriverPath");
+                String? driverExe = Environment.GetEnvironmentVariable("DriverExe");
                 EdgeOptions options = new EdgeOptions();
-                //EdgeDriverService service = EdgeDriverService.CreateDefaultService(@"D:\Program Files (x86)\EdgeDriver\", "msedgedriver.exe");
-                EdgeDriverService service = EdgeDriverService.CreateDefaultService("C:\\SeleniumWebDrivers\\EdgeDriver\\", "msedgedriver.exe");
+                EdgeDriverService service = null;
+                if (driverPath == null && driverExe == null)
+                {
+                    service = EdgeDriverService.CreateDefaultService(@"D:\Program Files (x86)\EdgeDriver\", "msedgedriver.exe");
+                }
+                else
+                {
+                    service = EdgeDriverService.CreateDefaultService(driverPath, driverExe);
+                }
+                
                 this.WebDriver = new EdgeDriver(service,options);
                 
             }
