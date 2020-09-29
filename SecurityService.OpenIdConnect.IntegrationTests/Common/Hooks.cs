@@ -7,6 +7,7 @@
     using Microsoft.AspNetCore.Mvc.Formatters;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
+    using OpenQA.Selenium.Edge;
     using OpenQA.Selenium.Firefox;
     using TechTalk.SpecFlow;
 
@@ -81,6 +82,12 @@
                 FirefoxOptions options = new FirefoxOptions();
                 options.AddArguments("-headless");
                 this.WebDriver = new FirefoxDriver(options);
+            }
+
+            if (browser == "Edge")
+            {
+                EdgeOptions options = new EdgeOptions();
+                this.WebDriver = new EdgeDriver(options);
             }
 
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);

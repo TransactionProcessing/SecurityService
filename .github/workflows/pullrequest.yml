@@ -53,6 +53,12 @@ jobs:
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
+    - name: Run Integration Tests (UI Edge)
+      env:
+        Browser: Edge
+      run: |
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+    
     - name: Setup tmate session
       if: failure()
       uses: mxschmitt/action-tmate@v1
