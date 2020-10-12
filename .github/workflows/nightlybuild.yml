@@ -53,13 +53,13 @@ jobs:
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
-    - name: Run Integration Tests (UI Edge)
-      env:
-        Browser: Edge
-        DriverPath: C:\\SeleniumWebDrivers\\EdgeDriver\\
-        DriverExe: msedgedriver.exe
-      run: |
-        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+    #- name: Run Integration Tests (UI Edge)
+    #  env:
+    #    Browser: Edge
+    #    DriverPath: C:\\SeleniumWebDrivers\\EdgeDriver\\
+    #    DriverExe: msedgedriver.exe
+    #  run: |
+    #    dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
   codecoverage:
     name: "Nightly Build - Code Coverage"
