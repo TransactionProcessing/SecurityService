@@ -8,6 +8,8 @@
 
   <ItemGroup>
     
+    <PackageReference Include="Microsoft.Edge.SeleniumTools" Version="3.141.2" />
+    
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
     <PackageReference Include="Selenium.WebDriver" Version="3.141.0" />
     <PackageReference Include="Shared.IntegrationTesting" Version="0.0.15.7" />

@@ -6,9 +6,12 @@ namespace SecurityService.IntegrationTests.UserLogin
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Threading.Tasks;
     using IntergrationTests.Common;
     using OpenQA.Selenium;
+    using Shared.IntegrationTesting;
     using Shouldly;
+    using Xunit.Sdk;
 
     [Binding]
     [Scope(Tag = "userlogin")]
@@ -73,9 +76,18 @@ namespace SecurityService.IntegrationTests.UserLogin
         }
 
         [Then(@"I am presented with the privacy screen")]
-        public void ThenIAmPresentedWithThePrivacyScreen()
+        public async Task ThenIAmPresentedWithThePrivacyScreen()
         {
-            this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestWebClient");
+            await Retry.For(async () =>
+                            {
+                                var page = this.WebDriver.PageSource;
+
+                                Console.WriteLine($"Source Is [{page}");
+
+                                this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestWebClient");
+                            });
+            
+            
         }
 
 
