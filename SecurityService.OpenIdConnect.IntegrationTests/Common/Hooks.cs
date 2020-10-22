@@ -9,6 +9,7 @@
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
     using OpenQA.Selenium.Firefox;
+    using OpenQA.Selenium.Remote;
     using TechTalk.SpecFlow;
 
     /// <summary>
@@ -65,7 +66,7 @@
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
-            //browser = "Firefox";
+            browser = "Firefox";
 
             if (browser == null || browser == "Chrome")
             {
@@ -83,16 +84,21 @@
 
             if (browser == "Firefox")
             {
-                FirefoxOptions options = new FirefoxOptions();
+                //FirefoxOptions options = new FirefoxOptions();
                 //options.AddArguments("-headless");
+                //this.WebDriver = new FirefoxDriver(options);
+                //FirefoxProfile profile = new ProfilesIni().getProfile("default");
+                //profile.setPreference("network.cookie.cookieBehavior", 2);
+                //this.WebDriver = new FirefoxDriver(profile);
+                FirefoxOptions options = new FirefoxOptions();
+                options.SetPreference("network.cookie.sameSite.laxByDefault", false);
+                options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
+                options.SetPreference("network.cookie.sameSite.schemeful", false);
                 this.WebDriver = new FirefoxDriver(options);
             }
 
             if (browser == "Edge")
             {
-                
-                String? driverPath = Environment.GetEnvironmentVariable("DriverPath");
-                String? driverExe = Environment.GetEnvironmentVariable("DriverExe");
                 EdgeOptions options = new EdgeOptions();
                 options.UseChromium = true;
                 List<String> experimentalFlags = new List<String>();
