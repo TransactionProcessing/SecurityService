@@ -94,6 +94,7 @@
                 options.SetPreference("network.cookie.sameSite.laxByDefault", false);
                 options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
                 options.SetPreference("network.cookie.sameSite.schemeful", false);
+                options.SetPreference("network.cookie.cookieBehavior", 4);
                 this.WebDriver = new FirefoxDriver(options);
             }
 
