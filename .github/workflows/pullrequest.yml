@@ -21,11 +21,11 @@ jobs:
       with:
         dotnet-version: 3.1.100
 
-    #- name: Restore Nuget Packages
-    #  run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
-    #- name: Build Code
-    #  run: dotnet build SecurityService.sln --configuration Release
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
 
     #- name: Run Unit Tests
     #  run: |
