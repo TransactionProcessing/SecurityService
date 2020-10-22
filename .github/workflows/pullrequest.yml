@@ -27,19 +27,19 @@ jobs:
     - name: Build Code
       run: dotnet build SecurityService.sln --configuration Release
 
-    #- name: Run Unit Tests
-    #  run: |
-    #    echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-    #    dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"
+    - name: Run Unit Tests
+      run: |
+        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
+        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"
     
     - name: Build Docker Images
       run: |
         docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
         docker build . --file SecurityServiceTestWebClient/DockerfileWindows --tag securityservicetestwebclient:latest
 
-    #- name: Run Integration Tests (Non UI)
-    #  run: |
-    #    dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+    - name: Run Integration Tests (Non UI)
+      run: |
+        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
     - name: Run Integration Tests (UI Firefox)
       env:
