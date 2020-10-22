@@ -80,6 +80,10 @@ namespace SecurityService.IntegrationTests.UserLogin
         {
             await Retry.For(async () =>
                             {
+                                var page = this.WebDriver.PageSource;
+
+                                Console.WriteLine($"Source Is [{page}");
+
                                 this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestWebClient");
                             });
             
