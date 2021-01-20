@@ -1,4 +1,4 @@
-﻿@base @token @clients @apiresources @users @roles
+﻿@base @token @clients @apiresources @users @roles @apiscopes
 Feature: Token
 	
 Background: 
@@ -7,6 +7,12 @@ Background:
 	| Role Name |
 	| Estate    |
 	| Merchant  |
+
+	Given I create the following api scopes
+	| Name                    | DisplayName                   | Description                         |
+	| estateManagement        | estateManagement Scope        | A scope for estateManagement        |
+	| transactionProcessor    | transactionProcessor Scope    | A scope for transactionProcessor    |
+	| transactionProcessorAcl | transactionProcessorAcl Scope | A scope for transactionProcessorAcl |
 
 	Given I create the following api resources
 	| Name                    | DisplayName                    | Secret  | Scopes                  | UserClaims                 |

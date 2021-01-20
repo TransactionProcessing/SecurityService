@@ -96,6 +96,47 @@
         }
 
         /// <summary>
+        /// Creates the API scope.
+        /// </summary>
+        /// <param name="createApiScopeRequest">The create API scope request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<CreateApiScopeResponse> CreateApiScope(CreateApiScopeRequest createApiScopeRequest,
+                                                                 CancellationToken cancellationToken)
+        {
+            CreateApiScopeResponse response = null;
+            String requestUri = this.BuildRequestUrl("/api/apiscopes");
+
+            try
+            {
+                String requestSerialised = JsonConvert.SerializeObject(createApiScopeRequest);
+
+                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
+
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<CreateApiScopeResponse>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception($"Error creating api scope {createApiScopeRequest.Name}.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Creates the client.
         /// </summary>
         /// <param name="createClientRequest">The create client request.</param>
@@ -324,6 +365,78 @@
             {
                 // An exception has occurred, add some additional information to the message
                 Exception exception = new Exception("Error getting api resources.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Gets the API scope.
+        /// </summary>
+        /// <param name="apiScopeName">Name of the API scope.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<ApiScopeDetails> GetApiScope(String apiScopeName,
+                                                       CancellationToken cancellationToken)
+        {
+            ApiScopeDetails response = null;
+            String requestUri = this.BuildRequestUrl($"/api/apiscopes/{apiScopeName}");
+
+            try
+            {
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<ApiScopeDetails>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception($"Error getting api scope {apiScopeName}.", ex);
+
+                throw exception;
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Gets the API scopes.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<ApiScopeDetails>> GetApiScopes(CancellationToken cancellationToken)
+        {
+            List<ApiScopeDetails> response = null;
+            String requestUri = this.BuildRequestUrl("/api/apiscopes");
+
+            try
+            {
+                // Add the access token to the client headers
+                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+                // Make the Http Call here
+                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
+
+                // Process the response
+                String content = await this.HandleResponse(httpResponse, cancellationToken);
+
+                // call was successful so now deserialise the body to the response object
+                response = JsonConvert.DeserializeObject<List<ApiScopeDetails>>(content);
+            }
+            catch(Exception ex)
+            {
+                // An exception has occurred, add some additional information to the message
+                Exception exception = new Exception("Error getting api scopes.", ex);
 
                 throw exception;
             }

@@ -15,6 +15,34 @@
         #region Methods
 
         /// <summary>
+        /// Creates the API scope.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="displayName">The display name.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<String> CreateApiScope(String name,
+                                    String displayName,
+                                    String description,
+                                    CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the API scope.
+        /// </summary>
+        /// <param name="apiScopeName">Name of the API scope.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<ApiScope> GetApiScope(String apiScopeName, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the API scopes.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<ApiScope>> GetApiScopes(CancellationToken cancellationToken);
+
+        /// <summary>
         /// Creates the API resource.
         /// </summary>
         /// <param name="name">The name.</param>

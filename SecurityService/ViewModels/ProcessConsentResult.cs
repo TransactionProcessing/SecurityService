@@ -5,18 +5,19 @@
 namespace SecurityService.ViewModels
 {
     using System.Diagnostics.CodeAnalysis;
+    using IdentityServer4.Models;
 
     [ExcludeFromCodeCoverage]
     public class ProcessConsentResult
     {
-        public bool IsRedirect => this.RedirectUri != null;
+        public bool IsRedirect => RedirectUri != null;
         public string RedirectUri { get; set; }
-        public string ClientId { get; set; }
+        public Client Client { get; set; }
 
-        public bool ShowView => this.ViewModel != null;
+        public bool ShowView => ViewModel != null;
         public ConsentViewModel ViewModel { get; set; }
 
-        public bool HasValidationError => this.ValidationError != null;
+        public bool HasValidationError => ValidationError != null;
         public string ValidationError { get; set; }
     }
 }

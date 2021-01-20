@@ -1,6 +1,8 @@
+// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
+
 namespace SecurityService.Controllers.Diagnostics
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
@@ -9,33 +11,21 @@ namespace SecurityService.Controllers.Diagnostics
     using Microsoft.AspNetCore.Mvc;
     using ViewModels;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
+    [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [Authorize]
-    [ExcludeFromCodeCoverage]
     public class DiagnosticsController : Controller
     {
-        #region Methods
-
-        /// <summary>
-        /// Indexes this instance.
-        /// </summary>
-        /// <returns></returns>
         public async Task<IActionResult> Index()
         {
-            String[] localAddresses = {"127.0.0.1", "::1", this.HttpContext.Connection.LocalIpAddress.ToString()};
+            var localAddresses = new string[] { "127.0.0.1", "::1", this.HttpContext.Connection.LocalIpAddress.ToString() };
             if (!localAddresses.Contains(this.HttpContext.Connection.RemoteIpAddress.ToString()))
             {
                 return this.NotFound();
             }
 
-            DiagnosticsViewModel model = new DiagnosticsViewModel(await this.HttpContext.AuthenticateAsync());
-            return this.View(model);
+            var model = new DiagnosticsViewModel(await this.HttpContext.AuthenticateAsync());
+            return View(model);
         }
-
-        #endregion
     }
 }

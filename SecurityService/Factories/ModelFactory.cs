@@ -27,7 +27,7 @@
 
             return new UserDetails
                    {
-                       UserName = model.UserName,
+                       UserName = model.Username,
                        PhoneNumber = model.PhoneNumber,
                        Roles = model.Roles,
                        Claims = model.Claims,
@@ -163,12 +163,55 @@
             return new ApiResourceDetails
                    {
                        Description = model.Description,
-                       Scopes = model.Scopes.Select(m => m.Name).ToList(),
+                       Scopes = model.Scopes.ToList(),
                        Name = model.Name,
                        DisplayName = model.DisplayName,
                        UserClaims = model.UserClaims.ToList(),
                        Enabled = model.Enabled
                    };
+        }
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        public ApiScopeDetails ConvertFrom(ApiScope model)
+        {
+            if (model == null)
+            {
+                return null;
+            }
+
+            return new ApiScopeDetails
+                   {
+                       Enabled = model.Enabled,
+                       DisplayName = model.DisplayName,
+                       Name = model.Name,
+                       Description = model.Description
+                   };
+        }
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        public List<ApiScopeDetails> ConvertFrom(List<ApiScope> model)
+        {
+            if (model == null || model.Any() == false)
+            {
+                return null;
+            }
+
+            List<ApiScopeDetails> apiScopeDetailsList = new List<ApiScopeDetails>();
+
+            foreach (ApiScope apiScope in model)
+            {
+                apiScopeDetailsList.Add(this.ConvertFrom(apiScope));
+            }
+
+            return apiScopeDetailsList;
         }
 
         /// <summary>

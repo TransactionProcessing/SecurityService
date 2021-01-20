@@ -3,7 +3,6 @@
 
 namespace SecurityService.Controllers
 {
-    using System;
     using System.Diagnostics.CodeAnalysis;
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Filters;
@@ -13,7 +12,7 @@ namespace SecurityService.Controllers
     {
         public override void OnResultExecuting(ResultExecutingContext context)
         {
-            IActionResult result = context.Result;
+            var result = context.Result;
             if (result is ViewResult)
             {
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
@@ -29,7 +28,7 @@ namespace SecurityService.Controllers
                 }
 
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
-                String csp = "default-src 'self'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts; base-uri 'self';";
+                var csp = "default-src 'self'; object-src 'none'; frame-ancestors 'none'; sandbox allow-forms allow-same-origin allow-scripts; base-uri 'self';";
                 // also consider adding upgrade-insecure-requests once you have HTTPS in place for production
                 //csp += "upgrade-insecure-requests;";
                 // also an example if you need client images to be displayed from twitter
@@ -47,7 +46,7 @@ namespace SecurityService.Controllers
                 }
 
                 // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Referrer-Policy
-                String referrer_policy = "no-referrer";
+                var referrer_policy = "no-referrer";
                 if (!context.HttpContext.Response.Headers.ContainsKey("Referrer-Policy"))
                 {
                     context.HttpContext.Response.Headers.Add("Referrer-Policy", referrer_policy);

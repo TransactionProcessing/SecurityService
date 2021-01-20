@@ -186,21 +186,6 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
 
                 };
 
-                // Do the replacement on the Uris
-                //if (createClientRequest.ClientRedirectUris != null && createClientRequest.ClientRedirectUris.Any())
-                //{
-                //    foreach (String clientRedirectUri in createClientRequest.ClientRedirectUris)
-                //    {
-                //        clientRedirectUri
-                //    }
-                //    createClientRequest.ClientRedirectUris.ForEach(c => c = c.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString()));
-                //}
-
-                //if (createClientRequest.ClientPostLogoutRedirectUris != null && createClientRequest.ClientPostLogoutRedirectUris.Any())
-                //{
-                //    createClientRequest.ClientPostLogoutRedirectUris.ForEach(c => c = c.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString()));
-                //}
-
                 CreateClientResponse createClientResponse = await this.CreateClient(createClientRequest, CancellationToken.None).ConfigureAwait(false);
 
                 createClientResponse.ShouldNotBeNull();

@@ -70,6 +70,20 @@ namespace SecurityService.Factories
         /// </summary>
         /// <param name="model">The model.</param>
         /// <returns></returns>
+        ApiScopeDetails ConvertFrom(ApiScope model);
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
+        List<ApiScopeDetails> ConvertFrom(List<ApiScope> model);
+
+        /// <summary>
+        /// Converts from.
+        /// </summary>
+        /// <param name="model">The model.</param>
+        /// <returns></returns>
         IdentityResourceDetails ConvertFrom(IdentityResource model);
 
         /// <summary>
