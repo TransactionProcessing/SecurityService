@@ -19,7 +19,6 @@ Scenario: Get Api Scope
 Scenario: Get Api Scopes
 Given I create the following api scopes
 	| Name       | DisplayName | Description           |
-	| Name       | DisplayName | Description           |
 	| testscope1 | Test Scope1 | A scope for testing 1 |
 	| testscope2 | Test Scope2 | A scope for testing 2 |
 	When I get the api scopes 2 api scope details are returned as follows
