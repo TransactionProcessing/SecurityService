@@ -10,10 +10,10 @@ jobs:
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: ubuntu-16.04
+    runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2.3.4
 
     - name: Get the version
       id: get_version
@@ -71,7 +71,7 @@ jobs:
     
     - name: Get Release
       id: getrelease
-      uses: octokit/request-action@v1.x
+      uses: octokit/request-action@v2.0.17
       with:
           route: GET /repos/StuartFerguson/SecurityService/releases/tags/${{ steps.get_version.outputs.VERSION }}
       env:
@@ -108,12 +108,7 @@ jobs:
         --deployTo Development
         --waitfordeployment
         --deploymenttimeout 00:05:00
-        --releasenotes "${{ steps.buildreleasenotes.outputs.releasenote }}" 
-    
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.100          
+        --releasenotes "${{ steps.buildreleasenotes.outputs.releasenote }}"    
 
     - name: Build and Publish Nuget Packages
       run: |
