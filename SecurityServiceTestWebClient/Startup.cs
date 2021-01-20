@@ -12,6 +12,7 @@ namespace SecurityServiceTestWebClient
 {
     using System.IdentityModel.Tokens.Jwt;
     using IdentityModel;
+    using IdentityServer4.Extensions;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Authentication.Cookies;
     using Microsoft.AspNetCore.Http;

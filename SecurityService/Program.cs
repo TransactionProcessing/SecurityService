@@ -1,4 +1,4 @@
-﻿namespace SecurityService.Service
+﻿namespace SecurityService
 {
     using System;
     using System.Diagnostics.CodeAnalysis;

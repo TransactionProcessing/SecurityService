@@ -1,4 +1,4 @@
-﻿namespace SecurityService.Service
+﻿namespace SecurityService
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -11,7 +11,7 @@
     using Factories;
     using HealthChecks.UI.Client;
     using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.EntityFramework.Interfaces;
+    using IdentityServer4.Extensions;
     using Lamar;
     using Manager;
     using Microsoft.AspNetCore.Builder;
@@ -22,7 +22,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
     using Microsoft.AspNetCore.Mvc.Versioning;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -121,6 +120,13 @@
                               ILoggerFactory loggerFactory,
                               IApiVersionDescriptionProvider provider)
         {
+            app.Use(async (ctx, next) =>
+                    {
+                        var gimp = Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
+                        ctx.SetIdentityServerOrigin(gimp);
+                        await next();
+                    });
+
             String nlogConfigFilename = "nlog.config";
             if (env.IsDevelopment())
             {
@@ -296,7 +302,8 @@
                                                                                           options.Events.RaiseSuccessEvents = true;
                                                                                           options.Events.RaiseFailureEvents = true;
                                                                                           options.Events.RaiseErrorEvents = true;
-                                                                                          options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
+                                                                                          // TODO: Investigate - https://github.com/IdentityServer/IdentityServer4/issues/4631
+                                                                                          //options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
                                                                                           options.IssuerUri =
                                                                                               Startup.Configuration.GetValue<String>("ServiceOptions:IssuerUrl");
                                                                                       })
@@ -304,7 +311,7 @@
                                                                    .AddJwtBearerClientAuthentication()
                                                                    .AddDeveloperSigningCredential();
 
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") || Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase") == true)
+            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") || Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase") == true)
             {
                 identityServerBuilder.AddIntegrationTestConfiguration();
             }

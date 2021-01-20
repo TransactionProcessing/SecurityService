@@ -18,7 +18,6 @@
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
     using Moq;
-    using SecurityService.Service;
     using Xunit;
 
     public class BootstrapperTests

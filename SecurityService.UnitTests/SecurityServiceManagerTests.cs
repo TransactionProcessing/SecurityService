@@ -82,6 +82,22 @@
         }
 
         [Fact]
+        public async Task SecurityServiceManager_CreateApiScope_ApiScopeIsCreated()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            String apiScopeId = await securityServiceManager.CreateApiScope(SecurityServiceManagerTestData.ApiScopeName,
+                                                                          SecurityServiceManagerTestData.ApiScopeDisplayName,
+                                                                          SecurityServiceManagerTestData.ApiScopeDescription,
+                                                                          CancellationToken.None);
+
+            apiScopeId.ShouldBe(SecurityServiceManagerTestData.ApiScopeName);
+        }
+
+        [Fact]
         public async Task SecurityServiceManager_CreateClient_ClientIsCreated()
         {
             String databaseName = Guid.NewGuid().ToString("N");
@@ -570,17 +586,17 @@
                                                     Name = SecurityServiceManagerTestData.ApiResourceName,
                                                     DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
                                                     Description = SecurityServiceManagerTestData.ApiResourceDescription,
-                                                    Scopes = new List<ApiScope>
+                                                    Scopes = new List<ApiResourceScope>
                                                              {
-                                                                 new ApiScope
+                                                                 new ApiResourceScope
                                                                  {
                                                                      Id = 1,
-                                                                     Name = SecurityServiceManagerTestData.ApiResourceScopes.First()
+                                                                     Scope= SecurityServiceManagerTestData.ApiResourceScopes.First()
                                                                  }
                                                              },
-                                                    Secrets = new List<ApiSecret>
+                                                    Secrets = new List<ApiResourceSecret>
                                                               {
-                                                                  new ApiSecret
+                                                                  new ApiResourceSecret
                                                                   {
                                                                       Value = SecurityServiceManagerTestData.ApiResourceSecret.ToSha256()
                                                                   }
@@ -606,7 +622,7 @@
             apiResource.Scopes.ShouldNotBeEmpty();
             apiResource.Scopes.ShouldNotBeNull();
             apiResource.Scopes.Count.ShouldBe(1);
-            apiResource.Scopes.First().Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceScopes.First());
+            apiResource.Scopes.First().ShouldBe(SecurityServiceManagerTestData.ApiResourceScopes.First());
             apiResource.UserClaims.ShouldNotBeEmpty();
             apiResource.UserClaims.ShouldNotBeNull();
             apiResource.UserClaims.Count.ShouldBe(1);
@@ -639,17 +655,17 @@
                                                     Name = SecurityServiceManagerTestData.ApiResourceName,
                                                     DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
                                                     Description = SecurityServiceManagerTestData.ApiResourceDescription,
-                                                    Scopes = new List<ApiScope>
+                                                    Scopes = new List<ApiResourceScope>
                                                              {
-                                                                 new ApiScope
+                                                                 new ApiResourceScope
                                                                  {
                                                                      Id = 1,
-                                                                     Name = SecurityServiceManagerTestData.ApiResourceScopes.First()
+                                                                     Scope = SecurityServiceManagerTestData.ApiResourceScopes.First()
                                                                  }
                                                              },
-                                                    Secrets = new List<ApiSecret>
+                                                    Secrets = new List<ApiResourceSecret>
                                                               {
-                                                                  new ApiSecret
+                                                                  new ApiResourceSecret
                                                                   {
                                                                       Value = SecurityServiceManagerTestData.ApiResourceSecret.ToSha256()
                                                                   }
@@ -813,9 +829,9 @@
                                                          Name = SecurityServiceManagerTestData.IdentityResourceName,
                                                          DisplayName = SecurityServiceManagerTestData.IdentityResourceDisplayName,
                                                          Description = SecurityServiceManagerTestData.IdentityResourceDescription,
-                                                         UserClaims = new List<IdentityClaim>
+                                                         UserClaims = new List<IdentityResourceClaim>
                                                                       {
-                                                                          new IdentityClaim
+                                                                          new IdentityResourceClaim
                                                                           {
                                                                               Type = SecurityServiceManagerTestData.IdentityResourceUserClaims.First()
                                                                           }
@@ -863,9 +879,9 @@
                                                          Name = SecurityServiceManagerTestData.IdentityResourceName,
                                                          DisplayName = SecurityServiceManagerTestData.IdentityResourceDisplayName,
                                                          Description = SecurityServiceManagerTestData.IdentityResourceDescription,
-                                                         UserClaims = new List<IdentityClaim>
+                                                         UserClaims = new List<IdentityResourceClaim>
                                                                       {
-                                                                          new IdentityClaim
+                                                                          new IdentityResourceClaim
                                                                           {
                                                                               Type = SecurityServiceManagerTestData.IdentityResourceUserClaims.First()
                                                                           }
@@ -948,7 +964,7 @@
             UserDetails userDetails = await securityServiceManager.GetUser(Guid.Parse(SecurityServiceManagerTestData.User1Id), CancellationToken.None);
 
             userDetails.UserId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.User1Id));
-            userDetails.UserName.ShouldBe(SecurityServiceManagerTestData.UserName);
+            userDetails.Username.ShouldBe(SecurityServiceManagerTestData.UserName);
             userDetails.Claims.ShouldBeEmpty();
             userDetails.Email.ShouldBe(SecurityServiceManagerTestData.EmailAddress);
             userDetails.PhoneNumber.ShouldBe(SecurityServiceManagerTestData.PhoneNumber);
@@ -1008,7 +1024,7 @@
             userDetails.ShouldNotBeNull();
             userDetails.Count.ShouldBe(1);
             userDetails.First().UserId.ToString().ShouldBe(SecurityServiceManagerTestData.User1Id);
-            userDetails.First().UserName.ShouldBe(SecurityServiceManagerTestData.UserName1);
+            userDetails.First().Username.ShouldBe(SecurityServiceManagerTestData.UserName1);
             userDetails.First().Email.ShouldBe(SecurityServiceManagerTestData.EmailAddress1);
             userDetails.First().PhoneNumber.ShouldBe(SecurityServiceManagerTestData.PhoneNumber);
         }
@@ -1091,5 +1107,79 @@
         }
 
         #endregion
+
+        [Fact]
+        public async Task SecurityServiceManager_GetApiScope_ApiScopeIsReturned()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            await context.ApiScopes.AddAsync(new ApiScope
+                                             {
+                                                 Id = 1,
+                                                 Name = SecurityServiceManagerTestData.ApiScopeName,
+                                                 DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
+                                                 Description = SecurityServiceManagerTestData.ApiScopeDescription,
+                                                 Emphasize = false,
+                                                 Enabled = true,
+                                                 Required = false,
+                                                 ShowInDiscoveryDocument = true
+                                             });
+            await context.SaveChangesAsync();
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            IdentityServer4.Models.ApiScope apiScope = await securityServiceManager.GetApiScope(SecurityServiceManagerTestData.ApiScopeName, CancellationToken.None);
+
+            apiScope.Name.ShouldBe(SecurityServiceManagerTestData.ApiScopeName);
+            apiScope.Description.ShouldBe(SecurityServiceManagerTestData.ApiScopeDescription);
+            apiScope.DisplayName.ShouldBe(SecurityServiceManagerTestData.ApiResourceDisplayName);
+            apiScope.Emphasize.ShouldBeFalse();
+            apiScope.Required.ShouldBeFalse();
+            apiScope.ShowInDiscoveryDocument.ShouldBeTrue();
+            apiScope.Enabled.ShouldBeTrue();
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_GetApiScope_ApiScopeNotFound_ErrorThrown()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            await Should.ThrowAsync<NotFoundException>(async () =>
+            {
+                await securityServiceManager.GetApiScope(SecurityServiceManagerTestData.ApiScopeName,
+                                                            CancellationToken.None);
+            });
+        }
+
+        [Fact]
+        public async Task SecurityServiceManager_GetApiScopes_ApiScopesAreReturned()
+        {
+            String databaseName = Guid.NewGuid().ToString("N");
+            ConfigurationDbContext context = this.GetConfigurationDbContext(databaseName);
+            await context.ApiScopes.AddAsync(new ApiScope
+                                             {
+                                                 Id = 1,
+                                                 Name = SecurityServiceManagerTestData.ApiScopeName,
+                                                 DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
+                                                 Description = SecurityServiceManagerTestData.ApiScopeDescription,
+                                                 Emphasize = false,
+                                                 Enabled = true,
+                                                 Required = false,
+                                                 ShowInDiscoveryDocument = true
+                                             });
+            await context.SaveChangesAsync();
+
+            SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
+
+            List<IdentityServer4.Models.ApiScope> apiScopes = await securityServiceManager.GetApiScopes(CancellationToken.None);
+
+            apiScopes.ShouldNotBeNull();
+            apiScopes.ShouldNotBeEmpty();
+            apiScopes.Count.ShouldBe(1);
+            apiScopes.First().Name.ShouldBe(SecurityServiceManagerTestData.ApiScopeName);
+        }
     }
 }

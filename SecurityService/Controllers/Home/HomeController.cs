@@ -5,7 +5,6 @@ namespace SecurityService.Controllers.Home
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
-    using IdentityServer4.Models;
     using IdentityServer4.Services;
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Hosting;
@@ -14,9 +13,9 @@ namespace SecurityService.Controllers.Home
     using Microsoft.Extensions.Logging;
     using ViewModels;
 
+    [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [AllowAnonymous]
-    [ExcludeFromCodeCoverage]
     public class HomeController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;
@@ -47,10 +46,10 @@ namespace SecurityService.Controllers.Home
         /// </summary>
         public async Task<IActionResult> Error(string errorId)
         {
-            ErrorViewModel vm = new ErrorViewModel();
+            var vm = new ErrorViewModel();
 
             // retrieve error details from identityserver
-            ErrorMessage message = await this._interaction.GetErrorContextAsync(errorId);
+            var message = await this._interaction.GetErrorContextAsync(errorId);
             if (message != null)
             {
                 vm.Error = message;
@@ -62,7 +61,7 @@ namespace SecurityService.Controllers.Home
                 }
             }
 
-            return this.View("Error", vm);
+            return View("Error", vm);
         }
     }
 }

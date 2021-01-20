@@ -225,6 +225,12 @@
                                                       Id = SecurityServiceManagerTestData.Role1Id,
                                                       Name = SecurityServiceManagerTestData.RoleName
         };
+
+        public static String ApiScopeName = "Test Api Scope";
+
+        public static String ApiScopeDisplayName = "Test Api Scope Display Name";
+
+        public static String ApiScopeDescription = "Test Api Scope Description";
     }
 }
 

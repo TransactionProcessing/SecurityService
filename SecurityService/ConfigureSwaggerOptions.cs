@@ -1,4 +1,4 @@
-﻿namespace SecurityService.Service
+﻿namespace SecurityService
 {
     using System.Diagnostics.CodeAnalysis;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;

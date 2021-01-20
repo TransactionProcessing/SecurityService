@@ -49,12 +49,14 @@ namespace SecurityService.Models
         /// </value>
         public Guid UserId { get; set; }
 
+        public String SubjectId { get; set; }
+
         /// <summary>
         /// Gets or sets the name of the user.
         /// </summary>
         /// <value>
         /// The name of the user.
         /// </value>
-        public String UserName { get; set; }
+        public String Username { get; set; }
     }
 }

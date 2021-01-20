@@ -1,13 +1,13 @@
 @model SecurityService.ViewModels.ErrorViewModel
 
 @{
-    String error = Model?.Error?.Error;
-    String errorDescription = Model?.Error?.ErrorDescription;
-    String request_id = Model?.Error?.RequestId;
+    var error = Model?.Error?.Error;
+    var errorDescription = Model?.Error?.ErrorDescription;
+    var request_id = Model?.Error?.RequestId;
 }
 
 <div class="error-page">
-    <div class="page-header">
+    <div class="lead">
         <h1>Error</h1>
     </div>
 

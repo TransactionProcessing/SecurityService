@@ -25,6 +25,15 @@
                                                           CancellationToken cancellationToken);
 
         /// <summary>
+        /// Creates the API scope.
+        /// </summary>
+        /// <param name="createApiScopeRequest">The create API scope request.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<CreateApiScopeResponse> CreateApiScope(CreateApiScopeRequest createApiScopeRequest,
+                                                    CancellationToken cancellationToken);
+
+        /// <summary>
         /// Creates the client.
         /// </summary>
         /// <param name="createClientRequest">The create client request.</param>
@@ -70,11 +79,27 @@
                                                 CancellationToken cancellationToken);
 
         /// <summary>
+        /// Gets the API scope.
+        /// </summary>
+        /// <param name="apiScopeName">Name of the API scope.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<ApiScopeDetails> GetApiScope(String apiScopeName,
+                                                CancellationToken cancellationToken);
+
+        /// <summary>
         /// Gets the API resources.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task<List<ApiResourceDetails>> GetApiResources(CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Gets the API scopes.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        Task<List<ApiScopeDetails>> GetApiScopes(CancellationToken cancellationToken);
 
         /// <summary>
         /// Gets the client.

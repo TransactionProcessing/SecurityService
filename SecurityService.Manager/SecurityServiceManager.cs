@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading;
@@ -82,6 +83,88 @@
         #region Methods
 
         /// <summary>
+        /// Creates the API scope.
+        /// </summary>
+        /// <param name="name">The name.</param>
+        /// <param name="displayName">The display name.</param>
+        /// <param name="description">The description.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<String> CreateApiScope(String name,
+                                                 String displayName,
+                                                 String description,
+                                                 CancellationToken cancellationToken)
+        {
+            ApiScope apiScope = new ApiScope
+                             {
+                                 Description = description,
+                                 DisplayName = displayName,
+                                 Name = name,
+                                 Emphasize = false,
+                                 Enabled = true,
+                                 Required = false,
+                                 ShowInDiscoveryDocument = true
+                             };
+
+            // Now translate the model to the entity
+            await this.ConfigurationDbContext.ApiScopes.AddAsync(apiScope.ToEntity(), cancellationToken);
+
+            // Save the changes
+            await this.ConfigurationDbContext.SaveChangesAsync();
+
+            return name;
+        }
+
+        /// <summary>
+        /// Gets the API scope.
+        /// </summary>
+        /// <param name="apiScopeName">Name of the API scope.</param>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        /// <exception cref="NotFoundException">No Api Scope found with Name [{apiScopeName}]</exception>
+        public async Task<ApiScope> GetApiScope(String apiScopeName,
+                                                CancellationToken cancellationToken)
+        {
+            ApiScope apiScopeModel = null;
+
+            IdentityServer4.EntityFramework.Entities.ApiScope apiScopeEntity = await this.ConfigurationDbContext.ApiScopes.Where(a => a.Name == apiScopeName)
+                                                                                         .Include(a => a.Properties).Include(a => a.UserClaims)
+                                                                                         .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+
+            if (apiScopeEntity == null)
+            {
+                throw new NotFoundException($"No Api Scope found with Name [{apiScopeName}]");
+            }
+
+            apiScopeModel = apiScopeEntity.ToModel();
+
+            return apiScopeModel;
+        }
+
+        /// <summary>
+        /// Gets the API scopes.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token.</param>
+        /// <returns></returns>
+        public async Task<List<ApiScope>> GetApiScopes(CancellationToken cancellationToken)
+        {
+            List<ApiScope> apiScopeModels = new List<ApiScope>();
+
+            List<IdentityServer4.EntityFramework.Entities.ApiScope> apiScopeEntities =
+                await this.ConfigurationDbContext.ApiScopes.Include(a => a.Properties).Include(a => a.UserClaims).ToListAsync(cancellationToken: cancellationToken);
+
+            if (apiScopeEntities.Any())
+            {
+                foreach (IdentityServer4.EntityFramework.Entities.ApiScope apiScopeEntity in apiScopeEntities)
+                {
+                    apiScopeModels.Add(apiScopeEntity.ToModel());
+                }
+            }
+
+            return apiScopeModels;
+        }
+
+        /// <summary>
         /// Creates the API resource.
         /// </summary>
         /// <param name="name">The name.</param>
@@ -116,7 +199,7 @@
             {
                 foreach (String scope in scopes)
                 {
-                    apiResource.Scopes.Add(new Scope(scope));
+                    apiResource.Scopes.Add(scope);
                 }
             }
 
@@ -172,8 +255,13 @@
                                 AllowedGrantTypes = allowedGrantTypes,
                                 AllowedScopes = allowedScopes,
                                 RequireConsent = requireConsent,
-                                AllowOfflineAccess = allowOfflineAccess
+                                AllowOfflineAccess = allowOfflineAccess,
                             };
+
+            if (allowedGrantTypes.Contains("hybrid"))
+            {
+                client.RequirePkce = false;
+            }
 
             if (clientRedirectUris != null && clientRedirectUris.Any())
             {
@@ -370,9 +458,12 @@
 
                 // Add the requested claims
                 List<Claim> claimsToAdd = new List<Claim>();
-                if (claims != null && claims.Any())
+                if (claims != null)
                 {
-                    claimsToAdd.AddRange(claims.Select(x => new Claim(x.Key, x.Value)).ToList());
+                    foreach (KeyValuePair<String, String> claim in claims)
+                    {
+                        claimsToAdd.Add(new Claim(claim.Key, claim.Value));
+                    }
                 }
 
                 // Add the email address and role as claims
@@ -646,7 +737,8 @@
             response.Email = user.Email;
             response.PhoneNumber = user.PhoneNumber;
             response.UserId = userId;
-            response.UserName = user.UserName;
+            response.SubjectId = userId.ToString();
+            response.Username = user.UserName;
 
             // Get the users roles
             response.Roles = await this.ConvertUsersRoles(user);
@@ -685,7 +777,8 @@
                 response.Add(new UserDetails
                              {
                                  UserId = Guid.Parse(identityUser.Id),
-                                 UserName = identityUser.UserName,
+                                 SubjectId = identityUser.Id,
+                                 Username = identityUser.UserName,
                                  Claims = claims,
                                  Email = identityUser.Email,
                                  PhoneNumber = identityUser.PhoneNumber,
@@ -699,6 +792,7 @@
         /// <summary>
         /// Signouts this instance.
         /// </summary>
+        [ExcludeFromCodeCoverage]
         public async Task Signout()
         {
             await this.SignInManager.SignOutAsync();

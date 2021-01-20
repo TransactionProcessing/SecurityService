@@ -1,16 +1,10 @@
-namespace SecurityService.Service
+namespace SecurityService
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using Database.DbContexts;
-    using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.EntityFramework.Services;
-    using IdentityServer4.EntityFramework.Stores;
     using IdentityServer4.Models;
-    using IdentityServer4.Services;
-    using IdentityServer4.Stores;
-    using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
 
