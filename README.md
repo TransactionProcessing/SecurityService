@@ -2,8 +2,8 @@
 
 ## Build Status
 
-[![Last Nightly Build Status Badge](https://github.com/StuartFerguson/SecurityService/workflows/Nightly%20Build/badge.svg)](https://github.com/StuartFerguson/SecurityService/workflows/Nightly%20Build/badge.svg)
-[![Last Release Build Status Badge](https://github.com/StuartFerguson/SecurityService/workflows/Release/badge.svg)](https://github.com/StuartFerguson/SecurityService/workflows/Release/badge.svg)
+[![Last Nightly Build Status Badge](https://github.com/TransactionProcessing/SecurityService/workflows/Nightly%20Build/badge.svg)](https://github.com/TransactionProcessing/SecurityService/workflows/Nightly%20Build/badge.svg)
+[![Last Release Build Status Badge](https://github.com/StuartFerguson/TransactionProcessing/workflows/Release/badge.svg)](https://github.com/TransactionProcessing/SecurityService/workflows/Release/badge.svg)
 
 ## Nuget Versions
 |||
@@ -16,4 +16,4 @@
 
 ## Code Quality Results
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/98b769692f924c4e86923b2e924a065f)](https://www.codacy.com/manual/stuart_ferguson1/SecurityService?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=StuartFerguson/SecurityService&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/98b769692f924c4e86923b2e924a065f)](https://www.codacy.com/manual/stuart_ferguson1/SecurityService?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=TransactionProcessing/SecurityService&amp;utm_campaign=Badge_Grade)
