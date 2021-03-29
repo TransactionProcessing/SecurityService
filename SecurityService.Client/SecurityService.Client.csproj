@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net5.0</TargetFramework>
+	  <TargetFramework2>net5.0;netstandard2.0</TargetFramework2>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeP2PAssets</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClientProxyBase" Version="1.0.3" />
+    <PackageReference Include="ClientProxyBase" Version="1.0.5" />
   </ItemGroup>
 
   <ItemGroup>
