@@ -51,17 +51,13 @@
         {
             OpenApiInfo info = new OpenApiInfo
                                {
-                                   Title = "Golf Handicapping API",
+                                   Title = "Authentication API",
                                    Version = description.ApiVersion.ToString(),
-                                   Description = "A REST Api to manage the golf club handicapping system.",
+                                   Description = "A REST Api to provide authentication services including management of user/client and api details.",
                                    Contact = new OpenApiContact
                                              {
                                                  Name = "Stuart Ferguson",
                                                  Email = "golfhandicapping@btinternet.com"
-                                             },
-                                   License = new OpenApiLicense
-                                             {
-                                                 Name = "TODO"
                                              }
                                };
 

@@ -5,12 +5,14 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+    using Common.Examples;
     using DataTransferObjects;
     using DataTransferObjects.Responses;
     using Factories;
     using Manager;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
+    using Swashbuckle.AspNetCore.Filters;
 
     /// <summary>
     /// 
@@ -18,7 +20,6 @@
     /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [Route(UserController.ControllerRoute)]
     [ApiController]
-    [ApiVersion("1.0")]
     [ExcludeFromCodeCoverage]
     public class UserController : ControllerBase
     {
@@ -59,6 +60,7 @@
         [HttpPost]
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateUserResponse))]
+        [SwaggerResponseExample(201, typeof(CreateUserResponseExample))]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest, CancellationToken cancellationToken)
         {
             // Create the user
@@ -90,6 +92,7 @@
         [HttpGet]
         [Route("{userId}")]
         [SwaggerResponse(200, type: typeof(UserDetails))]
+        [SwaggerResponseExample(200, typeof(UserDetailsResponseExample))]
         public async Task<IActionResult> GetUser([FromRoute] Guid userId,
                                                  CancellationToken cancellationToken)
         {
@@ -107,6 +110,7 @@
         [HttpGet]
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<UserDetails>))]
+        [SwaggerResponseExample(200, typeof(UserDetailsListResponseExample))]
         public async Task<IActionResult> GetUsers([FromQuery] String userName,
                                                  CancellationToken cancellationToken)
         {

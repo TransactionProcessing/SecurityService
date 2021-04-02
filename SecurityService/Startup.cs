@@ -12,7 +12,6 @@
     using HealthChecks.UI.Client;
     using IdentityServer4.EntityFramework.DbContexts;
     using IdentityServer4.Extensions;
-    using Lamar;
     using Manager;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -31,6 +30,7 @@
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using NLog.Extensions.Logging;
+    using NuGet.Versioning;
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
@@ -94,8 +94,6 @@
         /// </value>
         public static IConfigurationRoot Configuration { get; set; }
 
-        public static IContainer Container { get; set; }
-
         /// <summary>
         /// Gets or sets the hosting environment.
         /// </summary>
@@ -151,14 +149,6 @@
             app.UseIdentityServer();
             app.UseAuthorization();
 
-            //app.UseMvcWithDefaultRoute();
-            app.UseEndpoints(endpoints =>
-                             {
-                                 endpoints.MapControllerRoute(
-                                                              name: "default",
-                                                              pattern: "{controller=Home}/{action=Index}/{id?}");
-                             });
-
             app.UseStaticFiles();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -193,41 +183,25 @@
                              });
         }
 
-        public void ConfigureContainer(ServiceRegistry services)
+        public void ConfigureServices(IServiceCollection services)
         {
             ConfigurationReader.Initialise(Startup.Configuration);
 
             this.ConfigureMiddlewareServices(services);
 
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
-                                                        {
-                                                            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                                                            options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-                                                            options.SerializerSettings.Formatting = Formatting.Indented;
-                                                            options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                                                            options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                                                        });
+                                                                 {
+                                                                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                                                                     options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+                                                                     options.SerializerSettings.Formatting = Formatting.Indented;
+                                                                     options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                                                                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                                                                 });
 
-            Startup.GetConfiguredContainer(services, Startup.WebHostEnvironment);
-        }
-
-        public static IContainer GetConfiguredContainer(ServiceRegistry services,
-                                                        IWebHostEnvironment webHostEnvironment)
-        {
-            Container container = new Container(services);
-
-            // TODO: Build a registry file
-            //services.IncludeRegistry<CommonRegistry>();
             services.AddScoped<ISecurityServiceManager, SecurityServiceManager>();
             services.AddSingleton<IModelFactory, ModelFactory>();
-
-            container.Configure(services);
-
-            Startup.Container = container;
-
-            return container;
         }
-
+        
         private void ConfigureMiddlewareServices(IServiceCollection services)
         {
             services.AddHealthChecks()
@@ -250,13 +224,15 @@
                                  name: "Messaging Service",
                                  httpMethod: HttpMethod.Get,
                                  failureStatus: HealthStatus.Unhealthy,
-                                 tags: new string[] { "apllication", "messaging" });
+                                 tags: new string[] { "application", "messaging" });
 
+            var version = ConfigurationReader.GetValue("ServiceOptions", "ApiVersion");
+            var v = NuGetVersion.Parse(version);
             services.AddApiVersioning(options =>
                                       {
                                           // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
                                           options.ReportApiVersions = true;
-                                          options.DefaultApiVersion = new ApiVersion(1, 0);
+                                          options.DefaultApiVersion = new ApiVersion(v.Major, v.Minor, $"Patch{v.Patch}");
                                           options.AssumeDefaultVersionWhenUnspecified = true;
                                           options.ApiVersionReader = new HeaderApiVersionReader("api-version");
                                       });
