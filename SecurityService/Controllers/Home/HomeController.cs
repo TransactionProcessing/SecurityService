@@ -3,6 +3,7 @@
 
 namespace SecurityService.Controllers.Home
 {
+    using System;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using IdentityServer4.Services;
@@ -13,6 +14,7 @@ namespace SecurityService.Controllers.Home
     using Microsoft.Extensions.Logging;
     using ViewModels;
 
+    [Route(HomeController.ControllerRoute)]
     [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [AllowAnonymous]
@@ -22,6 +24,16 @@ namespace SecurityService.Controllers.Home
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger _logger;
 
+        /// <summary>
+        /// The controller name
+        /// </summary>
+        public const String ControllerName = "home";
+
+        /// <summary>
+        /// The controller route
+        /// </summary>
+        private const String ControllerRoute = HomeController.ControllerName;
+
         public HomeController(IIdentityServerInteractionService interaction, IWebHostEnvironment environment, ILogger<HomeController> logger)
         {
             this._interaction = interaction;
@@ -29,6 +41,7 @@ namespace SecurityService.Controllers.Home
             this._logger = logger;
         }
 
+        [Route("index")]
         public IActionResult Index()
         {
             if (this._environment.IsDevelopment())
@@ -44,6 +57,7 @@ namespace SecurityService.Controllers.Home
         /// <summary>
         /// Shows the error page
         /// </summary>
+        [Route("error")]
         public async Task<IActionResult> Error(string errorId)
         {
             var vm = new ErrorViewModel();
