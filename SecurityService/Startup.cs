@@ -18,19 +18,16 @@
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.HttpOverrides;
     using Microsoft.AspNetCore.Identity;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.ApiExplorer;
-    using Microsoft.AspNetCore.Mvc.Versioning;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using Microsoft.OpenApi.Models;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using NLog.Extensions.Logging;
-    using NuGet.Versioning;
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
@@ -115,8 +112,7 @@
         /// <param name="provider">The provider.</param>
         public void Configure(IApplicationBuilder app,
                               IWebHostEnvironment env,
-                              ILoggerFactory loggerFactory,
-                              IApiVersionDescriptionProvider provider)
+                              ILoggerFactory loggerFactory)
         {
             app.Use(async (ctx, next) =>
                     {
@@ -173,14 +169,7 @@
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(options =>
-                             {
-                                 // build a swagger endpoint for each discovered API version
-                                 foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
-                                 {
-                                     options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                                 }
-                             });
+            app.UseSwaggerUI();
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -226,32 +215,19 @@
                                  failureStatus: HealthStatus.Unhealthy,
                                  tags: new string[] { "application", "messaging" });
 
-            var version = ConfigurationReader.GetValue("ServiceOptions", "ApiVersion");
-            var v = NuGetVersion.Parse(version);
-            services.AddApiVersioning(options =>
-                                      {
-                                          // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
-                                          options.ReportApiVersions = true;
-                                          options.DefaultApiVersion = new ApiVersion(v.Major, v.Minor, $"Patch{v.Patch}");
-                                          options.AssumeDefaultVersionWhenUnspecified = true;
-                                          options.ApiVersionReader = new HeaderApiVersionReader("api-version");
-                                      });
-
-            services.AddVersionedApiExplorer(options =>
-                                             {
-                                                 // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
-                                                 // note: the specified format code will format the version as "'v'major[.minor][-status]"
-                                                 options.GroupNameFormat = "'v'VVV";
-
-                                                 // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-                                                 // can also be used to control the format of the API version in route templates
-                                                 options.SubstituteApiVersionInUrl = true;
-                                             });
-
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
-
             services.AddSwaggerGen(c =>
                                    {
+                                       c.SwaggerDoc("v1", new OpenApiInfo
+                                       {
+                                           Title = "Authentication API",
+                                           Version = "1.0",
+                                           Description = "A REST Api to provide authentication services including management of user/client and api details.",
+                                           Contact = new OpenApiContact
+                                           {
+                                               Name = "Stuart Ferguson",
+                                               Email = "golfhandicapping@btinternet.com"
+                                           }
+                                       });
                                        // add a custom operation filter which sets default values
                                        c.OperationFilter<SwaggerDefaultValues>();
                                        c.ExampleFilters();
