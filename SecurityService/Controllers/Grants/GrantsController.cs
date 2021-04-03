@@ -1,8 +1,6 @@
-// Copyright (c) Brock Allen & Dominick Baier. All rights reserved.
-// Licensed under the Apache License, Version 2.0. See LICENSE in the project root for license information.
-
 namespace SecurityService.Controllers.Grants
 {
+    using System;
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
@@ -18,20 +16,50 @@ namespace SecurityService.Controllers.Grants
     /// <summary>
     /// This sample controller allows a user to revoke grants given to clients
     /// </summary>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
+    [Route(GrantsController.ControllerRoute)]
     [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [Authorize]
     public class GrantsController : Controller
     {
-        private readonly IIdentityServerInteractionService _interaction;
+        #region Fields
+
+        /// <summary>
+        /// The clients
+        /// </summary>
         private readonly IClientStore _clients;
-        private readonly IResourceStore _resources;
+
+        /// <summary>
+        /// The events
+        /// </summary>
         private readonly IEventService _events;
 
+        /// <summary>
+        /// The interaction
+        /// </summary>
+        private readonly IIdentityServerInteractionService _interaction;
+
+        /// <summary>
+        /// The resources
+        /// </summary>
+        private readonly IResourceStore _resources;
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="GrantsController"/> class.
+        /// </summary>
+        /// <param name="interaction">The interaction.</param>
+        /// <param name="clients">The clients.</param>
+        /// <param name="resources">The resources.</param>
+        /// <param name="events">The events.</param>
         public GrantsController(IIdentityServerInteractionService interaction,
-            IClientStore clients,
-            IResourceStore resources,
-            IEventService events)
+                                IClientStore clients,
+                                IResourceStore resources,
+                                IEventService events)
         {
             this._interaction = interaction;
             this._clients = clients;
@@ -39,21 +67,30 @@ namespace SecurityService.Controllers.Grants
             this._events = events;
         }
 
+        #endregion
+
+        #region Methods
+
         /// <summary>
         /// Show list of grants
         /// </summary>
+        /// <returns></returns>
         [HttpGet]
+        [Route("index")]
         public async Task<IActionResult> Index()
         {
-            return View("Index", await this.BuildViewModelAsync());
+            return this.View("Index", await this.BuildViewModelAsync());
         }
 
         /// <summary>
         /// Handle postback to revoke a client
         /// </summary>
+        /// <param name="clientId">The client identifier.</param>
+        /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Revoke(string clientId)
+        [Route("revoke")]
+        public async Task<IActionResult> Revoke(String clientId)
         {
             await this._interaction.RevokeUserConsentAsync(clientId);
             await this._events.RaiseAsync(new GrantsRevokedEvent(this.User.GetSubjectId(), clientId));
@@ -61,39 +98,59 @@ namespace SecurityService.Controllers.Grants
             return this.RedirectToAction("Index");
         }
 
+        /// <summary>
+        /// Builds the view model asynchronous.
+        /// </summary>
+        /// <returns></returns>
         private async Task<GrantsViewModel> BuildViewModelAsync()
         {
             var grants = await this._interaction.GetAllUserGrantsAsync();
 
             var list = new List<GrantViewModel>();
-            foreach(var grant in grants)
+            foreach (var grant in grants)
             {
                 var client = await this._clients.FindClientByIdAsync(grant.ClientId);
                 if (client != null)
                 {
                     var resources = await this._resources.FindResourcesByScopeAsync(grant.Scopes);
 
-                    var item = new GrantViewModel()
-                    {
-                        ClientId = client.ClientId,
-                        ClientName = client.ClientName ?? client.ClientId,
-                        ClientLogoUrl = client.LogoUri,
-                        ClientUrl = client.ClientUri,
-                        Description = grant.Description,
-                        Created = grant.CreationTime,
-                        Expires = grant.Expiration,
-                        IdentityGrantNames = resources.IdentityResources.Select(x => x.DisplayName ?? x.Name).ToArray(),
-                        ApiGrantNames = resources.ApiScopes.Select(x => x.DisplayName ?? x.Name).ToArray()
-                    };
+                    var item = new GrantViewModel
+                               {
+                                   ClientId = client.ClientId,
+                                   ClientName = client.ClientName ?? client.ClientId,
+                                   ClientLogoUrl = client.LogoUri,
+                                   ClientUrl = client.ClientUri,
+                                   Description = grant.Description,
+                                   Created = grant.CreationTime,
+                                   Expires = grant.Expiration,
+                                   IdentityGrantNames = resources.IdentityResources.Select(x => x.DisplayName ?? x.Name).ToArray(),
+                                   ApiGrantNames = resources.ApiScopes.Select(x => x.DisplayName ?? x.Name).ToArray()
+                               };
 
                     list.Add(item);
                 }
             }
 
             return new GrantsViewModel
-            {
-                Grants = list
-            };
+                   {
+                       Grants = list
+                   };
         }
+
+        #endregion
+
+        #region Others
+
+        /// <summary>
+        /// The controller name
+        /// </summary>
+        public const String ControllerName = "grants";
+
+        /// <summary>
+        /// The controller route
+        /// </summary>
+        private const String ControllerRoute = GrantsController.ControllerName;
+
+        #endregion
     }
 }

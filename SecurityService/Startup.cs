@@ -12,22 +12,19 @@
     using HealthChecks.UI.Client;
     using IdentityServer4.EntityFramework.DbContexts;
     using IdentityServer4.Extensions;
-    using Lamar;
     using Manager;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.HttpOverrides;
     using Microsoft.AspNetCore.Identity;
-    using Microsoft.AspNetCore.Mvc;
-    using Microsoft.AspNetCore.Mvc.ApiExplorer;
-    using Microsoft.AspNetCore.Mvc.Versioning;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
     using Microsoft.Extensions.Options;
+    using Microsoft.OpenApi.Models;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using NLog.Extensions.Logging;
@@ -94,8 +91,6 @@
         /// </value>
         public static IConfigurationRoot Configuration { get; set; }
 
-        public static IContainer Container { get; set; }
-
         /// <summary>
         /// Gets or sets the hosting environment.
         /// </summary>
@@ -117,8 +112,7 @@
         /// <param name="provider">The provider.</param>
         public void Configure(IApplicationBuilder app,
                               IWebHostEnvironment env,
-                              ILoggerFactory loggerFactory,
-                              IApiVersionDescriptionProvider provider)
+                              ILoggerFactory loggerFactory)
         {
             app.Use(async (ctx, next) =>
                     {
@@ -151,14 +145,6 @@
             app.UseIdentityServer();
             app.UseAuthorization();
 
-            //app.UseMvcWithDefaultRoute();
-            app.UseEndpoints(endpoints =>
-                             {
-                                 endpoints.MapControllerRoute(
-                                                              name: "default",
-                                                              pattern: "{controller=Home}/{action=Index}/{id?}");
-                             });
-
             app.UseStaticFiles();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
@@ -183,51 +169,28 @@
 
             app.UseSwagger();
 
-            app.UseSwaggerUI(options =>
-                             {
-                                 // build a swagger endpoint for each discovered API version
-                                 foreach (ApiVersionDescription description in provider.ApiVersionDescriptions)
-                                 {
-                                     options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
-                                 }
-                             });
+            app.UseSwaggerUI();
         }
 
-        public void ConfigureContainer(ServiceRegistry services)
+        public void ConfigureServices(IServiceCollection services)
         {
             ConfigurationReader.Initialise(Startup.Configuration);
 
             this.ConfigureMiddlewareServices(services);
 
             services.AddControllersWithViews().AddNewtonsoftJson(options =>
-                                                        {
-                                                            options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                                                            options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-                                                            options.SerializerSettings.Formatting = Formatting.Indented;
-                                                            options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                                                            options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                                                        });
+                                                                 {
+                                                                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                                                                     options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+                                                                     options.SerializerSettings.Formatting = Formatting.Indented;
+                                                                     options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                                                                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                                                                 });
 
-            Startup.GetConfiguredContainer(services, Startup.WebHostEnvironment);
-        }
-
-        public static IContainer GetConfiguredContainer(ServiceRegistry services,
-                                                        IWebHostEnvironment webHostEnvironment)
-        {
-            Container container = new Container(services);
-
-            // TODO: Build a registry file
-            //services.IncludeRegistry<CommonRegistry>();
             services.AddScoped<ISecurityServiceManager, SecurityServiceManager>();
             services.AddSingleton<IModelFactory, ModelFactory>();
-
-            container.Configure(services);
-
-            Startup.Container = container;
-
-            return container;
         }
-
+        
         private void ConfigureMiddlewareServices(IServiceCollection services)
         {
             services.AddHealthChecks()
@@ -250,32 +213,21 @@
                                  name: "Messaging Service",
                                  httpMethod: HttpMethod.Get,
                                  failureStatus: HealthStatus.Unhealthy,
-                                 tags: new string[] { "apllication", "messaging" });
-
-            services.AddApiVersioning(options =>
-                                      {
-                                          // reporting api versions will return the headers "api-supported-versions" and "api-deprecated-versions"
-                                          options.ReportApiVersions = true;
-                                          options.DefaultApiVersion = new ApiVersion(1, 0);
-                                          options.AssumeDefaultVersionWhenUnspecified = true;
-                                          options.ApiVersionReader = new HeaderApiVersionReader("api-version");
-                                      });
-
-            services.AddVersionedApiExplorer(options =>
-                                             {
-                                                 // add the versioned api explorer, which also adds IApiVersionDescriptionProvider service
-                                                 // note: the specified format code will format the version as "'v'major[.minor][-status]"
-                                                 options.GroupNameFormat = "'v'VVV";
-
-                                                 // note: this option is only necessary when versioning by url segment. the SubstitutionFormat
-                                                 // can also be used to control the format of the API version in route templates
-                                                 options.SubstituteApiVersionInUrl = true;
-                                             });
-
-            services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSwaggerOptions>();
+                                 tags: new string[] { "application", "messaging" });
 
             services.AddSwaggerGen(c =>
                                    {
+                                       c.SwaggerDoc("v1", new OpenApiInfo
+                                       {
+                                           Title = "Authentication API",
+                                           Version = "1.0",
+                                           Description = "A REST Api to provide authentication services including management of user/client and api details.",
+                                           Contact = new OpenApiContact
+                                           {
+                                               Name = "Stuart Ferguson",
+                                               Email = "golfhandicapping@btinternet.com"
+                                           }
+                                       });
                                        // add a custom operation filter which sets default values
                                        c.OperationFilter<SwaggerDefaultValues>();
                                        c.ExampleFilters();

@@ -5,7 +5,6 @@
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.AspNetCore.Mvc.Abstractions;
     using Microsoft.AspNetCore.Mvc.ApiExplorer;
-    using Microsoft.AspNetCore.Mvc.Versioning;
     using Microsoft.OpenApi.Models;
     using Swashbuckle.AspNetCore.SwaggerGen;
 
@@ -21,10 +20,6 @@
                           OperationFilterContext context)
         {
             ApiDescription apiDescription = context.ApiDescription;
-            ApiVersion apiVersion = apiDescription.GetApiVersion();
-            ApiVersionModel model = apiDescription.ActionDescriptor.GetApiVersionModel(ApiVersionMapping.Explicit | ApiVersionMapping.Implicit);
-
-            operation.Deprecated = model.DeprecatedApiVersions.Contains(apiVersion);
 
             if (operation.Parameters == null)
             {

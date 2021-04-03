@@ -179,7 +179,7 @@ this.ScenarioInitialize(scenarioInfo);
                 table8.AddRow(new string[] {
                             "testscope1",
                             "Test Scope1",
-                            "A resource for testing 1"});
+                            "A scope for testing 1"});
 #line 14
  testRunner.When("I get the api scope with name \'testscope1\' the api scope details are returned as " +
                         "follows", ((string)(null)), table8, "When ");
@@ -223,10 +223,6 @@ this.ScenarioInitialize(scenarioInfo);
                             "DisplayName",
                             "Description"});
                 table9.AddRow(new string[] {
-                            "Name",
-                            "DisplayName",
-                            "Description"});
-                table9.AddRow(new string[] {
                             "testscope1",
                             "Test Scope1",
                             "A scope for testing 1"});
@@ -244,12 +240,12 @@ testRunner.Given("I create the following api scopes", ((string)(null)), table9, 
                 table10.AddRow(new string[] {
                             "testscope1",
                             "Test Scope1",
-                            "A resource for testing 1"});
+                            "A scope for testing 1"});
                 table10.AddRow(new string[] {
                             "testscope2",
                             "Test Scope2",
-                            "A resource for testing 2"});
-#line 25
+                            "A scope for testing 2"});
+#line 24
  testRunner.When("I get the api scopes 2 api scope details are returned as follows", ((string)(null)), table10, "When ");
 #line hidden
             }

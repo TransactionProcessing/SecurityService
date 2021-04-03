@@ -7,16 +7,17 @@ using System.Threading.Tasks;
 namespace SecurityService.Controllers
 {
     using System.Threading;
+    using Common.Examples;
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using Factories;
     using Manager;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
+    using Swashbuckle.AspNetCore.Filters;
 
     [Route(RoleController.ControllerRoute)]
     [ApiController]
-    [ApiVersion("1.0")]
     [ExcludeFromCodeCoverage]
     public class RoleController : ControllerBase
     {
@@ -57,6 +58,7 @@ namespace SecurityService.Controllers
         [HttpPost]
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateRoleResponse))]
+        [SwaggerResponseExample(statusCode:201, typeof(CreateRoleResponseExample))]
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest createRoleRequest, CancellationToken cancellationToken)
         {
             // Create the role
@@ -80,6 +82,7 @@ namespace SecurityService.Controllers
         [HttpGet]
         [Route("{roleId}")]
         [SwaggerResponse(200, type: typeof(RoleDetails))]
+        [SwaggerResponseExample(statusCode: 200, typeof(RoleDetailsResponseExample))]
         public async Task<IActionResult> GetRole([FromRoute] Guid roleId,
                                                  CancellationToken cancellationToken)
         {
@@ -97,6 +100,7 @@ namespace SecurityService.Controllers
         [HttpGet]
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<RoleDetails>))]
+        [SwaggerResponseExample(statusCode: 200, typeof(RoleDetailsListResponseExample))]
         public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
         {
             List<Models.RoleDetails> roleDetailsModel = await this.Manager.GetRoles(cancellationToken);

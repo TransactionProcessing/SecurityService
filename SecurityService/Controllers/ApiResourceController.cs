@@ -7,6 +7,7 @@ namespace SecurityService.Controllers
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
+    using Common.Examples;
     using DataTransferObjects;
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
@@ -15,6 +16,7 @@ namespace SecurityService.Controllers
     using Manager;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
+    using Swashbuckle.AspNetCore.Filters;
 
     /// <summary>
     /// 
@@ -22,7 +24,6 @@ namespace SecurityService.Controllers
     /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [Route(ApiResourceController.ControllerRoute)]
     [ApiController]
-    [ApiVersion("1.0")]
     [ExcludeFromCodeCoverage]
     public class ApiResourceController : ControllerBase
     {
@@ -56,6 +57,7 @@ namespace SecurityService.Controllers
         [HttpPost]
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateApiResourceResponse))]
+        [SwaggerResponseExample(201, typeof(CreateApiResourceResponseExample))]
         public async Task<IActionResult> CreateApiResource([FromBody] CreateApiResourceRequest createApiResourceRequest,
                                                      CancellationToken cancellationToken)
         {
@@ -83,6 +85,7 @@ namespace SecurityService.Controllers
         [HttpGet]
         [Route("{apiResourceName}")]
         [SwaggerResponse(201, type: typeof(ApiResourceDetails))]
+        [SwaggerResponseExample(201, typeof(ApiResourceDetailsResponseExample))]
         public async Task<IActionResult> GetApiResource([FromRoute] String apiResourceName,
                                                            CancellationToken cancellationToken)
         {
@@ -100,6 +103,7 @@ namespace SecurityService.Controllers
         [HttpGet]
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ApiResourceDetails>))]
+        [SwaggerResponseExample(201, typeof(ApiResourceDetailsListResponseExample))]
         public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken)
         {
             List<ApiResource> apiResourceList = await this.Manager.GetApiResources(cancellationToken);

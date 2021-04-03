@@ -19,26 +19,65 @@ namespace SecurityService.Controllers.Account
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.Logging;
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
+    [Route(ExternalController.ControllerRoute)]
     [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [AllowAnonymous]
     public class ExternalController : Controller
     {
-        private readonly TestUserStore _users;
-        private readonly IIdentityServerInteractionService _interaction;
+        #region Fields
+
+        /// <summary>
+        /// The client store
+        /// </summary>
         private readonly IClientStore _clientStore;
-        private readonly ILogger<ExternalController> _logger;
 
-        private readonly ISecurityServiceManager _securityServiceManager;
-
+        /// <summary>
+        /// The events
+        /// </summary>
         private readonly IEventService _events;
 
-        public ExternalController(
-            IIdentityServerInteractionService interaction,
-            IClientStore clientStore,
-            IEventService events,
-            ILogger<ExternalController> logger,
-            ISecurityServiceManager securityServiceManager)
+        /// <summary>
+        /// The interaction
+        /// </summary>
+        private readonly IIdentityServerInteractionService _interaction;
+
+        /// <summary>
+        /// The logger
+        /// </summary>
+        private readonly ILogger<ExternalController> _logger;
+
+        /// <summary>
+        /// The security service manager
+        /// </summary>
+        private readonly ISecurityServiceManager _securityServiceManager;
+
+        /// <summary>
+        /// The users
+        /// </summary>
+        private readonly TestUserStore _users;
+
+        #endregion
+
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ExternalController"/> class.
+        /// </summary>
+        /// <param name="interaction">The interaction.</param>
+        /// <param name="clientStore">The client store.</param>
+        /// <param name="events">The events.</param>
+        /// <param name="logger">The logger.</param>
+        /// <param name="securityServiceManager">The security service manager.</param>
+        public ExternalController(IIdentityServerInteractionService interaction,
+                                  IClientStore clientStore,
+                                  IEventService events,
+                                  ILogger<ExternalController> logger,
+                                  ISecurityServiceManager securityServiceManager)
         {
             this._interaction = interaction;
             this._clientStore = clientStore;
@@ -47,40 +86,17 @@ namespace SecurityService.Controllers.Account
             this._events = events;
         }
 
-        /// <summary>
-        /// initiate roundtrip to external authentication provider
-        /// </summary>
-        [HttpGet]
-        public IActionResult Challenge(string scheme, string returnUrl)
-        {
-            if (string.IsNullOrEmpty(returnUrl)) returnUrl = "~/";
+        #endregion
 
-            // validate returnUrl - either it is a valid OIDC URL or back to a local page
-            if (this.Url.IsLocalUrl(returnUrl) == false && this._interaction.IsValidReturnUrl(returnUrl) == false)
-            {
-                // user might have clicked on a malicious link - should be logged
-                throw new Exception("invalid return URL");
-            }
-            
-            // start challenge and roundtrip the return URL and scheme 
-            var props = new AuthenticationProperties
-            {
-                RedirectUri = this.Url.Action(nameof(this.Callback)), 
-                Items =
-                {
-                    { "returnUrl", returnUrl }, 
-                    { "scheme", scheme },
-                }
-            };
-
-            return this.Challenge(props, scheme);
-            
-        }
+        #region Methods
 
         /// <summary>
         /// Post processing of external authentication
         /// </summary>
+        /// <returns></returns>
+        /// <exception cref="Exception">External authentication error</exception>
         [HttpGet]
+        [Route("callback")]
         public async Task<IActionResult> Callback()
         {
             // read external identity from the temporary cookie
@@ -112,14 +128,14 @@ namespace SecurityService.Controllers.Account
             var additionalLocalClaims = new List<Claim>();
             var localSignInProps = new AuthenticationProperties();
             this.ProcessLoginCallback(result, additionalLocalClaims, localSignInProps);
-            
+
             // issue authentication cookie for user
             var isuser = new IdentityServerUser(user.SubjectId)
-            {
-                DisplayName = user.Username,
-                IdentityProvider = provider,
-                AdditionalClaims = additionalLocalClaims
-            };
+                         {
+                             DisplayName = user.Username,
+                             IdentityProvider = provider,
+                             AdditionalClaims = additionalLocalClaims
+                         };
 
             await this.HttpContext.SignInAsync(isuser, localSignInProps);
 
@@ -146,16 +162,70 @@ namespace SecurityService.Controllers.Account
             return this.Redirect(returnUrl);
         }
 
-        private (TestUser user, string provider, string providerUserId, IEnumerable<Claim> claims) FindUserFromExternalProvider(AuthenticateResult result)
+        /// <summary>
+        /// initiate roundtrip to external authentication provider
+        /// </summary>
+        /// <param name="scheme">The scheme.</param>
+        /// <param name="returnUrl">The return URL.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">invalid return URL</exception>
+        [HttpGet]
+        [Route("challenge")]
+        public IActionResult Challenge(String scheme,
+                                       String returnUrl)
+        {
+            if (string.IsNullOrEmpty(returnUrl)) returnUrl = "~/";
+
+            // validate returnUrl - either it is a valid OIDC URL or back to a local page
+            if (this.Url.IsLocalUrl(returnUrl) == false && this._interaction.IsValidReturnUrl(returnUrl) == false)
+            {
+                // user might have clicked on a malicious link - should be logged
+                throw new Exception("invalid return URL");
+            }
+
+            // start challenge and roundtrip the return URL and scheme 
+            var props = new AuthenticationProperties
+                        {
+                            RedirectUri = this.Url.Action(nameof(this.Callback)),
+                            Items =
+                            {
+                                {"returnUrl", returnUrl},
+                                {"scheme", scheme},
+                            }
+                        };
+
+            return this.Challenge(props, scheme);
+        }
+
+        /// <summary>
+        /// Automatics the provision user.
+        /// </summary>
+        /// <param name="provider">The provider.</param>
+        /// <param name="providerUserId">The provider user identifier.</param>
+        /// <param name="claims">The claims.</param>
+        /// <returns></returns>
+        private TestUser AutoProvisionUser(String provider,
+                                           String providerUserId,
+                                           IEnumerable<Claim> claims)
+        {
+            var user = this._users.AutoProvisionUser(provider, providerUserId, claims.ToList());
+            return user;
+        }
+
+        /// <summary>
+        /// Finds the user from external provider.
+        /// </summary>
+        /// <param name="result">The result.</param>
+        /// <returns></returns>
+        /// <exception cref="Exception">Unknown userid</exception>
+        private (TestUser user, String provider, String providerUserId, IEnumerable<Claim> claims) FindUserFromExternalProvider(AuthenticateResult result)
         {
             var externalUser = result.Principal;
 
             // try to determine the unique id of the external user (issued by the provider)
             // the most common claim type for that are the sub claim and the NameIdentifier
             // depending on the external provider, some other claim type might be used
-            var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
-                              externalUser.FindFirst(ClaimTypes.NameIdentifier) ??
-                              throw new Exception("Unknown userid");
+            var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ?? externalUser.FindFirst(ClaimTypes.NameIdentifier) ?? throw new Exception("Unknown userid");
 
             // remove the user id claim so we don't include it as an extra claim if/when we provision the user
             var claims = externalUser.Claims.ToList();
@@ -170,15 +240,17 @@ namespace SecurityService.Controllers.Account
             return (user, provider, providerUserId, claims);
         }
 
-        private TestUser AutoProvisionUser(string provider, string providerUserId, IEnumerable<Claim> claims)
-        {
-            var user = this._users.AutoProvisionUser(provider, providerUserId, claims.ToList());
-            return user;
-        }
-
         // if the external login is OIDC-based, there are certain things we need to preserve to make logout work
         // this will be different for WS-Fed, SAML2p or other protocols
-        private void ProcessLoginCallback(AuthenticateResult externalResult, List<Claim> localClaims, AuthenticationProperties localSignInProps)
+        /// <summary>
+        /// Processes the login callback.
+        /// </summary>
+        /// <param name="externalResult">The external result.</param>
+        /// <param name="localClaims">The local claims.</param>
+        /// <param name="localSignInProps">The local sign in props.</param>
+        private void ProcessLoginCallback(AuthenticateResult externalResult,
+                                          List<Claim> localClaims,
+                                          AuthenticationProperties localSignInProps)
         {
             // if the external system sent a session id claim, copy it over
             // so we can use it for single sign-out
@@ -192,8 +264,31 @@ namespace SecurityService.Controllers.Account
             var idToken = externalResult.Properties.GetTokenValue("id_token");
             if (idToken != null)
             {
-                localSignInProps.StoreTokens(new[] { new AuthenticationToken { Name = "id_token", Value = idToken } });
+                localSignInProps.StoreTokens(new[]
+                                             {
+                                                 new AuthenticationToken
+                                                 {
+                                                     Name = "id_token",
+                                                     Value = idToken
+                                                 }
+                                             });
             }
         }
+
+        #endregion
+
+        #region Others
+
+        /// <summary>
+        /// The controller name
+        /// </summary>
+        public const String ControllerName = "external";
+
+        /// <summary>
+        /// The controller route
+        /// </summary>
+        private const String ControllerRoute = ExternalController.ControllerName;
+
+        #endregion
     }
 }

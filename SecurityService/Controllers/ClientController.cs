@@ -5,6 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+    using Common.Examples;
     using DataTransferObjects;
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
@@ -13,6 +14,7 @@
     using Manager;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
+    using Swashbuckle.AspNetCore.Filters;
 
     /// <summary>
     /// 
@@ -20,7 +22,6 @@
     /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [Route(ClientController.ControllerRoute)]
     [ApiController]
-    [ApiVersion("1.0")]
     [ExcludeFromCodeCoverage]
     public class ClientController : ControllerBase
     {
@@ -64,6 +65,7 @@
         [HttpPost]
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateClientResponse))]
+        [SwaggerResponseExample(201, typeof(CreateClientResponseExample))]
         public async Task<IActionResult> CreateClient([FromBody] CreateClientRequest createClientRequest, CancellationToken cancellationToken)
         {
             // Create the client
@@ -96,6 +98,7 @@
         [HttpGet]
         [Route("{clientId}")]
         [SwaggerResponse(200, type: typeof(ClientDetails))]
+        [SwaggerResponseExample(200, typeof(ClientDetailsResponseExample))]
         public async Task<IActionResult> GetClient([FromRoute] String clientId,
                                                  CancellationToken cancellationToken)
         {
@@ -112,6 +115,7 @@
         [HttpGet]
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ClientDetails>))]
+        [SwaggerResponseExample(200, typeof(ClientDetailsListResponseExample))]
         public async Task<IActionResult> GetClients(CancellationToken cancellationToken)
         {
             List<Client> clientList = await this.Manager.GetClients(cancellationToken);

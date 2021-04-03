@@ -5,6 +5,7 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+    using Common.Examples;
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using Factories;
@@ -12,6 +13,7 @@
     using Manager;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
+    using Swashbuckle.AspNetCore.Filters;
 
     /// <summary>
     /// 
@@ -19,7 +21,6 @@
     /// <seealso cref="Microsoft.AspNetCore.Mvc.ControllerBase" />
     [Route(IdentityResourceController.ControllerRoute)]
     [ApiController]
-    [ApiVersion("1.0")]
     [ExcludeFromCodeCoverage]
     public class IdentityResourceController : ControllerBase
     {
@@ -64,6 +65,7 @@
         [HttpPost]
         [Route("")]
         [SwaggerResponse(201, type:typeof(CreateIdentityResourceResponse))]
+        [SwaggerResponseExample(201, typeof(CreateIdentityResourceResponseExample))]
         public async Task<IActionResult> CreateIdentityResource([FromBody] CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                 CancellationToken cancellationToken)
         {
@@ -92,7 +94,8 @@
         /// <returns></returns>
         [HttpGet]
         [Route("{identityResourceName}")]
-        [SwaggerResponse(201, type:typeof(IdentityResourceDetails))]
+        [SwaggerResponse(200, type:typeof(IdentityResourceDetails))]
+        [SwaggerResponseExample(200, typeof(IdentityResourceDetailsResponseExample))]
         public async Task<IActionResult> GetIdentityResource([FromRoute] String identityResourceName,
                                                              CancellationToken cancellationToken)
         {
@@ -110,6 +113,7 @@
         [HttpGet]
         [Route("")]
         [SwaggerResponse(200, type:typeof(List<IdentityResourceDetails>))]
+        [SwaggerResponseExample(200, typeof(IdentityResourceDetailsListResponseExample))]
         public async Task<IActionResult> GetIdentityResources(CancellationToken cancellationToken)
         {
             List<IdentityResource> identityResourceList = await this.Manager.GetIdentityResources(cancellationToken);
