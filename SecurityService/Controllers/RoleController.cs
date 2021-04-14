@@ -57,7 +57,8 @@ namespace SecurityService.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("")]
-        [ProducesResponseType(typeof(CreateRoleResponse), 201)]
+        [SwaggerResponse(201, type: typeof(CreateRoleResponse))]
+        [SwaggerResponseExample(statusCode: 201, typeof(CreateRoleResponseExample))]
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest createRoleRequest, CancellationToken cancellationToken)
         {
             // Create the role
@@ -80,7 +81,8 @@ namespace SecurityService.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{roleId}")]
-        [ProducesResponseType(typeof(RoleDetails), 200)]
+        [SwaggerResponse(200, type: typeof(RoleDetails))]
+        [SwaggerResponseExample(statusCode: 200, typeof(RoleDetailsResponseExample))]
         public async Task<IActionResult> GetRole([FromRoute] Guid roleId,
                                                  CancellationToken cancellationToken)
         {
@@ -97,7 +99,8 @@ namespace SecurityService.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        [ProducesResponseType(typeof(List<RoleDetails>), 200)]
+        [SwaggerResponse(200, type: typeof(List<RoleDetails>))]
+        [SwaggerResponseExample(statusCode: 200, typeof(RoleDetailsListResponseExample))]
         public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
         {
             List<Models.RoleDetails> roleDetailsModel = await this.Manager.GetRoles(cancellationToken);

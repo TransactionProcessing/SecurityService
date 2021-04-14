@@ -64,7 +64,8 @@
         /// <returns></returns>
         [HttpPost]
         [Route("")]
-        [ProducesResponseType(typeof(CreateClientResponse), 201)]
+        [SwaggerResponse(201, type: typeof(CreateClientResponse))]
+        [SwaggerResponseExample(201, typeof(CreateClientResponseExample))]
         public async Task<IActionResult> CreateClient([FromBody] CreateClientRequest createClientRequest, CancellationToken cancellationToken)
         {
             // Create the client
@@ -96,7 +97,8 @@
         /// <returns></returns>
         [HttpGet]
         [Route("{clientId}")]
-        [ProducesResponseType(typeof(ClientDetails), 200)]
+        [SwaggerResponse(200, type: typeof(ClientDetails))]
+        [SwaggerResponseExample(200, typeof(ClientDetailsResponseExample))]
         public async Task<IActionResult> GetClient([FromRoute] String clientId,
                                                  CancellationToken cancellationToken)
         {
@@ -112,7 +114,8 @@
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        [ProducesResponseType(typeof(List<ClientDetails>), 200)]
+        [SwaggerResponse(200, type: typeof(List<ClientDetails>))]
+        [SwaggerResponseExample(200, typeof(ClientDetailsListResponseExample))]
         public async Task<IActionResult> GetClients(CancellationToken cancellationToken)
         {
             List<Client> clientList = await this.Manager.GetClients(cancellationToken);

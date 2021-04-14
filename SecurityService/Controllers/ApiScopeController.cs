@@ -47,7 +47,8 @@
 
         [HttpPost]
         [Route("")]
-        [ProducesResponseType(typeof(CreateApiScopeResponse), 201)]
+        [SwaggerResponse(201, type: typeof(CreateApiScopeResponse))]
+        [SwaggerResponseExample(201, typeof(CreateApiScopeResponseExample))]
         public async Task<IActionResult> CreateApiScope([FromBody] CreateApiScopeRequest createApiScopeRequest,
                                                            CancellationToken cancellationToken)
         {
@@ -71,7 +72,8 @@
         /// <returns></returns>
         [HttpGet]
         [Route("{apiScopeName}")]
-        [ProducesResponseType(typeof(ApiScopeDetails), 200)]
+        [SwaggerResponse(200, type: typeof(ApiScopeDetails))]
+        [SwaggerResponseExample(200, typeof(ApiScopeDetailsResponseExample))]
         public async Task<IActionResult> GetApiScope([FromRoute] String apiScopeName,
                                                      CancellationToken cancellationToken)
         {
@@ -88,7 +90,8 @@
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        [ProducesResponseType(typeof(List<ApiScopeDetails>), 200)]
+        [SwaggerResponse(200, type: typeof(List<ApiScopeDetails>))]
+        [SwaggerResponseExample(200, typeof(ApiScopeDetailsListResponseExample))]
         public async Task<IActionResult> GetApiScopes(CancellationToken cancellationToken)
         {
             List<ApiScope> apiScopeList = await this.Manager.GetApiScopes(cancellationToken);
