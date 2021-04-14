@@ -59,8 +59,7 @@
         /// <returns></returns>
         [HttpPost]
         [Route("")]
-        [SwaggerResponse(201, type: typeof(CreateUserResponse))]
-        [SwaggerResponseExample(201, typeof(CreateUserResponseExample))]
+        [ProducesResponseType(typeof(CreateUserResponse), 201)]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest, CancellationToken cancellationToken)
         {
             // Create the user
@@ -91,8 +90,7 @@
         /// <returns></returns>
         [HttpGet]
         [Route("{userId}")]
-        [SwaggerResponse(200, type: typeof(UserDetails))]
-        [SwaggerResponseExample(200, typeof(UserDetailsResponseExample))]
+        [ProducesResponseType(typeof(UserDetails), 200)]
         public async Task<IActionResult> GetUser([FromRoute] Guid userId,
                                                  CancellationToken cancellationToken)
         {
@@ -109,8 +107,7 @@
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        [SwaggerResponse(200, type: typeof(List<UserDetails>))]
-        [SwaggerResponseExample(200, typeof(UserDetailsListResponseExample))]
+        [ProducesResponseType(typeof(List<UserDetails>), 200)]
         public async Task<IActionResult> GetUsers([FromQuery] String userName,
                                                  CancellationToken cancellationToken)
         {

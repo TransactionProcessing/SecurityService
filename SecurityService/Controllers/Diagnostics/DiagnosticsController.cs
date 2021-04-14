@@ -17,6 +17,7 @@ namespace SecurityService.Controllers.Diagnostics
     [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [Authorize]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class DiagnosticsController : Controller
     {
         #region Methods

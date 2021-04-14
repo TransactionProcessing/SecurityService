@@ -27,6 +27,7 @@ namespace SecurityService.Controllers.Device
     [ExcludeFromCodeCoverage]
     [Authorize]
     [SecurityHeaders]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class DeviceController : Controller
     {
         #region Fields

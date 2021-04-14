@@ -25,6 +25,7 @@ namespace SecurityService.Controllers.Consent
     [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [Authorize]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class ConsentController : Controller
     {
         #region Fields

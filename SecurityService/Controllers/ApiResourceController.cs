@@ -56,8 +56,7 @@ namespace SecurityService.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("")]
-        [SwaggerResponse(201, type: typeof(CreateApiResourceResponse))]
-        [SwaggerResponseExample(201, typeof(CreateApiResourceResponseExample))]
+        [ProducesResponseType(typeof(CreateApiResourceResponse), 201)]
         public async Task<IActionResult> CreateApiResource([FromBody] CreateApiResourceRequest createApiResourceRequest,
                                                      CancellationToken cancellationToken)
         {
@@ -84,8 +83,7 @@ namespace SecurityService.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{apiResourceName}")]
-        [SwaggerResponse(201, type: typeof(ApiResourceDetails))]
-        [SwaggerResponseExample(201, typeof(ApiResourceDetailsResponseExample))]
+        [ProducesResponseType(typeof(ApiResourceDetails), 200)]
         public async Task<IActionResult> GetApiResource([FromRoute] String apiResourceName,
                                                            CancellationToken cancellationToken)
         {
@@ -96,14 +94,13 @@ namespace SecurityService.Controllers
         }
 
         /// <summary>
-        /// Gets the clients.
+        /// Gets the API resources.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        [SwaggerResponse(200, type: typeof(List<ApiResourceDetails>))]
-        [SwaggerResponseExample(201, typeof(ApiResourceDetailsListResponseExample))]
+        [ProducesResponseType(typeof(List<ApiResourceDetails>), 200)]
         public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken)
         {
             List<ApiResource> apiResourceList = await this.Manager.GetApiResources(cancellationToken);

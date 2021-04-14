@@ -21,6 +21,7 @@ namespace SecurityService.Controllers.Grants
     [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [Authorize]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class GrantsController : Controller
     {
         #region Fields

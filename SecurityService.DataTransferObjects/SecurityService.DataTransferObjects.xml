@@ -1,0 +1,653 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SecurityService.DataTransferObjects</name>
+    </assembly>
+    <members>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiResourceRequest.Description">
+            <summary>
+            Gets or sets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiResourceRequest.DisplayName">
+            <summary>
+            Gets or sets the display name.
+            </summary>
+            <value>
+            The display name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiResourceRequest.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiResourceRequest.Scopes">
+            <summary>
+            Gets or sets the scopes.
+            </summary>
+            <value>
+            The scopes.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiResourceRequest.Secret">
+            <summary>
+            Gets or sets the secret.
+            </summary>
+            <value>
+            The secret.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiResourceRequest.UserClaims">
+            <summary>
+            Gets or sets the user claims.
+            </summary>
+            <value>
+            The user claims.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiScopeRequest.Description">
+            <summary>
+            Gets or sets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiScopeRequest.DisplayName">
+            <summary>
+            Gets or sets the display name.
+            </summary>
+            <value>
+            The display name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateApiScopeRequest.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="T:SecurityService.DataTransferObjects.Requests.CreateClientRequest">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.AllowedGrantTypes">
+            <summary>
+            Gets or sets the allowed grant types.
+            </summary>
+            <value>
+            The allowed grant types.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.AllowedScopes">
+            <summary>
+            Gets or sets the allowed scopes.
+            </summary>
+            <value>
+            The allowed scopes.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.AllowOfflineAccess">
+            <summary>
+            Gets or sets a value indicating whether [allow offline access].
+            </summary>
+            <value>
+              <c>true</c> if [allow offline access]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.ClientDescription">
+            <summary>
+            Gets or sets the client description.
+            </summary>
+            <value>
+            The client description.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.ClientId">
+            <summary>
+            Gets or sets the client identifier.
+            </summary>
+            <value>
+            The client identifier.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.ClientName">
+            <summary>
+            Gets or sets the name of the client.
+            </summary>
+            <value>
+            The name of the client.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.ClientPostLogoutRedirectUris">
+            <summary>
+            Gets or sets the client post logout redirect uris.
+            </summary>
+            <value>
+            The client post logout redirect uris.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.ClientRedirectUris">
+            <summary>
+            Gets or sets the client redirect uris.
+            </summary>
+            <value>
+            The client redirect uris.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.RequireConsent">
+            <summary>
+            Gets or sets a value indicating whether [require consent].
+            </summary>
+            <value>
+              <c>true</c> if [require consent]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateClientRequest.Secret">
+            <summary>
+            Gets or sets the secret.
+            </summary>
+            <value>
+            The secret.
+            </value>
+        </member>
+        <member name="T:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest.Description">
+            <summary>
+            Gets or sets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest.DisplayName">
+            <summary>
+            Gets or sets the display name.
+            </summary>
+            <value>
+            The display name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest.Emphasize">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest"/> is emphasize.
+            </summary>
+            <value>
+              <c>true</c> if emphasize; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest.Required">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest"/> is required.
+            </summary>
+            <value>
+              <c>true</c> if required; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest.ShowInDiscoveryDocument">
+            <summary>
+            Gets or sets a value indicating whether [show in discovery document].
+            </summary>
+            <value>
+              <c>true</c> if [show in discovery document]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest.Claims">
+            <summary>
+            Gets or sets the claims.
+            </summary>
+            <value>
+            The claims.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Requests.CreateRoleRequest.RoleName">
+            <summary>
+            Gets or sets the name of the role.
+            </summary>
+            <value>
+            The name of the role.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserRequest.EmailAddress">
+            <summary>
+            Gets or sets the email address.
+            </summary>
+            <value>
+            The email address.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserRequest.PhoneNumber">
+            <summary>
+            Gets or sets the phone number.
+            </summary>
+            <value>
+            The phone number.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserRequest.Password">
+            <summary>
+            Gets or sets the password.
+            </summary>
+            <value>
+            The password.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserRequest.Claims">
+            <summary>
+            Gets or sets the claims.
+            </summary>
+            <value>
+            The claims.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserRequest.Roles">
+            <summary>
+            Gets or sets the roles.
+            </summary>
+            <value>
+            The roles.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserRequest.GivenName">
+            <summary>
+            Gets or sets the name of the given.
+            </summary>
+            <value>
+            The name of the given.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserRequest.MiddleName">
+            <summary>
+            Gets or sets the name of the middle.
+            </summary>
+            <value>
+            The name of the middle.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserRequest.FamilyName">
+            <summary>
+            Gets or sets the name of the family.
+            </summary>
+            <value>
+            The name of the family.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiResourceDetails.Description">
+            <summary>
+            Gets or sets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiResourceDetails.DisplayName">
+            <summary>
+            Gets or sets the display name.
+            </summary>
+            <value>
+            The display name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiResourceDetails.Enabled">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:SecurityService.DataTransferObjects.Responses.ApiResourceDetails"/> is enabled.
+            </summary>
+            <value>
+              <c>true</c> if enabled; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiResourceDetails.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiResourceDetails.Scopes">
+            <summary>
+            Gets or sets the scopes.
+            </summary>
+            <value>
+            The scopes.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiResourceDetails.UserClaims">
+            <summary>
+            Gets or sets the user claims.
+            </summary>
+            <value>
+            The user claims.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiScopeDetails.Description">
+            <summary>
+            Gets or sets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiScopeDetails.DisplayName">
+            <summary>
+            Gets or sets the display name.
+            </summary>
+            <value>
+            The display name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiScopeDetails.Enabled">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:SecurityService.DataTransferObjects.Responses.ApiResourceDetails"/> is enabled.
+            </summary>
+            <value>
+              <c>true</c> if enabled; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ApiScopeDetails.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.AllowedGrantTypes">
+            <summary>
+            Gets or sets the allowed grant types.
+            </summary>
+            <value>
+            The allowed grant types.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.AllowedScopes">
+            <summary>
+            Gets or sets the allowed scopes.
+            </summary>
+            <value>
+            The allowed scopes.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.AllowOfflineAccess">
+            <summary>
+            Gets or sets a value indicating whether [allow offline access].
+            </summary>
+            <value>
+              <c>true</c> if [allow offline access]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.ClientDescription">
+            <summary>
+            Gets or sets the client description.
+            </summary>
+            <value>
+            The client description.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.ClientId">
+            <summary>
+            Gets or sets the client identifier.
+            </summary>
+            <value>
+            The client identifier.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.ClientName">
+            <summary>
+            Gets or sets the name of the client.
+            </summary>
+            <value>
+            The name of the client.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.ClientPostLogoutRedirectUris">
+            <summary>
+            Gets or sets the client post logout redirect uris.
+            </summary>
+            <value>
+            The client post logout redirect uris.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.ClientRedirectUris">
+            <summary>
+            Gets or sets the client redirect uris.
+            </summary>
+            <value>
+            The client redirect uris.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.Enabled">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:SecurityService.DataTransferObjects.Responses.ClientDetails"/> is enabled.
+            </summary>
+            <value>
+              <c>true</c> if enabled; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.ClientDetails.RequireConsent">
+            <summary>
+            Gets or sets a value indicating whether [require consent].
+            </summary>
+            <value>
+              <c>true</c> if [require consent]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.CreateApiResourceResponse.ApiResourceName">
+            <summary>
+            Gets or sets the name of the API resource.
+            </summary>
+            <value>
+            The name of the API resource.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.CreateApiScopeResponse.ApiScopeName">
+            <summary>
+            Gets or sets the name of the API scope.
+            </summary>
+            <value>
+            The name of the API scope.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.CreateIdentityResourceResponse.IdentityResourceName">
+            <summary>
+            Gets or sets the name of the identity resource.
+            </summary>
+            <value>
+            The name of the identity resource.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.CreateRoleResponse.RoleId">
+            <summary>
+            Gets or sets the role identifier.
+            </summary>
+            <value>
+            The role identifier.
+            </value>
+        </member>
+        <member name="T:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails.Claims">
+            <summary>
+            Gets or sets the claims.
+            </summary>
+            <value>
+            The claims.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails.Description">
+            <summary>
+            Gets or sets the description.
+            </summary>
+            <value>
+            The description.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails.DisplayName">
+            <summary>
+            Gets or sets the display name.
+            </summary>
+            <value>
+            The display name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+            <value>
+            The name.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails.Emphasize">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails"/> is emphasize.
+            </summary>
+            <value>
+              <c>true</c> if emphasize; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails.Required">
+            <summary>
+            Gets or sets a value indicating whether this <see cref="T:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails"/> is required.
+            </summary>
+            <value>
+              <c>true</c> if required; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.IdentityResourceDetails.ShowInDiscoveryDocument">
+            <summary>
+            Gets or sets a value indicating whether [show in discovery document].
+            </summary>
+            <value>
+              <c>true</c> if [show in discovery document]; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.RoleDetails.RoleId">
+            <summary>
+            Gets or sets the role identifier.
+            </summary>
+            <value>
+            The role identifier.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.RoleDetails.RoleName">
+            <summary>
+            Gets or sets the name of the role.
+            </summary>
+            <value>
+            The name of the role.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.TokenResponse.AccessToken">
+            <summary>
+            The access token
+            </summary>
+            <value>The access token.</value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.TokenResponse.Expires">
+            <summary>
+            Gets the expires.
+            </summary>
+            <value>The expires.</value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.TokenResponse.ExpiresIn">
+            <summary>
+            The expires
+            </summary>
+            <value>The expires in.</value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.TokenResponse.Issued">
+            <summary>
+            Gets the issued.
+            </summary>
+            <value>The issued.</value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.TokenResponse.RefreshToken">
+            <summary>
+            The refresh token
+            </summary>
+            <value>The refresh token.</value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.UserDetails.Claims">
+            <summary>
+            Gets or sets the claims.
+            </summary>
+            <value>
+            The claims.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.UserDetails.EmailAddress">
+            <summary>
+            Gets or sets the email.
+            </summary>
+            <value>
+            The email.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.UserDetails.PhoneNumber">
+            <summary>
+            Gets or sets the phone number.
+            </summary>
+            <value>
+            The phone number.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.UserDetails.Roles">
+            <summary>
+            Gets or sets the roles.
+            </summary>
+            <value>
+            The roles.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.UserDetails.UserId">
+            <summary>
+            Gets or sets the user identifier.
+            </summary>
+            <value>
+            The user identifier.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.Responses.UserDetails.UserName">
+            <summary>
+            Gets or sets the name of the user.
+            </summary>
+            <value>
+            The name of the user.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateClientResponse.ClientId">
+            <summary>
+            Gets or sets the client identifier.
+            </summary>
+            <value>
+            The client identifier.
+            </value>
+        </member>
+        <member name="P:SecurityService.DataTransferObjects.CreateUserResponse.UserId">
+            <summary>
+            Gets or sets the user identifier.
+            </summary>
+            <value>
+            The user identifier.
+            </value>
+        </member>
+    </members>
+</doc>

@@ -64,8 +64,7 @@
         /// <returns></returns>
         [HttpPost]
         [Route("")]
-        [SwaggerResponse(201, type:typeof(CreateIdentityResourceResponse))]
-        [SwaggerResponseExample(201, typeof(CreateIdentityResourceResponseExample))]
+        [ProducesResponseType(typeof(CreateIdentityResourceResponse), 201)]
         public async Task<IActionResult> CreateIdentityResource([FromBody] CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                 CancellationToken cancellationToken)
         {
@@ -94,8 +93,7 @@
         /// <returns></returns>
         [HttpGet]
         [Route("{identityResourceName}")]
-        [SwaggerResponse(200, type:typeof(IdentityResourceDetails))]
-        [SwaggerResponseExample(200, typeof(IdentityResourceDetailsResponseExample))]
+        [ProducesResponseType(typeof(IdentityResourceDetails), 200)]
         public async Task<IActionResult> GetIdentityResource([FromRoute] String identityResourceName,
                                                              CancellationToken cancellationToken)
         {
@@ -112,8 +110,7 @@
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        [SwaggerResponse(200, type:typeof(List<IdentityResourceDetails>))]
-        [SwaggerResponseExample(200, typeof(IdentityResourceDetailsListResponseExample))]
+        [ProducesResponseType(typeof(List<IdentityResourceDetails>), 200)]
         public async Task<IActionResult> GetIdentityResources(CancellationToken cancellationToken)
         {
             List<IdentityResource> identityResourceList = await this.Manager.GetIdentityResources(cancellationToken);
