@@ -55,17 +55,16 @@
         #endregion
 
         #region Methods
-
+        
         /// <summary>
-        /// Creates the user.
+        /// Creates the client.
         /// </summary>
         /// <param name="createClientRequest">The create client request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         [HttpPost]
         [Route("")]
-        [SwaggerResponse(201, type: typeof(CreateClientResponse))]
-        [SwaggerResponseExample(201, typeof(CreateClientResponseExample))]
+        [ProducesResponseType(typeof(CreateClientResponse), 201)]
         public async Task<IActionResult> CreateClient([FromBody] CreateClientRequest createClientRequest, CancellationToken cancellationToken)
         {
             // Create the client
@@ -97,8 +96,7 @@
         /// <returns></returns>
         [HttpGet]
         [Route("{clientId}")]
-        [SwaggerResponse(200, type: typeof(ClientDetails))]
-        [SwaggerResponseExample(200, typeof(ClientDetailsResponseExample))]
+        [ProducesResponseType(typeof(ClientDetails), 200)]
         public async Task<IActionResult> GetClient([FromRoute] String clientId,
                                                  CancellationToken cancellationToken)
         {
@@ -114,8 +112,7 @@
         /// <returns></returns>
         [HttpGet]
         [Route("")]
-        [SwaggerResponse(200, type: typeof(List<ClientDetails>))]
-        [SwaggerResponseExample(200, typeof(ClientDetailsListResponseExample))]
+        [ProducesResponseType(typeof(List<ClientDetails>), 200)]
         public async Task<IActionResult> GetClients(CancellationToken cancellationToken)
         {
             List<Client> clientList = await this.Manager.GetClients(cancellationToken);

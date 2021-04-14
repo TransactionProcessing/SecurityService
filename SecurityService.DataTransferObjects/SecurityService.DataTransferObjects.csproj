@@ -4,6 +4,10 @@
 	  <TargetFrameworks>net5.0;netstandard2.0</TargetFrameworks>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net5.0|AnyCPU'">
+    <DocumentationFile>D:\Projects\StuartFerguson\SecurityService\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.xml</DocumentationFile>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />

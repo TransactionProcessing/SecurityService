@@ -18,6 +18,7 @@ namespace SecurityService.Controllers.Home
     [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [AllowAnonymous]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class HomeController : Controller
     {
         private readonly IIdentityServerInteractionService _interaction;

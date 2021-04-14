@@ -1,0 +1,1672 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SecurityService</name>
+    </assembly>
+    <members>
+        <member name="T:SecurityService.Common.Examples.ApiResourceDetailsListResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;System.Collections.Generic.List&lt;SecurityService.DataTransferObjects.Responses.ApiResourceDetails&gt;&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.ApiResourceDetailsListResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.ApiResourceDetailsResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.ApiResourceDetails&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.ApiResourceDetailsResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.ApiScopeDetailsListResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;System.Collections.Generic.List&lt;SecurityService.DataTransferObjects.Responses.ApiScopeDetails&gt;&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.ApiScopeDetailsListResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.ApiScopeDetailsResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.ApiScopeDetails&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.ApiScopeDetailsResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.ClientDetailsListResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;System.Collections.Generic.List&lt;SecurityService.DataTransferObjects.Responses.ClientDetails&gt;&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.ClientDetailsListResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.ClientDetailsResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.ClientDetails&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.ClientDetailsResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateApiResourceRequestExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Requests.CreateApiResourceRequest&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateApiResourceRequestExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateApiResourceResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.CreateApiResourceResponse&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateApiResourceResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateApiScopeRequestExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Requests.CreateApiScopeRequest&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateApiScopeRequestExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateApiScopeResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.CreateApiScopeResponse&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateApiScopeResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateClientRequestExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Requests.CreateClientRequest&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateClientRequestExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateClientResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.CreateClientResponse&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateClientResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateIdentityResourceRequestExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateIdentityResourceRequestExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateIdentityResourceResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.CreateIdentityResourceResponse&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateIdentityResourceResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateRoleRequestExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Requests.CreateRoleRequest&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateRoleRequestExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateRoleResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.CreateRoleResponse&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateRoleResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateUserRequestExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.CreateUserRequest&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateUserRequestExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.CreateUserResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.CreateUserResponse&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.CreateUserResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.ExampleData">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceDescription">
+            <summary>
+            The API resource description
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceDisplayName">
+            <summary>
+            The API resource display name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceEnabled">
+            <summary>
+            The API resource enabled
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceName">
+            <summary>
+            The API resource name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceScope1">
+            <summary>
+            The API resource scope1
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceScope2">
+            <summary>
+            The API resource scope2
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceSecret">
+            <summary>
+            The API resource secret
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceUserClaim1">
+            <summary>
+            The API resource user claim1
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiResourceUserClaim2">
+            <summary>
+            The API resource user claim2
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiScopeDescription">
+            <summary>
+            The API scope description
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiScopeDisplayName">
+            <summary>
+            The API scope display name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiScopeEnabled">
+            <summary>
+            The API scope enabled
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ApiScopeName">
+            <summary>
+            The API scope name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientAllowedGrantType1">
+            <summary>
+            The client allowed grant type1
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientAllowedGrantType2">
+            <summary>
+            The client allowed grant type2
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientAllowedScope1">
+            <summary>
+            The client allowed scope1
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientAllowedScope2">
+            <summary>
+            The client allowed scope2
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientAllowOfflineAccess">
+            <summary>
+            The client allow offline access
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientDescription">
+            <summary>
+            The client description
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientEnabled">
+            <summary>
+            The client enabled
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientId">
+            <summary>
+            The client identifier
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientName">
+            <summary>
+            The client name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientPostLogoutRedirectUri">
+            <summary>
+            The client post logout redirect URI
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientRedirectUri">
+            <summary>
+            The client redirect URI
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientRequireConsent">
+            <summary>
+            The client require consent
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.ClientSecret">
+            <summary>
+            The client secret
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.IdentityResourceClaim1">
+            <summary>
+            The identity resource claim1
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.IdentityResourceClaim2">
+            <summary>
+            The identity resource claim2
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.IdentityResourceDescription">
+            <summary>
+            The identity resource description
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.IdentityResourceDisplayName">
+            <summary>
+            The identity resource display name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.IdentityResourceEmphasize">
+            <summary>
+            The identity resource emphasize
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.IdentityResourceName">
+            <summary>
+            The identity resource name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.IdentityResourceRequired">
+            <summary>
+            The identity resource required
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.IdentityResourceShowInDiscoveryDocument">
+            <summary>
+            The identity resource show in discovery document
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.RoleId">
+            <summary>
+            The role identifier
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.RoleName">
+            <summary>
+            The role name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserClaim1Name">
+            <summary>
+            The user claim1 name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserClaim1Value">
+            <summary>
+            The user claim1 value
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserClaim2Name">
+            <summary>
+            The user claim2 name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserClaim2Value">
+            <summary>
+            The user claim2 value
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserEmailAddress">
+            <summary>
+            The user email address
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserFamilyName">
+            <summary>
+            The user family name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserGivenName">
+            <summary>
+            The user given name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserId">
+            <summary>
+            The user identifier
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserMiddleName">
+            <summary>
+            The user middle name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserName">
+            <summary>
+            The user name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserPassword">
+            <summary>
+            The user password
+            </summary>
+        </member>
+        <member name="F:SecurityService.Common.Examples.ExampleData.UserPhoneNumber">
+            <summary>
+            The user phone number
+            </summary>
+        </member>
+        <member name="T:SecurityService.Common.Examples.IdentityResourceDetailsListResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;System.Collections.Generic.List&lt;SecurityService.DataTransferObjects.Responses.IdentityResourceDetails&gt;&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.IdentityResourceDetailsListResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.IdentityResourceDetailsResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.IdentityResourceDetails&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.IdentityResourceDetailsResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.RoleDetailsListResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;System.Collections.Generic.List&lt;SecurityService.DataTransferObjects.Responses.RoleDetails&gt;&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.RoleDetailsListResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.RoleDetailsResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.RoleDetails&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.RoleDetailsResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.UserDetailsListResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;System.Collections.Generic.List&lt;SecurityService.DataTransferObjects.Responses.UserDetails&gt;&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.UserDetailsListResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Common.Examples.UserDetailsResponseExample">
+            <summary>
+            
+            </summary>
+            <seealso cref="!:Swashbuckle.AspNetCore.Filters.IExamplesProvider&lt;SecurityService.DataTransferObjects.Responses.UserDetails&gt;" />
+        </member>
+        <member name="M:SecurityService.Common.Examples.UserDetailsResponseExample.GetExamples">
+            <summary>
+            Gets the examples.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.SwaggerDefaultValues.Apply(Microsoft.OpenApi.Models.OpenApiOperation,Swashbuckle.AspNetCore.SwaggerGen.OperationFilterContext)">
+            <summary>
+            Applies the filter to the specified operation using the given context.
+            </summary>
+            <param name="operation">The operation to apply the filter to.</param>
+            <param name="context">The current operation filter context.</param>
+        </member>
+        <member name="P:SecurityService.SwaggerJsonConverter.CanRead">
+            <summary>
+            Gets a value indicating whether this <see cref="T:Newtonsoft.Json.JsonConverter" /> can read JSON.
+            </summary>
+            <value>
+              <c>true</c> if this <see cref="T:Newtonsoft.Json.JsonConverter" /> can read JSON; otherwise, <c>false</c>.
+            </value>
+        </member>
+        <member name="M:SecurityService.SwaggerJsonConverter.CanConvert(System.Type)">
+            <summary>
+            Determines whether this instance can convert the specified object type.
+            </summary>
+            <param name="objectType">Type of the object.</param>
+            <returns>
+              <c>true</c> if this instance can convert the specified object type; otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:SecurityService.SwaggerJsonConverter.ReadJson(Newtonsoft.Json.JsonReader,System.Type,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <summary>
+            Reads the JSON representation of the object.
+            </summary>
+            <param name="reader">The <see cref="T:Newtonsoft.Json.JsonReader" /> to read from.</param>
+            <param name="objectType">Type of the object.</param>
+            <param name="existingValue">The existing value of object being read.</param>
+            <param name="serializer">The calling serializer.</param>
+            <returns>
+            The object value.
+            </returns>
+            <exception cref="T:System.NotImplementedException"></exception>
+            <exception cref="T:System.NotImplementedException"></exception>
+        </member>
+        <member name="M:SecurityService.SwaggerJsonConverter.WriteJson(Newtonsoft.Json.JsonWriter,System.Object,Newtonsoft.Json.JsonSerializer)">
+            <summary>
+            Writes the JSON representation of the object.
+            </summary>
+            <param name="writer">The <see cref="T:Newtonsoft.Json.JsonWriter" /> to write to.</param>
+            <param name="value">The value.</param>
+            <param name="serializer">The calling serializer.</param>
+        </member>
+        <member name="T:SecurityService.Controllers.Account.AccountController">
+            <summary>
+            This sample controller implements a typical login/logout/provision workflow for local and external accounts.
+            The login service encapsulates the interactions with the user data store. This data store is in-memory only and cannot be used for production!
+            The interaction service provides a way for the UI to communicate with identityserver for validation and context retrieval
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.Controller" />
+        </member>
+        <member name="F:SecurityService.Controllers.Account.AccountController._clientStore">
+            <summary>
+            The client store
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.AccountController._events">
+            <summary>
+            The events
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.AccountController._interaction">
+            <summary>
+            The interaction
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.AccountController._schemeProvider">
+            <summary>
+            The scheme provider
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.AccountController._securityServiceManager">
+            <summary>
+            The security service manager
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.#ctor(IdentityServer4.Services.IIdentityServerInteractionService,IdentityServer4.Stores.IClientStore,Microsoft.AspNetCore.Authentication.IAuthenticationSchemeProvider,IdentityServer4.Services.IEventService,SecurityService.Manager.ISecurityServiceManager)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.Account.AccountController"/> class.
+            </summary>
+            <param name="interaction">The interaction.</param>
+            <param name="clientStore">The client store.</param>
+            <param name="schemeProvider">The scheme provider.</param>
+            <param name="events">The events.</param>
+            <param name="securityServiceManager">The security service manager.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.AccessDenied">
+            <summary>
+            Accesses the denied.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.Login(System.String)">
+            <summary>
+            Entry point into the login workflow
+            </summary>
+            <param name="returnUrl">The return URL.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.Login(SecurityService.ViewModels.LoginInputModel,System.String,System.Threading.CancellationToken)">
+            <summary>
+            Handle postback from username/password login
+            </summary>
+            <param name="model">The model.</param>
+            <param name="button">The button.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+            <exception cref="T:Shared.Exceptions.NotFoundException">No user found with Username [{model.Username}]</exception>
+            <exception cref="T:System.Exception">invalid return URL</exception>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.Logout(System.String)">
+            <summary>
+            Show logout page
+            </summary>
+            <param name="logoutId">The logout identifier.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.Logout(SecurityService.ViewModels.LogoutInputModel)">
+            <summary>
+            Handle logout page postback
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.BuildLoggedOutViewModelAsync(System.String)">
+            <summary>
+            Builds the logged out view model asynchronous.
+            </summary>
+            <param name="logoutId">The logout identifier.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.BuildLoginViewModelAsync(System.String)">
+            <summary>
+            Builds the login view model asynchronous.
+            </summary>
+            <param name="returnUrl">The return URL.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.BuildLoginViewModelAsync(SecurityService.ViewModels.LoginInputModel)">
+            <summary>
+            Builds the login view model asynchronous.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.AccountController.BuildLogoutViewModelAsync(System.String)">
+            <summary>
+            Builds the logout view model asynchronous.
+            </summary>
+            <param name="logoutId">The logout identifier.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.AccountController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.AccountController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.Account.ExternalController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.Controller" />
+        </member>
+        <member name="F:SecurityService.Controllers.Account.ExternalController._clientStore">
+            <summary>
+            The client store
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.ExternalController._events">
+            <summary>
+            The events
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.ExternalController._interaction">
+            <summary>
+            The interaction
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.ExternalController._logger">
+            <summary>
+            The logger
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.ExternalController._securityServiceManager">
+            <summary>
+            The security service manager
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.ExternalController._users">
+            <summary>
+            The users
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.ExternalController.#ctor(IdentityServer4.Services.IIdentityServerInteractionService,IdentityServer4.Stores.IClientStore,IdentityServer4.Services.IEventService,Microsoft.Extensions.Logging.ILogger{SecurityService.Controllers.Account.ExternalController},SecurityService.Manager.ISecurityServiceManager)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.Account.ExternalController"/> class.
+            </summary>
+            <param name="interaction">The interaction.</param>
+            <param name="clientStore">The client store.</param>
+            <param name="events">The events.</param>
+            <param name="logger">The logger.</param>
+            <param name="securityServiceManager">The security service manager.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.ExternalController.Callback">
+            <summary>
+            Post processing of external authentication
+            </summary>
+            <returns></returns>
+            <exception cref="T:System.Exception">External authentication error</exception>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.ExternalController.Challenge(System.String,System.String)">
+            <summary>
+            initiate roundtrip to external authentication provider
+            </summary>
+            <param name="scheme">The scheme.</param>
+            <param name="returnUrl">The return URL.</param>
+            <returns></returns>
+            <exception cref="T:System.Exception">invalid return URL</exception>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.ExternalController.AutoProvisionUser(System.String,System.String,System.Collections.Generic.IEnumerable{System.Security.Claims.Claim})">
+            <summary>
+            Automatics the provision user.
+            </summary>
+            <param name="provider">The provider.</param>
+            <param name="providerUserId">The provider user identifier.</param>
+            <param name="claims">The claims.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.ExternalController.FindUserFromExternalProvider(Microsoft.AspNetCore.Authentication.AuthenticateResult)">
+            <summary>
+            Finds the user from external provider.
+            </summary>
+            <param name="result">The result.</param>
+            <returns></returns>
+            <exception cref="T:System.Exception">Unknown userid</exception>
+        </member>
+        <member name="M:SecurityService.Controllers.Account.ExternalController.ProcessLoginCallback(Microsoft.AspNetCore.Authentication.AuthenticateResult,System.Collections.Generic.List{System.Security.Claims.Claim},Microsoft.AspNetCore.Authentication.AuthenticationProperties)">
+            <summary>
+            Processes the login callback.
+            </summary>
+            <param name="externalResult">The external result.</param>
+            <param name="localClaims">The local claims.</param>
+            <param name="localSignInProps">The local sign in props.</param>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.ExternalController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Account.ExternalController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.ApiResourceController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.ControllerBase" />
+        </member>
+        <member name="F:SecurityService.Controllers.ApiResourceController.Manager">
+            <summary>
+            The manager
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.ApiResourceController.ModelFactory">
+            <summary>
+            The model factory
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.ApiResourceController.#ctor(SecurityService.Manager.ISecurityServiceManager,SecurityService.Factories.IModelFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.ApiResourceController"/> class.
+            </summary>
+            <param name="manager">The manager.</param>
+            <param name="modelFactory">The model factory.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.ApiResourceController.CreateApiResource(SecurityService.DataTransferObjects.Requests.CreateApiResourceRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates the API resource.
+            </summary>
+            <param name="createApiResourceRequest">The create API resource request.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.ApiResourceController.GetApiResource(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets the API resource.
+            </summary>
+            <param name="apiResourceName">Name of the API resource.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.ApiResourceController.GetApiResources(System.Threading.CancellationToken)">
+            <summary>
+            Gets the API resources.
+            </summary>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.ApiResourceController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.ApiResourceController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.ApiScopeController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.ControllerBase" />
+        </member>
+        <member name="F:SecurityService.Controllers.ApiScopeController.Manager">
+            <summary>
+            The manager
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.ApiScopeController.ModelFactory">
+            <summary>
+            The model factory
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.ApiScopeController.#ctor(SecurityService.Manager.ISecurityServiceManager,SecurityService.Factories.IModelFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.ApiResourceController" /> class.
+            </summary>
+            <param name="manager">The manager.</param>
+            <param name="modelFactory">The model factory.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.ApiScopeController.GetApiScope(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets the API scope.
+            </summary>
+            <param name="apiScopeName">Name of the API scope.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.ApiScopeController.GetApiScopes(System.Threading.CancellationToken)">
+            <summary>
+            Gets the api scopes.
+            </summary>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.ApiScopeController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.ApiScopeController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.ClientController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.ControllerBase" />
+        </member>
+        <member name="F:SecurityService.Controllers.ClientController.Manager">
+            <summary>
+            The manager
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.ClientController.ModelFactory">
+            <summary>
+            The model factory
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.ClientController.#ctor(SecurityService.Manager.ISecurityServiceManager,SecurityService.Factories.IModelFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.UserController" /> class.
+            </summary>
+            <param name="manager">The manager.</param>
+            <param name="modelFactory">The model factory.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.ClientController.CreateClient(SecurityService.DataTransferObjects.Requests.CreateClientRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates the client.
+            </summary>
+            <param name="createClientRequest">The create client request.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.ClientController.GetClient(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets the client.
+            </summary>
+            <param name="clientId">The client identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.ClientController.GetClients(System.Threading.CancellationToken)">
+            <summary>
+            Gets the clients.
+            </summary>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.ClientController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.ClientController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.Consent.ConsentController">
+            <summary>
+            This controller processes the consent UI
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.Controller" />
+        </member>
+        <member name="F:SecurityService.Controllers.Consent.ConsentController._events">
+            <summary>
+            The events
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Consent.ConsentController._interaction">
+            <summary>
+            The interaction
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Consent.ConsentController._logger">
+            <summary>
+            The logger
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.#ctor(IdentityServer4.Services.IIdentityServerInteractionService,IdentityServer4.Services.IEventService,Microsoft.Extensions.Logging.ILogger{SecurityService.Controllers.Consent.ConsentController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.Consent.ConsentController"/> class.
+            </summary>
+            <param name="interaction">The interaction.</param>
+            <param name="events">The events.</param>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.CreateScopeViewModel(IdentityServer4.Validation.ParsedScopeValue,IdentityServer4.Models.ApiScope,System.Boolean)">
+            <summary>
+            Creates the scope view model.
+            </summary>
+            <param name="parsedScopeValue">The parsed scope value.</param>
+            <param name="apiScope">The API scope.</param>
+            <param name="check">if set to <c>true</c> [check].</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.Index(System.String)">
+            <summary>
+            Shows the consent screen
+            </summary>
+            <param name="returnUrl">The return URL.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.Index(SecurityService.ViewModels.ConsentInputModel)">
+            <summary>
+            Handles the consent screen postback
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.BuildViewModelAsync(System.String,SecurityService.ViewModels.ConsentInputModel)">
+            <summary>
+            Builds the view model asynchronous.
+            </summary>
+            <param name="returnUrl">The return URL.</param>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.CreateConsentViewModel(SecurityService.ViewModels.ConsentInputModel,System.String,IdentityServer4.Models.AuthorizationRequest)">
+            <summary>
+            Creates the consent view model.
+            </summary>
+            <param name="model">The model.</param>
+            <param name="returnUrl">The return URL.</param>
+            <param name="request">The request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.CreateScopeViewModel(IdentityServer4.Models.IdentityResource,System.Boolean)">
+            <summary>
+            Creates the scope view model.
+            </summary>
+            <param name="identity">The identity.</param>
+            <param name="check">if set to <c>true</c> [check].</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.GetOfflineAccessScope(System.Boolean)">
+            <summary>
+            Gets the offline access scope.
+            </summary>
+            <param name="check">if set to <c>true</c> [check].</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Consent.ConsentController.ProcessConsent(SecurityService.ViewModels.ConsentInputModel)">
+            <summary>
+            Processes the consent.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.Consent.ConsentController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Consent.ConsentController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.Device.DeviceController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.Controller" />
+        </member>
+        <member name="F:SecurityService.Controllers.Device.DeviceController._events">
+            <summary>
+            The events
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Device.DeviceController._interaction">
+            <summary>
+            The interaction
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Device.DeviceController._logger">
+            <summary>
+            The logger
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Device.DeviceController._options">
+            <summary>
+            The options
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.#ctor(IdentityServer4.Services.IDeviceFlowInteractionService,IdentityServer4.Services.IEventService,Microsoft.Extensions.Options.IOptions{IdentityServer4.Configuration.IdentityServerOptions},Microsoft.Extensions.Logging.ILogger{SecurityService.Controllers.Device.DeviceController})">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.Device.DeviceController"/> class.
+            </summary>
+            <param name="interaction">The interaction.</param>
+            <param name="eventService">The event service.</param>
+            <param name="options">The options.</param>
+            <param name="logger">The logger.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.Callback(SecurityService.ViewModels.DeviceAuthorizationInputModel)">
+            <summary>
+            Callbacks the specified model.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+            <exception cref="T:System.ArgumentNullException">model</exception>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.CreateScopeViewModel(IdentityServer4.Validation.ParsedScopeValue,IdentityServer4.Models.ApiScope,System.Boolean)">
+            <summary>
+            Creates the scope view model.
+            </summary>
+            <param name="parsedScopeValue">The parsed scope value.</param>
+            <param name="apiScope">The API scope.</param>
+            <param name="check">if set to <c>true</c> [check].</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.Index">
+            <summary>
+            Indexes this instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.UserCodeCapture(System.String)">
+            <summary>
+            Users the code capture.
+            </summary>
+            <param name="userCode">The user code.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.BuildViewModelAsync(System.String,SecurityService.ViewModels.DeviceAuthorizationInputModel)">
+            <summary>
+            Builds the view model asynchronous.
+            </summary>
+            <param name="userCode">The user code.</param>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.CreateConsentViewModel(System.String,SecurityService.ViewModels.DeviceAuthorizationInputModel,IdentityServer4.Models.DeviceFlowAuthorizationRequest)">
+            <summary>
+            Creates the consent view model.
+            </summary>
+            <param name="userCode">The user code.</param>
+            <param name="model">The model.</param>
+            <param name="request">The request.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.CreateScopeViewModel(IdentityServer4.Models.IdentityResource,System.Boolean)">
+            <summary>
+            Creates the scope view model.
+            </summary>
+            <param name="identity">The identity.</param>
+            <param name="check">if set to <c>true</c> [check].</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.GetOfflineAccessScope(System.Boolean)">
+            <summary>
+            Gets the offline access scope.
+            </summary>
+            <param name="check">if set to <c>true</c> [check].</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Device.DeviceController.ProcessConsent(SecurityService.ViewModels.DeviceAuthorizationInputModel)">
+            <summary>
+            Processes the consent.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.Device.DeviceController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Device.DeviceController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.Diagnostics.DiagnosticsController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.Controller" />
+        </member>
+        <member name="M:SecurityService.Controllers.Diagnostics.DiagnosticsController.Index">
+            <summary>
+            Indexes this instance.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.Diagnostics.DiagnosticsController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Diagnostics.DiagnosticsController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.Extensions.IsNativeClient(IdentityServer4.Models.AuthorizationRequest)">
+            <summary>
+            Checks if the redirect URI is for a native client.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Controllers.Grants.GrantsController">
+            <summary>
+            This sample controller allows a user to revoke grants given to clients
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.Controller" />
+        </member>
+        <member name="F:SecurityService.Controllers.Grants.GrantsController._clients">
+            <summary>
+            The clients
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Grants.GrantsController._events">
+            <summary>
+            The events
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Grants.GrantsController._interaction">
+            <summary>
+            The interaction
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Grants.GrantsController._resources">
+            <summary>
+            The resources
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.Grants.GrantsController.#ctor(IdentityServer4.Services.IIdentityServerInteractionService,IdentityServer4.Stores.IClientStore,IdentityServer4.Stores.IResourceStore,IdentityServer4.Services.IEventService)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.Grants.GrantsController"/> class.
+            </summary>
+            <param name="interaction">The interaction.</param>
+            <param name="clients">The clients.</param>
+            <param name="resources">The resources.</param>
+            <param name="events">The events.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.Grants.GrantsController.Index">
+            <summary>
+            Show list of grants
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Grants.GrantsController.Revoke(System.String)">
+            <summary>
+            Handle postback to revoke a client
+            </summary>
+            <param name="clientId">The client identifier.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.Grants.GrantsController.BuildViewModelAsync">
+            <summary>
+            Builds the view model asynchronous.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.Grants.GrantsController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Grants.GrantsController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Home.HomeController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.Home.HomeController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.Home.HomeController.Error(System.String)">
+            <summary>
+            Shows the error page
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.IdentityResourceController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.ControllerBase" />
+        </member>
+        <member name="F:SecurityService.Controllers.IdentityResourceController.Manager">
+            <summary>
+            The manager
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.IdentityResourceController.ModelFactory">
+            <summary>
+            The model factory
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.IdentityResourceController.#ctor(SecurityService.Manager.ISecurityServiceManager,SecurityService.Factories.IModelFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.ApiResourceController" /> class.
+            </summary>
+            <param name="manager">The manager.</param>
+            <param name="modelFactory">The model factory.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.IdentityResourceController.CreateIdentityResource(SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates the identity resource.
+            </summary>
+            <param name="createIdentityResourceRequest">The create identity resource request.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.IdentityResourceController.GetIdentityResource(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets the identity resource.
+            </summary>
+            <param name="identityResourceName">Name of the identity resource.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.IdentityResourceController.GetIdentityResources(System.Threading.CancellationToken)">
+            <summary>
+            Gets the identity resources.
+            </summary>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.IdentityResourceController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.IdentityResourceController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.RoleController.Manager">
+            <summary>
+            The manager
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.RoleController.#ctor(SecurityService.Manager.ISecurityServiceManager,SecurityService.Factories.IModelFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.RoleController" /> class.
+            </summary>
+            <param name="manager">The manager.</param>
+            <param name="modelFactory">The model factory.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.RoleController.CreateRole(SecurityService.DataTransferObjects.Requests.CreateRoleRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates the role.
+            </summary>
+            <param name="createRoleRequest">The create role request.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.RoleController.GetRole(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Gets the role.
+            </summary>
+            <param name="roleId">The role identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.RoleController.GetRoles(System.Threading.CancellationToken)">
+            <summary>
+            Gets the roles.
+            </summary>
+            <param name="roleId">The role identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.RoleController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.RoleController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="T:SecurityService.Controllers.UserController">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.ControllerBase" />
+        </member>
+        <member name="F:SecurityService.Controllers.UserController.Manager">
+            <summary>
+            The manager
+            </summary>
+        </member>
+        <member name="M:SecurityService.Controllers.UserController.#ctor(SecurityService.Manager.ISecurityServiceManager,SecurityService.Factories.IModelFactory)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Controllers.UserController" /> class.
+            </summary>
+            <param name="manager">The manager.</param>
+            <param name="modelFactory">The model factory.</param>
+        </member>
+        <member name="M:SecurityService.Controllers.UserController.CreateUser(SecurityService.DataTransferObjects.CreateUserRequest,System.Threading.CancellationToken)">
+            <summary>
+            Creates the user.
+            </summary>
+            <param name="createUserRequest">The create user request.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.UserController.GetUser(System.Guid,System.Threading.CancellationToken)">
+            <summary>
+            Gets the user.
+            </summary>
+            <param name="userId">The user identifier.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Controllers.UserController.GetUsers(System.String,System.Threading.CancellationToken)">
+            <summary>
+            Gets the users.
+            </summary>
+            <param name="userName">Name of the user.</param>
+            <param name="cancellationToken">The cancellation token.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Controllers.UserController.ControllerName">
+            <summary>
+            The controller name
+            </summary>
+        </member>
+        <member name="F:SecurityService.Controllers.UserController.ControllerRoute">
+            <summary>
+            The controller route
+            </summary>
+        </member>
+        <member name="M:SecurityService.Extensions.Extensions.IsPkceClientAsync(IdentityServer4.Stores.IClientStore,System.String)">
+            <summary>
+            Determines whether the client is configured to use PKCE.
+            </summary>
+            <param name="store">The store.</param>
+            <param name="client_id">The client identifier.</param>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Factories.IModelFactory">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(SecurityService.Models.UserDetails)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(SecurityService.Models.RoleDetails)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(System.Collections.Generic.List{SecurityService.Models.RoleDetails})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(System.Collections.Generic.List{SecurityService.Models.UserDetails})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(IdentityServer4.Models.Client)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(System.Collections.Generic.List{IdentityServer4.Models.Client})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(IdentityServer4.Models.ApiResource)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(IdentityServer4.Models.ApiScope)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(System.Collections.Generic.List{IdentityServer4.Models.ApiScope})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(IdentityServer4.Models.IdentityResource)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(System.Collections.Generic.List{IdentityServer4.Models.ApiResource})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.IModelFactory.ConvertFrom(System.Collections.Generic.List{IdentityServer4.Models.IdentityResource})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="T:SecurityService.Factories.ModelFactory">
+            <summary>
+            
+            </summary>
+            <seealso cref="T:SecurityService.Factories.IModelFactory" />
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(SecurityService.Models.UserDetails)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(SecurityService.Models.RoleDetails)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(System.Collections.Generic.List{SecurityService.Models.UserDetails})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(System.Collections.Generic.List{SecurityService.Models.RoleDetails})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(IdentityServer4.Models.Client)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(System.Collections.Generic.List{IdentityServer4.Models.Client})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(IdentityServer4.Models.ApiResource)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(IdentityServer4.Models.ApiScope)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(System.Collections.Generic.List{IdentityServer4.Models.ApiScope})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(IdentityServer4.Models.IdentityResource)">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(System.Collections.Generic.List{IdentityServer4.Models.ApiResource})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="M:SecurityService.Factories.ModelFactory.ConvertFrom(System.Collections.Generic.List{IdentityServer4.Models.IdentityResource})">
+            <summary>
+            Converts from.
+            </summary>
+            <param name="model">The model.</param>
+            <returns></returns>
+        </member>
+        <member name="F:SecurityService.Startup.AuthenticationConenctionString">
+            <summary>
+            The authentication conenction string
+            </summary>
+        </member>
+        <member name="F:SecurityService.Startup.ConfigurationConnectionString">
+            <summary>
+            The configuration connection string
+            </summary>
+        </member>
+        <member name="F:SecurityService.Startup.PersistedGrantStoreConenctionString">
+            <summary>
+            The persisted grant store conenction string
+            </summary>
+        </member>
+        <member name="M:SecurityService.Startup.#ctor(Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            Initializes a new instance of the <see cref="T:SecurityService.Startup"/> class.
+            </summary>
+            <param name="env">The env.</param>
+        </member>
+        <member name="P:SecurityService.Startup.Configuration">
+            <summary>
+            Gets or sets the configuration.
+            </summary>
+            <value>
+            The configuration.
+            </value>
+        </member>
+        <member name="P:SecurityService.Startup.WebHostEnvironment">
+            <summary>
+            Gets or sets the hosting environment.
+            </summary>
+            <value>
+            The hosting environment.
+            </value>
+        </member>
+        <member name="M:SecurityService.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,Microsoft.Extensions.Logging.ILoggerFactory)">
+            <summary>
+            Configures the specified application.
+            </summary>
+            <param name="app">The application.</param>
+            <param name="env">The env.</param>
+            <param name="loggerFactory">The logger factory.</param>
+            <param name="provider">The provider.</param>
+        </member>
+    </members>
+</doc>

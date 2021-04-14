@@ -27,6 +27,7 @@ namespace SecurityService.Controllers.Account
     [ExcludeFromCodeCoverage]
     [SecurityHeaders]
     [AllowAnonymous]
+    [ApiExplorerSettings(IgnoreApi = true)]
     public class ExternalController : Controller
     {
         #region Fields
