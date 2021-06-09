@@ -2,8 +2,8 @@
 {
     using System;
     using System.Collections.Generic;
-    using IdentityServer4.Services;
-    using IdentityServer4.Stores;
+    using Duende.IdentityServer.Services;
+    using Duende.IdentityServer.Stores;
     using Lamar;
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.DataProtection;

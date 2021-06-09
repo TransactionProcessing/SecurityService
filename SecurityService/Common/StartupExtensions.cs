@@ -4,7 +4,7 @@ namespace SecurityService
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using Database.DbContexts;
-    using IdentityServer4.Models;
+    using Duende.IdentityServer.Models;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
 

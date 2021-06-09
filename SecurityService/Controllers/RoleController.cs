@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace SecurityService.Controllers
 {
     using System.Threading;
+    using BusinessLogic;
     using Common.Examples;
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using Factories;
-    using Manager;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;

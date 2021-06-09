@@ -4,8 +4,8 @@
     using System.Collections.Generic;
     using System.Linq;
     using DataTransferObjects.Responses;
+    using Duende.IdentityServer.Models;
     using Factories;
-    using IdentityServer4.Models;
     using Shouldly;
     using Xunit;
     using RoleDetails = Models.RoleDetails;

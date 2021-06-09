@@ -13,6 +13,7 @@
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Commands;
     using Ductus.FluentDocker.Common;
+    using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
     using Shared.Logger;
@@ -105,7 +106,7 @@
             (String, String, String) dockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
 
             // Setup the container names
-            this.SecurityServiceContainerName = $"securityservice{testGuid:N}";
+            this.SecurityServiceContainerName = $"identity-server";
             this.SecurityServiceTestUIContainerName = $"securityservicetestui{testGuid:N}";
 
             INetworkService testNetwork = this.SetupTestNetwork();
@@ -115,10 +116,10 @@
                                                                                                     this.Logger,
                                                                                                     "securityservice",
                                                                                                     testNetwork,
-                                                                                                    5551,
+                                                                                                    5001,
                                                                                                     dockerCredentials);
 
-            this.SecurityServicePort = securityServiceContainer.ToHostExposedEndpoint("5551/tcp").Port;
+            this.SecurityServicePort = securityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
 
             IContainerService securityServiceTestUIContainer = DockerHelper.SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
                                                                                                                 this.SecurityServiceContainerName,
@@ -128,7 +129,7 @@
 
             this.SecurityServiceTestUIPort = securityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
 
-            Func<String, String> securityServiceBaseAddressResolver = api => $"http://127.0.0.1:{this.SecurityServicePort}";
+            Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
             HttpClient httpClient = new HttpClient();
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient);
 
@@ -238,10 +239,12 @@
             logger.LogInformation("About to Start Security Container");
 
             List<String> environmentVariables = new List<String>();
-            environmentVariables.Add($"ServiceOptions:PublicOrigin=http://{containerName}:{dockerPort}");
-            environmentVariables.Add($"ServiceOptions:IssuerUrl=http://{containerName}:{dockerPort}");
+            environmentVariables.Add($"ServiceOptions:PublicOrigin=https://identity-server:{dockerPort}");
+            environmentVariables.Add($"ServiceOptions:IssuerUrl=https://identity-server:{dockerPort}");
             environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
-            environmentVariables.Add("urls=http://*:5551");
+            environmentVariables.Add("urls=https://*:5001");
+            environmentVariables.Add("ASPNETCORE_Kestrel__Certificates__Default__Password=password");
+            environmentVariables.Add("ASPNETCORE_Kestrel__Certificates__Default__Path=aspnetapp-identity-server.pfx");
 
             if (additionalEnvironmentVariables != null)
             {
@@ -250,7 +253,7 @@
 
             ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(containerName)
                                                                      .WithEnvironment(environmentVariables.ToArray()).UseImage(imageName, forceLatestImage)
-                                                                     .ExposePort(dockerPort, 5551).UseNetwork(new List<INetworkService>
+                                                                     .ExposePort(dockerPort, 5001).UseNetwork(new List<INetworkService>
                                                                                                               {
                                                                                                                   networkService
                                                                                                               }.ToArray());
@@ -261,10 +264,11 @@
             }
 
             // Now build and return the container                
-            IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort("5551/tcp", 30000);
+            IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
             Thread.Sleep(20000); // This hack is in till health checks implemented :|
 
-            DockerHelper.AddEntryToHostsFile("127.0.0.1", containerName);
+            //DockerHelper.AddEntryToHostsFile("127.0.0.1", containerName);
+            DockerHelper.AddEntryToHostsFile("localhost", containerName);
 
             logger.LogInformation("Security Service Container Started");
 
@@ -288,10 +292,13 @@
         {
             // Management API Container
             IContainerService securityServiceTestUIContainer = new Builder().UseContainer().WithName(containerName)
-                                                                            .WithEnvironment($"Authority=http://{securityServiceContainerName}:{securityServiceContainerPort}",
+                                                                            .WithEnvironment($"Authority=https://identity-server:{securityServiceContainerPort}",
                                                                                              $"ClientId={clientDetails.clientId}",
-                                                                                             $"ClientSecret={clientDetails.clientSecret}") //,
-                                                                            .UseImage("securityservicetestwebclient").ExposePort(5004)
+                                                                                             $"ClientSecret={clientDetails.clientSecret}",
+                                                                                             "urls=https://*:5004",
+                                                                                             "ASPNETCORE_Kestrel__Certificates__Default__Password=password",
+                                                                                             "ASPNETCORE_Kestrel__Certificates__Default__Path=aspnetapp-web-api.pfx")
+                                                                            .UseImage("securityservicetestui").ExposePort(5004)
                                                                             .UseNetwork(new List<INetworkService>
                                                                                         {
                                                                                             networkService

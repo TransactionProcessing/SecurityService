@@ -1,41 +1,44 @@
-﻿namespace SecurityService
+﻿// Copyright (c) Duende Software. All rights reserved.
+// See LICENSE in the project root for license information.
+
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+
+namespace SecurityService
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
+    using System.Linq;
     using System.Net.Http;
     using System.Reflection;
-    using System.Threading.Tasks;
-    using Database.DbContexts;
-    using Database.Seeding;
+    using System.Security.Claims;
+    using BusinessLogic;
+    using Duende.IdentityServer.EntityFramework.DbContexts;
+    using Duende.IdentityServer.EntityFramework.Mappers;
+    using Duende.IdentityServer.Models;
     using Factories;
     using HealthChecks.UI.Client;
-    using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.Extensions;
-    using Manager;
-    using Microsoft.AspNetCore.Builder;
+    using IdentityModel;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.HttpOverrides;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
-    using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using Microsoft.Extensions.Options;
     using Microsoft.OpenApi.Models;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using NLog.Extensions.Logging;
+    using SecurityService.Database.DbContexts;
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
     using Swashbuckle.AspNetCore.Filters;
-    using Swashbuckle.AspNetCore.SwaggerGen;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-    [ExcludeFromCodeCoverage]
     public class Startup
     {
         #region Fields
@@ -54,30 +57,6 @@
         /// The persisted grant store conenction string
         /// </summary>
         private static String PersistedGrantStoreConenctionString;
-
-        #endregion
-
-        #region Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Startup"/> class.
-        /// </summary>
-        /// <param name="env">The env.</param>
-        public Startup(IWebHostEnvironment webHostEnvironment)
-        {
-            IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
-                                                                      .AddJsonFile("appsettings.json", optional:true, reloadOnChange:true)
-                                                                      .AddJsonFile($"appsettings.{webHostEnvironment.EnvironmentName}.json", optional:true)
-                                                                      .AddEnvironmentVariables();
-
-            Startup.Configuration = builder.Build();
-            Startup.WebHostEnvironment = webHostEnvironment;
-
-            // Get the DB Connection Strings
-            Startup.PersistedGrantStoreConenctionString = Startup.Configuration.GetConnectionString(nameof(PersistedGrantDbContext));
-            Startup.ConfigurationConnectionString = Startup.Configuration.GetConnectionString(nameof(ConfigurationDbContext));
-            Startup.AuthenticationConenctionString = Startup.Configuration.GetConnectionString(nameof(AuthenticationDbContext));
-        }
 
         #endregion
 
@@ -101,26 +80,144 @@
 
         #endregion
 
-        #region Methods
+        public Startup(IWebHostEnvironment webHostEnvironment)
+        {
+            IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
+                                                                      .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                                                                      .AddJsonFile($"appsettings.{webHostEnvironment.EnvironmentName}.json", optional: true)
+                                                                      .AddEnvironmentVariables();
 
-        /// <summary>
-        /// Configures the specified application.
-        /// </summary>
-        /// <param name="app">The application.</param>
-        /// <param name="env">The env.</param>
-        /// <param name="loggerFactory">The logger factory.</param>
-        /// <param name="provider">The provider.</param>
+            Startup.Configuration = builder.Build();
+            Startup.WebHostEnvironment = webHostEnvironment;
+
+            // Get the DB Connection Strings
+            Startup.PersistedGrantStoreConenctionString = Startup.Configuration.GetConnectionString(nameof(PersistedGrantDbContext));
+            Startup.ConfigurationConnectionString = Startup.Configuration.GetConnectionString(nameof(ConfigurationDbContext));
+            Startup.AuthenticationConenctionString = Startup.Configuration.GetConnectionString(nameof(AuthenticationDbContext));
+        }
+
+        public void ConfigureServices(IServiceCollection services)
+        {
+            ConfigurationReader.Initialise(Startup.Configuration);
+            
+            services.AddScoped<ISecurityServiceManager, SecurityServiceManager>();
+            services.AddSingleton<IModelFactory, ModelFactory>();
+
+            this.ConfigureIdentityServer(services);
+            this.ConfigureMVC(services);
+            this.ConfigureSwagger(services);
+            this.ConfigureHealthChecks(services);
+
+        }
+
+        private void ConfigureMVC(IServiceCollection services)
+        {
+            services.AddControllersWithViews().AddNewtonsoftJson(options =>
+                                                                 {
+                                                                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                                                                     options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+                                                                     options.SerializerSettings.Formatting = Formatting.Indented;
+                                                                     options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                                                                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                                                                 });
+        }
+
+        private void ConfigureHealthChecks(IServiceCollection services)
+        {
+            services.AddHealthChecks()
+                    .AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
+                                  healthQuery: "SELECT 1;",
+                                  name: "Persisted Grant DB",
+                                  failureStatus: HealthStatus.Unhealthy,
+                                  tags: new string[] { "db", "sql", "sqlserver", "persistedgrant" })
+                    .AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
+                                  healthQuery: "SELECT 1;",
+                                  name: "Configuration DB",
+                                  failureStatus: HealthStatus.Unhealthy,
+                                  tags: new string[] { "db", "sql", "sqlserver", "configuration" })
+                    .AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("AuthenticationDbContext"),
+                                  healthQuery: "SELECT 1;",
+                                  name: "Authentication DB",
+                                  failureStatus: HealthStatus.Unhealthy,
+                                  tags: new string[] { "db", "sql", "sqlserver", "authentication" })
+                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("ServiceAddresses", "MessagingService")}/health"),
+                                 name: "Messaging Service",
+                                 httpMethod: HttpMethod.Get,
+                                 failureStatus: HealthStatus.Unhealthy,
+                                 tags: new string[] { "application", "messaging" });
+        }
+
+        private void ConfigureSwagger(IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+                                   {
+                                       c.SwaggerDoc("v1", new OpenApiInfo
+                                                          {
+                                                              Title = "Authentication API",
+                                                              Version = "1.0",
+                                                              Description = "A REST Api to provide authentication services including management of user/client and api details.",
+                                                              Contact = new OpenApiContact
+                                                                        {
+                                                                            Name = "Stuart Ferguson",
+                                                                            Email = "golfhandicapping@btinternet.com"
+                                                                        }
+                                                          });
+                                       // add a custom operation filter which sets default values
+                                       c.OperationFilter<SwaggerDefaultValues>();
+                                       c.ExampleFilters();
+
+                                       //Locate the XML files being generated by ASP.NET...
+                                       DirectoryInfo directory = new DirectoryInfo(AppContext.BaseDirectory);
+                                       FileInfo[] xmlFiles = directory.GetFiles("*.xml");
+
+                                       //... and tell Swagger to use those XML comments.
+                                       foreach (FileInfo fileInfo in xmlFiles)
+                                       {
+                                           c.IncludeXmlComments(fileInfo.FullName);
+                                       }
+                                   });
+
+            services.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
+        }
+
+        private void ConfigureIdentityServer(IServiceCollection services)
+        {
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                    .AddEntityFrameworkStores<AuthenticationDbContext>()
+                    .AddDefaultTokenProviders();
+
+            IIdentityServerBuilder identityServerBuilder = services.AddIdentityServer(options =>
+            {
+                // https://docs.duendesoftware.com/identityserver/v5/fundamentals/resources/
+                options.EmitStaticAudienceClaim = true;
+
+                options.Events.RaiseSuccessEvents = true;
+                options.Events.RaiseFailureEvents = true;
+                options.Events.RaiseErrorEvents = true;
+
+                options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:IssuerUrl");
+            });
+
+            identityServerBuilder.AddAspNetIdentity<IdentityUser>();
+
+            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") || Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase") == true)
+            {
+                identityServerBuilder.AddIntegrationTestConfiguration();
+            }
+            else
+            {
+                String migrationsAssembly = typeof(AuthenticationDbContext).GetTypeInfo().Assembly.GetName().Name;
+                identityServerBuilder.AddIdentityServerStorage(Startup.ConfigurationConnectionString,
+                                                               Startup.PersistedGrantStoreConenctionString,
+                                                               Startup.AuthenticationConenctionString,
+                                                               migrationsAssembly);
+            }
+        }
+
         public void Configure(IApplicationBuilder app,
                               IWebHostEnvironment env,
                               ILoggerFactory loggerFactory)
         {
-            app.Use(async (ctx, next) =>
-                    {
-                        var gimp = Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-                        ctx.SetIdentityServerOrigin(gimp);
-                        await next();
-                    });
-
             String nlogConfigFilename = "nlog.config";
             if (env.IsDevelopment())
             {
@@ -139,172 +236,64 @@
             app.AddResponseLogging();
             app.AddExceptionHandler();
 
-            app.UseRouting();
-            // Block 4:
-            //  UseIdentityServer include a call to UseAuthentication
-            app.UseIdentityServer();
-            app.UseAuthorization();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
 
+            
+            app.UseRouting();
+
+            app.UseIdentityServer();
+
+            app.UseAuthorization();
+            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
-                                    {
-                                        ForwardedHeaders = ForwardedHeaders.XForwardedProto
-                                    });
-
-            app.UseIdentityServer();
-
-            // Setup the database
-            this.InitialiseDatabase(app).Wait();
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedProto
+            });
 
             app.UseEndpoints(endpoints =>
                              {
-                                 endpoints.MapControllers();
+                                 endpoints.MapDefaultControllerRoute();
                                  endpoints.MapHealthChecks("health", new HealthCheckOptions()
-                                                                     {
-                                                                         Predicate = _ => true,
-                                                                         ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                                                                     });
+                                 {
+                                     Predicate = _ => true,
+                                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                                 });
                              });
 
             app.UseSwagger();
 
             app.UseSwaggerUI();
+
+            // this will do the initial DB population
+            this.InitializeDatabase(app);
         }
 
-        public void ConfigureServices(IServiceCollection services)
+        private void InitializeDatabase(IApplicationBuilder app)
         {
-            ConfigurationReader.Initialise(Startup.Configuration);
-
-            this.ConfigureMiddlewareServices(services);
-
-            services.AddControllersWithViews().AddNewtonsoftJson(options =>
-                                                                 {
-                                                                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                                                                     options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-                                                                     options.SerializerSettings.Formatting = Formatting.Indented;
-                                                                     options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-                                                                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                                                                 });
-
-            services.AddScoped<ISecurityServiceManager, SecurityServiceManager>();
-            services.AddSingleton<IModelFactory, ModelFactory>();
-        }
-        
-        private void ConfigureMiddlewareServices(IServiceCollection services)
-        {
-            services.AddHealthChecks()
-                    .AddSqlServer(connectionString:ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
-                                  healthQuery:"SELECT 1;",
-                                  name:"Persisted Grant DB",
-                                  failureStatus:HealthStatus.Unhealthy,
-                                  tags:new string[] {"db", "sql", "sqlserver", "persistedgrant"})
-                    .AddSqlServer(connectionString:ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
-                                  healthQuery:"SELECT 1;",
-                                  name:"Configuration DB",
-                                  failureStatus:HealthStatus.Unhealthy,
-                                  tags:new string[] {"db", "sql", "sqlserver", "configuration"})
-                    .AddSqlServer(connectionString:ConfigurationReader.GetConnectionString("AuthenticationDbContext"),
-                                  healthQuery:"SELECT 1;",
-                                  name:"Authentication DB",
-                                  failureStatus:HealthStatus.Unhealthy,
-                                  tags:new string[] {"db", "sql", "sqlserver", "authentication"})
-                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("ServiceAddresses", "MessagingService")}/health"),
-                                 name: "Messaging Service",
-                                 httpMethod: HttpMethod.Get,
-                                 failureStatus: HealthStatus.Unhealthy,
-                                 tags: new string[] { "application", "messaging" });
-
-            services.AddSwaggerGen(c =>
-                                   {
-                                       c.SwaggerDoc("v1", new OpenApiInfo
-                                       {
-                                           Title = "Authentication API",
-                                           Version = "1.0",
-                                           Description = "A REST Api to provide authentication services including management of user/client and api details.",
-                                           Contact = new OpenApiContact
-                                           {
-                                               Name = "Stuart Ferguson",
-                                               Email = "golfhandicapping@btinternet.com"
-                                           }
-                                       });
-                                       // add a custom operation filter which sets default values
-                                       c.OperationFilter<SwaggerDefaultValues>();
-                                       c.ExampleFilters();
-
-                                       //Locate the XML files being generated by ASP.NET...
-                                       var directory = new DirectoryInfo(AppContext.BaseDirectory);
-                                       var xmlFiles = directory.GetFiles("*.xml");
-
-                                       //... and tell Swagger to use those XML comments.
-                                       foreach (FileInfo fileInfo in xmlFiles)
-                                       {
-                                           c.IncludeXmlComments(fileInfo.FullName);
-                                       }
-                                   });
-
-            services.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
-
-            services.AddIdentity<IdentityUser, IdentityRole>(o =>
-                                                             {
-                                                                 o.Password.RequireDigit =
-                                                                     Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireDigit");
-                                                                 o.Password.RequireLowercase =
-                                                                     Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireLowercase");
-                                                                 o.Password.RequireUppercase =
-                                                                     Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireUppercase");
-                                                                 o.Password.RequireNonAlphanumeric =
-                                                                     Startup.Configuration.GetValue<Boolean>("IdentityOptions:PasswordOptions:RequireNonAlphanumeric");
-                                                                 o.Password.RequiredLength =
-                                                                     Startup.Configuration.GetValue<Int32>("IdentityOptions:PasswordOptions:RequiredLength");
-                                                             }).AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders();
-
-            IIdentityServerBuilder identityServerBuilder = services.AddIdentityServer(options =>
-                                                                                      {
-                                                                                          options.Events.RaiseSuccessEvents = true;
-                                                                                          options.Events.RaiseFailureEvents = true;
-                                                                                          options.Events.RaiseErrorEvents = true;
-                                                                                          // TODO: Investigate - https://github.com/IdentityServer/IdentityServer4/issues/4631
-                                                                                          //options.PublicOrigin = Startup.Configuration.GetValue<String>("ServiceOptions:PublicOrigin");
-                                                                                          options.IssuerUri =
-                                                                                              Startup.Configuration.GetValue<String>("ServiceOptions:IssuerUrl");
-                                                                                      })
-                                                                   .AddAspNetIdentity<IdentityUser>()
-                                                                   .AddJwtBearerClientAuthentication()
-                                                                   .AddDeveloperSigningCredential();
-
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") || Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase") == true)
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
-                identityServerBuilder.AddIntegrationTestConfiguration();
-            }
-            else
-            {
-                String migrationsAssembly = typeof(AuthenticationDbContext).GetTypeInfo().Assembly.GetName().Name;
-                identityServerBuilder.AddIdentityServerStorage(Startup.ConfigurationConnectionString,
-                                                               Startup.PersistedGrantStoreConenctionString,
-                                                               Startup.AuthenticationConenctionString,
-                                                               migrationsAssembly);
-            }
+                var persistedGrantDbContext = serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
+                if (persistedGrantDbContext.Database.IsRelational())
+                {
+                    persistedGrantDbContext.Database.Migrate();
+                }
+                var configurationDbContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+                if (configurationDbContext.Database.IsRelational())
+                {
+                    configurationDbContext.Database.Migrate();
+                }
 
-            services.AddCors();
-        }
-
-        private async Task InitialiseDatabase(IApplicationBuilder app)
-        {
-            using(IServiceScope scope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                PersistedGrantDbContext persistedGrantDbContext = scope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
-                ConfigurationDbContext configurationDbContext = scope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                AuthenticationDbContext authenticationDbContext = scope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
-
-                SeedingType seedingType = Startup.Configuration.GetValue<SeedingType>("SeedingType");
-
-                DatabaseSeeding.InitialiseAuthenticationDatabase(authenticationDbContext, seedingType);
-                DatabaseSeeding.InitialiseConfigurationDatabase(configurationDbContext, seedingType);
-                DatabaseSeeding.InitialisePersistedGrantDatabase(persistedGrantDbContext, seedingType);
+                var authenticationContext = serviceScope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
+                if (authenticationContext.Database.IsRelational())
+                {
+                    authenticationContext.Database.Migrate();
+                }
             }
         }
-
-        #endregion
     }
 }

@@ -4,7 +4,6 @@ using System.Text;
 
 namespace SecurityService.DataTransferObjects.Requests
 {
-    using System.ComponentModel.DataAnnotations;
     using System.Diagnostics.CodeAnalysis;
     using Newtonsoft.Json;
 
@@ -17,7 +16,6 @@ namespace SecurityService.DataTransferObjects.Requests
         /// <value>
         /// The name of the role.
         /// </value>
-        [Required]
         [JsonProperty("role_name")]
         public String RoleName { get; set; }
     }

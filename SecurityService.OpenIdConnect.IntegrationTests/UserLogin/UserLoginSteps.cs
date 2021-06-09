@@ -50,8 +50,8 @@ namespace SecurityService.IntegrationTests.UserLogin
         [Given(@"I am on the application home page")]
         public void GivenIAmOnTheApplicationHomePage()
         {
-            this.WebDriver.Navigate().GoToUrl($"http://{this.TestingContext.DockerHelper.SecurityServiceContainerName}:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
-            this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestWebClient");
+            this.WebDriver.Navigate().GoToUrl($"https://localhost:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
+            this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestUI");
         }
 
         [When(@"I click the '(.*)' link")]
@@ -84,7 +84,7 @@ namespace SecurityService.IntegrationTests.UserLogin
 
                                 Console.WriteLine($"Source Is [{page}");
 
-                                this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestWebClient");
+                                this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestUI");
                             });
             
             

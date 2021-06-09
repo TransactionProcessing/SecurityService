@@ -66,7 +66,7 @@
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
-            ///browser = "Firefox";
+            browser = "Chrome";
 
             if (browser == null || browser == "Chrome")
             {
@@ -74,10 +74,10 @@
                 options.AddArguments("--disable-gpu");
                 options.AddArguments("--no-sandbox");
                 options.AddArguments("--disable-dev-shm-usage");
-                var experimentalFlags = new List<String>();
-                experimentalFlags.Add("same-site-by-default-cookies@2");
-                experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
-                options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
+                //var experimentalFlags = new List<String>();
+                //experimentalFlags.Add("same-site-by-default-cookies@2");
+                //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
+                //options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
 
                 this.WebDriver = new ChromeDriver(options);
             }
@@ -102,10 +102,10 @@
             {
                 EdgeOptions options = new EdgeOptions();
                 options.UseChromium = true;
-                List<String> experimentalFlags = new List<String>();
-                experimentalFlags.Add("same-site-by-default-cookies@2");
-                experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
-                options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
+                //List<String> experimentalFlags = new List<String>();
+                //experimentalFlags.Add("same-site-by-default-cookies@2");
+                //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
+                //options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
 
                 this.WebDriver = new EdgeDriver(options);
             }

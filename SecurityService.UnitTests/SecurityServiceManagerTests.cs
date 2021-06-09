@@ -6,15 +6,15 @@
     using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessLogic.Exceptions;
+    using Duende.IdentityServer.EntityFramework.DbContexts;
+    using Duende.IdentityServer.EntityFramework.Entities;
     using IdentityModel;
-    using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.EntityFramework.Entities;
-    using Manager;
-    using Manager.Exceptions;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Models;
     using Moq;
+    using SecurityService.BusinessLogic;
     using Shared.Exceptions;
     using Shouldly;
     using Xunit;
@@ -613,7 +613,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
-            IdentityServer4.Models.ApiResource apiResource =
+            Duende.IdentityServer.Models.ApiResource apiResource =
                 await securityServiceManager.GetApiResource(SecurityServiceManagerTestData.ApiResourceName, CancellationToken.None);
 
             apiResource.Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
@@ -682,7 +682,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
-            List<IdentityServer4.Models.ApiResource> apiResources = await securityServiceManager.GetApiResources(CancellationToken.None);
+            List<Duende.IdentityServer.Models.ApiResource> apiResources = await securityServiceManager.GetApiResources(CancellationToken.None);
 
             apiResources.ShouldNotBeNull();
             apiResources.ShouldNotBeEmpty();
@@ -740,7 +740,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
-            IdentityServer4.Models.Client client = await securityServiceManager.GetClient(SecurityServiceManagerTestData.ClientId, CancellationToken.None);
+            Duende.IdentityServer.Models.Client client = await securityServiceManager.GetClient(SecurityServiceManagerTestData.ClientId, CancellationToken.None);
 
             client.ClientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
             client.ClientName.ShouldBe(SecurityServiceManagerTestData.ClientName);
@@ -810,7 +810,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
-            List<IdentityServer4.Models.Client> clients = await securityServiceManager.GetClients(CancellationToken.None);
+            List<Duende.IdentityServer.Models.Client> clients = await securityServiceManager.GetClients(CancellationToken.None);
 
             clients.ShouldNotBeNull();
             clients.ShouldNotBeEmpty();
@@ -841,7 +841,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
-            IdentityServer4.Models.IdentityResource identityResource =
+            Duende.IdentityServer.Models.IdentityResource identityResource =
                 await securityServiceManager.GetIdentityResource(SecurityServiceManagerTestData.IdentityResourceName, CancellationToken.None);
 
             identityResource.Name.ShouldBe(SecurityServiceManagerTestData.IdentityResourceName);
@@ -891,7 +891,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
-            List<IdentityServer4.Models.IdentityResource> identityResources = await securityServiceManager.GetIdentityResources(CancellationToken.None);
+            List<Duende.IdentityServer.Models.IdentityResource> identityResources = await securityServiceManager.GetIdentityResources(CancellationToken.None);
 
             identityResources.ShouldNotBeNull();
             identityResources.ShouldNotBeEmpty();
@@ -1128,7 +1128,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
-            IdentityServer4.Models.ApiScope apiScope = await securityServiceManager.GetApiScope(SecurityServiceManagerTestData.ApiScopeName, CancellationToken.None);
+            Duende.IdentityServer.Models.ApiScope apiScope = await securityServiceManager.GetApiScope(SecurityServiceManagerTestData.ApiScopeName, CancellationToken.None);
 
             apiScope.Name.ShouldBe(SecurityServiceManagerTestData.ApiScopeName);
             apiScope.Description.ShouldBe(SecurityServiceManagerTestData.ApiScopeDescription);
@@ -1174,7 +1174,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager(context);
 
-            List<IdentityServer4.Models.ApiScope> apiScopes = await securityServiceManager.GetApiScopes(CancellationToken.None);
+            List<Duende.IdentityServer.Models.ApiScope> apiScopes = await securityServiceManager.GetApiScopes(CancellationToken.None);
 
             apiScopes.ShouldNotBeNull();
             apiScopes.ShouldNotBeEmpty();

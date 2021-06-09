@@ -1,58 +1,29 @@
-namespace SecurityService.Controllers.Diagnostics
-{
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Authorization;
-    using Microsoft.AspNetCore.Mvc;
-    using ViewModels;
+// Copyright (c) Duende Software. All rights reserved.
+// See LICENSE in the project root for license information.
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="Microsoft.AspNetCore.Mvc.Controller" />
-    [Route(DiagnosticsController.ControllerRoute)]
-    [ExcludeFromCodeCoverage]
+
+using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace IdentityServerHost.Quickstart.UI
+{
     [SecurityHeaders]
     [Authorize]
-    [ApiExplorerSettings(IgnoreApi = true)]
     public class DiagnosticsController : Controller
     {
-        #region Methods
-
-        /// <summary>
-        /// Indexes this instance.
-        /// </summary>
-        /// <returns></returns>
-        [Route("index")]
         public async Task<IActionResult> Index()
         {
-            var localAddresses = new[] {"127.0.0.1", "::1", this.HttpContext.Connection.LocalIpAddress.ToString()};
-            if (!localAddresses.Contains(this.HttpContext.Connection.RemoteIpAddress.ToString()))
+            var localAddresses = new string[] { "127.0.0.1", "::1", HttpContext.Connection.LocalIpAddress.ToString() };
+            if (!localAddresses.Contains(HttpContext.Connection.RemoteIpAddress.ToString()))
             {
-                return this.NotFound();
+                return NotFound();
             }
 
-            var model = new DiagnosticsViewModel(await this.HttpContext.AuthenticateAsync());
-            return this.View(model);
+            var model = new DiagnosticsViewModel(await HttpContext.AuthenticateAsync());
+            return View(model);
         }
-
-        #endregion
-
-        #region Others
-
-        /// <summary>
-        /// The controller name
-        /// </summary>
-        public const String ControllerName = "diagnostics";
-
-        /// <summary>
-        /// The controller route
-        /// </summary>
-        private const String ControllerRoute = DiagnosticsController.ControllerName;
-
-        #endregion
     }
 }

@@ -6,11 +6,9 @@
     using System.Security.Claims;
     using System.Threading;
     using System.Threading.Tasks;
-    using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.EntityFramework.Entities;
-    using IdentityServer4.EntityFramework.Interfaces;
-    using IdentityServer4.EntityFramework.Options;
-    using Manager;
+    using BusinessLogic;
+    using Duende.IdentityServer.EntityFramework.DbContexts;
+    using Duende.IdentityServer.EntityFramework.Options;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
