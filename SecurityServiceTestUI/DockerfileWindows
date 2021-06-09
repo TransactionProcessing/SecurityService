@@ -5,7 +5,7 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build
 WORKDIR /src
-COPY ["SecurityServiceTestWebClient/SecurityServiceTestUI.csproj", "SecurityServiceTestUI/"]
+COPY ["SecurityServiceTestUI/SecurityServiceTestUI.csproj", "SecurityServiceTestUI/"]
 RUN dotnet restore "SecurityServiceTestUI/SecurityServiceTestUI.csproj"
 COPY . .
 WORKDIR "/src/SecurityServiceTestUI"
