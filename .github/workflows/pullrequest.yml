@@ -20,6 +20,11 @@ jobs:
     #  run: |
     #    echo "GITHUB_WORKSPACE = $env:GITHUB_WORKSPACE"
 
+    - name: Print Env Var
+      run: |
+        echo "GITHUB_WORKSPACE = $env:GITHUB_WORKSPACE"
+        echo "CERTPath is $env:GITHUB_WORKSPACE}}\Certificates\aspnetapp-root-cert.pfx"
+
     - name: Trust Certificate
       run: |
         $pfx = new-object System.Security.Cryptography.X509Certificates.X509Certificate2 
