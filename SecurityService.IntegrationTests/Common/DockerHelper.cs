@@ -72,7 +72,7 @@ namespace SecurityService.IntergrationTests.Common
             this.SetupSecurityServiceContainer(traceFolder);
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
             
-            Func<String, String> securityServiceBaseAddressResolver = api => $"https://127.0.0.1:{this.SecurityServicePort}";
+            Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
             HttpClient httpClient = new HttpClient();
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver,httpClient);
 
@@ -90,8 +90,11 @@ namespace SecurityService.IntergrationTests.Common
             // Management API Container
             this.SecurityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
                                                          .WithEnvironment("ASPNETCORE_ENVIRONMENT=IntegrationTest",
-                                                                          $"ServiceOptions:PublicOrigin=https://127.0.0.1:5001",
-                                                                          $"ServiceOptions:IssuerUrl=https://127.0.0.1:5001")
+                                                                          $"ServiceOptions:PublicOrigin=https://localhost:5001",
+                                                                          $"ServiceOptions:IssuerUrl=https://localhost:5001",
+                                                                          "urls=https://*:5001",
+                                                                          "ASPNETCORE_Kestrel__Certificates__Default__Password=password",
+                                                                          "ASPNETCORE_Kestrel__Certificates__Default__Path=aspnetapp-identity-server.pfx")
                                                          .UseImage("securityservice").ExposePort(5001).UseNetwork(new List<INetworkService>
                                                                                                                   {
                                                                                                                       this.TestNetwork

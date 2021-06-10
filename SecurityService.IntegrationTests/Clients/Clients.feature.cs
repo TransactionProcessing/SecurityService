@@ -140,7 +140,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "A second test client",
                             "Secret2",
                             "Scope1, Scope2",
-                            "authorization_code",
+                            "hybrid",
                             "http://localhost/signin-oidc",
                             "http://localhost/signout-oidc",
                             "true"});
@@ -205,7 +205,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "A second test client",
                             "Secret2",
                             "Scope1, Scope2",
-                            "authorization_code",
+                            "hybrid",
                             "http://localhost/signin-oidc",
                             "http://localhost/signout-oidc",
                             "true"});
@@ -248,7 +248,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "Test Client 2",
                             "A second test client",
                             "Scope1, Scope2",
-                            "authorization_code",
+                            "hybrid",
                             "http://localhost/signin-oidc",
                             "http://localhost/signout-oidc",
                             "true"});
@@ -316,7 +316,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "A second test client",
                             "Secret2",
                             "Scope1, Scope2",
-                            "authorization_code",
+                            "hybrid",
                             "http://localhost/signin-oidc",
                             "http://localhost/signout-oidc",
                             "true"});
@@ -346,7 +346,7 @@ this.ScenarioInitialize(scenarioInfo);
                             "Test Client 2",
                             "A second test client",
                             "Scope1, Scope2",
-                            "authorization_code",
+                            "hybrid",
                             "http://localhost/signin-oidc",
                             "http://localhost/signout-oidc",
                             "true"});
