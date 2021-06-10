@@ -18,6 +18,8 @@ jobs:
 
     - name: Trust Certificate
       run: |
+        echo "${env.GITHUB_WORKSPACE}
+        echo "$GITHUB_WORKSPACE
         $pfx = new-object System.Security.Cryptography.X509Certificates.X509Certificate2 
         $certPath = read-host "${{ env.GITHUB_WORKSPACE }}\Certificates\aspnetapp-root-cert.pfx"
         $pfxPass = read-host "password" -assecurestring
