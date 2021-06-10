@@ -16,14 +16,14 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
 
-    - name: Print Env Var
-      run: |
-        echo "GITHUB_WORKSPACE = $env:GITHUB_WORKSPACE"
+    #- name: Print Env Var
+    #  run: |
+    #    echo "GITHUB_WORKSPACE = $env:GITHUB_WORKSPACE"
 
     - name: Trust Certificate
       run: |
         $pfx = new-object System.Security.Cryptography.X509Certificates.X509Certificate2 
-        $certPath = read-host "${{ env.GITHUB_WORKSPACE }}\Certificates\aspnetapp-root-cert.pfx"
+        $certPath = read-host "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"
         $pfxPass = read-host "password" -assecurestring
         $pfx.import($certPath,$pfxPass,"Exportable,PersistKeySet") 
         $store = new-object System.Security.Cryptography.X509Certificates.X509Store([System.Security.Cryptography.X509Certificates.StoreName]::Root,"localmachine")
