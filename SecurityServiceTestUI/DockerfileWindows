@@ -11,8 +11,10 @@ COPY . .
 WORKDIR "/src/SecurityServiceTestUI"
 RUN dotnet build "SecurityServiceTestUI.csproj" -c Release -o /app/build
 #RUN %SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe $PSVersion
-RUN %SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe -Command Import-PfxCertificate -FilePath "src\Certificates\aspnetapp-root-cert.pfx" -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+WORKDIR "/src"
+RUN %SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe -Command Import-PfxCertificate -FilePath "Certificates/aspnetapp-root-cert.pfx" -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
+WORKDIR "/src/SecurityServiceTestUI"
 FROM build AS publish
 RUN dotnet publish "SecurityServiceTestUI.csproj" -c Release -o /app/publish
 
