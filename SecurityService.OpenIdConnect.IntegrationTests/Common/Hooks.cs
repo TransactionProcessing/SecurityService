@@ -74,6 +74,7 @@
                 options.AddArguments("--disable-gpu");
                 options.AddArguments("--no-sandbox");
                 options.AddArguments("--disable-dev-shm-usage");
+                options.AcceptInsecureCertificates = true;
                 //var experimentalFlags = new List<String>();
                 //experimentalFlags.Add("same-site-by-default-cookies@2");
                 //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
@@ -84,6 +85,7 @@
 
             if (browser == "Firefox")
             {
+                //session = webdriver.Firefox(capabilities={"acceptInsecureCerts": True})
                 //FirefoxOptions options = new FirefoxOptions();
                 //options.AddArguments("-headless");
                 //this.WebDriver = new FirefoxDriver(options);
@@ -91,6 +93,7 @@
                 //profile.setPreference("network.cookie.cookieBehavior", 2);
                 //this.WebDriver = new FirefoxDriver(profile);
                 FirefoxOptions options = new FirefoxOptions();
+                options.AcceptInsecureCertificates = true;
                 //options.SetPreference("network.cookie.sameSite.laxByDefault", false);
                 //options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
                 //options.SetPreference("network.cookie.sameSite.schemeful", false);
@@ -102,6 +105,7 @@
             {
                 EdgeOptions options = new EdgeOptions();
                 options.UseChromium = true;
+                options.AcceptInsecureCertificates = true;
                 //List<String> experimentalFlags = new List<String>();
                 //experimentalFlags.Add("same-site-by-default-cookies@2");
                 //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
