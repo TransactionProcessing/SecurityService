@@ -36,7 +36,7 @@ namespace SecurityServiceTestUI
                                                      //{
                                                      webBuilder.UseKestrel(options =>
                                                      {
-                                                         var port = 5001;
+                                                         var port = 5004;
 
                                                          options.Listen(IPAddress.Any,
                                                                         port,
