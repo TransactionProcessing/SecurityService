@@ -243,8 +243,6 @@
             environmentVariables.Add($"ServiceOptions:IssuerUrl=https://identity-server:{dockerPort}");
             environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
             environmentVariables.Add("urls=https://*:5001");
-            environmentVariables.Add("ASPNETCORE_Kestrel__Certificates__Default__Password=password");
-            environmentVariables.Add("ASPNETCORE_Kestrel__Certificates__Default__Path=aspnetapp-identity-server.pfx");
 
             if (additionalEnvironmentVariables != null)
             {
@@ -295,10 +293,8 @@
                                                                             .WithEnvironment($"Authority=https://identity-server:{securityServiceContainerPort}",
                                                                                              $"ClientId={clientDetails.clientId}",
                                                                                              $"ClientSecret={clientDetails.clientSecret}",
-                                                                                             "urls=https://*:5004",
-                                                                                             "ASPNETCORE_Kestrel__Certificates__Default__Password=password",
-                                                                                             "ASPNETCORE_Kestrel__Certificates__Default__Path=aspnetapp-web-api.pfx")
-                                                                            .UseImage("securityservicetestwebclient").ExposePort(5004)
+                                                                                             "urls=https://*:5004")
+                                                                            .UseImage("securityservicetestui").ExposePort(5004)
                                                                             .UseNetwork(new List<INetworkService>
                                                                                         {
                                                                                             networkService

@@ -66,7 +66,7 @@
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
-            browser = "Chrome";
+            browser = "Firefox";
 
             if (browser == null || browser == "Chrome")
             {
@@ -91,10 +91,10 @@
                 //profile.setPreference("network.cookie.cookieBehavior", 2);
                 //this.WebDriver = new FirefoxDriver(profile);
                 FirefoxOptions options = new FirefoxOptions();
-                options.SetPreference("network.cookie.sameSite.laxByDefault", false);
-                options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
-                options.SetPreference("network.cookie.sameSite.schemeful", false);
-                options.SetPreference("network.cookie.cookieBehavior", 0);
+                //options.SetPreference("network.cookie.sameSite.laxByDefault", false);
+                //options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
+                //options.SetPreference("network.cookie.sameSite.schemeful", false);
+                //options.SetPreference("network.cookie.cookieBehavior", 0);
                 this.WebDriver = new FirefoxDriver(options);
             }
 
