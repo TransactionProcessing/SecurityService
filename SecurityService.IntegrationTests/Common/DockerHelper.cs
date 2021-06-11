@@ -79,6 +79,8 @@ namespace SecurityService.IntergrationTests.Common
             Console.Out.WriteLine($"Security Service Port is [{this.SecurityServicePort}]");
 
             await Task.Delay(30000).ConfigureAwait(false);
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
         }
 
         public Int32 SecurityServicePort;
@@ -92,9 +94,9 @@ namespace SecurityService.IntergrationTests.Common
                                                          .WithEnvironment("ASPNETCORE_ENVIRONMENT=IntegrationTest",
                                                                           $"ServiceOptions:PublicOrigin=https://localhost:5001",
                                                                           $"ServiceOptions:IssuerUrl=https://localhost:5001",
-                                                                          "urls=https://*:5001",
-                                                                          "ASPNETCORE_Kestrel__Certificates__Default__Password=password",
-                                                                          "ASPNETCORE_Kestrel__Certificates__Default__Path=aspnetapp-identity-server.pfx")
+                                                                          "urls=https://*:5001")
+                                                                          //"ASPNETCORE_Kestrel__Certificates__Default__Password=password",
+                                                                          //"ASPNETCORE_Kestrel__Certificates__Default__Path=aspnetapp-identity-server.pfx")
                                                          .UseImage("securityservice").ExposePort(5001).UseNetwork(new List<INetworkService>
                                                                                                                   {
                                                                                                                       this.TestNetwork
