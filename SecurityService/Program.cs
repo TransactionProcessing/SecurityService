@@ -72,7 +72,7 @@ namespace SecurityService
             var certificateFile = files.First(name => name.Contains("pfx"));
             Console.WriteLine(certificateFile);
 
-            return new X509Certificate2(certificateFile, "password"); //, X509KeyStorageFlags.EphemeralKeySet);
+            return new X509Certificate2(certificateFile, "password");
         }
 
         public static void Main(String[] args)
