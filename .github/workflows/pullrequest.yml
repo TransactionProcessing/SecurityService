@@ -65,4 +65,4 @@ jobs:
       if: ${{ failure() }}
       with:
         name: tracelogs
-        path: c:\app\home\txnproc\trace\  
+        path: c:\home\txnproc\trace\  
