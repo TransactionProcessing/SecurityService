@@ -112,12 +112,13 @@
             INetworkService testNetwork = this.SetupTestNetwork();
             this.TestNetworks.Add(testNetwork);
 
-            IContainerService securityServiceContainer = DockerHelper.SetupSecurityServiceContainer(this.SecurityServiceContainerName,
+            IContainerService securityServiceContainer = SetupSecurityServiceContainer(this.SecurityServiceContainerName,
                                                                                                     this.Logger,
                                                                                                     "securityservice",
                                                                                                     testNetwork,
                                                                                                     5001,
-                                                                                                    dockerCredentials);
+                                                                                                    dockerCredentials,
+                                                                                                    traceFolder);
 
             this.SecurityServicePort = securityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
 
@@ -233,6 +234,7 @@
                                                                        INetworkService networkService,
                                                                        Int32 dockerPort,
                                                                        (String URL, String UserName, String Password)? dockerCredentials,
+                                                                       String traceFolder,
                                                                        Boolean forceLatestImage = false,
                                                                        List<String> additionalEnvironmentVariables = null)
         {
