@@ -60,3 +60,9 @@ jobs:
         DriverExe: msedgedriver.exe
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: tracelogs
+        path: /home/txnproc/trace/  
