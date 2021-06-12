@@ -64,6 +64,7 @@ namespace SecurityService.IntegrationTests.UserLogin
         public void ThenIAmPresentedWithALoginScreen()
         {
             IWebElement loginButton = this.WebDriver.FindButton("Login");
+            Console.WriteLine(this.WebDriver.PageSource);
             loginButton.ShouldNotBeNull();
         }
 
