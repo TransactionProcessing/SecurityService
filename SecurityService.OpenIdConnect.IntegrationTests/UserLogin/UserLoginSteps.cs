@@ -120,7 +120,7 @@ namespace SecurityService.IntegrationTests.UserLogin
             StringBuilder sb = new StringBuilder();
             sb.AppendLine($"Source Is [{page}");
             sb.AppendLine($"Title Is [{webDriver.Title}");
-            e.ShouldHaveSingleItem();
+            e.ShouldHaveSingleItem(sb.ToString());
 
             return e.Single();
         }
