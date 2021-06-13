@@ -6,6 +6,7 @@ namespace SecurityService.IntegrationTests.UserLogin
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using IntergrationTests.Common;
     using OpenQA.Selenium;
@@ -65,10 +66,11 @@ namespace SecurityService.IntegrationTests.UserLogin
         {
             IWebElement loginButton = this.WebDriver.FindButton("Login");
             var page = this.WebDriver.PageSource;
-
-            Console.Out.WriteLine($"Source Is [{page}");
-            Console.Out.WriteLine($"Title Is [{this.WebDriver.Title}");
-            loginButton.ShouldNotBeNull();
+            
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Source Is [{page}");
+            sb.AppendLine($"Title Is [{this.WebDriver.Title}");
+            loginButton.ShouldNotBeNull(sb.ToString());
         }
 
         [When(@"I login with the username '(.*)' and password '(.*)'")]
