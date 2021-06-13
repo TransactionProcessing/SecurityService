@@ -116,7 +116,10 @@ namespace SecurityService.IntegrationTests.UserLogin
             ReadOnlyCollection<IWebElement> elements = webDriver.FindElements(By.TagName("button"));
 
             List<IWebElement> e = elements.Where(e => e.GetAttribute("innerText") == buttonText).ToList();
-
+            var page = webDriver.PageSource;
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine($"Source Is [{page}");
+            sb.AppendLine($"Title Is [{webDriver.Title}");
             e.ShouldHaveSingleItem();
 
             return e.Single();
