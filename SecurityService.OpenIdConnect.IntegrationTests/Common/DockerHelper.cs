@@ -267,7 +267,7 @@
             IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
             Thread.Sleep(20000); // This hack is in till health checks implemented :|
 
-            //DockerHelper.AddEntryToHostsFile("127.0.0.1", containerName);
+            DockerHelper.AddEntryToHostsFile("127.0.0.1", containerName);
             DockerHelper.AddEntryToHostsFile("localhost", containerName);
 
             logger.LogInformation("Security Service Container Started");

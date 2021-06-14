@@ -65,12 +65,7 @@ namespace SecurityService.IntegrationTests.UserLogin
         public void ThenIAmPresentedWithALoginScreen()
         {
             IWebElement loginButton = this.WebDriver.FindButton("Login");
-            var page = this.WebDriver.PageSource;
-            
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Source Is [{page}");
-            sb.AppendLine($"Title Is [{this.WebDriver.Title}");
-            loginButton.ShouldNotBeNull(sb.ToString());
+            loginButton.ShouldNotBeNull();
         }
 
         [When(@"I login with the username '(.*)' and password '(.*)'")]
@@ -116,11 +111,7 @@ namespace SecurityService.IntegrationTests.UserLogin
             ReadOnlyCollection<IWebElement> elements = webDriver.FindElements(By.TagName("button"));
 
             List<IWebElement> e = elements.Where(e => e.GetAttribute("innerText") == buttonText).ToList();
-            var page = webDriver.PageSource;
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine($"Source Is [{page}");
-            sb.AppendLine($"Title Is [{webDriver.Title}");
-            e.ShouldHaveSingleItem(sb.ToString());
+            e.ShouldHaveSingleItem();
 
             return e.Single();
         }
