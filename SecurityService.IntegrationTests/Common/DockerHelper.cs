@@ -101,10 +101,10 @@ namespace SecurityService.IntergrationTests.Common
                                                                          {
                                                                              this.TestNetwork
                                                                          }.ToArray());
-            if (String.IsNullOrEmpty(traceFolder) == false)
-            {
-                securityServiceContainer = securityServiceContainer.Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite);
-            }
+            //if (String.IsNullOrEmpty(traceFolder) == false)
+            //{
+            //    securityServiceContainer = securityServiceContainer.Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite);
+            //}
 
             var builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
 
