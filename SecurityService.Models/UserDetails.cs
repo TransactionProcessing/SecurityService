@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SecurityService.Models
+﻿namespace SecurityService.Models
 {
+    using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
 
     [ExcludeFromCodeCoverage]

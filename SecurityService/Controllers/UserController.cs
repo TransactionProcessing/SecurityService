@@ -5,11 +5,11 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+    using BusinessLogic;
     using Common.Examples;
     using DataTransferObjects;
     using DataTransferObjects.Responses;
     using Factories;
-    using Manager;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;

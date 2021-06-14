@@ -149,8 +149,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "Secret1",
                         "estateManagement,openid,email,profile",
                         "hybrid",
-                        "http://[url]:[port]/signin-oidc",
-                        "http://[url]:[port]/signout-oidc",
+                        "https://[url]:[port]/signin-oidc",
+                        "https://[url]:[port]/signout-oidc",
                         "false",
                         "true"});
 #line 20

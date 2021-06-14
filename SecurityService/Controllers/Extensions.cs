@@ -2,10 +2,10 @@ namespace SecurityService.Controllers
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
-    using IdentityServer4.Models;
+    using Duende.IdentityServer.Models;
+    using IdentityServerHost.Quickstart.UI;
     using Microsoft.AspNetCore.Mvc;
-    using ViewModels;
-
+    
     [ExcludeFromCodeCoverage]
     public static class Extensions
     {

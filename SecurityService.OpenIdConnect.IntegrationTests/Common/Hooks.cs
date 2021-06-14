@@ -66,7 +66,7 @@
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
-            ///browser = "Firefox";
+            //browser = "Firefox";
 
             if (browser == null || browser == "Chrome")
             {
@@ -74,16 +74,18 @@
                 options.AddArguments("--disable-gpu");
                 options.AddArguments("--no-sandbox");
                 options.AddArguments("--disable-dev-shm-usage");
-                var experimentalFlags = new List<String>();
-                experimentalFlags.Add("same-site-by-default-cookies@2");
-                experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
-                options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
+                options.AcceptInsecureCertificates = true;
+                //var experimentalFlags = new List<String>();
+                //experimentalFlags.Add("same-site-by-default-cookies@2");
+                //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
+                //options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
 
                 this.WebDriver = new ChromeDriver(options);
             }
 
             if (browser == "Firefox")
             {
+                //session = webdriver.Firefox(capabilities={"acceptInsecureCerts": True})
                 //FirefoxOptions options = new FirefoxOptions();
                 //options.AddArguments("-headless");
                 //this.WebDriver = new FirefoxDriver(options);
@@ -91,10 +93,11 @@
                 //profile.setPreference("network.cookie.cookieBehavior", 2);
                 //this.WebDriver = new FirefoxDriver(profile);
                 FirefoxOptions options = new FirefoxOptions();
-                options.SetPreference("network.cookie.sameSite.laxByDefault", false);
-                options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
-                options.SetPreference("network.cookie.sameSite.schemeful", false);
-                options.SetPreference("network.cookie.cookieBehavior", 0);
+                options.AcceptInsecureCertificates = true;
+                //options.SetPreference("network.cookie.sameSite.laxByDefault", false);
+                //options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
+                //options.SetPreference("network.cookie.sameSite.schemeful", false);
+                //options.SetPreference("network.cookie.cookieBehavior", 0);
                 this.WebDriver = new FirefoxDriver(options);
             }
 
@@ -102,10 +105,11 @@
             {
                 EdgeOptions options = new EdgeOptions();
                 options.UseChromium = true;
-                List<String> experimentalFlags = new List<String>();
-                experimentalFlags.Add("same-site-by-default-cookies@2");
-                experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
-                options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
+                options.AcceptInsecureCertificates = true;
+                //List<String> experimentalFlags = new List<String>();
+                //experimentalFlags.Add("same-site-by-default-cookies@2");
+                //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
+                //options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
 
                 this.WebDriver = new EdgeDriver(options);
             }

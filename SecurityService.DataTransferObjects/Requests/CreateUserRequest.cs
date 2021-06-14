@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
     using System.Diagnostics.CodeAnalysis;
     using System.Runtime.CompilerServices;
     using Newtonsoft.Json;
@@ -16,7 +15,6 @@
         /// <value>
         /// The email address.
         /// </value>
-        [Required]
         [JsonProperty("email_address")]
         public String EmailAddress { get; set; }
 
@@ -26,7 +24,6 @@
         /// <value>
         /// The phone number.
         /// </value>
-        [Required]
         [JsonProperty("phone_number")]
         public String PhoneNumber { get; set; }
 
@@ -36,7 +33,6 @@
         /// <value>
         /// The password.
         /// </value>
-        [Required]
         [JsonProperty("password")]
         public String Password { get; set; }
 
@@ -64,7 +60,6 @@
         /// <value>
         /// The name of the given.
         /// </value>
-        [Required]
         [JsonProperty("given_name")]
         public String GivenName { get; set; }
 
@@ -83,7 +78,6 @@
         /// <value>
         /// The name of the family.
         /// </value>
-        [Required]
         [JsonProperty("family_name")]
         public String FamilyName { get; set; }
     }

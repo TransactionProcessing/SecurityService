@@ -19,8 +19,6 @@ namespace SecurityService.IntergrationTests.Common
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
-    using IdentityServer4.EntityFramework.DbContexts;
-    using IdentityServer4.EntityFramework.Options;
     using Microsoft.EntityFrameworkCore;
     using TechTalk.SpecFlow;
 
@@ -71,36 +69,48 @@ namespace SecurityService.IntergrationTests.Common
             
             this.TestNetwork = this.SetupTestNetwork();
             
-            this.SetupSecurityServiceContainer(traceFolder);
+            this.SecurityServiceContainer = this.SetupSecurityServiceContainer(traceFolder);
             this.SecurityServicePort = this.SecurityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
             
-            Func<String, String> securityServiceBaseAddressResolver = api => $"http://127.0.0.1:{this.SecurityServicePort}";
+            Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
             HttpClient httpClient = new HttpClient();
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver,httpClient);
 
             Console.Out.WriteLine($"Security Service Port is [{this.SecurityServicePort}]");
 
             await Task.Delay(30000).ConfigureAwait(false);
+
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
         }
 
         public Int32 SecurityServicePort;
 
-        private void SetupSecurityServiceContainer(String traceFolder)
+        private IContainerService SetupSecurityServiceContainer(String traceFolder)
         {
 
 
             // Management API Container
-            this.SecurityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
-                                                         .WithEnvironment("ASPNETCORE_ENVIRONMENT=IntegrationTest",
-                                                                          $"ServiceOptions:PublicOrigin=http://127.0.0.1:5001",
-                                                                          $"ServiceOptions:IssuerUrl=http://127.0.0.1:5001")
-                                                         .UseImage("securityservice").ExposePort(5001).UseNetwork(new List<INetworkService>
-                                                                                                                  {
-                                                                                                                      this.TestNetwork
-                                                                                                                  }.ToArray())
-                                                         .Build().Start().WaitForPort("5001/tcp", 30000);
+            ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
+                                                                     .WithEnvironment("ASPNETCORE_ENVIRONMENT=IntegrationTest",
+                                                                                      $"ServiceOptions:PublicOrigin=https://localhost:5001",
+                                                                                      $"ServiceOptions:IssuerUrl=https://localhost:5001",
+                                                                                      "urls=https://*:5001")
+                                                                     //"ASPNETCORE_Kestrel__Certificates__Default__Password=password",
+                                                                     //"ASPNETCORE_Kestrel__Certificates__Default__Path=aspnetapp-identity-server.pfx")
+                                                                     .UseImage("securityservice").ExposePort(5001).UseNetwork(new List<INetworkService>
+                                                                         {
+                                                                             this.TestNetwork
+                                                                         }.ToArray());
+            //if (String.IsNullOrEmpty(traceFolder) == false)
+            //{
+            //    securityServiceContainer = securityServiceContainer.Mount(traceFolder, "/home/txnproc/trace", MountType.ReadWrite);
+            //}
+
+            var builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
 
             Console.Out.WriteLine("Started Security Service");
+
+            return builtContainer;
         }
 
         public async Task StopContainersForScenarioRun()

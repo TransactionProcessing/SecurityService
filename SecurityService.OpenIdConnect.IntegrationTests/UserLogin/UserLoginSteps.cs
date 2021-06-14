@@ -6,6 +6,7 @@ namespace SecurityService.IntegrationTests.UserLogin
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using IntergrationTests.Common;
     using OpenQA.Selenium;
@@ -50,8 +51,8 @@ namespace SecurityService.IntegrationTests.UserLogin
         [Given(@"I am on the application home page")]
         public void GivenIAmOnTheApplicationHomePage()
         {
-            this.WebDriver.Navigate().GoToUrl($"http://{this.TestingContext.DockerHelper.SecurityServiceContainerName}:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
-            this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestWebClient");
+            this.WebDriver.Navigate().GoToUrl($"https://localhost:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
+            this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestUI");
         }
 
         [When(@"I click the '(.*)' link")]
@@ -84,7 +85,7 @@ namespace SecurityService.IntegrationTests.UserLogin
 
                                 Console.WriteLine($"Source Is [{page}");
 
-                                this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestWebClient");
+                                this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestUI");
                             });
             
             
@@ -110,7 +111,6 @@ namespace SecurityService.IntegrationTests.UserLogin
             ReadOnlyCollection<IWebElement> elements = webDriver.FindElements(By.TagName("button"));
 
             List<IWebElement> e = elements.Where(e => e.GetAttribute("innerText") == buttonText).ToList();
-
             e.ShouldHaveSingleItem();
 
             return e.Single();

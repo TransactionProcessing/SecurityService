@@ -1,55 +1,22 @@
-namespace SecurityService.Database.DbContexts
+﻿namespace SecurityService.Database.DbContexts
 {
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="IdentityUser" />
     public class AuthenticationDbContext : IdentityDbContext<IdentityUser>
     {
-        #region Constructors
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AuthenticationDbContext"/> class.
-        /// </summary>
-        public AuthenticationDbContext()
-        {
-            // Paramaterless constructor required for migrations.
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="AuthenticationDbContext"/> class.
-        /// </summary>
-        /// <param name="options">The options.</param>
-        public AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options) : base(options)
+        public AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options)
+            : base((DbContextOptions)options)
         {
         }
 
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// Called when [configuring].
-        /// </summary>
-        /// <param name="builder">The builder.</param>
-        protected override void OnConfiguring(DbContextOptionsBuilder builder)
-        {
-            base.OnConfiguring(builder);
-        }
-
-        /// <summary>
-        /// Configures the schema needed for the identity framework.
-        /// </summary>
-        /// <param name="builder">The builder being used to construct the model for this context.</param>
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
+            // Customize the ASP.NET Identity model and override the defaults if needed.
+            // For example, you can rename the ASP.NET Identity table names and more.
+            // Add your customizations after calling base.OnModelCreating(builder);
         }
-
-        #endregion
     }
 }

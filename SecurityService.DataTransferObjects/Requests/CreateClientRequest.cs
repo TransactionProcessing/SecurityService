@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.ComponentModel.DataAnnotations;
     using System.Diagnostics.CodeAnalysis;
     using Newtonsoft.Json;
 
@@ -56,7 +55,6 @@
         /// <value>
         /// The client identifier.
         /// </value>
-        [Required]
         [JsonProperty("client_id")]
         public String ClientId { get; set; }
 
@@ -66,7 +64,6 @@
         /// <value>
         /// The name of the client.
         /// </value>
-        [Required]
         [JsonProperty("client_name")]
         public String ClientName { get; set; }
 
@@ -103,7 +100,6 @@
         /// <value>
         /// The secret.
         /// </value>
-        [Required]
         [JsonProperty("secret")]
         public String Secret { get; set; }
 
