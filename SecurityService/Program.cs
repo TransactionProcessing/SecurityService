@@ -44,8 +44,9 @@ namespace SecurityService
                                                      //{
                                                          webBuilder.UseKestrel(options =>
                                                                                {
-                                                                                   var port = 5001;
-
+                                                                                   var urls = config.GetSection("urls").Value.Split(":");
+                                                                                   var port = Int32.Parse(urls[2]);
+                                                                                   
                                                                                    options.Listen(IPAddress.Any,
                                                                                                   port,
                                                                                                   listenOptions =>
