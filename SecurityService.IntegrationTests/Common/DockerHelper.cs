@@ -92,6 +92,7 @@ namespace SecurityService.IntergrationTests.Common
             // Management API Container
             ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
                                                                      .WithEnvironment("ASPNETCORE_ENVIRONMENT=IntegrationTest",
+                                                                                      "ServiceOptions:UseInMemoryDatabase=true",
                                                                                       $"ServiceOptions:PublicOrigin=https://localhost:5001",
                                                                                       $"ServiceOptions:IssuerUrl=https://localhost:5001",
                                                                                       "urls=https://*:5001")
