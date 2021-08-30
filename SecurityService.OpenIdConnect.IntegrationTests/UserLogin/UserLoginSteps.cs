@@ -62,9 +62,9 @@ namespace SecurityService.IntegrationTests.UserLogin
         }
 
         [Then(@"I am presented with a login screen")]
-        public void ThenIAmPresentedWithALoginScreen()
+        public async Task ThenIAmPresentedWithALoginScreen()
         {
-            IWebElement loginButton = this.WebDriver.FindButton("Login");
+            IWebElement loginButton = await this.WebDriver.FindButton("Login");
             loginButton.ShouldNotBeNull();
         }
 
@@ -105,15 +105,23 @@ namespace SecurityService.IntegrationTests.UserLogin
             webElement.SendKeys(value);
         }
 
-        public static IWebElement FindButton(this IWebDriver webDriver,
+        public static async Task<IWebElement> FindButton(this IWebDriver webDriver,
                                        String buttonText)
         {
-            ReadOnlyCollection<IWebElement> elements = webDriver.FindElements(By.TagName("button"));
+            IWebElement e = null;
+            await Retry.For(async () =>
+                      {
 
-            List<IWebElement> e = elements.Where(e => e.GetAttribute("innerText") == buttonText).ToList();
-            e.ShouldHaveSingleItem();
 
-            return e.Single();
+                          ReadOnlyCollection<IWebElement> elements = webDriver.FindElements(By.TagName("button"));
+
+                          var foundElements = elements.Where(e => e.GetAttribute("innerText") == buttonText).ToList();
+                          foundElements.ShouldHaveSingleItem();
+
+                          e = foundElements.Single();
+                      });
+
+            return e;
         }
 
         public static void ClickLink(this IWebDriver webDriver,
@@ -124,10 +132,10 @@ namespace SecurityService.IntegrationTests.UserLogin
             webElement.Click();
         }
 
-        public static void ClickButton(this IWebDriver webDriver,
+        public static async Task ClickButton(this IWebDriver webDriver,
                                      String buttonText)
         {
-            IWebElement webElement = webDriver.FindButton(buttonText);
+            IWebElement webElement = await webDriver.FindButton(buttonText);
             webElement.ShouldNotBeNull();
             webElement.Click();
         }
