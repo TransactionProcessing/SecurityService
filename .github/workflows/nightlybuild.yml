@@ -64,15 +64,15 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
-    - uses: nashmaniac/create-issue-action@v1.1
+    - name: Create Issue on Failed workflow
       if: ${{ failure() }}
-      name: Create an issue on build failure
+      uses: dacbd/create-issue-action@main
       with:
+        token: ${{ github.token }}
         title: Investigate Nightly Build Failure
-        token: ${{secrets.GITHUB_TOKEN}}
-        labels: nightlybuild
         body: Url is ${{env.action_url}}
-
+        labels: nightlybuild
+        
   codecoverage:
     name: "Nightly Build - Code Coverage"
     env:
