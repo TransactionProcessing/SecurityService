@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.31321.278
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService", "SecurityService\SecurityService.csproj", "{5840CEF3-26C0-4323-A549-5D1560B1AFFA}"
 EndProject
@@ -26,6 +26,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.IntegrationTests", "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj", "{28C72B39-1803-49D7-9289-C71A620E4EF1}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.OpenIdConnect.IntegrationTests", "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj", "{5BAEC61F-39FF-4197-A73A-A8A8B5BDFE86}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityService.SqlServerMigrations", "SecurityService.SqlServerMigrations\SecurityService.SqlServerMigrations.csproj", "{06507A50-DFDF-4842-9BA4-F70F194741D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityService.MySqlMigrations", "SecurityService.MySqlMigrations\SecurityService.MySqlMigrations.csproj", "{701F392A-0D5B-4FDD-8135-DA037ECA7A8F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -73,6 +77,14 @@ Global
 		{5BAEC61F-39FF-4197-A73A-A8A8B5BDFE86}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5BAEC61F-39FF-4197-A73A-A8A8B5BDFE86}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5BAEC61F-39FF-4197-A73A-A8A8B5BDFE86}.Release|Any CPU.Build.0 = Release|Any CPU
+		{06507A50-DFDF-4842-9BA4-F70F194741D7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06507A50-DFDF-4842-9BA4-F70F194741D7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06507A50-DFDF-4842-9BA4-F70F194741D7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06507A50-DFDF-4842-9BA4-F70F194741D7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{701F392A-0D5B-4FDD-8135-DA037ECA7A8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{701F392A-0D5B-4FDD-8135-DA037ECA7A8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{701F392A-0D5B-4FDD-8135-DA037ECA7A8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{701F392A-0D5B-4FDD-8135-DA037ECA7A8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -88,6 +100,8 @@ Global
 		{7CC70B33-75CD-46C0-82A5-87E5E60C9535} = {FBA324D4-A2B7-4539-B63E-AF254EA7DA50}
 		{28C72B39-1803-49D7-9289-C71A620E4EF1} = {62BD199E-BDB7-4D33-92E4-3FE97D5EBC91}
 		{5BAEC61F-39FF-4197-A73A-A8A8B5BDFE86} = {62BD199E-BDB7-4D33-92E4-3FE97D5EBC91}
+		{06507A50-DFDF-4842-9BA4-F70F194741D7} = {FBA324D4-A2B7-4539-B63E-AF254EA7DA50}
+		{701F392A-0D5B-4FDD-8135-DA037ECA7A8F} = {FBA324D4-A2B7-4539-B63E-AF254EA7DA50}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {91D97431-DF9A-4A33-860E-27734BFD4496}

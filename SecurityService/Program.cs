@@ -37,31 +37,22 @@ namespace SecurityService
                                                  {
                                                      webBuilder.UseStartup<Startup>();
                                                      webBuilder.UseConfiguration(config);
-
-                                                     var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
-
-                                                     //if (environment == "IntegrationTest")
-                                                     //{
-                                                         webBuilder.UseKestrel(options =>
-                                                                               {
-                                                                                   var urls = config.GetSection("urls").Value.Split(":");
-                                                                                   var port = Int32.Parse(urls[2]);
-                                                                                   
-                                                                                   options.Listen(IPAddress.Any,
-                                                                                                  port,
-                                                                                                  listenOptions =>
-                                                                                                  {
-                                                                                                      // Enable support for HTTP1 and HTTP2 (required if you want to host gRPC endpoints)
-                                                                                                      listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-                                                                                                      // Configure Kestrel to use a certificate from a local .PFX file for hosting HTTPS
-                                                                                                      listenOptions.UseHttps(Program.LoadCertificate());
-                                                                                                  });
-                                                                               });
-                                                     //}
-                                                     //else
-                                                     //{
-                                                     //    webBuilder.UseKestrel();
-                                                     //}
+                                                     webBuilder.UseKestrel(options =>
+                                                                           {
+                                                                               var urls = config.GetSection("urls").Value.Split(":");
+                                                                               var port = Int32.Parse(urls[2]);
+                                                                               
+                                                                               options.Listen(IPAddress.Any,
+                                                                                              port,
+                                                                                              listenOptions =>
+                                                                                              {
+                                                                                                  // Enable support for HTTP1 and HTTP2 (required if you want to host gRPC endpoints)
+                                                                                                  listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+                                                                                                  // Configure Kestrel to use a certificate from a local .PFX file for hosting HTTPS
+                                                                                                  listenOptions.UseHttps(Program.LoadCertificate());
+                                                                                              });
+                                                                           });
+                                                     
                                                  });
             return hostBuilder;
         }

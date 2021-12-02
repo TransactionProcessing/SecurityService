@@ -4,9 +4,11 @@ namespace SecurityService
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using Database.DbContexts;
+    using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.Models;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.DependencyInjection;
+    using Shared.General;
 
     [ExcludeFromCodeCoverage]
     public static class StartupExtensions
@@ -14,28 +16,52 @@ namespace SecurityService
         #region Methods
 
         public static IIdentityServerBuilder AddIdentityServerStorage(this IIdentityServerBuilder builder,
-                                                              String configurationConnectionString,
-                                                              String persistedGrantStoreConenctionString,
-                                                              String authenticationConenctionString,
-                                                              String migrationsAssembly)
+                                                                      String configurationConnectionString,
+                                                                      String persistedGrantStoreConenctionString,
+                                                                      String authenticationConenctionString)
         {
-            builder.AddConfigurationStore(options =>
-                                          {
-                                              options.ConfigureDbContext =
-                                                  c => c.UseSqlServer(configurationConnectionString, sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly));
-                                          });
+            if (Startup.IsSqlServer)
+            {
+                builder.AddConfigurationStore<ConfigurationDbContext>(options =>
+                                              {
+                                                  options.ConfigureDbContext =
+                                                      c => c.UseSqlServer(configurationConnectionString, sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations"));
+                                              });
 
-            builder.AddOperationalStore(options =>
-                                          {
-                                              options.ConfigureDbContext =
-                                                  c => c.UseSqlServer(persistedGrantStoreConenctionString, sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly));
-                                          });
+                builder.AddOperationalStore<PersistedGrantDbContext>(options =>
+                                            {
+                                                options.ConfigureDbContext =
+                                                    c => c.UseSqlServer(persistedGrantStoreConenctionString,
+                                                                        sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations"));
+                                            });
 
-            builder.Services.AddDbContext<AuthenticationDbContext>(builder => builder.UseSqlServer(authenticationConenctionString, sqlOptions => sqlOptions.MigrationsAssembly(migrationsAssembly)));
+                builder.Services.AddDbContext<AuthenticationDbContext>(builder => builder.UseSqlServer(authenticationConenctionString,
+                                                                                                       sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations")));
+            }
+            else if (Startup.IsMySql)
+            {
+                ServerVersion serverVersion = ServerVersion.Parse("8.0.27");
+
+                builder.AddConfigurationStore<ConfigurationDbContext>(options =>
+                                              {
+                                                  options.ConfigureDbContext = c => c.UseMySql(configurationConnectionString,
+                                                                                               serverVersion,
+                                                                                               sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.MySqlMigrations"));                                              });
+
+                builder.AddOperationalStore<PersistedGrantDbContext>(options =>
+                                            {
+                                                options.ConfigureDbContext = c => c.UseMySql(persistedGrantStoreConenctionString,
+                                                                                             serverVersion,
+                                                                                             sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.MySqlMigrations"));
+                                            });
+
+                builder.Services.AddDbContext<AuthenticationDbContext>(builder => builder.UseMySql(authenticationConenctionString,
+                                                                                                   serverVersion,
+                                                                                                   sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.MySqlMigrations")));
+            }
 
             return builder;
         }
-
 
         public static IIdentityServerBuilder AddIntegrationTestConfiguration(this IIdentityServerBuilder builder)
         {

@@ -1,8 +1,12 @@
 ﻿namespace SecurityService.Database.DbContexts
 {
+    using System;
+    using Duende.IdentityServer.EntityFramework.DbContexts;
+    using Duende.IdentityServer.EntityFramework.Options;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
+    using Shared.General;
 
     public class AuthenticationDbContext : IdentityDbContext<IdentityUser>
     {

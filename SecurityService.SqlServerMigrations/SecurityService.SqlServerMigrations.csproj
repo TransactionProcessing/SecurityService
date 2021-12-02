@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+  </PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="5.2.1" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.12" />
+	</ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />
+	</ItemGroup>
+</Project>
