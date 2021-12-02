@@ -47,17 +47,17 @@ namespace SecurityService
         /// <summary>
         /// The authentication conenction string
         /// </summary>
-        private String AuthenticationConenctionString;
+        private readonly String AuthenticationConenctionString;
 
         /// <summary>
         /// The configuration connection string
         /// </summary>
-        private String ConfigurationConnectionString;
+        private readonly String ConfigurationConnectionString;
 
         /// <summary>
         /// The persisted grant store conenction string
         /// </summary>
-        private String PersistedGrantStoreConenctionString;
+        private readonly String PersistedGrantStoreConenctionString;
 
         #endregion
 
