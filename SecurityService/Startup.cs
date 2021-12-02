@@ -47,17 +47,17 @@ namespace SecurityService
         /// <summary>
         /// The authentication conenction string
         /// </summary>
-        private static String AuthenticationConenctionString;
+        private String AuthenticationConenctionString;
 
         /// <summary>
         /// The configuration connection string
         /// </summary>
-        private static String ConfigurationConnectionString;
+        private String ConfigurationConnectionString;
 
         /// <summary>
         /// The persisted grant store conenction string
         /// </summary>
-        private static String PersistedGrantStoreConenctionString;
+        private String PersistedGrantStoreConenctionString;
 
         #endregion
 
@@ -86,7 +86,7 @@ namespace SecurityService
         public static Boolean IsSqlServer => GetDatabaseEngine == null || String.Compare(GetDatabaseEngine, "SqlServer", StringComparison.InvariantCultureIgnoreCase) == 0;
 
         public static Boolean IsMySql => String.Compare(GetDatabaseEngine, "MySql", StringComparison.InvariantCultureIgnoreCase) == 0;
-
+        
         public Startup(IWebHostEnvironment webHostEnvironment)
         {
             IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
@@ -100,9 +100,9 @@ namespace SecurityService
             Startup.WebHostEnvironment = webHostEnvironment;
 
             // Get the DB Connection Strings
-            Startup.PersistedGrantStoreConenctionString = Startup.Configuration.GetConnectionString("PersistedGrantDbContext");
-            Startup.ConfigurationConnectionString = Startup.Configuration.GetConnectionString("ConfigurationDbContext");
-            Startup.AuthenticationConenctionString = Startup.Configuration.GetConnectionString("AuthenticationDbContext");
+            this.PersistedGrantStoreConenctionString = Startup.Configuration.GetConnectionString("PersistedGrantDbContext");
+            this.ConfigurationConnectionString = Startup.Configuration.GetConnectionString("ConfigurationDbContext");
+            this.AuthenticationConenctionString = Startup.Configuration.GetConnectionString("AuthenticationDbContext");
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -213,11 +213,9 @@ namespace SecurityService
             }
             else
             {
-                String migrationsAssembly = typeof(AuthenticationDbContext).GetTypeInfo().Assembly.GetName().Name;
-                identityServerBuilder.AddIdentityServerStorage(Startup.ConfigurationConnectionString,
-                                                               Startup.PersistedGrantStoreConenctionString,
-                                                               Startup.AuthenticationConenctionString,
-                                                               migrationsAssembly);
+                identityServerBuilder.AddIdentityServerStorage(this.ConfigurationConnectionString,
+                                                               this.PersistedGrantStoreConenctionString,
+                                                               this.AuthenticationConenctionString);
             }
         }
 

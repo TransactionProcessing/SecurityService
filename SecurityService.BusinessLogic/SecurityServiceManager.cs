@@ -267,17 +267,14 @@
                                                Name = roleName,
                                                NormalizedName = roleName.ToUpper()
                                            };
-
-            // Default all IdentityResults to failed
-            IdentityResult createResult = IdentityResult.Failed();
-
+            
             // Ensure role name is not a duplicate
             if (await this.RoleManager.RoleExistsAsync(newIdentityRole.Name))
             {
                 throw new IdentityResultException($"Role {newIdentityRole.Name} already exists", IdentityResult.Failed());
             }
 
-            createResult = await this.RoleManager.CreateAsync(newIdentityRole);
+            IdentityResult createResult = await this.RoleManager.CreateAsync(newIdentityRole);
 
             if (!createResult.Succeeded)
             {
@@ -314,14 +311,14 @@
                                            };
 
             // Set the password
-            //String password = String.IsNullOrEmpty(request.Password) ? GenerateRandomPassword() : request.Password;
+            // TODO: generate password when not supplied (use GenerateRandomPassword)
 
             // Hash the new password
             newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, password);
 
             if (string.IsNullOrEmpty(newIdentityUser.PasswordHash))
             {
-                throw new NullReferenceException("Error generating password hash value, hash was null or empty");
+                throw new IdentityResultException("Error generating password hash value, hash was null or empty", IdentityResult.Failed());
             }
 
             // Default all IdentityResults to failed

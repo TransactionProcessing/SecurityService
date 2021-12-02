@@ -18,8 +18,7 @@ namespace SecurityService
         public static IIdentityServerBuilder AddIdentityServerStorage(this IIdentityServerBuilder builder,
                                                                       String configurationConnectionString,
                                                                       String persistedGrantStoreConenctionString,
-                                                                      String authenticationConenctionString,
-                                                                      String migrationsAssembly)
+                                                                      String authenticationConenctionString)
         {
             if (Startup.IsSqlServer)
             {
