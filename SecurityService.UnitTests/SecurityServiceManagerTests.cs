@@ -456,7 +456,7 @@
 
             SecurityServiceManager securityServiceManager = this.SetupSecurityServiceManager();
 
-            await Should.ThrowAsync<NullReferenceException>(async () =>
+            await Should.ThrowAsync<IdentityResultException>(async () =>
                                                             {
                                                                 await securityServiceManager.CreateUser(SecurityServiceManagerTestData.GivenName,
                                                                                                         SecurityServiceManagerTestData.MiddleName,
