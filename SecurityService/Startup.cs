@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 namespace SecurityService
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Net.Http;
@@ -80,6 +81,12 @@ namespace SecurityService
 
         #endregion
 
+        private static String GetDatabaseEngine => ConfigurationReader.GetValue("AppSettings", "DatabaseEngine");
+
+        public static Boolean IsSqlServer => GetDatabaseEngine == null || String.Compare(GetDatabaseEngine, "SqlServer", StringComparison.InvariantCultureIgnoreCase) == 0;
+
+        public static Boolean IsMySql => String.Compare(GetDatabaseEngine, "MySql", StringComparison.InvariantCultureIgnoreCase) == 0;
+
         public Startup(IWebHostEnvironment webHostEnvironment)
         {
             IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
@@ -93,9 +100,9 @@ namespace SecurityService
             Startup.WebHostEnvironment = webHostEnvironment;
 
             // Get the DB Connection Strings
-            Startup.PersistedGrantStoreConenctionString = Startup.Configuration.GetConnectionString(nameof(PersistedGrantDbContext));
-            Startup.ConfigurationConnectionString = Startup.Configuration.GetConnectionString(nameof(ConfigurationDbContext));
-            Startup.AuthenticationConenctionString = Startup.Configuration.GetConnectionString(nameof(AuthenticationDbContext));
+            Startup.PersistedGrantStoreConenctionString = Startup.Configuration.GetConnectionString("PersistedGrantDbContext");
+            Startup.ConfigurationConnectionString = Startup.Configuration.GetConnectionString("ConfigurationDbContext");
+            Startup.AuthenticationConenctionString = Startup.Configuration.GetConnectionString("AuthenticationDbContext");
         }
 
         public void ConfigureServices(IServiceCollection services)
@@ -127,21 +134,21 @@ namespace SecurityService
         private void ConfigureHealthChecks(IServiceCollection services)
         {
             services.AddHealthChecks()
-                    .AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
-                                  healthQuery: "SELECT 1;",
-                                  name: "Persisted Grant DB",
-                                  failureStatus: HealthStatus.Unhealthy,
-                                  tags: new string[] { "db", "sql", "sqlserver", "persistedgrant" })
-                    .AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
-                                  healthQuery: "SELECT 1;",
-                                  name: "Configuration DB",
-                                  failureStatus: HealthStatus.Unhealthy,
-                                  tags: new string[] { "db", "sql", "sqlserver", "configuration" })
-                    .AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("AuthenticationDbContext"),
-                                  healthQuery: "SELECT 1;",
-                                  name: "Authentication DB",
-                                  failureStatus: HealthStatus.Unhealthy,
-                                  tags: new string[] { "db", "sql", "sqlserver", "authentication" })
+                    //.AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
+                    //              healthQuery: "SELECT 1;",
+                    //              name: "Persisted Grant DB",
+                    //              failureStatus: HealthStatus.Unhealthy,
+                    //              tags: new string[] { "db", "sql", "sqlserver", "persistedgrant" })
+                    //.AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
+                    //              healthQuery: "SELECT 1;",
+                    //              name: "Configuration DB",
+                    //              failureStatus: HealthStatus.Unhealthy,
+                    //              tags: new string[] { "db", "sql", "sqlserver", "configuration" })
+                    //.AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("AuthenticationDbContext"),
+                    //              healthQuery: "SELECT 1;",
+                    //              name: "Authentication DB",
+                    //              failureStatus: HealthStatus.Unhealthy,
+                    //              tags: new string[] { "db", "sql", "sqlserver", "authentication" })
                     .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("ServiceAddresses", "MessagingService")}/health"),
                                  name: "Messaging Service",
                                  httpMethod: HttpMethod.Get,
@@ -184,21 +191,19 @@ namespace SecurityService
 
         private void ConfigureIdentityServer(IServiceCollection services)
         {
-            services.AddIdentity<IdentityUser, IdentityRole>()
-                    .AddEntityFrameworkStores<AuthenticationDbContext>()
-                    .AddDefaultTokenProviders();
+            services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders();
 
             IIdentityServerBuilder identityServerBuilder = services.AddIdentityServer(options =>
-            {
-                // https://docs.duendesoftware.com/identityserver/v5/fundamentals/resources/
-                options.EmitStaticAudienceClaim = true;
+                                                                                      {
+                                                                                          // https://docs.duendesoftware.com/identityserver/v5/fundamentals/resources/
+                                                                                          options.EmitStaticAudienceClaim = true;
 
-                options.Events.RaiseSuccessEvents = true;
-                options.Events.RaiseFailureEvents = true;
-                options.Events.RaiseErrorEvents = true;
+                                                                                          options.Events.RaiseSuccessEvents = true;
+                                                                                          options.Events.RaiseFailureEvents = true;
+                                                                                          options.Events.RaiseErrorEvents = true;
 
-                options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:IssuerUrl");
-            });
+                                                                                          options.IssuerUri = Startup.Configuration.GetValue<String>("ServiceOptions:IssuerUrl");
+                                                                                      });
 
             identityServerBuilder.AddAspNetIdentity<IdentityUser>();
 
@@ -283,21 +288,23 @@ namespace SecurityService
 
         private void InitializeDatabase(IApplicationBuilder app)
         {
-            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            using (IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var persistedGrantDbContext = serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
-                if (persistedGrantDbContext.Database.IsRelational())
+                var configurationDbContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+                var authenticationContext = serviceScope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
+
+                if (persistedGrantDbContext != null && persistedGrantDbContext.Database.IsRelational())
                 {
                     persistedGrantDbContext.Database.Migrate();
                 }
-                var configurationDbContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                if (configurationDbContext.Database.IsRelational())
+
+                if (configurationDbContext != null && configurationDbContext.Database.IsRelational())
                 {
                     configurationDbContext.Database.Migrate();
                 }
 
-                var authenticationContext = serviceScope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
-                if (authenticationContext.Database.IsRelational())
+                if (authenticationContext != null && authenticationContext.Database.IsRelational())
                 {
                     authenticationContext.Database.Migrate();
                 }

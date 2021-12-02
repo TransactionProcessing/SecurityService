@@ -1,9 +1,9 @@
-﻿namespace SecurityService.Database.Migrations.PersistedGrantDb
-{
-    using Microsoft.EntityFrameworkCore.Migrations;
-    using System;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
-    public partial class InitialMigration : Migration
+namespace SecurityService.SqlServerMigrations.PersistedGrantDb
+{
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
