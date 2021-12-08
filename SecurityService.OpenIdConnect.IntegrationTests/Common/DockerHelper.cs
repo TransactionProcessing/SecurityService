@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Net.Http;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Client;
@@ -30,11 +31,6 @@
         /// The security service client
         /// </summary>
         public ISecurityServiceClient SecurityServiceClient;
-
-        /// <summary>
-        /// The security service container name
-        /// </summary>
-        public String SecurityServiceContainerName;
 
         /// <summary>
         /// The security service test UI container name
@@ -66,11 +62,6 @@
         /// </summary>
         protected List<INetworkService> TestNetworks;
 
-        /// <summary>
-        /// The logger
-        /// </summary>
-        private readonly NlogLogger Logger;
-
         #endregion
 
         #region Constructors
@@ -96,14 +87,14 @@
         /// <param name="scenarioName">Name of the scenario.</param>
         public override async Task StartContainersForScenarioRun(String scenarioName)
         {
-            String traceFolder = FdOs.IsWindows() ? $"C:\\home\\txnproc\\trace\\{scenarioName}" : $"/home/txnproc/trace/{scenarioName}";
+            this.HostTraceFolder = FdOs.IsWindows() ? $"C:\\home\\txnproc\\trace\\{scenarioName}" : $"/home/txnproc/trace/{scenarioName}";
 
             Logging.Enabled();
 
             Guid testGuid = Guid.NewGuid();
             this.TestId = testGuid;
 
-            (String, String, String) dockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
+            this.DockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
 
             // Setup the container names
             this.SecurityServiceContainerName = $"identity-server";
@@ -112,21 +103,18 @@
             INetworkService testNetwork = this.SetupTestNetwork();
             this.TestNetworks.Add(testNetwork);
 
-            IContainerService securityServiceContainer = SetupSecurityServiceContainer(this.SecurityServiceContainerName,
-                                                                                                    this.Logger,
-                                                                                                    "securityservice",
-                                                                                                    testNetwork,
-                                                                                                    5001,
-                                                                                                    dockerCredentials,
-                                                                                                    traceFolder);
+            this.ClientDetails = ("estateUIClient", "Secret1");
+
+            IContainerService securityServiceContainer = this.SetupSecurityServiceContainer("securityservice",
+                                                                                            testNetwork);
+
+            DockerHelper.AddEntryToHostsFile("127.0.0.1", this.SecurityServiceContainerName);
+            DockerHelper.AddEntryToHostsFile("localhost", this.SecurityServiceContainerName);
 
             this.SecurityServicePort = securityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
 
-            IContainerService securityServiceTestUIContainer = DockerHelper.SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
-                                                                                                                this.SecurityServiceContainerName,
-                                                                                                                this.SecurityServicePort,
-                                                                                                                testNetwork,
-                                                                                                                ("estateUIClient", "Secret1"));
+            IContainerService securityServiceTestUIContainer = this.SetupSecurityServiceTestUIContainer(this.SecurityServicePort,
+                                                                                                                testNetwork);
 
             this.SecurityServiceTestUIPort = securityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
 
@@ -228,52 +216,52 @@
         /// <param name="forceLatestImage">if set to <c>true</c> [force latest image].</param>
         /// <param name="additionalEnvironmentVariables">The additional environment variables.</param>
         /// <returns></returns>
-        private static IContainerService SetupSecurityServiceContainer(String containerName,
-                                                                       ILogger logger,
-                                                                       String imageName,
-                                                                       INetworkService networkService,
-                                                                       Int32 dockerPort,
-                                                                       (String URL, String UserName, String Password)? dockerCredentials,
-                                                                       String traceFolder,
-                                                                       Boolean forceLatestImage = false,
-                                                                       List<String> additionalEnvironmentVariables = null)
-        {
-            logger.LogInformation("About to Start Security Container");
+        //private static IContainerService SetupSecurityServiceContainer(String containerName,
+        //                                                               ILogger logger,
+        //                                                               String imageName,
+        //                                                               INetworkService networkService,
+        //                                                               Int32 dockerPort,
+        //                                                               (String URL, String UserName, String Password)? dockerCredentials,
+        //                                                               String traceFolder,
+        //                                                               Boolean forceLatestImage = false,
+        //                                                               List<String> additionalEnvironmentVariables = null)
+        //{
+        //    logger.LogInformation("About to Start Security Container");
 
-            List<String> environmentVariables = new List<String>();
-            environmentVariables.Add($"ServiceOptions:PublicOrigin=https://identity-server:{dockerPort}");
-            environmentVariables.Add($"ServiceOptions:IssuerUrl=https://identity-server:{dockerPort}");
-            environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
-            environmentVariables.Add("urls=https://*:5001");
+        //    List<String> environmentVariables = new List<String>();
+        //    environmentVariables.Add($"ServiceOptions:PublicOrigin=https://identity-server:{dockerPort}");
+        //    environmentVariables.Add($"ServiceOptions:IssuerUrl=https://identity-server:{dockerPort}");
+        //    environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
+        //    environmentVariables.Add("urls=https://*:5001");
 
-            if (additionalEnvironmentVariables != null)
-            {
-                environmentVariables.AddRange(additionalEnvironmentVariables);
-            }
+        //    if (additionalEnvironmentVariables != null)
+        //    {
+        //        environmentVariables.AddRange(additionalEnvironmentVariables);
+        //    }
 
-            ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(containerName)
-                                                                     .WithEnvironment(environmentVariables.ToArray()).UseImage(imageName, forceLatestImage)
-                                                                     .ExposePort(dockerPort, 5001).UseNetwork(new List<INetworkService>
-                                                                                                              {
-                                                                                                                  networkService
-                                                                                                              }.ToArray());
+        //    ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(containerName)
+        //                                                             .WithEnvironment(environmentVariables.ToArray()).UseImage(imageName, forceLatestImage)
+        //                                                             .ExposePort(dockerPort, 5001).UseNetwork(new List<INetworkService>
+        //                                                                                                      {
+        //                                                                                                          networkService
+        //                                                                                                      }.ToArray());
 
-            if (dockerCredentials.HasValue)
-            {
-                securityServiceContainer.WithCredential(dockerCredentials.Value.URL, dockerCredentials.Value.UserName, dockerCredentials.Value.Password);
-            }
+        //    if (dockerCredentials.HasValue)
+        //    {
+        //        securityServiceContainer.WithCredential(dockerCredentials.Value.URL, dockerCredentials.Value.UserName, dockerCredentials.Value.Password);
+        //    }
 
-            // Now build and return the container                
-            IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
-            Thread.Sleep(20000); // This hack is in till health checks implemented :|
+        //    // Now build and return the container                
+        //    IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
+        //    Thread.Sleep(20000); // This hack is in till health checks implemented :|
 
-            DockerHelper.AddEntryToHostsFile("127.0.0.1", containerName);
-            DockerHelper.AddEntryToHostsFile("localhost", containerName);
+        //    DockerHelper.AddEntryToHostsFile("127.0.0.1", containerName);
+        //    DockerHelper.AddEntryToHostsFile("localhost", containerName);
 
-            logger.LogInformation("Security Service Container Started");
+        //    logger.LogInformation("Security Service Container Started");
 
-            return builtContainer;
-        }
+        //    return builtContainer;
+        //}
 
         /// <summary>
         /// Setups the security service test UI container.
@@ -284,17 +272,14 @@
         /// <param name="networkService">The network service.</param>
         /// <param name="clientDetails">The client details.</param>
         /// <returns></returns>
-        private static IContainerService SetupSecurityServiceTestUIContainer(String containerName,
-                                                                             String securityServiceContainerName,
-                                                                             Int32 securityServiceContainerPort,
-                                                                             INetworkService networkService,
-                                                                             (String clientId, String clientSecret) clientDetails)
+        private IContainerService SetupSecurityServiceTestUIContainer(Int32 securityServiceContainerPort,
+                                                                             INetworkService networkService)
         {
             // Management API Container
-            IContainerService securityServiceTestUIContainer = new Builder().UseContainer().WithName(containerName)
+            IContainerService securityServiceTestUIContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
                                                                             .WithEnvironment($"Authority=https://identity-server:{securityServiceContainerPort}",
-                                                                                             $"ClientId={clientDetails.clientId}",
-                                                                                             $"ClientSecret={clientDetails.clientSecret}",
+                                                                                             $"ClientId={this.ClientDetails.clientId}",
+                                                                                             $"ClientSecret={this.ClientDetails.clientSecret}",
                                                                                              "urls=https://*:5004")
                                                                             .UseImage("securityservicetestui").ExposePort(5004)
                                                                             .UseNetwork(new List<INetworkService>
