@@ -134,22 +134,22 @@ namespace SecurityService
         private void ConfigureHealthChecks(IServiceCollection services)
         {
             services.AddHealthChecks()
-                    //.AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
-                    //              healthQuery: "SELECT 1;",
-                    //              name: "Persisted Grant DB",
-                    //              failureStatus: HealthStatus.Unhealthy,
-                    //              tags: new string[] { "db", "sql", "sqlserver", "persistedgrant" })
-                    //.AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
-                    //              healthQuery: "SELECT 1;",
-                    //              name: "Configuration DB",
-                    //              failureStatus: HealthStatus.Unhealthy,
-                    //              tags: new string[] { "db", "sql", "sqlserver", "configuration" })
-                    //.AddSqlServer(connectionString: ConfigurationReader.GetConnectionString("AuthenticationDbContext"),
-                    //              healthQuery: "SELECT 1;",
-                    //              name: "Authentication DB",
-                    //              failureStatus: HealthStatus.Unhealthy,
-                    //              tags: new string[] { "db", "sql", "sqlserver", "authentication" })
-                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("ServiceAddresses", "MessagingService")}/health"),
+                    .AddSqlServer(ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
+                                  "SELECT 1;",
+                                  "Persisted Grant DB",
+                                  HealthStatus.Unhealthy,
+                                  new string[] { "db", "sql", "sqlserver", "persistedgrant" })
+                    .AddSqlServer(ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
+                                  "SELECT 1;",
+                                  "Configuration DB",
+                                  HealthStatus.Unhealthy,
+                                  new string[] { "db", "sql", "sqlserver", "configuration" })
+                    .AddSqlServer(ConfigurationReader.GetConnectionString("AuthenticationDbContext"),
+                                  "SELECT 1;",
+                                  "Authentication DB",
+                                  HealthStatus.Unhealthy,
+                                  new string[] { "db", "sql", "sqlserver", "authentication" })
+                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("AppSettings", "MessagingServiceApi")}/health"),
                                  name: "Messaging Service",
                                  httpMethod: HttpMethod.Get,
                                  failureStatus: HealthStatus.Unhealthy,
