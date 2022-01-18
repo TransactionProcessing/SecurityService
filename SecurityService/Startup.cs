@@ -138,22 +138,18 @@ namespace SecurityService
                                   "SELECT 1;",
                                   "Persisted Grant DB",
                                   HealthStatus.Unhealthy,
-                                  new string[] { "db", "sql", "sqlserver", "persistedgrant" })
+                                  new string[] {"db", "sql", "sqlserver", "persistedgrant"})
                     .AddSqlServer(ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
                                   "SELECT 1;",
                                   "Configuration DB",
                                   HealthStatus.Unhealthy,
-                                  new string[] { "db", "sql", "sqlserver", "configuration" })
+                                  new string[] {"db", "sql", "sqlserver", "configuration"})
                     .AddSqlServer(ConfigurationReader.GetConnectionString("AuthenticationDbContext"),
                                   "SELECT 1;",
                                   "Authentication DB",
                                   HealthStatus.Unhealthy,
-                                  new string[] { "db", "sql", "sqlserver", "authentication" })
-                    .AddUrlGroup(new Uri($"{ConfigurationReader.GetValue("AppSettings", "MessagingServiceApi")}/health"),
-                                 name: "Messaging Service",
-                                 httpMethod: HttpMethod.Get,
-                                 failureStatus: HealthStatus.Unhealthy,
-                                 tags: new string[] { "application", "messaging" });
+                                  new string[] {"db", "sql", "sqlserver", "authentication"})
+                    .AddMessagingService();
         }
 
         private void ConfigureSwagger(IServiceCollection services)
