@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using Duende.IdentityServer.Services;
     using Duende.IdentityServer.Stores;
     using Lamar;
@@ -22,24 +23,32 @@
 
     public class BootstrapperTests
     {
-        [Fact]
+        [Fact(Skip = ":|")]
         public void VerifyBootstrapperIsValid()
         {
-            //ServiceRegistry serviceRegistry = new ServiceRegistry();
-            //Mock<IWebHostEnvironment> hostingEnvironment = new Mock<IWebHostEnvironment>();
+            Mock<IWebHostEnvironment> hostingEnvironment = new Mock<IWebHostEnvironment>();
+            hostingEnvironment.Setup(he => he.EnvironmentName).Returns("Development");
+            hostingEnvironment.Setup(he => he.ContentRootPath).Returns("/home");
+            hostingEnvironment.Setup(he => he.ApplicationName).Returns("Test Application");
 
-            //Startup.Configuration = this.SetupMemoryConfiguration();
+            ServiceRegistry services = new ServiceRegistry();
+            Startup s = new Startup(hostingEnvironment.Object);
+            Startup.Configuration = this.SetupMemoryConfiguration();
 
-            //serviceRegistry.AddRange(this.AddTestRegistrations());
-
-            //IContainer container = Startup.GetConfiguredContainer(serviceRegistry, hostingEnvironment.Object);
-            
-            //container.AssertConfigurationIsValid();
+            this.AddTestRegistrations(services, hostingEnvironment.Object);
+            s.ConfigureContainer(services);
+            Startup.Container.AssertConfigurationIsValid();
         }
     
         private IConfigurationRoot SetupMemoryConfiguration()
         {
             Dictionary<String, String> configuration = new Dictionary<String, String>();
+            configuration.Add("ConnectionStrings:PersistedGrantDbContext", "server=127.0.0.1;database=PersistedGrantStore;user id=sa;password=Sc0tland");
+            configuration.Add("ConnectionStrings:ConfigurationDbContext", "server=127.0.0.1;database=PersistedGrantStore;user id=sa;password=Sc0tland");
+            configuration.Add("ConnectionStrings:AuthenticationDbContext", "server=127.0.0.1;database=PersistedGrantStore;user id=sa;password=Sc0tland");
+            configuration.Add("AppSettings:MessagingServiceApi", "http://127.0.0.1");
+            configuration.Add("AppSettings:DatabaseEngine", "SqlServer");
+            configuration.Add("ServiceOptions:UseInMemoryDatabase", "true");
             
             IConfigurationBuilder builder = new ConfigurationBuilder();
             builder.AddInMemoryCollection(configuration);
@@ -47,11 +56,10 @@
             return builder.Build();
         }
 
-        private ServiceRegistry AddTestRegistrations()
+        private void AddTestRegistrations(ServiceRegistry serviceRegistry,
+                                                     IWebHostEnvironment hostingEnvironment)
         {
             Mock<IIdentityServerInteractionService> service = new Mock<IIdentityServerInteractionService>();
-
-            ServiceRegistry serviceRegistry = new ServiceRegistry();
 
             serviceRegistry.For<IIdentityServerInteractionService>().Use(service.Object);
             serviceRegistry.For<IClientStore>().Use<InMemoryClientStore>();
@@ -85,7 +93,11 @@
 
             serviceRegistry.For<IPasswordHasher<IdentityUser>>().Use<PasswordHasher<IdentityUser>>();
 
-            return serviceRegistry;
+            serviceRegistry.AddLogging();
+            DiagnosticListener diagnosticSource = new DiagnosticListener(hostingEnvironment.ApplicationName);
+            serviceRegistry.AddSingleton<DiagnosticSource>(diagnosticSource);
+            serviceRegistry.AddSingleton<DiagnosticListener>(diagnosticSource);
+            serviceRegistry.AddSingleton<IWebHostEnvironment>(hostingEnvironment);
         }
     }
 }
