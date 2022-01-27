@@ -1,0 +1,54 @@
+name: Publish Pre-Release Nuget and Docker 
+
+on:
+  push:
+    # branches to consider in the event; optional, defaults to all
+    branches:
+      - master
+
+jobs:
+  build:
+    name: "Publish Pre-Release Nugets and Docker"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2.3.4 
+      with:
+        fetch-depth: 0
+        
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
+
+    - name: 'Get Previous tag'
+      id: get-latest-tag
+      uses: actions-ecosystem/action-get-latest-tag@v1
+      with:
+          semver_only: true
+
+    - name: 'Bump Version'
+      id: bump-semver
+      uses: actions-ecosystem/action-bump-semver@v1
+      with:
+        current_version: ${{ steps.get-latest-tag.outputs.tag }}
+        level: patch
+    
+    - name: Print Version
+      id: next_version
+      run: echo ::set-output name=VERSION::${{ steps.bump-semver.outputs.new_version }}-build$GITHUB_RUN_NUMBER
+   
+    - name: Build and Publish Nuget Packages
+      run: |
+        dotnet pack "SecurityService.Client\SecurityService.Client.csproj" /p:PackageVersion=${{ steps.next_version.outputs.VERSION }} --output Nugets -c Release            
+        dotnet nuget push Nugets/SecurityService.Client.${{ steps.next_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.MYGET_APIKEY }} --source https://www.myget.org/F/transactionprocessing/api/v2/package
+
+    - name: Publish Images to Docker Hub
+      run: |
+        docker build . --file SecurityService/Dockerfile --tag stuartferguson/securityservice:master
+        docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
+        docker push stuartferguson/securityservice:master
