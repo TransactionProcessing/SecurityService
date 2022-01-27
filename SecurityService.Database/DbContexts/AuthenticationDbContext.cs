@@ -10,8 +10,8 @@
 
     public class AuthenticationDbContext : IdentityDbContext<IdentityUser>
     {
-        public AuthenticationDbContext(DbContextOptions<AuthenticationDbContext> options)
-            : base((DbContextOptions)options)
+        public AuthenticationDbContext(DbContextOptions options)
+            : base(options)
         {
         }
 
