@@ -20,8 +20,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Lamar.Diagnostics" Version="2.0.0" />
-    <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="5.0.0" />
+    <PackageReference Include="Lamar.Diagnostics" Version="7.0.0" />
+    <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>

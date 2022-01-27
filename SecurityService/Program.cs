@@ -16,9 +16,14 @@ namespace SecurityService
     using System.Net;
     using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
+    using Lamar.Microsoft.DependencyInjection;
     using Microsoft.AspNetCore.Server.Kestrel.Core;
     using Microsoft.AspNetCore.Server.Kestrel.Https;
     using Microsoft.Extensions.Configuration;
+    using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Logging;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Serialization;
 
     public class Program
     {
@@ -30,30 +35,44 @@ namespace SecurityService
             IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("hosting.json", optional: true)
                                                                   .AddJsonFile("hosting.development.json", optional: true).AddEnvironmentVariables().Build();
 
-            
+
 
             IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
-            hostBuilder.ConfigureWebHostDefaults(webBuilder =>
-                                                 {
-                                                     webBuilder.UseStartup<Startup>();
-                                                     webBuilder.UseConfiguration(config);
-                                                     webBuilder.UseKestrel(options =>
-                                                                           {
-                                                                               var urls = config.GetSection("urls").Value.Split(":");
-                                                                               var port = Int32.Parse(urls[2]);
-                                                                               
-                                                                               options.Listen(IPAddress.Any,
-                                                                                              port,
-                                                                                              listenOptions =>
-                                                                                              {
-                                                                                                  // Enable support for HTTP1 and HTTP2 (required if you want to host gRPC endpoints)
-                                                                                                  listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-                                                                                                  // Configure Kestrel to use a certificate from a local .PFX file for hosting HTTPS
-                                                                                                  listenOptions.UseHttps(Program.LoadCertificate());
-                                                                                              });
-                                                                           });
-                                                     
-                                                 });
+            hostBuilder = hostBuilder.UseLamar();
+            hostBuilder = hostBuilder.ConfigureWebHostDefaults(webBuilder =>
+                                                            {
+                                                                webBuilder.UseStartup<Startup>();
+                                                                webBuilder.ConfigureServices(services =>
+                                                                                             {
+                                                                                                 // This is important, the call to AddControllers()
+                                                                                                 // cannot be made before the usage of ConfigureWebHostDefaults
+                                                                                                 services.AddControllersWithViews().AddNewtonsoftJson(options =>
+                                                                                                 {
+                                                                                                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                                                                                                     options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+                                                                                                     options.SerializerSettings.Formatting = Formatting.Indented;
+                                                                                                     options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                                                                                                     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                                                                                                 }); ;
+                                                                                             });
+                                                                webBuilder.UseConfiguration(config);
+                                                                webBuilder.UseKestrel(options =>
+                                                                                      {
+                                                                                          var urls = config.GetSection("urls").Value.Split(":");
+                                                                                          var port = Int32.Parse(urls[2]);
+
+                                                                                          options.Listen(IPAddress.Any,
+                                                                                                         port,
+                                                                                                         listenOptions =>
+                                                                                                         {
+                                                                                                             // Enable support for HTTP1 and HTTP2 (required if you want to host gRPC endpoints)
+                                                                                                             listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
+                                                                                                             // Configure Kestrel to use a certificate from a local .PFX file for hosting HTTPS
+                                                                                                             listenOptions.UseHttps(Program.LoadCertificate());
+                                                                                                         });
+                                                                                      });
+
+                                                            });
             return hostBuilder;
         }
 
