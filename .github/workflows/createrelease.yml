@@ -34,16 +34,24 @@ jobs:
       run: |
         docker build . --file SecurityService/Dockerfile --tag stuartferguson/securityservice:latest --tag stuartferguson/securityservice:${{ steps.get_version.outputs.VERSION }}
    
-    - name: Publish Images to Docker Hub
+    - name: Publish Images to Docker Hub - Pre Release
+      if: ${{ github.event.release.prerelease == true }} 
+      run: |
+        docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
+        docker push stuartferguson/securityservice:dev
+
+    - name: Publish Images to Docker Hub - Formal Release
+      if: ${{ github.event.release.prerelease == false }} 
       run: |
         docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
         docker push stuartferguson/securityservice:latest
-        docker push stuartferguson/securityservice:${{ steps.get_version.outputs.VERSION }}
     
     - name: Publish API
+      if: ${{ github.event.release.prerelease == false }} 
       run: dotnet publish "SecurityService\SecurityService.csproj" --configuration Release --output publishOutput
 
     - name: Install Octopus CLI
+      if: ${{ github.event.release.prerelease == false }} 
       run: |
         sudo apt update && sudo apt install --no-install-recommends gnupg curl ca-certificates apt-transport-https && \
         curl -sSfL https://apt.octopus.com/public.key | sudo apt-key add - && \
@@ -51,6 +59,7 @@ jobs:
         sudo apt update && sudo apt install octopuscli
     
     - name: Pack Files for Octopus
+      if: ${{ github.event.release.prerelease == false }} 
       run: >-
         octo pack
         --outFolder /home/runner/work/SecurityService/SecurityService
@@ -62,6 +71,7 @@ jobs:
         --logLevel=verbose
     
     - name: Push Package to Octopus
+      if: ${{ github.event.release.prerelease == false }} 
       run: >-
         octo push
         --server ${{ secrets.OCTOPUS_URL }}
@@ -70,6 +80,7 @@ jobs:
         --overwrite-mode IgnoreIfExists
     
     - name: Get Release
+      if: ${{ github.event.release.prerelease == false }} 
       id: getrelease
       uses: octokit/request-action@v2.0.17
       with:
@@ -78,6 +89,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build Release Notes
+      if: ${{ github.event.release.prerelease == false }} 
       id: buildreleasenotes
       uses: gr2m/get-json-paths-action@v1.x
       with:
@@ -85,6 +97,7 @@ jobs:
           releasenote: "body"
     
     - name: Create & Deploy Release in Octopus (Security Service)
+      if: ${{ github.event.release.prerelease == false }} 
       run: >-
         octo create-release
         --server ${{ secrets.OCTOPUS_URL }}
@@ -98,6 +111,7 @@ jobs:
         --releasenotes "${{ steps.buildreleasenotes.outputs.releasenote }}" 
 
     - name: Create & Deploy Release in Octopus (Security Service (For Testing))
+      if: ${{ github.event.release.prerelease == false }} 
       run: >-
         octo create-release
         --server ${{ secrets.OCTOPUS_URL }}
@@ -111,6 +125,7 @@ jobs:
         --releasenotes "${{ steps.buildreleasenotes.outputs.releasenote }}"    
 
     - name: Build and Publish Nuget Packages
+      if: ${{ github.event.release.prerelease == false }} 
       run: |
         dotnet pack "SecurityService.Client\SecurityService.Client.csproj" /p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output Nugets
         dotnet nuget push Nugets/SecurityService.Client.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.MYGET_APIKEY }} --source https://www.myget.org/F/transactionprocessing/api/v2/package
