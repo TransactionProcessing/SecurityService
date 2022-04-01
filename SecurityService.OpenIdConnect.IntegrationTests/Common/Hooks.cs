@@ -87,23 +87,21 @@
             {
                 //session = webdriver.Firefox(capabilities={"acceptInsecureCerts": True})
                 //FirefoxOptions options = new FirefoxOptions();
-                //options.AddArguments("-headless");
+                
                 //this.WebDriver = new FirefoxDriver(options);
                 //FirefoxProfile profile = new ProfilesIni().getProfile("default");
                 //profile.setPreference("network.cookie.cookieBehavior", 2);
                 //this.WebDriver = new FirefoxDriver(profile);
                 FirefoxOptions options = new FirefoxOptions();
                 options.AcceptInsecureCertificates = true;
+                options.AddArguments("-headless");
                 //options.SetPreference("network.cookie.sameSite.laxByDefault", false);
                 //options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
                 //options.SetPreference("network.cookie.sameSite.schemeful", false);
                 //options.SetPreference("network.cookie.cookieBehavior", 0);
                 //this.WebDriver = new FirefoxDriver(options);
-                var x = FirefoxDriverService.CreateDefaultService();
-                if (x.IsRunning == false)
-                {
-                    throw new Exception("Driver not running");
-                }
+                FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
+                
                 this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromSeconds(180));
             }
 
