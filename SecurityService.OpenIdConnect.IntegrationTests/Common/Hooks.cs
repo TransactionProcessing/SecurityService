@@ -98,7 +98,12 @@
                 //options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
                 //options.SetPreference("network.cookie.sameSite.schemeful", false);
                 //options.SetPreference("network.cookie.cookieBehavior", 0);
-                this.WebDriver = new FirefoxDriver(options);
+                //this.WebDriver = new FirefoxDriver(options);
+
+                this.WebDriver = new FirefoxDriver(FirefoxDriverService.CreateDefaultService(), options, TimeSpan.FromSeconds(180));
+
+
+
             }
 
             if (browser == "Edge")
