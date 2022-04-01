@@ -99,11 +99,12 @@
                 //options.SetPreference("network.cookie.sameSite.schemeful", false);
                 //options.SetPreference("network.cookie.cookieBehavior", 0);
                 //this.WebDriver = new FirefoxDriver(options);
-
-                this.WebDriver = new FirefoxDriver(FirefoxDriverService.CreateDefaultService(), options, TimeSpan.FromSeconds(180));
-
-
-
+                var x = FirefoxDriverService.CreateDefaultService();
+                if (x.IsRunning == false)
+                {
+                    throw new Exception("Driver not running");
+                }
+                this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromSeconds(180));
             }
 
             if (browser == "Edge")
