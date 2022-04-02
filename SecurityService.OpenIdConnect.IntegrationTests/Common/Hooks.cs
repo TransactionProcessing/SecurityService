@@ -95,6 +95,7 @@
                 FirefoxOptions options = new FirefoxOptions();
                 options.AcceptInsecureCertificates = true;
                 options.AddArguments("-headless");
+                options.LogLevel = FirefoxDriverLogLevel.Debug;
                 //options.SetPreference("network.cookie.sameSite.laxByDefault", false);
                 //options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
                 //options.SetPreference("network.cookie.sameSite.schemeful", false);
