@@ -147,7 +147,7 @@ jobs:
         labels: nightlybuild
 
   buildedgeui:
-    name: "Nightly Build"
+    name: "Nightly Build - Edge UI"
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 

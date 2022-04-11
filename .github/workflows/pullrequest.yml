@@ -126,7 +126,7 @@ jobs:
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
   buildedgeui:
-    name: "Build and Unit Test Pull Requests - Chrome UI"
+    name: "Build and Unit Test Pull Requests - Edge UI"
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
