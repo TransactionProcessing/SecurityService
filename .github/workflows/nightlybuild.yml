@@ -6,8 +6,8 @@ on:
   repository_dispatch:
 
 jobs:
-  build:
-    name: "Nightly Build"
+  buildnonui:
+    name: "Nightly Build - Non UI"
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
@@ -42,7 +42,45 @@ jobs:
 
     - name: Run Integration Tests (Non UI)
       run: |
-        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest    
+
+    - name: Create Issue on Failed workflow
+      if: ${{ failure() }}
+      uses: dacbd/create-issue-action@main
+      with:
+        token: ${{ github.token }}
+        title: Investigate Nightly Build Failure - Non UI Tests
+        body: Url is ${{env.action_url}}
+        labels: nightlybuild
+
+  buildfirefoxui:
+    name: "Nightly Build - Firefox UI"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-2019
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+
+    - name: Set Up Variables
+      run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
+      
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"        
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
+    
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
 
     - name: Run Integration Tests (UI Firefox)
       env:
@@ -50,11 +88,92 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
     
+    - name: Create Issue on Failed workflow
+      if: ${{ failure() }}
+      uses: dacbd/create-issue-action@main
+      with:
+        token: ${{ github.token }}
+        title: Investigate Nightly Build Failure - Firefox UI
+        body: Url is ${{env.action_url}}
+        labels: nightlybuild
+
+  buildchromeui:
+    name: "Nightly Build - Chrome UI"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-2019
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+
+    - name: Set Up Variables
+      run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
+      
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"        
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
+
+    - name: Run Unit Tests
+      run: |
+        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
+        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
+    
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+
     - name: Run Integration Tests (UI Chrome)
       env:
         Browser: Chrome
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+            
+    - name: Create Issue on Failed workflow
+      if: ${{ failure() }}
+      uses: dacbd/create-issue-action@main
+      with:
+        token: ${{ github.token }}
+        title: Investigate Nightly Build Failure - Chrome UI
+        body: Url is ${{env.action_url}}
+        labels: nightlybuild
+
+  buildedgeui:
+    name: "Nightly Build"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-2019
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+
+    - name: Set Up Variables
+      run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
+      
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"        
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
+    
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
 
     - name: Run Integration Tests (UI Edge)
       env:
@@ -69,7 +188,7 @@ jobs:
       uses: dacbd/create-issue-action@main
       with:
         token: ${{ github.token }}
-        title: Investigate Nightly Build Failure
+        title: Investigate Nightly Build Failure - Edge UI
         body: Url is ${{env.action_url}}
         labels: nightlybuild
         

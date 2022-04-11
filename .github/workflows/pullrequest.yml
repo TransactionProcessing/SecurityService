@@ -6,8 +6,8 @@ on:
     - master
 
 jobs:
-  build:
-    name: "Build and Unit Test Pull Requests"
+  buildnonui:
+    name: "Build and Unit Test Pull Requests - Non UI"
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
@@ -52,6 +52,104 @@ jobs:
         Browser: Chrome
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+    - name: Run Integration Tests (UI Edge)
+      env:
+        Browser: Edge
+        DriverPath: C:\\SeleniumWebDrivers\\EdgeDriver\\
+        DriverExe: msedgedriver.exe
+      run: |
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest 
+
+  buildfirefox:
+    name: "Build and Unit Test Pull Requests - Firefox UI"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+    
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"        
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release    
+    
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+
+    - name: Run Integration Tests (UI Firefox)
+      env:
+        Browser: Firefox
+      run: |
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest    
+
+  buildchromeui:
+    name: "Build and Unit Test Pull Requests - Chrome UI"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+    
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"        
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
+   
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+  
+    - name: Run Integration Tests (UI Chrome)
+      env:
+        Browser: Chrome
+      run: |  
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+  buildedgeui:
+    name: "Build and Unit Test Pull Requests - Chrome UI"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+    
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"        
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
+    
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
 
     - name: Run Integration Tests (UI Edge)
       env:
