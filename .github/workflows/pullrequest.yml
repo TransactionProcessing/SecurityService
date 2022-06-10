@@ -18,7 +18,7 @@ jobs:
     
     - name: Trust Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"        
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-webapi-cert.pfx"        
         Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
     - name: Install NET 6
