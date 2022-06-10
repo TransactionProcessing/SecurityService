@@ -13,6 +13,11 @@ COPY . .
 WORKDIR "/src/SecurityService"
 RUN dotnet build "SecurityService.csproj" -c Release -o /app
 
+# Sort out certificate stuff here
+RUN openssl x509 -inform DER -in /src/SecurityService/aspnetapp-root-cert.cer -out /src/SecurityService/aspnetapp-root-cert.crt
+RUN cp /src/SecurityService/aspnetapp-root-cert.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
 FROM build AS publish
 RUN dotnet publish "SecurityService.csproj" -c Release -o /app
 

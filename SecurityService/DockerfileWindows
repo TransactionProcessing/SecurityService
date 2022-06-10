@@ -13,7 +13,10 @@ RUN dotnet restore "SecurityService/SecurityService.csproj"
 COPY . .
 WORKDIR "/src/SecurityService"
 RUN dotnet build "SecurityService.csproj" -c Release -o /app
+WORKDIR "/src"
+RUN %SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe -Command Import-PfxCertificate -FilePath "Certificates/aspnetapp-root-cert.pfx" -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
+WORKDIR "/src/SecurityService"
 FROM build AS publish
 RUN dotnet publish "SecurityService.csproj" -c Release -o /app
 
