@@ -49,6 +49,12 @@
     <None Update="aspnetapp-identity-server.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="aspnetapp-root-cert.cer">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="aspnetapp-web-api.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="aspnetapp.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
