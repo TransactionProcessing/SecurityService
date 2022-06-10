@@ -16,7 +16,6 @@ RUN dotnet build "SecurityService.csproj" -c Release -o /app
 
 WORKDIR /src/Certificates
 # Sort out certificate stuff here
-#RUN openssl x509 -inform DER -in aspnetapp-root-cert.cer -out aspnetapp-root-cert.crt
 RUN cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 

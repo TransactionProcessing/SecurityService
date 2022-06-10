@@ -6,14 +6,14 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:6.0-windowsservercore-ltsc2019 AS build
 WORKDIR /src
+COPY ["Certificates/*.*", "Certificates/"]
 COPY ["SecurityServiceTestUI/SecurityServiceTestUI.csproj", "SecurityServiceTestUI/"]
 RUN dotnet restore "SecurityServiceTestUI/SecurityServiceTestUI.csproj"
 COPY . .
 WORKDIR "/src/SecurityServiceTestUI"
 RUN dotnet build "SecurityServiceTestUI.csproj" -c Release -o /app/build
-#RUN %SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe $PSVersion
-WORKDIR "/src"
-RUN %SYSTEMROOT%\System32\WindowsPowerShell\v1.0\powershell.exe -Command Import-PfxCertificate -FilePath "Certificates/aspnetapp-root-cert.pfx" -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+WORKDIR "/src/Certificates"
+RUN powershell -Command Import-PfxCertificate -FilePath "aspnetapp-root-cert.pfx" -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
 WORKDIR "/src/SecurityServiceTestUI"
 FROM build AS publish
