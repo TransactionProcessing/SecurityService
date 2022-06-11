@@ -1,39 +1,40 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp5.0</TargetFramework>
+    <TargetFramework>netcoreapp6.0</TargetFramework>
     <UserSecretsId>5e9b93dd-258d-47d7-a6d3-42e86a745857</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
   
   <ItemGroup>
-	  <PackageReference Include="Lamar" Version="7.0.0" />
-	  <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="7.0.0" />
-	  <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="5.0.2" />
-	  <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="5.0.1" />
-	  <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="5.0.1" />
-	  <PackageReference Include="Duende.IdentityServer" Version="5.2.1" />
-	  <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.14" />
-	  <PackageReference Include="NLog.Web.AspNetCore" Version="4.10.0" />
-    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="5.2.1" />
-    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="5.2.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="5.0.12" />
-	  <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="5.0.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="5.0.12">
+	  <PackageReference Include="Lamar" Version="8.0.1" />
+	  <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="8.0.1" />
+	  <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="6.0.2" />
+	  <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.4" />
+	  <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="6.0.3" />
+	  <PackageReference Include="Duende.IdentityServer" Version="6.1.0" />
+	  <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.15.1" />
+	  <PackageReference Include="NLog.Web.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="6.1.0" />
+    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="6.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
+	  <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="5.0.12" />
-    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="5.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.5" />
+	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="6.0.5" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="6.0.1" />
 
-    <PackageReference Include="Serilog.AspNetCore" Version="4.1.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.1.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.1.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="6.1.0" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.1.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.1.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="5.0.12" />
+    <PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.3.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.3.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="7.0.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.3.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.3.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.3.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.5" />
   </ItemGroup>
   
   <ItemGroup>
@@ -48,6 +49,12 @@
     <None Update="aspnetapp-identity-server.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="aspnetapp-root-cert.cer">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="aspnetapp-web-api.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="aspnetapp.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -55,6 +62,9 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="localhost+2.pem">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="localhost.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

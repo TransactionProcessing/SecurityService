@@ -137,14 +137,13 @@
         }
 
 
-        private ConfigurationDbContext GetConfigurationDbContext(String databaseName)
-        {
-            DbContextOptionsBuilder<ConfigurationDbContext> builder = new DbContextOptionsBuilder<ConfigurationDbContext>()
-                                                                      .UseInMemoryDatabase(databaseName)
-                                                                      .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
-            ConfigurationDbContext context = new ConfigurationDbContext(builder.Options, new ConfigurationStoreOptions());
-
-            return context;
+        private ConfigurationDbContext GetConfigurationDbContext(String databaseName) {
+            DbContextOptionsBuilder<ConfigurationDbContext> builder = new DbContextOptionsBuilder<ConfigurationDbContext>().UseInMemoryDatabase(databaseName)
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
+            ConfigurationDbContext context = new ConfigurationDbContext(builder.Options);
+            context.StoreOptions = new ConfigurationStoreOptions();
+        
+        return context;
         }
 
     }

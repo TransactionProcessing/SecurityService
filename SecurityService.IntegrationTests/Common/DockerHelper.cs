@@ -8,6 +8,8 @@ namespace SecurityService.IntergrationTests.Common
     using System.Linq;
     using System.Net;
     using System.Net.Http;
+    using System.Net.Security;
+    using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
     using BoDi;

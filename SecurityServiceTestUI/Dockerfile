@@ -1,10 +1,11 @@
 #See https://aka.ms/containerfastmode to understand how Visual Studio uses this Dockerfile to build your images for faster debugging.
 
-FROM mcr.microsoft.com/dotnet/aspnet:5.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
 WORKDIR /app
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0.102-ca-patch-buster-slim AS build
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
 WORKDIR /src
+COPY ["Certificates/*.*", "Certificates/"]
 COPY ["SecurityServiceTestUI/SecurityServiceTestUI.csproj", "SecurityServiceTestUI/"]
 RUN dotnet restore "SecurityServiceTestUI/SecurityServiceTestUI.csproj"
 COPY . .
@@ -12,10 +13,12 @@ WORKDIR "/src/SecurityServiceTestUI"
 RUN dotnet build "SecurityServiceTestUI.csproj" -c Release -o /app/build
 
 # Sort out certificate stuff here
-RUN openssl x509 -inform DER -in /src/SecurityServiceTestUI/aspnetapp-root-cert.cer -out /src/SecurityServiceTestUI/aspnetapp-root-cert.crt
-RUN cp /src/SecurityServiceTestUI/aspnetapp-root-cert.crt /usr/local/share/ca-certificates/
+WORKDIR /src/Certificates
+# Sort out certificate stuff here
+RUN cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 
+WORKDIR /src/SecurityServiceTestUI
 FROM build AS publish
 RUN dotnet publish "SecurityServiceTestUI.csproj" -c Release -o /app/publish
 
