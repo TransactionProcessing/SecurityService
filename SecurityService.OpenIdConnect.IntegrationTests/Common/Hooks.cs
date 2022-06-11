@@ -1,13 +1,11 @@
 ﻿namespace SecurityService.IntergrationTests.Common
 {
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using BoDi;
-    using Microsoft.AspNetCore.Mvc.Formatters;
-    using Microsoft.Edge.SeleniumTools;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
+    using OpenQA.Selenium.Edge;
     using OpenQA.Selenium.Firefox;
     using OpenQA.Selenium.Remote;
     using TechTalk.SpecFlow;
@@ -66,7 +64,7 @@
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
-            //browser = "Firefox";
+            browser = "Edge";
 
             if (browser == null || browser == "Chrome")
             {
@@ -109,7 +107,6 @@
             if (browser == "Edge")
             {
                 EdgeOptions options = new EdgeOptions();
-                options.UseChromium = true;
                 options.AcceptInsecureCertificates = true;
                 //List<String> experimentalFlags = new List<String>();
                 //experimentalFlags.Add("same-site-by-default-cookies@2");

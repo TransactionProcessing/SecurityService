@@ -18,7 +18,7 @@ WORKDIR /src/Certificates
 RUN cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/
 RUN update-ca-certificates
 
-WORKDIR /src/SecurityService
+WORKDIR /src/SecurityServiceTestUI
 FROM build AS publish
 RUN dotnet publish "SecurityServiceTestUI.csproj" -c Release -o /app/publish
 
