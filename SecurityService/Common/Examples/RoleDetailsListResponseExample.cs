@@ -7,7 +7,7 @@
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Swashbuckle.AspNetCore.Filters.IExamplesProvider{System.Collections.Generic.List{SecurityService.DataTransferObjects.Responses.RoleDetails}}" />
+    /// <seealso cref="List{T}.DataTransferObjects.Responses.RoleDetails}}" />
     public class RoleDetailsListResponseExample : IExamplesProvider<List<RoleDetails>>
     {
         #region Methods

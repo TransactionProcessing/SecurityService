@@ -19,12 +19,12 @@ namespace SecurityService.Controllers
                && !context.RedirectUri.StartsWith("http", StringComparison.Ordinal);
         }
 
-        public static IActionResult LoadingPage(this Controller controller, string viewName, string redirectUri)
-        {
-            controller.HttpContext.Response.StatusCode = 200;
-            controller.HttpContext.Response.Headers["Location"] = "";
+        //public static IActionResult LoadingPage(this Controller controller, string viewName, string redirectUri)
+        //{
+        //    controller.HttpContext.Response.StatusCode = 200;
+        //    controller.HttpContext.Response.Headers["Location"] = "";
             
-            return controller.View(viewName, new RedirectViewModel { RedirectUrl = redirectUri });
-        }
+        //    return controller.View(viewName, new RedirectViewModel { RedirectUrl = redirectUri });
+        //}
     }
 }

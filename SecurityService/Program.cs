@@ -44,9 +44,11 @@ namespace SecurityService
                                                                 webBuilder.UseStartup<Startup>();
                                                                 webBuilder.ConfigureServices(services =>
                                                                                              {
+                                                                                                 services.AddRazorPages();
+
                                                                                                  // This is important, the call to AddControllers()
                                                                                                  // cannot be made before the usage of ConfigureWebHostDefaults
-                                                                                                 services.AddControllersWithViews().AddNewtonsoftJson(options =>
+                                                                                                 services.AddControllers().AddNewtonsoftJson(options =>
                                                                                                  {
                                                                                                      options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                                                                                                      options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;

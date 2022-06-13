@@ -8,7 +8,7 @@
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Swashbuckle.AspNetCore.Filters.IExamplesProvider{SecurityService.DataTransferObjects.Responses.ClientDetails}" />
+    /// <seealso cref="ClientDetails" />
     public class ClientDetailsResponseExample : IExamplesProvider<ClientDetails>
     {
         #region Methods

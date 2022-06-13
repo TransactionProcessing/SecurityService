@@ -6,7 +6,7 @@
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Swashbuckle.AspNetCore.Filters.IExamplesProvider{SecurityService.DataTransferObjects.Responses.CreateRoleResponse}" />
+    /// <seealso cref="CreateRoleResponse" />
     public class CreateRoleResponseExample : IExamplesProvider<CreateRoleResponse>
     {
         #region Methods

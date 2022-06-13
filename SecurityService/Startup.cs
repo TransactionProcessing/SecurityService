@@ -155,6 +155,7 @@
 
             app.UseEndpoints(endpoints =>
                              {
+                                 endpoints.MapRazorPages();
                                  endpoints.MapDefaultControllerRoute();
                                  endpoints.MapHealthChecks("health",
                                                            new HealthCheckOptions
