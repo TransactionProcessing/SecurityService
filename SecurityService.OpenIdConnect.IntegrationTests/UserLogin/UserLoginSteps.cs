@@ -71,8 +71,8 @@ namespace SecurityService.IntegrationTests.UserLogin
         [When(@"I login with the username '(.*)' and password '(.*)'")]
         public void WhenILoginWithTheUsernameAndPassword(String userName, String password)
         {
-            this.WebDriver.FillIn("Input_Username", userName.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")));
-            this.WebDriver.FillIn("Input_Password", password);
+            this.WebDriver.FillIn("Input.Username", userName.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")));
+            this.WebDriver.FillIn("Input.Password", password);
             this.WebDriver.ClickButton("Login");
         }
 
