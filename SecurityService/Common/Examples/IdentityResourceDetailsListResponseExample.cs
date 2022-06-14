@@ -11,7 +11,7 @@ namespace SecurityService.Common.Examples
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Swashbuckle.AspNetCore.Filters.IExamplesProvider{System.Collections.Generic.List{SecurityService.DataTransferObjects.Responses.IdentityResourceDetails}}" />
+    /// <seealso cref="IdentityResourceDetails" />
     public class IdentityResourceDetailsListResponseExample : IExamplesProvider<List<IdentityResourceDetails>>
     {
         #region Methods

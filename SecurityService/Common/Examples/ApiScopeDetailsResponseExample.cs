@@ -6,7 +6,7 @@
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Swashbuckle.AspNetCore.Filters.IExamplesProvider{SecurityService.DataTransferObjects.Responses.ApiScopeDetails}" />
+    /// <seealso cref="ApiScopeDetails" />
     public class ApiScopeDetailsResponseExample : IExamplesProvider<ApiScopeDetails>
     {
         /// <summary>

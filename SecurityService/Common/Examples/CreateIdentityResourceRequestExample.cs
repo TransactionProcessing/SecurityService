@@ -8,7 +8,7 @@
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Swashbuckle.AspNetCore.Filters.IExamplesProvider{SecurityService.DataTransferObjects.Requests.CreateIdentityResourceRequest}" />
+    /// <seealso cref="CreateIdentityResourceRequest" />
     public class CreateIdentityResourceRequestExample : IExamplesProvider<CreateIdentityResourceRequest>
     {
         #region Methods

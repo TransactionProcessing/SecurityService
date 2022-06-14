@@ -8,7 +8,7 @@
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Swashbuckle.AspNetCore.Filters.IExamplesProvider{SecurityService.DataTransferObjects.CreateUserRequest}" />
+    /// <seealso cref="CreateUserRequest" />
     public class CreateUserRequestExample : IExamplesProvider<CreateUserRequest>
     {
         #region Methods

@@ -6,7 +6,7 @@
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Swashbuckle.AspNetCore.Filters.IExamplesProvider{SecurityService.DataTransferObjects.Requests.CreateApiScopeRequest}" />
+    /// <seealso cref="CreateApiScopeRequest" />
     public class CreateApiScopeRequestExample : IExamplesProvider<CreateApiScopeRequest>
     {
         #region Methods
