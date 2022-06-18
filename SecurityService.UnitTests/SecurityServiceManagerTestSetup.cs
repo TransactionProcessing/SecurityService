@@ -132,12 +132,12 @@
             
             SignInManager<IdentityUser> signInManager = new SignInManager<IdentityUser>(userManager, this.ContextAccessor.Object, this.ClaimsFactory.Object, null, null, null, null);
             Mock<IMessagingServiceClient> messagingServiceClient = new Mock<IMessagingServiceClient>();
-            Mock<IdentityServerTools> identityServerTools = new Mock<IdentityServerTools>();
+            IdentityServerTools identityServerTools = this.SetupIdentityServerTools();
 
             SecurityServiceManager securityServiceManager =
                 new SecurityServiceManager(this.PasswordHasher.Object, userManager, roleManager, signInManager, configurationDbContext,
                                            messagingServiceClient.Object,
-                                           identityServerTools.Object);
+                                           identityServerTools);
 
             return securityServiceManager;
         }

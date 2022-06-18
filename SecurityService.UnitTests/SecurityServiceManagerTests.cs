@@ -10,8 +10,10 @@
     using Duende.IdentityServer;
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.EntityFramework.Entities;
+    using Duende.IdentityServer.Services;
     using IdentityModel;
     using MessagingService.Client;
+    using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Models;
@@ -24,6 +26,17 @@
     public partial class SecurityServiceManagerTests
     {
         #region Methods
+
+        private IdentityServerTools SetupIdentityServerTools() {
+            Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
+            Mock<IIssuerNameService> issuerNameService = new Mock<IIssuerNameService>();
+            Mock<ITokenCreationService> tokenCreationService = new Mock<ITokenCreationService>();
+            Mock<ISystemClock> systemClock = new Mock<ISystemClock>();
+            IdentityServerTools identityServerTools = new IdentityServerTools(serviceProvider.Object, issuerNameService.Object, tokenCreationService.Object,
+                                                                              systemClock.Object);
+
+            return identityServerTools;
+        }
 
         [Fact]
         public void SecurityServiceManager_CanBeCreated_IsCreated()
@@ -39,14 +52,14 @@
                 new SignInManager<IdentityUser>(userManager, contextAccessor.Object, claimsFactory.Object, null, null, null, null);
 
             Mock<IMessagingServiceClient> messagingServiceClient = new Mock<IMessagingServiceClient>();
-            Mock<IdentityServerTools> identityServerTools = new Mock<IdentityServerTools>();
+            IdentityServerTools identityServerTools = this.SetupIdentityServerTools();
             // Run the test against one instance of the context
             ConfigurationDbContext configurationDbContext = this.GetConfigurationDbContext(Guid.NewGuid().ToString());
 
             SecurityServiceManager securityServiceManager =
                 new SecurityServiceManager(passwordHasher.Object, userManager, roleManager, signInManager, configurationDbContext,
                                            messagingServiceClient.Object,
-                                           identityServerTools.Object);
+                                           identityServerTools);
 
             securityServiceManager.ShouldNotBeNull();
         }
