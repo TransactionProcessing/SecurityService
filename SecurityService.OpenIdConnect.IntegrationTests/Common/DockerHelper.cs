@@ -6,6 +6,7 @@
     using System.IO;
     using System.Linq;
     using System.Net.Http;
+    using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
     using Client;
@@ -126,7 +127,7 @@
 
             this.SecurityServicePort = securityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
 
-            IContainerService securityServiceTestUIContainer = DockerHelper.SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
+            IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
                                                                                                                 this.SecurityServiceContainerName,
                                                                                                                 this.SecurityServicePort,
                                                                                                                 testNetwork,
@@ -230,7 +231,7 @@
         /// <param name="forceLatestImage">if set to <c>true</c> [force latest image].</param>
         /// <param name="additionalEnvironmentVariables">The additional environment variables.</param>
         /// <returns></returns>
-        private static IContainerService SetupSecurityServiceContainer(String containerName,
+        private IContainerService SetupSecurityServiceContainer(String containerName,
                                                                        ILogger logger,
                                                                        String imageName,
                                                                        INetworkService networkService,
@@ -265,6 +266,8 @@
                 securityServiceContainer.WithCredential(dockerCredentials.Value.URL, dockerCredentials.Value.UserName, dockerCredentials.Value.Password);
             }
 
+            this.MountHostFolder(securityServiceContainer);
+
             // Now build and return the container                
             IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
             Thread.Sleep(20000); // This hack is in till health checks implemented :|
@@ -286,7 +289,7 @@
         /// <param name="networkService">The network service.</param>
         /// <param name="clientDetails">The client details.</param>
         /// <returns></returns>
-        private static IContainerService SetupSecurityServiceTestUIContainer(String containerName,
+        private IContainerService SetupSecurityServiceTestUIContainer(String containerName,
                                                                              String securityServiceContainerName,
                                                                              Int32 securityServiceContainerPort,
                                                                              INetworkService networkService,
