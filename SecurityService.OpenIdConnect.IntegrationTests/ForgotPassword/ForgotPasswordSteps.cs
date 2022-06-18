@@ -142,6 +142,5 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                                 this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestUI");
                             });
         }
-
     }
 }

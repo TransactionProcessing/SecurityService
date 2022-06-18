@@ -134,7 +134,6 @@
 
             this.SecurityServiceTestUIPort = securityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
 
-            
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient);
 
             this.Containers.AddRange(new List<IContainerService>

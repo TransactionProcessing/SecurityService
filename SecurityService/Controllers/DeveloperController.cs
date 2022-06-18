@@ -8,6 +8,7 @@ namespace SecurityService.Controllers
     using System.Threading;
     using System.Threading.Tasks;
     using Bootstrapper;
+    using BusinessLogic;
     using MessagingService.Client;
     using Microsoft.Extensions.Hosting;
 
@@ -62,5 +63,4 @@ namespace SecurityService.Controllers
 
         #endregion
     }
-
 }
