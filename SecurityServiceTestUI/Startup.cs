@@ -44,17 +44,17 @@ namespace SecurityServiceTestUI
                                                   handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
                                                   options.BackchannelHttpHandler = handler;
 
-                                                  options.Authority = Configuration.GetValue<String>("Authority");
+                                                  options.Authority = Configuration.GetValue<String>("AppSettings:Authority");
                                                   options.TokenValidationParameters = new TokenValidationParameters
                                                                                       {
                                                                                           ValidateAudience = false,
                                                                                       };
                                                   
                                                   options.ClientSecret =
-                                                      Configuration.GetValue<String>("ClientSecret");
-                                                  options.ClientId = Configuration.GetValue<String>("ClientId");
+                                                      Configuration.GetValue<String>("AppSettings:ClientSecret");
+                                                  options.ClientId = Configuration.GetValue<String>("AppSettings:ClientId");
 
-                                                  options.MetadataAddress = $"{Configuration.GetValue<String>("Authority")}/.well-known/openid-configuration";
+                                                  options.MetadataAddress = $"{Configuration.GetValue<String>("AppSettings:Authority")}/.well-known/openid-configuration";
 
                                                   options.ResponseType = "code id_token";
 
@@ -78,7 +78,7 @@ namespace SecurityServiceTestUI
                                                   options.Events.OnRedirectToIdentityProvider = context =>
                                                   {
                                                       // Intercept the redirection so the browser navigates to the right URL in your host
-                                                      context.ProtocolMessage.IssuerAddress = $"{Configuration.GetValue<String>("Authority")}/connect/authorize";
+                                                      context.ProtocolMessage.IssuerAddress = $"{Configuration.GetValue<String>("AppSettings:Authority")}/connect/authorize";
                                                       return Task.CompletedTask;
                                                   };
                                               });

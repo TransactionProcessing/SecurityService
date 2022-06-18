@@ -7,9 +7,11 @@
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessLogic.Exceptions;
+    using Duende.IdentityServer;
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.EntityFramework.Entities;
     using IdentityModel;
+    using MessagingService.Client;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Models;
@@ -36,11 +38,15 @@
             SignInManager<IdentityUser> signInManager =
                 new SignInManager<IdentityUser>(userManager, contextAccessor.Object, claimsFactory.Object, null, null, null, null);
 
+            Mock<IMessagingServiceClient> messagingServiceClient = new Mock<IMessagingServiceClient>();
+            Mock<IdentityServerTools> identityServerTools = new Mock<IdentityServerTools>();
             // Run the test against one instance of the context
             ConfigurationDbContext configurationDbContext = this.GetConfigurationDbContext(Guid.NewGuid().ToString());
 
             SecurityServiceManager securityServiceManager =
-                new SecurityServiceManager(passwordHasher.Object, userManager, roleManager, signInManager, configurationDbContext);
+                new SecurityServiceManager(passwordHasher.Object, userManager, roleManager, signInManager, configurationDbContext,
+                                           messagingServiceClient.Object,
+                                           identityServerTools.Object);
 
             securityServiceManager.ShouldNotBeNull();
         }
@@ -111,6 +117,7 @@
                                                                         SecurityServiceManagerTestData.ClientDescription,
                                                                         SecurityServiceManagerTestData.AllowedScopes,
                                                                         SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.ClientUri,
                                                                         SecurityServiceManagerTestData.ClientRedirectUris,
                                                                         SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
@@ -134,6 +141,7 @@
                                                                         SecurityServiceManagerTestData.ClientDescription,
                                                                         SecurityServiceManagerTestData.AllowedScopes,
                                                                         SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.ClientUri,
                                                                         SecurityServiceManagerTestData.ClientRedirectUris,
                                                                         SecurityServiceManagerTestData.EmptyClientPostLogoutRedirectUris,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
@@ -157,6 +165,7 @@
                                                                         SecurityServiceManagerTestData.ClientDescription,
                                                                         SecurityServiceManagerTestData.AllowedScopes,
                                                                         SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.ClientUri,
                                                                         SecurityServiceManagerTestData.EmptyClientRedirectUris,
                                                                         SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
@@ -192,6 +201,7 @@
                                                                                                                                  SecurityServiceManagerTestData
                                                                                                                                      .AllowedScopes,
                                                                                                                                  allowedGrantTypes,
+                                                                                                                                 SecurityServiceManagerTestData.ClientUri,
                                                                                                                                  SecurityServiceManagerTestData
                                                                                                                                      .ClientRedirectUris,
                                                                                                                                  SecurityServiceManagerTestData
@@ -220,6 +230,7 @@
                                                                         SecurityServiceManagerTestData.ClientDescription,
                                                                         SecurityServiceManagerTestData.AllowedScopes,
                                                                         SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.ClientUri,
                                                                         SecurityServiceManagerTestData.ClientRedirectUris,
                                                                         null,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,
@@ -243,6 +254,7 @@
                                                                         SecurityServiceManagerTestData.ClientDescription,
                                                                         SecurityServiceManagerTestData.AllowedScopes,
                                                                         SecurityServiceManagerTestData.AllowedGrantTypes,
+                                                                        SecurityServiceManagerTestData.ClientUri,
                                                                         null,
                                                                         SecurityServiceManagerTestData.ClientPostLogoutRedirectUris,
                                                                         SecurityServiceManagerTestData.RequireConsentTrue,

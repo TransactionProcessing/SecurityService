@@ -65,6 +65,11 @@ public class Index : PageModel
         var context = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
 
         // the user clicked the "cancel" button
+        if (Input.Button == "forgotpassword") {
+            return Redirect($"ForgotPassword/Index?clientId={Input.ClientId}");
+        }
+
+        // the user clicked the "cancel" button
         if (Input.Button != "login")
         {
             if (context != null)
@@ -194,13 +199,15 @@ public class Index : PageModel
             {
                 providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
             }
+
+            Input.ClientId = client.ClientId;
         }
 
         View = new ViewModel
         {
             AllowRememberLogin = LoginOptions.AllowRememberLogin,
             EnableLocalLogin = allowLocal && LoginOptions.AllowLocalLogin,
-            ExternalProviders = providers.ToArray()
+            ExternalProviders = providers.ToArray(),
         };
     }
 }

@@ -7,8 +7,10 @@
     using System.Threading;
     using System.Threading.Tasks;
     using BusinessLogic;
+    using Duende.IdentityServer;
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.EntityFramework.Options;
+    using MessagingService.Client;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
@@ -129,9 +131,13 @@
             }
             
             SignInManager<IdentityUser> signInManager = new SignInManager<IdentityUser>(userManager, this.ContextAccessor.Object, this.ClaimsFactory.Object, null, null, null, null);
-            
+            Mock<IMessagingServiceClient> messagingServiceClient = new Mock<IMessagingServiceClient>();
+            Mock<IdentityServerTools> identityServerTools = new Mock<IdentityServerTools>();
+
             SecurityServiceManager securityServiceManager =
-                new SecurityServiceManager(this.PasswordHasher.Object, userManager, roleManager, signInManager, configurationDbContext);
+                new SecurityServiceManager(this.PasswordHasher.Object, userManager, roleManager, signInManager, configurationDbContext,
+                                           messagingServiceClient.Object,
+                                           identityServerTools.Object);
 
             return securityServiceManager;
         }

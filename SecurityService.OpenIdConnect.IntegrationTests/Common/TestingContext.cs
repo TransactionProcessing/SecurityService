@@ -19,6 +19,8 @@
 
         public TokenResponse TokenResponse;
 
+        public String ResetPasswordLink { get; set; }
+
         public TestingContext()
         {
             this.Users = new Dictionary<String, Guid>();

@@ -75,6 +75,7 @@
                                                               createClientRequest.ClientDescription,
                                                               createClientRequest.AllowedScopes,
                                                               createClientRequest.AllowedGrantTypes,
+                                                              createClientRequest.ClientUri,
                                                               createClientRequest.ClientRedirectUris,
                                                               createClientRequest.ClientPostLogoutRedirectUris,
                                                               createClientRequest.RequireConsent,

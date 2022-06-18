@@ -84,11 +84,15 @@
             this.Logger = logger;
             this.Containers = new List<IContainerService>();
             this.TestNetworks = new List<INetworkService>();
+            this.securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
         }
 
         #endregion
 
         #region Methods
+
+        public Func<String, String> securityServiceBaseAddressResolver;
+        public HttpClient httpClient = new HttpClient();
 
         /// <summary>
         /// Starts the containers for scenario run.
@@ -130,8 +134,7 @@
 
             this.SecurityServiceTestUIPort = securityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
 
-            Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
-            HttpClient httpClient = new HttpClient();
+            
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient);
 
             this.Containers.AddRange(new List<IContainerService>

@@ -11,6 +11,17 @@ namespace SecurityService.BusinessLogic
 
     public interface ISecurityServiceManager
     {
+        Task ProcessPasswordResetRequest(String username,
+                                         String emailAddress,
+                                         String clientId,
+                                         CancellationToken cancellationToken);
+
+        Task<String> ProcessPasswordResetConfirmation(String username,
+                                              String token,
+                                              String password,
+                                              String clientId,
+                                         CancellationToken cancellationToken);
+
         /// <summary>
         /// Creates the API scope.
         /// </summary>
@@ -79,6 +90,7 @@ namespace SecurityService.BusinessLogic
                                   String clientDescription,
                                   List<String> allowedScopes,
                                   List<String> allowedGrantTypes,
+                                  String clientUri,
                                   List<String> clientRedirectUris,
                                   List<String> clientPostLogoutRedirectUris,
                                   Boolean requireConsent,
