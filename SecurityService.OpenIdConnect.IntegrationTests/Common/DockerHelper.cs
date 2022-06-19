@@ -266,7 +266,7 @@
                 securityServiceContainer.WithCredential(dockerCredentials.Value.URL, dockerCredentials.Value.UserName, dockerCredentials.Value.Password);
             }
 
-            this.MountHostFolder(securityServiceContainer);
+            this.MountHostFolder(securityServiceContainer,"C:\\home\\txnproc\\trace");
 
             // Now build and return the container                
             IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
