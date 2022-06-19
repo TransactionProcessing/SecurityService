@@ -102,7 +102,7 @@
         public override async Task StartContainersForScenarioRun(String scenarioName)
         {
             String traceFolder = FdOs.IsWindows() ? $"C:\\home\\txnproc\\trace\\{scenarioName}" : $"/home/txnproc/trace/{scenarioName}";
-
+            this.HostTraceFolder = traceFolder;
             Logging.Enabled();
 
             Guid testGuid = Guid.NewGuid();
