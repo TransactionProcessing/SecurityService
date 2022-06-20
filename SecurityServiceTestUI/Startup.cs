@@ -18,12 +18,15 @@ namespace SecurityServiceTestUI
 
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IWebHostEnvironment webHostEnvironment)
         {
-            Configuration = configuration;
+            IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
+                                                                                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                                                                                   .AddEnvironmentVariables();
+            Startup.Configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
+        public static IConfigurationRoot Configuration { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -31,6 +34,8 @@ namespace SecurityServiceTestUI
             services.AddControllersWithViews();
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+            Console.WriteLine($"Authority is {Configuration.GetValue<String>("AppSettings:Authority")}");
 
             services.AddAuthentication(options =>
                                        {

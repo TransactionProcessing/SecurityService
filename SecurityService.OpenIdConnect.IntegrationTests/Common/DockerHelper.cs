@@ -297,9 +297,9 @@
         {
             // Management API Container
             IContainerService securityServiceTestUIContainer = new Builder().UseContainer().WithName(containerName)
-                                                                            .WithEnvironment($"Authority=https://identity-server:{securityServiceContainerPort}",
-                                                                                             $"ClientId={clientDetails.clientId}",
-                                                                                             $"ClientSecret={clientDetails.clientSecret}",
+                                                                            .WithEnvironment($"AppSettings:Authority=https://identity-server:{securityServiceContainerPort}",
+                                                                                             $"AppSettings:ClientId={clientDetails.clientId}",
+                                                                                             $"AppSettings:ClientSecret={clientDetails.clientSecret}",
                                                                                              "urls=https://*:5004")
                                                                             .UseImage("securityservicetestui").ExposePort(5004)
                                                                             .UseNetwork(new List<INetworkService>
