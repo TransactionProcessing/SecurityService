@@ -5,18 +5,27 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Security.Claims;
+    using System.Text;
+    using System.Text.Encodings.Web;
     using System.Threading;
     using System.Threading.Tasks;
+    using DataTransferObjects.Responses;
+    using Duende.IdentityServer;
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.EntityFramework.Mappers;
     using Duende.IdentityServer.Models;
+    using Duende.IdentityServer.Services;
     using Exceptions;
     using IdentityModel;
+    using MessagingService.Client;
+    using MessagingService.DataTransferObjects;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
-    using Models;
     using Shared.Exceptions;
     using Shared.General;
+    using Shared.Logger;
+    using RoleDetails = Models.RoleDetails;
+    using UserDetails = Models.UserDetails;
 
     public class SecurityServiceManager : ISecurityServiceManager
     {
@@ -26,6 +35,10 @@
         /// The configuration database context resolver
         /// </summary>
         private readonly ConfigurationDbContext ConfigurationDbContext;
+
+        private readonly IMessagingServiceClient MessagingServiceClient;
+
+        private readonly IdentityServerTools IdentityServerTools;
 
         /// <summary>
         /// The password hasher
@@ -61,13 +74,145 @@
                                       UserManager<IdentityUser> userManager,
                                       RoleManager<IdentityRole> roleManager,
                                       SignInManager<IdentityUser> signInManager,
-                                      ConfigurationDbContext configurationDbContext)
+                                      ConfigurationDbContext configurationDbContext,
+                                      IMessagingServiceClient messagingServiceClient,
+                                      IdentityServerTools identityServerTools)
         {
             this.PasswordHasher = passwordHasher;
             this.UserManager = userManager;
             this.RoleManager = roleManager;
             this.SignInManager = signInManager;
             this.ConfigurationDbContext = configurationDbContext;
+            this.MessagingServiceClient = messagingServiceClient;
+            this.IdentityServerTools = identityServerTools;
+        }
+
+        public async Task ProcessPasswordResetRequest(String username,
+                                                String emailAddress,
+                                                String clientId,
+                                                CancellationToken cancellationToken) {
+            // Find the user based on the user name passed in
+            IdentityUser user = await this.UserManager.FindByNameAsync(username);
+
+            if (user == null) {
+                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
+                // this prevents giving away info to a potential hacker...
+                // TODO: maybe log something here...
+                return;
+            }
+
+            // TODO: User has been found so send an email with reset details
+            // TODO: For now we will write this to a text file 
+            String resetToken = await this.UserManager.GeneratePasswordResetTokenAsync(user);
+            resetToken = UrlEncoder.Default.Encode(resetToken);
+            String baseAddress = ConfigurationReader.GetValue("ServiceOptions", "PublicOrigin");
+            String uri = $"{baseAddress}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={clientId}";
+
+            TokenResponse token = await this.GetToken(cancellationToken);
+            SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
+            try {
+                await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+            }
+            catch(Exception ex) {
+                Logger.LogError(ex);
+            }
+        }
+
+        private TokenResponse TokenResponse;
+
+        private async Task<TokenResponse> GetToken(CancellationToken cancellationToken)
+        {
+            // Get a token to talk to the estate service
+            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
+            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+            
+            Logger.LogInformation($"Client Id is {clientId}");
+            Logger.LogInformation($"Client Secret is {clientSecret}");
+
+            if (this.TokenResponse == null)
+            {
+                String clientToken = await this.IdentityServerTools.IssueClientJwtAsync(clientId, 3600);
+                this.TokenResponse = TokenResponse.Create(clientToken, null, 3600, DateTimeOffset.Now, DateTimeOffset.Now.AddSeconds(3600));
+                Logger.LogInformation($"Token is {this.TokenResponse.AccessToken}");
+                return this.TokenResponse;
+            }
+
+            if (this.TokenResponse.Expires.UtcDateTime.Subtract(DateTime.UtcNow) < TimeSpan.FromMinutes(2))
+            {
+                Logger.LogInformation($"Token is about to expire at {this.TokenResponse.Expires.DateTime:O}");
+                Logger.LogInformation($"Token is {this.TokenResponse.AccessToken}");
+                return this.TokenResponse;
+            }
+
+            return this.TokenResponse;
+        }
+
+        private SendEmailRequest BuildPasswordResetEmailRequest(IdentityUser user,  String resetToken) {
+            StringBuilder mesasgeBuilder = new StringBuilder();
+
+            mesasgeBuilder.Append("<html>");
+            mesasgeBuilder.Append("<body>");
+            mesasgeBuilder.Append("<p><strong>Thanks for your password reset request</strong></p>");
+            mesasgeBuilder.Append("<p></p>");
+            mesasgeBuilder.Append($"<p>Please <a href=\"{resetToken}\">click here</a> to confirm this password reset was from you.</p>");
+            mesasgeBuilder.Append("<p>Thanks for your password reset request.</p>");
+            mesasgeBuilder.Append("</body>");
+            mesasgeBuilder.Append("</html>");
+
+            SendEmailRequest request = new() {
+                                                 Body = mesasgeBuilder.ToString(),
+                                                 ConnectionIdentifier = Guid.NewGuid(),
+                                                 FromAddress = "golfhandicapping@btinternet.com",
+                                                 IsHtml = true,
+                                                 Subject = "Password Reset Requested",
+                                                 ToAddresses = new List<String> {
+                                                                                    user.Email,
+                                                                                    "stuart_ferguson1@outlook.com"
+                                                                                }
+                                             };
+
+            return request;
+        }
+
+        public async Task<String> ProcessPasswordResetConfirmation(String username,
+                                                           String token,
+                                                           String password,
+                                                           String clientId,
+                                                     CancellationToken cancellationToken) {
+            // Find the user based on the user name passed in
+            IdentityUser user = await this.UserManager.FindByNameAsync(username);
+
+            if (user == null)
+            {
+                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
+                // this prevents giving away info to a potential hacker...
+                // TODO: maybe log something here...
+                Logger.LogWarning($"user not found for username {username}");
+                return String.Empty;
+            }
+
+            IdentityResult result = await this.UserManager.ResetPasswordAsync(user, token, password);
+
+            // handle the result... 
+            if (result.Succeeded == false) {
+                // Log any errors
+                Logger.LogWarning($"Errors during password reset for user [{username} and Client [{clientId}]");
+                foreach (IdentityError identityError in result.Errors) {
+                    Logger.LogWarning($"Code {identityError.Code} Description {identityError.Description}");
+                }
+            }
+
+            // TODO: build the redirect uri
+            Duende.IdentityServer.EntityFramework.Entities.Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == clientId);
+
+            if (client == null) {
+                Logger.LogWarning($"Client not found for clientId {clientId}");
+                // TODO: need to redirect somewhere...
+                return String.Empty;
+            }
+
+            Logger.LogWarning($"Client uri {client.ClientUri}");
+            return client.ClientUri;
         }
 
         public async Task<String> CreateApiScope(String name,
@@ -175,6 +320,7 @@
                                                String clientDescription,
                                                List<String> allowedScopes,
                                                List<String> allowedGrantTypes,
+                                               String clientUri,
                                                List<String> clientRedirectUris,
                                                List<String> clientPostLogoutRedirectUris,
                                                Boolean requireConsent,
@@ -198,6 +344,7 @@
                                 AllowedScopes = allowedScopes,
                                 RequireConsent = requireConsent,
                                 AllowOfflineAccess = allowOfflineAccess,
+                                ClientUri = clientUri
                             };
 
             if (allowedGrantTypes.Contains("hybrid"))

@@ -46,6 +46,13 @@ jobs:
       run: |
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: tracelogs
+        path: c:\home\txnproc\trace\   
+
+
   buildfirefox:
     name: "Build and Unit Test Pull Requests - Firefox UI"
     env:
@@ -83,6 +90,13 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest    
 
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: tracelogs
+        path: c:\home\txnproc\trace\   
+
+
   buildchromeui:
     name: "Build and Unit Test Pull Requests - Chrome UI"
     env:
@@ -119,6 +133,13 @@ jobs:
         Browser: Chrome
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: tracelogs
+        path: c:\home\txnproc\trace\   
+
 
   buildedgeui:
     name: "Build and Unit Test Pull Requests - Edge UI"
@@ -158,3 +179,9 @@ jobs:
         DriverExe: msedgedriver.exe
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest 
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: tracelogs
+        path: c:\home\txnproc\trace\   

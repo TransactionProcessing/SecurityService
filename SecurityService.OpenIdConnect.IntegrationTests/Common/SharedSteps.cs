@@ -171,6 +171,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                 postLogoutRedirectUris = postLogoutRedirectUris.Replace("[url]", "localhost");
                 postLogoutRedirectUris = postLogoutRedirectUris.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString());
 
+                String clientUri = SpecflowTableHelper.GetStringRowValue(tableRow, "ClientUri");
+                clientUri = clientUri.Replace("[url]", "localhost");
+                clientUri = clientUri.Replace("[port]", this.TestingContext.DockerHelper.SecurityServiceTestUIPort.ToString());
                 CreateClientRequest createClientRequest = new CreateClientRequest
                 {
                     ClientId = SpecflowTableHelper.GetStringRowValue(tableRow, "ClientId").Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")),
@@ -182,8 +185,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                     ClientPostLogoutRedirectUris = string.IsNullOrEmpty(postLogoutRedirectUris) ? null : postLogoutRedirectUris.Split(",").ToList(),
                     ClientDescription = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
                     RequireConsent = SpecflowTableHelper.GetBooleanValue(tableRow, "RequireConsent"),
-                    AllowOfflineAccess = SpecflowTableHelper.GetBooleanValue(tableRow, "AllowOfflineAccess")
-
+                    AllowOfflineAccess = SpecflowTableHelper.GetBooleanValue(tableRow, "AllowOfflineAccess"),
+                    ClientUri = clientUri
                 };
 
                 CreateClientResponse createClientResponse = await this.CreateClient(createClientRequest, CancellationToken.None).ConfigureAwait(false);

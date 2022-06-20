@@ -5,8 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Duende.IdentityServer" Version="6.1.0" />
     <PackageReference Include="Duende.IdentityServer.EntityFramework.Storage" Version="6.1.0" />
     <PackageReference Include="Duende.IdentityServer.Storage" Version="6.1.0" />
+    <PackageReference Include="MessagingService.Client" Version="1.1.1-build3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.5" />
@@ -14,6 +16,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
     <ProjectReference Include="..\SecurityService.Models\SecurityService.Models.csproj" />
   </ItemGroup>
 

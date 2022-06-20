@@ -1,0 +1,41 @@
+@page
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model IdentityServerHost.Pages.ForgotPassword.Index
+
+<div class="login-page">
+
+<partial name="_ValidationSummary"/>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-header">
+                <h2>Forgot Password</h2>
+            </div>
+            
+            @if (String.IsNullOrEmpty(Model.View.UserMessage)) {
+                <div class="card-body">
+                    <form asp-page="/Account/ForgotPassword/Index">
+                        <input type="hidden" asp-for="Input.ReturnUrl"/>
+                        <input type="hidden" asp-for="Input.ClientId"/>
+
+                        <div class="form-group">
+                            <label asp-for="Input.Username"></label>
+                            <input class="form-control" placeholder="Username" asp-for="Input.Username" autofocus>
+                        </div>
+                        <div class="form-group">
+                            <label asp-for="Input.EmailAddress"></label>
+                            <input class="form-control" placeholder="Email Address" asp-for="Input.EmailAddress" autocomplete="off">
+                        </div>
+
+                        <button class="btn btn-primary" name="Input.Button" value="login">Reset Password</button>
+                        <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                    </form>
+                </div>
+            }
+            else {
+                <p>@Model.View.UserMessage</p>
+            }
+        </div>
+    </div>
+</div>

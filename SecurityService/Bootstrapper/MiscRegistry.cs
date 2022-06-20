@@ -1,9 +1,13 @@
 ﻿namespace SecurityService.Bootstrapper
 {
+    using System;
     using BusinessLogic;
     using Factories;
     using Lamar;
+    using MessagingService.Client;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Hosting;
+    using Shared.General;
 
     /// <summary>
     /// 
@@ -20,6 +24,15 @@
         {
             this.AddScoped<ISecurityServiceManager, SecurityServiceManager>();
             this.AddSingleton<IModelFactory, ModelFactory>();
+
+            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")) {
+                this.AddSingleton<IMessagingServiceClient, TestMessagingServiceClient>();
+            }
+            else {
+                this.AddSingleton<IMessagingServiceClient, MessagingServiceClient>();
+            }
+
+            this.AddSingleton<Func<String, String>>(container => serviceName => { return ConfigurationReader.GetBaseServerUri(serviceName).OriginalString; });
         }
 
         #endregion

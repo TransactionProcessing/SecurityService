@@ -142,6 +142,8 @@
 
         public static List<String> EmptyClientRedirectUris = new List<String>();
 
+        public static String ClientUri = "http://localhost";
+
         public static List<String> ClientRedirectUris = new List<String>
                                                         {
                                                             "http://localhost/signin-oidc"

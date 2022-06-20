@@ -18,12 +18,15 @@ namespace SecurityServiceTestUI
 
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IWebHostEnvironment webHostEnvironment)
         {
-            Configuration = configuration;
+            IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
+                                                                                   .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                                                                                   .AddEnvironmentVariables();
+            Startup.Configuration = builder.Build();
         }
 
-        public IConfiguration Configuration { get; }
+        public static IConfigurationRoot Configuration { get; set; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -31,6 +34,8 @@ namespace SecurityServiceTestUI
             services.AddControllersWithViews();
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
+
+            Console.WriteLine($"Authority is {Configuration.GetValue<String>("AppSettings:Authority")}");
 
             services.AddAuthentication(options =>
                                        {
@@ -44,17 +49,17 @@ namespace SecurityServiceTestUI
                                                   handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
                                                   options.BackchannelHttpHandler = handler;
 
-                                                  options.Authority = Configuration.GetValue<String>("Authority");
+                                                  options.Authority = Configuration.GetValue<String>("AppSettings:Authority");
                                                   options.TokenValidationParameters = new TokenValidationParameters
                                                                                       {
                                                                                           ValidateAudience = false,
                                                                                       };
                                                   
                                                   options.ClientSecret =
-                                                      Configuration.GetValue<String>("ClientSecret");
-                                                  options.ClientId = Configuration.GetValue<String>("ClientId");
+                                                      Configuration.GetValue<String>("AppSettings:ClientSecret");
+                                                  options.ClientId = Configuration.GetValue<String>("AppSettings:ClientId");
 
-                                                  options.MetadataAddress = $"{Configuration.GetValue<String>("Authority")}/.well-known/openid-configuration";
+                                                  options.MetadataAddress = $"{Configuration.GetValue<String>("AppSettings:Authority")}/.well-known/openid-configuration";
 
                                                   options.ResponseType = "code id_token";
 
@@ -78,7 +83,7 @@ namespace SecurityServiceTestUI
                                                   options.Events.OnRedirectToIdentityProvider = context =>
                                                   {
                                                       // Intercept the redirection so the browser navigates to the right URL in your host
-                                                      context.ProtocolMessage.IssuerAddress = $"{Configuration.GetValue<String>("Authority")}/connect/authorize";
+                                                      context.ProtocolMessage.IssuerAddress = $"{Configuration.GetValue<String>("AppSettings:Authority")}/connect/authorize";
                                                       return Task.CompletedTask;
                                                   };
                                               });

@@ -23,6 +23,7 @@
                     <div class="card-body">
                         <form asp-page="/Account/Login/Index">
                             <input type="hidden" asp-for="Input.ReturnUrl" />
+                            <input type="hidden" asp-for="Input.ClientId" />
 
                             <div class="form-group">
                                 <label asp-for="Input.Username"></label>
@@ -47,6 +48,7 @@
                             
                             <button class="btn btn-primary" name="Input.Button" value="login">Login</button>
                             <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                            <button class="btn btn-secondary" name="Input.Button" value="forgotpassword">Forgot Password</button>
                         </form>
                     </div>
                 </div>

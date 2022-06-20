@@ -85,6 +85,9 @@
         [JsonProperty("client_redirect_uris")]
         public List<String> ClientRedirectUris { get; set; }
 
+        [JsonProperty("client_uri")]
+        public String ClientUri { get; set; }
+
         /// <summary>
         /// Gets or sets a value indicating whether [require consent].
         /// </summary>

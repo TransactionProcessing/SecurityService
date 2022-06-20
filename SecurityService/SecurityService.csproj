@@ -7,6 +7,7 @@
   </PropertyGroup>
   
   <ItemGroup>
+	  <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
 	  <PackageReference Include="Lamar" Version="8.0.1" />
 	  <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="8.0.1" />
 	  <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="6.0.2" />
