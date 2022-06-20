@@ -50,7 +50,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: tracelogs
-        path: /home/txnproc/trace/   
+        path: c:\home\txnproc\trace\   
 
 
   buildfirefox:
@@ -94,7 +94,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: tracelogs
-        path: /home/txnproc/trace/   
+        path: c:\home\txnproc\trace\   
 
 
   buildchromeui:
@@ -138,7 +138,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: tracelogs
-        path: /home/txnproc/trace/   
+        path: c:\home\txnproc\trace\   
 
 
   buildedgeui:

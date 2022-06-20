@@ -104,7 +104,7 @@
             String traceFolder = FdOs.IsWindows() ? $"C:\\home\\txnproc\\trace\\{scenarioName}" : $"/home/txnproc/trace/{scenarioName}";
             this.HostTraceFolder = traceFolder;
             Logging.Enabled();
-
+            Directory.CreateDirectory(this.HostTraceFolder);
             Guid testGuid = Guid.NewGuid();
             this.TestId = testGuid;
 
