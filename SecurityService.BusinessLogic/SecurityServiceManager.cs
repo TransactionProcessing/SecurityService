@@ -86,11 +86,52 @@
             this.MessagingServiceClient = messagingServiceClient;
             this.IdentityServerTools = identityServerTools;
         }
+        
+        public async Task<(Boolean, String)> ChangePassword(String userName,
+                                                            String currentPassword,
+                                                            String newPassword,
+                                                            String clientId,
+                                                            CancellationToken cancellationToken) {
+            // Find the user based on the user name passed in
+            IdentityUser user = await this.UserManager.FindByNameAsync(userName);
+
+            if (user == null)
+            {
+                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
+                // this prevents giving away info to a potential hacker...
+                // TODO: maybe log something here...
+                return (false,String.Empty);
+            }
+
+            IdentityResult result = await this.UserManager.ChangePasswordAsync(user, currentPassword, newPassword);
+
+            if (result.Succeeded == false) {
+                // Log any errors
+                Logger.LogWarning($"Errors during password change for user [{userName} and Client [{clientId}]");
+                foreach (IdentityError identityError in result.Errors)
+                {
+                    Logger.LogWarning($"Code {identityError.Code} Description {identityError.Description}");
+                }
+            }
+
+            // build the redirect uri
+            Duende.IdentityServer.EntityFramework.Entities.Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == clientId);
+
+            if (client == null)
+            {
+                Logger.LogWarning($"Client not found for clientId {clientId}");
+                // TODO: need to redirect somewhere...
+                return (false,String.Empty);
+            }
+
+            Logger.LogWarning($"Client uri {client.ClientUri}");
+            return (true,client.ClientUri);
+        }
 
         public async Task ProcessPasswordResetRequest(String username,
-                                                String emailAddress,
-                                                String clientId,
-                                                CancellationToken cancellationToken) {
+                                                      String emailAddress,
+                                                      String clientId,
+                                                      CancellationToken cancellationToken) {
             // Find the user based on the user name passed in
             IdentityUser user = await this.UserManager.FindByNameAsync(username);
 
@@ -101,8 +142,7 @@
                 return;
             }
 
-            // TODO: User has been found so send an email with reset details
-            // TODO: For now we will write this to a text file 
+            // User has been found so send an email with reset details
             String resetToken = await this.UserManager.GeneratePasswordResetTokenAsync(user);
             resetToken = UrlEncoder.Default.Encode(resetToken);
             String baseAddress = ConfigurationReader.GetValue("ServiceOptions", "PublicOrigin");
@@ -202,7 +242,7 @@
                 }
             }
 
-            // TODO: build the redirect uri
+            // build the redirect uri
             Duende.IdentityServer.EntityFramework.Entities.Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == clientId);
 
             if (client == null) {

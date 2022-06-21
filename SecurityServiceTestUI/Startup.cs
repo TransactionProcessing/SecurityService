@@ -22,6 +22,7 @@ namespace SecurityServiceTestUI
         {
             IConfigurationBuilder builder = new ConfigurationBuilder().SetBasePath(webHostEnvironment.ContentRootPath)
                                                                                    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                                                                                   .AddJsonFile($"appsettings.{webHostEnvironment.EnvironmentName}.json", optional: true, reloadOnChange: true)
                                                                                    .AddEnvironmentVariables();
             Startup.Configuration = builder.Build();
         }

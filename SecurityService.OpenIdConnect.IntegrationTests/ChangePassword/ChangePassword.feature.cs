@@ -10,7 +10,7 @@
 // ------------------------------------------------------------------------------
 #region Designer generated code
 #pragma warning disable
-namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
+namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
 {
     using TechTalk.SpecFlow;
     using System;
@@ -22,7 +22,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
     [Xunit.TraitAttribute("Category", "base")]
     [Xunit.TraitAttribute("Category", "shared")]
     [Xunit.TraitAttribute("Category", "userlogin")]
-    public partial class UserLoginFeature : object, Xunit.IClassFixture<UserLoginFeature.FixtureData>, System.IDisposable
+    [Xunit.TraitAttribute("Category", "changepassword")]
+    public partial class ChangePasswordFeature : object, Xunit.IClassFixture<ChangePasswordFeature.FixtureData>, System.IDisposable
     {
         
         private static TechTalk.SpecFlow.ITestRunner testRunner;
@@ -30,14 +31,15 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
         private static string[] featureTags = new string[] {
                 "base",
                 "shared",
-                "userlogin"};
+                "userlogin",
+                "changepassword"};
         
         private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
         
-#line 1 "UserLogin.feature"
+#line 1 "ChangePassword.feature"
 #line hidden
         
-        public UserLoginFeature(UserLoginFeature.FixtureData fixtureData, SecurityService_OpenIdConnect_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        public ChangePasswordFeature(ChangePasswordFeature.FixtureData fixtureData, SecurityService_OpenIdConnect_IntegrationTests_XUnitAssemblyFixture assemblyFixture, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
         {
             this._testOutputHelper = testOutputHelper;
             this.TestInitialize();
@@ -46,7 +48,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
         public static void FeatureSetup()
         {
             testRunner = TechTalk.SpecFlow.TestRunnerManager.GetTestRunner();
-            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "UserLogin", "User Login", null, ProgrammingLanguage.CSharp, featureTags);
+            TechTalk.SpecFlow.FeatureInfo featureInfo = new TechTalk.SpecFlow.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "ChangePassword", "Change Password", null, ProgrammingLanguage.CSharp, featureTags);
             testRunner.OnFeatureStart(featureInfo);
         }
         
@@ -85,52 +87,52 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
         {
 #line 4
 #line hidden
-            TechTalk.SpecFlow.Table table11 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
                         "Role Name"});
-            table11.AddRow(new string[] {
+            table1.AddRow(new string[] {
                         "Estate"});
 #line 6
- testRunner.Given("I create the following roles", ((string)(null)), table11, "Given ");
+ testRunner.Given("I create the following roles", ((string)(null)), table1, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table12 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table12.AddRow(new string[] {
+            table2.AddRow(new string[] {
                         "estateManagement",
                         "Estate Managememt REST",
                         "Secret1",
                         "estateManagement",
                         "MerchantId,EstateId,role"});
 #line 10
- testRunner.Given("I create the following api resources", ((string)(null)), table12, "Given ");
+ testRunner.Given("I create the following api resources", ((string)(null)), table2, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Description",
                         "UserClaims"});
-            table13.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "openid",
                         "Your user identifier",
                         "",
                         "sub"});
-            table13.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "profile",
                         "User profile",
                         "Your user profile information (first name, last name, etc.)",
                         "name,role,email,given_name,middle_name,family_name,EstateId,MerchantId"});
-            table13.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "email",
                         "Email",
                         "Email and Email Verified Flags",
                         "email_verified,email"});
 #line 14
- testRunner.Given("I create the following identity resources", ((string)(null)), table13, "Given ");
+ testRunner.Given("I create the following identity resources", ((string)(null)), table3, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table14 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
@@ -139,8 +141,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "RedirectUris",
                         "PostLogoutRedirectUris",
                         "RequireConsent",
-                        "AllowOfflineAccess"});
-            table14.AddRow(new string[] {
+                        "AllowOfflineAccess",
+                        "ClientUri"});
+            table4.AddRow(new string[] {
                         "estateUIClient",
                         "Merchant Client",
                         "Secret1",
@@ -149,11 +152,12 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "https://[url]:[port]/signin-oidc",
                         "https://[url]:[port]/signout-oidc",
                         "false",
-                        "true"});
+                        "true",
+                        "https://[url]:[port]"});
 #line 20
- testRunner.Given("I create the following clients", ((string)(null)), table14, "Given ");
+ testRunner.Given("I create the following clients", ((string)(null)), table4, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                         "Email Address",
                         "Password",
                         "Phone Number",
@@ -162,7 +166,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "Family Name",
                         "Claims",
                         "Roles"});
-            table15.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "estateuser@testestate1.co.uk",
                         "123456",
                         "123456789",
@@ -172,7 +176,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "EstateId:1",
                         "Estate"});
 #line 24
- testRunner.Given("I create the following users", ((string)(null)), table15, "Given ");
+ testRunner.Given("I create the following users", ((string)(null)), table5, "Given ");
 #line hidden
         }
         
@@ -181,16 +185,16 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Access Secure Area In Application")]
-        [Xunit.TraitAttribute("FeatureTitle", "User Login")]
-        [Xunit.TraitAttribute("Description", "Access Secure Area In Application")]
+        [Xunit.SkippableFactAttribute(DisplayName="Change Passwword")]
+        [Xunit.TraitAttribute("FeatureTitle", "Change Password")]
+        [Xunit.TraitAttribute("Description", "Change Passwword")]
         [Xunit.TraitAttribute("Category", "PRTest")]
-        public void AccessSecureAreaInApplication()
+        public void ChangePasswword()
         {
             string[] tagsOfScenario = new string[] {
                     "PRTest"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Access Secure Area In Application", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Change Passwword", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 29
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -219,6 +223,27 @@ this.FeatureBackground();
 #line 34
  testRunner.Then("I am presented with the privacy screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
+#line 35
+ testRunner.When("I click the \'ChangePassword\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 36
+ testRunner.Then("I am presented with a change password screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
+#line 37
+ testRunner.When("I enter my old password \'123456\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 38
+ testRunner.When("I enter my new password \'Pa55word!\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 39
+ testRunner.And("I confirm my new password \'Pa55word!\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 40
+ testRunner.And("I click the change password button", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 41
+ testRunner.Then("I am returned to the application home page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+#line hidden
             }
             this.ScenarioCleanup();
         }
@@ -230,12 +255,12 @@ this.FeatureBackground();
             
             public FixtureData()
             {
-                UserLoginFeature.FeatureSetup();
+                ChangePasswordFeature.FeatureSetup();
             }
             
             void System.IDisposable.Dispose()
             {
-                UserLoginFeature.FeatureTearDown();
+                ChangePasswordFeature.FeatureTearDown();
             }
         }
     }
