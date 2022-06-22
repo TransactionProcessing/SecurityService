@@ -11,6 +11,12 @@ namespace SecurityService.BusinessLogic
 
     public interface ISecurityServiceManager
     {
+        Task<(Boolean, String)> ChangePassword(String userName,
+                                               String currentPassword,
+                                               String newPassword,
+                                               String clientId,
+                                               CancellationToken cancellationToken);
+
         Task ProcessPasswordResetRequest(String username,
                                          String emailAddress,
                                          String clientId,

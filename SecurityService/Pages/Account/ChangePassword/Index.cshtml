@@ -1,0 +1,46 @@
+@page
+@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model IdentityServerHost.Pages.ChangePassword.Index
+
+<div class="login-page">
+
+<partial name="_ValidationSummary"/>
+
+<div class="row">
+    <div class="col-sm-6">
+        <div class="card">
+            <div class="card-header">
+                <h2>Change Password</h2>
+            </div>
+
+            <div class="card-body">
+                <form asp-page="/Account/ChangePassword/Index">
+                    <input type="hidden" asp-for="Input.ReturnUrl"/>
+                    <input type="hidden" asp-for="Input.ClientId"/>
+
+                    <div class="form-group">
+                        <label asp-for="Input.Username"></label>
+                        <input class="form-control" placeholder="Username" asp-for="Input.Username" autofocus readonly="true">
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Input.CurrentPassword"></label>
+                        <input class="form-control" type="password" placeholder="Current Password" asp-for="Input.CurrentPassword" autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="Input.NewPassword"></label>
+                        <input class="form-control" type="password" placeholder="New Password" asp-for="Input.NewPassword" autocomplete="off">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label asp-for="Input.ConfirmPassword"></label>
+                        <input class="form-control" type="password" placeholder="Confirm Password" asp-for="Input.ConfirmPassword" autocomplete="off">
+                    </div>
+
+                    <button class="btn btn-primary" name="Input.Button" value="login">Change Password</button>
+                    <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

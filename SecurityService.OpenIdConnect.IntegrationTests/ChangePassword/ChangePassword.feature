@@ -1,5 +1,5 @@
-﻿@base @shared @userlogin
-Feature: User Login
+﻿@base @shared @userlogin @changepassword
+Feature: Change Password
 
 Background: 
 
@@ -18,17 +18,24 @@ Background:
 	| email   | Email                | Email and Email Verified Flags                              | email_verified,email                                                   |
 
 	Given I create the following clients
-	| ClientId           | Name            | Secret  | Scopes                                    | GrantTypes | RedirectUris                        | PostLogoutRedirectUris               | RequireConsent | AllowOfflineAccess |
-	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               |
+	| ClientId       | Name            | Secret  | Scopes                                | GrantTypes | RedirectUris                     | PostLogoutRedirectUris            | RequireConsent | AllowOfflineAccess | ClientUri            |
+	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
 
 	Given I create the following users
 	| Email Address                    | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles      |
 	| estateuser@testestate1.co.uk | 123456   | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
 
 @PRTest
-Scenario: Access Secure Area In Application
+Scenario: Change Passwword
 	Given I am on the application home page
 	When I click the 'Privacy' link
 	Then I am presented with a login screen
 	When I login with the username 'estateuser@testestate1.co.uk' and password '123456'
 	Then I am presented with the privacy screen
+	When I click the 'ChangePassword' link
+	Then I am presented with a change password screen
+	When I enter my old password '123456'
+	When I enter my new password 'Pa55word!'
+	And I confirm my new password 'Pa55word!'
+	And I click the change password button
+	Then I am returned to the application home page

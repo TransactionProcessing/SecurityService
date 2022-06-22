@@ -58,7 +58,7 @@ namespace SecurityService.IntegrationTests.UserLogin
         [When(@"I click the '(.*)' link")]
         public void WhenIClickTheLink(string linkText)
         {
-            this.WebDriver.ClickLink("Privacy");
+            this.WebDriver.ClickLink(linkText);
         }
 
         [Then(@"I am presented with a login screen")]

@@ -87,52 +87,52 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
         {
 #line 4
 #line hidden
-            TechTalk.SpecFlow.Table table1 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                         "Role Name"});
-            table1.AddRow(new string[] {
+            table6.AddRow(new string[] {
                         "Estate"});
 #line 6
- testRunner.Given("I create the following roles", ((string)(null)), table1, "Given ");
+ testRunner.Given("I create the following roles", ((string)(null)), table6, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table2 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table2.AddRow(new string[] {
+            table7.AddRow(new string[] {
                         "estateManagement",
                         "Estate Managememt REST",
                         "Secret1",
                         "estateManagement",
                         "MerchantId,EstateId,role"});
 #line 10
- testRunner.Given("I create the following api resources", ((string)(null)), table2, "Given ");
+ testRunner.Given("I create the following api resources", ((string)(null)), table7, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table3 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Description",
                         "UserClaims"});
-            table3.AddRow(new string[] {
+            table8.AddRow(new string[] {
                         "openid",
                         "Your user identifier",
                         "",
                         "sub"});
-            table3.AddRow(new string[] {
+            table8.AddRow(new string[] {
                         "profile",
                         "User profile",
                         "Your user profile information (first name, last name, etc.)",
                         "name,role,email,given_name,middle_name,family_name,EstateId,MerchantId"});
-            table3.AddRow(new string[] {
+            table8.AddRow(new string[] {
                         "email",
                         "Email",
                         "Email and Email Verified Flags",
                         "email_verified,email"});
 #line 14
- testRunner.Given("I create the following identity resources", ((string)(null)), table3, "Given ");
+ testRunner.Given("I create the following identity resources", ((string)(null)), table8, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table4 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
@@ -143,7 +143,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "RequireConsent",
                         "AllowOfflineAccess",
                         "ClientUri"});
-            table4.AddRow(new string[] {
+            table9.AddRow(new string[] {
                         "estateUIClient",
                         "Merchant Client",
                         "Secret1",
@@ -155,9 +155,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "true",
                         "https://[url]:[port]"});
 #line 20
- testRunner.Given("I create the following clients", ((string)(null)), table4, "Given ");
+ testRunner.Given("I create the following clients", ((string)(null)), table9, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
                         "Email Address",
                         "Password",
                         "Phone Number",
@@ -166,7 +166,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "Family Name",
                         "Claims",
                         "Roles"});
-            table5.AddRow(new string[] {
+            table10.AddRow(new string[] {
                         "estateuser@testestate1.co.uk",
                         "123456",
                         "123456789",
@@ -176,7 +176,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "EstateId:1",
                         "Estate"});
 #line 24
- testRunner.Given("I create the following users", ((string)(null)), table5, "Given ");
+ testRunner.Given("I create the following users", ((string)(null)), table10, "Given ");
 #line hidden
         }
         
