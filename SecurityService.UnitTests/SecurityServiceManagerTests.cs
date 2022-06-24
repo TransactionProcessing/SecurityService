@@ -8,6 +8,7 @@
     using System.Threading.Tasks;
     using BusinessLogic.Exceptions;
     using Duende.IdentityServer;
+    using Duende.IdentityServer.Configuration;
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.EntityFramework.Entities;
     using Duende.IdentityServer.Services;
@@ -16,10 +17,13 @@
     using Microsoft.AspNetCore.Authentication;
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.Extensions.Configuration;
     using Models;
     using Moq;
     using SecurityService.BusinessLogic;
     using Shared.Exceptions;
+    using Shared.General;
+    using Shared.Logger;
     using Shouldly;
     using Xunit;
 
@@ -32,10 +36,25 @@
             Mock<IIssuerNameService> issuerNameService = new Mock<IIssuerNameService>();
             Mock<ITokenCreationService> tokenCreationService = new Mock<ITokenCreationService>();
             Mock<ISystemClock> systemClock = new Mock<ISystemClock>();
+            serviceProvider.Setup(m => m.GetService(typeof(IdentityServerOptions))).Returns(new IdentityServerOptions());
+
             IdentityServerTools identityServerTools = new IdentityServerTools(serviceProvider.Object, issuerNameService.Object, tokenCreationService.Object,
                                                                               systemClock.Object);
 
             return identityServerTools;
+        }
+
+        public SecurityServiceManagerTests() {
+            Dictionary<String, String> appSettings = new Dictionary<String, String>() {
+                                                                                          {"ServiceOptions:PublicOrigin", "http://127.0.0.1"},
+                                                                                          {"AppSettings:ClientId", "clientId"},
+                                                                                          {"AppSettings:ClientSecret", "secret"}
+                                                                                      };
+            IConfigurationBuilder builder = new ConfigurationBuilder().AddInMemoryCollection(appSettings);
+
+            ConfigurationReader.Initialise(builder.Build());
+            Logger.Initialise(NullLogger.Instance);
+
         }
 
         [Fact]
@@ -377,6 +396,7 @@
                                                                                                                                                .Claims,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .Roles,
+                                                                                                                                           false,
                                                                                                                                            CancellationToken.None);
                                                                                                  });
 
@@ -421,6 +441,7 @@
                                                                                                                                                .Claims,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .Roles,
+                                                                                                                                           false,
                                                                                                                                            CancellationToken.None);
                                                                                                  });
 
@@ -465,6 +486,7 @@
                                                                                                                                                .Claims,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .Roles,
+                                                                                                                                           false,
                                                                                                                                            CancellationToken.None);
                                                                                                  });
 
@@ -492,6 +514,7 @@
                                                                                                         SecurityServiceManagerTestData.PhoneNumber,
                                                                                                         SecurityServiceManagerTestData.Claims,
                                                                                                         SecurityServiceManagerTestData.Roles,
+                                                                                                        false,
                                                                                                         CancellationToken.None);
                                                             });
         }
@@ -501,8 +524,6 @@
         [InlineData("123456", false, true, false, false)]
         [InlineData("123456", false, false, true, false)]
         [InlineData("123456", false, false, false, true)]
-        //[InlineData(null)]
-        //[InlineData("")]
         public async Task SecurityServiceManager_CreateUser_UserIsCreated(String password,
                                                                           Boolean nullRoles,
                                                                           Boolean emptyRoles,
@@ -560,6 +581,7 @@
                                                                   SecurityServiceManagerTestData.PhoneNumber,
                                                                   claims,
                                                                   roles,
+                                                                  false,
                                                                   CancellationToken.None);
 
             userId.ShouldNotBe(Guid.Empty);
@@ -594,6 +616,7 @@
                                                                                                                                                .Claims,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .Roles,
+                                                                                                                                           false,
                                                                                                                                            CancellationToken.None);
                                                                                                  });
 

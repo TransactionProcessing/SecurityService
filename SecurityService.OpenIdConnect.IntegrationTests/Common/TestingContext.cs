@@ -20,6 +20,7 @@
         public TokenResponse TokenResponse;
 
         public String ResetPasswordLink { get; set; }
+        public String ConfirmEmailAddressLink { get; set; }
 
         public TestingContext()
         {

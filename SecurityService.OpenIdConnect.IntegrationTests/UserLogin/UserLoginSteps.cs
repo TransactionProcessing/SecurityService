@@ -6,9 +6,14 @@ namespace SecurityService.IntegrationTests.UserLogin
     using System.Collections.Generic;
     using System.Collections.ObjectModel;
     using System.Linq;
+    using System.Net;
+    using System.Net.Http;
     using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
+    using HtmlAgilityPack;
     using IntergrationTests.Common;
+    using Newtonsoft.Json;
     using OpenQA.Selenium;
     using Shared.IntegrationTesting;
     using Shouldly;
@@ -91,6 +96,44 @@ namespace SecurityService.IntegrationTests.UserLogin
             
         }
 
+        [Then(@"I get an email with a confirm email address link")]
+        public async Task ThenIGetAnEmailWithAConfirmEmailAddressLink()
+        {
+            String requestUri = $"{this.TestingContext.DockerHelper.securityServiceBaseAddressResolver("")}/api/developer/lastemail";
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri);
+
+            var response = await this.TestingContext.DockerHelper.httpClient.SendAsync(requestMessage, CancellationToken.None);
+
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+            var emailMessage = new
+                               {
+                                   MessageId = Guid.Empty,
+                                   Body = String.Empty
+                               };
+            var x = JsonConvert.DeserializeAnonymousType(await response.Content.ReadAsStringAsync(CancellationToken.None), emailMessage);
+
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(x.Body);
+            HtmlNodeCollection nodes = doc.DocumentNode.SelectNodes("//a[@href]");
+            String confirmEmailAddressLink = nodes[0].GetAttributeValue("href", string.Empty);
+            confirmEmailAddressLink.ShouldNotBeNullOrEmpty();
+
+            // Cache the link
+            this.TestingContext.ConfirmEmailAddressLink = confirmEmailAddressLink;
+        }
+
+        [When(@"I navigate to the confirm email address")]
+        public void WhenINavigateToTheConfirmEmailAddress()
+        {
+            this.WebDriver.Navigate().GoToUrl(this.TestingContext.ConfirmEmailAddressLink);
+        }
+
+        [Then(@"I am presented with the confirm email address successful screen")]
+        public void ThenIAmPresentedWithTheConfirmEmailAddressSuccessfulScreen() {
+            IWebElement webElement = this.WebDriver.FindElement(By.Id("userMessage"));
+            webElement.Text.ShouldBe("Thanks for confirming your email address, you should receive a welcome email soon.");
+        }
 
     }
 
@@ -139,5 +182,6 @@ namespace SecurityService.IntegrationTests.UserLogin
             webElement.ShouldNotBeNull();
             webElement.Click();
         }
+
     }
 }

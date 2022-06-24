@@ -26,7 +26,15 @@
             String configurationConnectionString = Startup.Configuration.GetConnectionString("ConfigurationDbContext");
             String authenticationConenctionString = Startup.Configuration.GetConnectionString("AuthenticationDbContext");
 
-            this.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders();
+            this.AddIdentity<IdentityUser, IdentityRole>(opt => {
+                                                             opt.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
+                                                         }).AddEntityFrameworkStores<AuthenticationDbContext>().AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("emailconfirmation");
+
+            this.Configure<DataProtectionTokenProviderOptions>(opt =>
+                                                                       opt.TokenLifespan = TimeSpan.FromHours(2));
+            this.Configure<EmailConfirmationTokenProviderOptions>(opt =>
+                                                                          opt.TokenLifespan = TimeSpan.FromDays(3));
+
 
             IIdentityServerBuilder identityServerBuilder = this.AddIdentityServer(options =>
                                                                                   {

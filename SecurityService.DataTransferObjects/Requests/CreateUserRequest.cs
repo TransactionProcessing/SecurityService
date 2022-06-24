@@ -9,76 +9,31 @@
     [ExcludeFromCodeCoverage]
     public class CreateUserRequest
     {
-        /// <summary>
-        /// Gets or sets the email address.
-        /// </summary>
-        /// <value>
-        /// The email address.
-        /// </value>
         [JsonProperty("email_address")]
         public String EmailAddress { get; set; }
 
-        /// <summary>
-        /// Gets or sets the phone number.
-        /// </summary>
-        /// <value>
-        /// The phone number.
-        /// </value>
         [JsonProperty("phone_number")]
         public String PhoneNumber { get; set; }
 
-        /// <summary>
-        /// Gets or sets the password.
-        /// </summary>
-        /// <value>
-        /// The password.
-        /// </value>
         [JsonProperty("password")]
         public String Password { get; set; }
 
-        /// <summary>
-        /// Gets or sets the claims.
-        /// </summary>
-        /// <value>
-        /// The claims.
-        /// </value>
         [JsonProperty("claims")]
         public Dictionary<String, String> Claims { get; set; }
 
-        /// <summary>
-        /// Gets or sets the roles.
-        /// </summary>
-        /// <value>
-        /// The roles.
-        /// </value>
         [JsonProperty("roles")]
         public List<String> Roles { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the given.
-        /// </summary>
-        /// <value>
-        /// The name of the given.
-        /// </value>
+        
         [JsonProperty("given_name")]
         public String GivenName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the middle.
-        /// </summary>
-        /// <value>
-        /// The name of the middle.
-        /// </value>
+        
         [JsonProperty("middle_name")]
         public String MiddleName { get; set; }
-
-        /// <summary>
-        /// Gets or sets the name of the family.
-        /// </summary>
-        /// <value>
-        /// The name of the family.
-        /// </value>
+        
         [JsonProperty("family_name")]
         public String FamilyName { get; set; }
+
+        [JsonProperty("require_registration_email")]
+        public Boolean? RequireRegistrationEmail { get; set; }
     }
 }
