@@ -18,17 +18,20 @@ Background:
 	| email   | Email                | Email and Email Verified Flags                              | email_verified,email                                                   |
 
 	Given I create the following clients
-	| ClientId           | Name            | Secret  | Scopes                                    | GrantTypes | RedirectUris                        | PostLogoutRedirectUris               | RequireConsent | AllowOfflineAccess |
-	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               |
-
-	Given I create the following users
-	| Email Address                    | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles      |
-	| estateuser@testestate1.co.uk | 123456   | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
+	| ClientId       | Name            | Secret  | Scopes                                | GrantTypes | RedirectUris                     | PostLogoutRedirectUris            | RequireConsent | AllowOfflineAccess | ClientUri            |
+	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
 
 @PRTest
-Scenario: Access Secure Area In Application
+Scenario: Create User and Login
+	Given I create the following users
+	| Email Address                | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles  |
+	| estateuser@testestate1.co.uk | 123456   | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
+	Then I get an email with a confirm email address link
+	When I navigate to the confirm email address
+	Then I am presented with the confirm email address successful screen
 	Given I am on the application home page
 	When I click the 'Privacy' link
 	Then I am presented with a login screen
 	When I login with the username 'estateuser@testestate1.co.uk' and password '123456'
 	Then I am presented with the privacy screen
+

@@ -73,6 +73,7 @@
                                                         createUserRequest.PhoneNumber,
                                                         createUserRequest.Claims,
                                                         createUserRequest.Roles,
+                                                        true,
                                                         cancellationToken);
 
             // return the result

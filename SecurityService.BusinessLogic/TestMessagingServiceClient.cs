@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MessagingService.Client;
 using MessagingService.DataTransferObjects;
+using Shared.Logger;
 
 public class TestMessagingServiceClient : IMessagingServiceClient
 {
@@ -14,6 +15,7 @@ public class TestMessagingServiceClient : IMessagingServiceClient
     public async Task<SendEmailResponse> SendEmail(String accessToken,
                                                    SendEmailRequest request,
                                                    CancellationToken cancellationToken) {
+        Logger.LogWarning($"Sending Email {request.Subject}");
         this.LastEmailRequest = request;
         return new SendEmailResponse {
                                          MessageId = Guid.NewGuid()
