@@ -28,7 +28,9 @@
 
             this.AddIdentity<IdentityUser, IdentityRole>(opt => {
                                                              opt.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
-                                                         }).AddEntityFrameworkStores<AuthenticationDbContext>().AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("emailconfirmation");
+                                                         }).AddEntityFrameworkStores<AuthenticationDbContext>()
+                .AddDefaultTokenProviders()                                            
+                .AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("emailconfirmation");
 
             this.Configure<DataProtectionTokenProviderOptions>(opt =>
                                                                        opt.TokenLifespan = TimeSpan.FromHours(2));

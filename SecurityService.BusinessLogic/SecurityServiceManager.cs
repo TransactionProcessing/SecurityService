@@ -706,7 +706,7 @@
             resetToken = UrlEncoder.Default.Encode(resetToken);
             String baseAddress = ConfigurationReader.GetValue("ServiceOptions", "PublicOrigin");
             String uri = $"{baseAddress}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={clientId}";
-
+            
             TokenResponse token = await this.GetToken(cancellationToken);
             SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
             try {

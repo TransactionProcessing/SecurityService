@@ -139,7 +139,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "RedirectUris",
                         "PostLogoutRedirectUris",
                         "RequireConsent",
-                        "AllowOfflineAccess"});
+                        "AllowOfflineAccess",
+                        "ClientUri"});
             table14.AddRow(new string[] {
                         "estateUIClient",
                         "Merchant Client",
@@ -149,7 +150,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "https://[url]:[port]/signin-oidc",
                         "https://[url]:[port]/signout-oidc",
                         "false",
-                        "true"});
+                        "true",
+                        "https://[url]:[port]"});
 #line 20
  testRunner.Given("I create the following clients", ((string)(null)), table14, "Given ");
 #line hidden
