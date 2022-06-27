@@ -308,6 +308,7 @@
                                            String middleName,
                                            String familyName,
                                            String userName,
+                                           String password,
                                            String emailAddress,
                                            String phoneNumber,
                                            Dictionary<String, String> claims,
@@ -326,9 +327,11 @@
                                                                 PhoneNumber = phoneNumber
                                                             };
 
+            String passwordValue = String.IsNullOrEmpty(password) ? SecurityServiceManager.GenerateRandomPassword(this.UserManager.Options.Password) : password;
+
             // Hash the default password
             newIdentityUser.PasswordHash =
-                this.PasswordHasher.HashPassword(newIdentityUser, SecurityServiceManager.GenerateRandomPassword(this.UserManager.Options.Password));
+                this.PasswordHasher.HashPassword(newIdentityUser, passwordValue);
 
             if (String.IsNullOrEmpty(newIdentityUser.PasswordHash)) {
                 throw new IdentityResultException("Error generating password hash value, hash was null or empty", IdentityResult.Failed());

@@ -157,6 +157,7 @@ namespace SecurityService.BusinessLogic
                               String middleName,
                               String familyName,
                               String userName,
+                              String password,
                               String emailAddress,
                               String phoneNumber,
                               Dictionary<String, String> claims,

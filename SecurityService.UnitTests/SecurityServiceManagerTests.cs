@@ -386,6 +386,7 @@
                                                                                                                                                .FamilyName,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .UserName,
+                                                                                                                                           SecurityServiceManagerTestData.Password,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .EmailAddress,
                                                                                                                                            SecurityServiceManagerTestData
@@ -428,6 +429,7 @@
                                                                                                                                                .FamilyName,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .UserName,
+                                                                                                                                           SecurityServiceManagerTestData.Password,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .EmailAddress,
                                                                                                                                            SecurityServiceManagerTestData
@@ -470,6 +472,7 @@
                                                                                                                                                .FamilyName,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .UserName,
+                                                                                                                                           SecurityServiceManagerTestData.Password,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .EmailAddress,
                                                                                                                                            SecurityServiceManagerTestData
@@ -500,6 +503,7 @@
                                                                                                         SecurityServiceManagerTestData.MiddleName,
                                                                                                         SecurityServiceManagerTestData.FamilyName,
                                                                                                         SecurityServiceManagerTestData.UserName,
+                                                                                                        SecurityServiceManagerTestData.Password,
                                                                                                         SecurityServiceManagerTestData.EmailAddress,
                                                                                                         SecurityServiceManagerTestData.PhoneNumber,
                                                                                                         SecurityServiceManagerTestData.Claims,
@@ -564,6 +568,7 @@
                                                                   SecurityServiceManagerTestData.MiddleName,
                                                                   SecurityServiceManagerTestData.FamilyName,
                                                                   SecurityServiceManagerTestData.UserName,
+                                                                  SecurityServiceManagerTestData.Password,
                                                                   SecurityServiceManagerTestData.EmailAddress,
                                                                   SecurityServiceManagerTestData.PhoneNumber,
                                                                   claims,
@@ -592,6 +597,7 @@
                                                                                                                                                .FamilyName,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .UserName,
+                                                                                                                                           SecurityServiceManagerTestData.Password,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .EmailAddress,
                                                                                                                                            SecurityServiceManagerTestData

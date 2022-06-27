@@ -68,6 +68,7 @@
                                                         createUserRequest.MiddleName,
                                                         createUserRequest.FamilyName,
                                                         createUserRequest.EmailAddress,
+                                                        createUserRequest.Password,
                                                         createUserRequest.EmailAddress,
                                                         createUserRequest.PhoneNumber,
                                                         createUserRequest.Claims,

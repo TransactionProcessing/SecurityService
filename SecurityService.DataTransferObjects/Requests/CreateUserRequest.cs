@@ -29,5 +29,8 @@
         
         [JsonProperty("family_name")]
         public String FamilyName { get; set; }
+
+        [JsonProperty("password")]
+        public String Password { get; set; }
     }
 }
