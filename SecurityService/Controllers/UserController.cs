@@ -68,12 +68,10 @@
                                                         createUserRequest.MiddleName,
                                                         createUserRequest.FamilyName,
                                                         createUserRequest.EmailAddress,
-                                                        createUserRequest.Password,
                                                         createUserRequest.EmailAddress,
                                                         createUserRequest.PhoneNumber,
                                                         createUserRequest.Claims,
                                                         createUserRequest.Roles,
-                                                        true,
                                                         cancellationToken);
 
             // return the result

@@ -15,9 +15,6 @@
         [JsonProperty("phone_number")]
         public String PhoneNumber { get; set; }
 
-        [JsonProperty("password")]
-        public String Password { get; set; }
-
         [JsonProperty("claims")]
         public Dictionary<String, String> Claims { get; set; }
 
@@ -32,8 +29,5 @@
         
         [JsonProperty("family_name")]
         public String FamilyName { get; set; }
-
-        [JsonProperty("require_registration_email")]
-        public Boolean? RequireRegistrationEmail { get; set; }
     }
 }

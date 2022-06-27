@@ -80,7 +80,6 @@
                                                           MiddleName = SpecflowTableHelper.GetStringRowValue(tableRow, "Middle name"),
                                                           Claims = userClaims,
                                                           Roles = string.IsNullOrEmpty(roles) ? null : roles.Split(",").ToList(),
-                                                          Password = SpecflowTableHelper.GetStringRowValue(tableRow, "Password")
                                                       };
                 CreateUserResponse createUserResponse = await this.CreateUser(createUserRequest, CancellationToken.None).ConfigureAwait(false);
 

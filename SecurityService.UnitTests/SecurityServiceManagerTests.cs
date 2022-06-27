@@ -387,8 +387,6 @@
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .UserName,
                                                                                                                                            SecurityServiceManagerTestData
-                                                                                                                                               .Password,
-                                                                                                                                           SecurityServiceManagerTestData
                                                                                                                                                .EmailAddress,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .PhoneNumber,
@@ -396,7 +394,6 @@
                                                                                                                                                .Claims,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .Roles,
-                                                                                                                                           false,
                                                                                                                                            CancellationToken.None);
                                                                                                  });
 
@@ -432,8 +429,6 @@
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .UserName,
                                                                                                                                            SecurityServiceManagerTestData
-                                                                                                                                               .Password,
-                                                                                                                                           SecurityServiceManagerTestData
                                                                                                                                                .EmailAddress,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .PhoneNumber,
@@ -441,7 +436,6 @@
                                                                                                                                                .Claims,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .Roles,
-                                                                                                                                           false,
                                                                                                                                            CancellationToken.None);
                                                                                                  });
 
@@ -477,8 +471,6 @@
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .UserName,
                                                                                                                                            SecurityServiceManagerTestData
-                                                                                                                                               .Password,
-                                                                                                                                           SecurityServiceManagerTestData
                                                                                                                                                .EmailAddress,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .PhoneNumber,
@@ -486,7 +478,6 @@
                                                                                                                                                .Claims,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .Roles,
-                                                                                                                                           false,
                                                                                                                                            CancellationToken.None);
                                                                                                  });
 
@@ -509,23 +500,20 @@
                                                                                                         SecurityServiceManagerTestData.MiddleName,
                                                                                                         SecurityServiceManagerTestData.FamilyName,
                                                                                                         SecurityServiceManagerTestData.UserName,
-                                                                                                        SecurityServiceManagerTestData.Password,
                                                                                                         SecurityServiceManagerTestData.EmailAddress,
                                                                                                         SecurityServiceManagerTestData.PhoneNumber,
                                                                                                         SecurityServiceManagerTestData.Claims,
                                                                                                         SecurityServiceManagerTestData.Roles,
-                                                                                                        false,
                                                                                                         CancellationToken.None);
                                                             });
         }
 
         [Theory]
-        [InlineData("123456", true, false, false, false)]
-        [InlineData("123456", false, true, false, false)]
-        [InlineData("123456", false, false, true, false)]
-        [InlineData("123456", false, false, false, true)]
-        public async Task SecurityServiceManager_CreateUser_UserIsCreated(String password,
-                                                                          Boolean nullRoles,
+        [InlineData(true, false, false, false)]
+        [InlineData(false, true, false, false)]
+        [InlineData(false, false, true, false)]
+        [InlineData(false, false, false, true)]
+        public async Task SecurityServiceManager_CreateUser_UserIsCreated(Boolean nullRoles,
                                                                           Boolean emptyRoles,
                                                                           Boolean nullClaims,
                                                                           Boolean emptyClaims)
@@ -576,12 +564,10 @@
                                                                   SecurityServiceManagerTestData.MiddleName,
                                                                   SecurityServiceManagerTestData.FamilyName,
                                                                   SecurityServiceManagerTestData.UserName,
-                                                                  password,
                                                                   SecurityServiceManagerTestData.EmailAddress,
                                                                   SecurityServiceManagerTestData.PhoneNumber,
                                                                   claims,
                                                                   roles,
-                                                                  false,
                                                                   CancellationToken.None);
 
             userId.ShouldNotBe(Guid.Empty);
@@ -607,8 +593,6 @@
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .UserName,
                                                                                                                                            SecurityServiceManagerTestData
-                                                                                                                                               .Password,
-                                                                                                                                           SecurityServiceManagerTestData
                                                                                                                                                .EmailAddress,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .PhoneNumber,
@@ -616,7 +600,6 @@
                                                                                                                                                .Claims,
                                                                                                                                            SecurityServiceManagerTestData
                                                                                                                                                .Roles,
-                                                                                                                                           false,
                                                                                                                                            CancellationToken.None);
                                                                                                  });
 
