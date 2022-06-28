@@ -21,16 +21,20 @@ Background:
 	| ClientId       | Name            | Secret  | Scopes                                | GrantTypes | RedirectUris                     | PostLogoutRedirectUris            | RequireConsent | AllowOfflineAccess | ClientUri            |
 	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
 
-	Given I create the following users
-	| Email Address                    | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles      |
-	| estateuser@testestate1.co.uk | 123456   | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
 
 @PRTest
 Scenario: Change Passwword
+	Given I create the following users
+	| Email Address                | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles  |
+	| estateuser@testestate1.co.uk | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
+	Then I get an email with a confirm email address link
+	When I navigate to the confirm email address
+	Then I am presented with the confirm email address successful screen
+	And I get a welcome email with my login details
 	Given I am on the application home page
 	When I click the 'Privacy' link
 	Then I am presented with a login screen
-	When I login with the username 'estateuser@testestate1.co.uk' and password '123456'
+	When I login with the username 'estateuser@testestate1.co.uk' and the provided password
 	Then I am presented with the privacy screen
 	When I click the 'ChangePassword' link
 	Then I am presented with a change password screen

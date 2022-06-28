@@ -11,6 +11,8 @@ namespace SecurityService.BusinessLogic
 
     public interface ISecurityServiceManager
     {
+        Task SendWelcomeEmail(String userName, CancellationToken cancellationToken);
+
         Task<Boolean> ConfirmEmailAddress(String userName,
                                  String confirmEmailToken,
                                  CancellationToken cancellationToken);
@@ -160,7 +162,6 @@ namespace SecurityService.BusinessLogic
                               String phoneNumber,
                               Dictionary<String, String> claims,
                               List<String> roles,
-                              Boolean? requireRegistrationEmail,
                               CancellationToken cancellationToken);
 
         /// <summary>

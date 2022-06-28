@@ -50,6 +50,8 @@ public class Confirm : PageModel
         }
         else {
             this.View.UserMessage = $"Thanks for confirming your email address, you should receive a welcome email soon.";
+            // Send the welcome email 
+            await this.SecurityServiceManager.SendWelcomeEmail(Input.Username, cancellationToken);
         }
         return Page();
     }

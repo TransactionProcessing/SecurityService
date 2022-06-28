@@ -21,6 +21,8 @@
 
         public String ResetPasswordLink { get; set; }
         public String ConfirmEmailAddressLink { get; set; }
+        public String EmailAddress { get; set; }
+        public String Password { get; set; }
 
         public TestingContext()
         {

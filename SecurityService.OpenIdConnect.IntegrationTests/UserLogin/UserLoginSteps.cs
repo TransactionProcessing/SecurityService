@@ -73,13 +73,15 @@ namespace SecurityService.IntegrationTests.UserLogin
             loginButton.ShouldNotBeNull();
         }
 
-        [When(@"I login with the username '(.*)' and password '(.*)'")]
-        public void WhenILoginWithTheUsernameAndPassword(String userName, String password)
+        [When(@"I login with the username '([^']*)' and the provided password")]
+        public void WhenILoginWithTheUsernameAndTheProvidedPassword(string userName)
         {
-            this.WebDriver.FillIn("Input.Username", userName.Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")));
-            this.WebDriver.FillIn("Input.Password", password);
+            this.WebDriver.FillIn("Input.Username", userName);
+            this.WebDriver.FillIn("Input.Password", this.TestingContext.Password);
             this.WebDriver.ClickButton("Login");
         }
+
+
 
         [Then(@"I am presented with the privacy screen")]
         public async Task ThenIAmPresentedWithThePrivacyScreen()
@@ -122,6 +124,38 @@ namespace SecurityService.IntegrationTests.UserLogin
             // Cache the link
             this.TestingContext.ConfirmEmailAddressLink = confirmEmailAddressLink;
         }
+
+        [Then(@"I get a welcome email with my login details")]
+        public async Task ThenIGetAWelcomeEmailWithMyLoginDetails()
+        {
+            String requestUri = $"{this.TestingContext.DockerHelper.securityServiceBaseAddressResolver("")}/api/developer/lastemail";
+            HttpRequestMessage requestMessage = new HttpRequestMessage(HttpMethod.Get, requestUri);
+
+            var response = await this.TestingContext.DockerHelper.httpClient.SendAsync(requestMessage, CancellationToken.None);
+
+            response.StatusCode.ShouldBe(HttpStatusCode.OK);
+
+            var emailMessage = new
+                               {
+                                   MessageId = Guid.Empty,
+                                   Body = String.Empty
+                               };
+            var x = JsonConvert.DeserializeAnonymousType(await response.Content.ReadAsStringAsync(CancellationToken.None), emailMessage);
+
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(x.Body);
+            var emailNode = doc.DocumentNode.SelectNodes("//*[@id='username']");
+            var passwordNode = doc.DocumentNode.SelectNodes("//*[@id='password']");
+
+            emailNode.ShouldHaveSingleItem();
+            emailNode.Single().InnerText.ShouldNotBeNullOrEmpty();
+            passwordNode.ShouldHaveSingleItem();
+            passwordNode.Single().InnerText.ShouldNotBeNullOrEmpty();
+
+            this.TestingContext.EmailAddress = emailNode.Single().InnerText.Trim();
+            this.TestingContext.Password = passwordNode.Single().InnerText.Trim();
+        }
+
 
         [When(@"I navigate to the confirm email address")]
         public void WhenINavigateToTheConfirmEmailAddress()

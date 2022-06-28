@@ -187,7 +187,6 @@ this.FeatureBackground();
 #line hidden
                 TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
-                            "Password",
                             "Phone Number",
                             "Given Name",
                             "Middle Name",
@@ -196,7 +195,6 @@ this.FeatureBackground();
                             "Roles"});
                 table15.AddRow(new string[] {
                             "estateuser@testestate1.co.uk",
-                            "123456",
                             "123456789",
                             "Test",
                             "",
@@ -216,18 +214,22 @@ this.FeatureBackground();
  testRunner.Then("I am presented with the confirm email address successful screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 32
- testRunner.Given("I am on the application home page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.And("I get a welcome email with my login details", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 33
- testRunner.When("I click the \'Privacy\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.Given("I am on the application home page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 34
- testRunner.Then("I am presented with a login screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.When("I click the \'Privacy\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 35
- testRunner.When("I login with the username \'estateuser@testestate1.co.uk\' and password \'123456\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.Then("I am presented with a login screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 36
+ testRunner.When("I login with the username \'estateuser@testestate1.co.uk\' and the provided passwor" +
+                        "d", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 37
  testRunner.Then("I am presented with the privacy screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }

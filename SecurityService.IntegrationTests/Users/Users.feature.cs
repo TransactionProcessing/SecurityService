@@ -126,7 +126,6 @@ this.FeatureBackground();
 #line hidden
                 TechTalk.SpecFlow.Table table35 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
-                            "Password",
                             "Phone Number",
                             "Given Name",
                             "Middle Name",
@@ -135,7 +134,6 @@ this.FeatureBackground();
                             "Roles"});
                 table35.AddRow(new string[] {
                             "testuser1@testing.co.uk",
-                            "123456",
                             "123456789",
                             "Test",
                             "",
@@ -172,7 +170,6 @@ this.FeatureBackground();
 #line hidden
                 TechTalk.SpecFlow.Table table36 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
-                            "Password",
                             "Phone Number",
                             "Given Name",
                             "Middle Name",
@@ -181,7 +178,6 @@ this.FeatureBackground();
                             "Roles"});
                 table36.AddRow(new string[] {
                             "testuser1@testing.co.uk",
-                            "123456",
                             "123456789",
                             "Test",
                             "",
@@ -190,7 +186,6 @@ this.FeatureBackground();
                             "TestRole1"});
                 table36.AddRow(new string[] {
                             "testuser2@testing.co.uk",
-                            "123456",
                             "123456789",
                             "Test",
                             "",
@@ -249,7 +244,6 @@ this.FeatureBackground();
 #line hidden
                 TechTalk.SpecFlow.Table table38 = new TechTalk.SpecFlow.Table(new string[] {
                             "Email Address",
-                            "Password",
                             "Phone Number",
                             "Given Name",
                             "Middle Name",
@@ -258,7 +252,6 @@ this.FeatureBackground();
                             "Roles"});
                 table38.AddRow(new string[] {
                             "testuser1@testing.co.uk",
-                            "123456",
                             "123456789",
                             "Test",
                             "",
@@ -267,7 +260,6 @@ this.FeatureBackground();
                             "TestRole1"});
                 table38.AddRow(new string[] {
                             "testuser2@testing.co.uk",
-                            "123456",
                             "123456789",
                             "Test",
                             "",
@@ -276,7 +268,6 @@ this.FeatureBackground();
                             "TestRole2"});
                 table38.AddRow(new string[] {
                             "testuser3@testing.co.uk",
-                            "123456",
                             "123456789",
                             "Test",
                             "",

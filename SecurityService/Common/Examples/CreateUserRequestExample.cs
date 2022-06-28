@@ -30,7 +30,6 @@
                        FamilyName = ExampleData.UserFamilyName,
                        GivenName = ExampleData.UserGivenName,
                        MiddleName = ExampleData.UserMiddleName,
-                       Password = ExampleData.UserPassword,
                        PhoneNumber = ExampleData.UserPhoneNumber,
                        Roles = new List<String>
                                {

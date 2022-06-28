@@ -157,27 +157,6 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
 #line 20
  testRunner.Given("I create the following clients", ((string)(null)), table4, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
-                        "Email Address",
-                        "Password",
-                        "Phone Number",
-                        "Given Name",
-                        "Middle Name",
-                        "Family Name",
-                        "Claims",
-                        "Roles"});
-            table5.AddRow(new string[] {
-                        "estateuser@testestate1.co.uk",
-                        "123456",
-                        "123456789",
-                        "Test",
-                        "",
-                        "User 1",
-                        "EstateId:1",
-                        "Estate"});
-#line 24
- testRunner.Given("I create the following users", ((string)(null)), table5, "Given ");
-#line hidden
         }
         
         void System.IDisposable.Dispose()
@@ -195,7 +174,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
                     "PRTest"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Change Passwword", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 29
+#line 26
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -208,40 +187,72 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 this.FeatureBackground();
 #line hidden
+                TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Email Address",
+                            "Phone Number",
+                            "Given Name",
+                            "Middle Name",
+                            "Family Name",
+                            "Claims",
+                            "Roles"});
+                table5.AddRow(new string[] {
+                            "estateuser@testestate1.co.uk",
+                            "123456789",
+                            "Test",
+                            "",
+                            "User 1",
+                            "EstateId:1",
+                            "Estate"});
+#line 27
+ testRunner.Given("I create the following users", ((string)(null)), table5, "Given ");
+#line hidden
 #line 30
- testRunner.Given("I am on the application home page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
+ testRunner.Then("I get an email with a confirm email address link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 31
- testRunner.When("I click the \'Privacy\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I navigate to the confirm email address", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 32
- testRunner.Then("I am presented with a login screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I am presented with the confirm email address successful screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 33
- testRunner.When("I login with the username \'estateuser@testestate1.co.uk\' and password \'123456\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.And("I get a welcome email with my login details", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
 #line hidden
 #line 34
- testRunner.Then("I am presented with the privacy screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Given("I am on the application home page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Given ");
 #line hidden
 #line 35
- testRunner.When("I click the \'ChangePassword\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I click the \'Privacy\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 36
- testRunner.Then("I am presented with a change password screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
+ testRunner.Then("I am presented with a login screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 37
- testRunner.When("I enter my old password \'123456\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.When("I login with the username \'estateuser@testestate1.co.uk\' and the provided passwor" +
+                        "d", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 38
- testRunner.When("I enter my new password \'Pa55word!\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+ testRunner.Then("I am presented with the privacy screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 39
- testRunner.And("I confirm my new password \'Pa55word!\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.When("I click the \'ChangePassword\' link", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
 #line hidden
 #line 40
- testRunner.And("I click the change password button", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+ testRunner.Then("I am presented with a change password screen", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
 #line 41
+ testRunner.When("I enter my old password \'123456\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 42
+ testRunner.When("I enter my new password \'Pa55word!\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "When ");
+#line hidden
+#line 43
+ testRunner.And("I confirm my new password \'Pa55word!\'", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 44
+ testRunner.And("I click the change password button", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "And ");
+#line hidden
+#line 45
  testRunner.Then("I am returned to the application home page", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }

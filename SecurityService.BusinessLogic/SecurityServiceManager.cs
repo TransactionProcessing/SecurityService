@@ -313,7 +313,6 @@
                                            String phoneNumber,
                                            Dictionary<String, String> claims,
                                            List<String> roles,
-                                           Boolean? requireRegistrationEmail,
                                            CancellationToken cancellationToken) {
             Guid userId = Guid.NewGuid();
 
@@ -328,11 +327,11 @@
                                                                 PhoneNumber = phoneNumber
                                                             };
 
-            // Set the password
-            // TODO: generate password when not supplied (use GenerateRandomPassword)
+            String passwordValue = String.IsNullOrEmpty(password) ? SecurityServiceManager.GenerateRandomPassword(this.UserManager.Options.Password) : password;
 
-            // Hash the new password
-            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, password);
+            // Hash the default password
+            newIdentityUser.PasswordHash =
+                this.PasswordHasher.HashPassword(newIdentityUser, passwordValue);
 
             if (String.IsNullOrEmpty(newIdentityUser.PasswordHash)) {
                 throw new IdentityResultException("Error generating password hash value, hash was null or empty", IdentityResult.Failed());
@@ -706,9 +705,27 @@
             resetToken = UrlEncoder.Default.Encode(resetToken);
             String baseAddress = ConfigurationReader.GetValue("ServiceOptions", "PublicOrigin");
             String uri = $"{baseAddress}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={clientId}";
-            
+
             TokenResponse token = await this.GetToken(cancellationToken);
             SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
+            try {
+                await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+            }
+            catch(Exception ex) {
+                Logger.LogError(ex);
+            }
+        }
+
+        public async Task SendWelcomeEmail(String userName,
+                                           CancellationToken cancellationToken) {
+            IdentityUser i = await this.UserManager.FindByNameAsync(userName);
+            await this.UserManager.RemovePasswordAsync(i);
+            String generatedPassword = SecurityServiceManager.GenerateRandomPassword(this.UserManager.Options.Password);
+            await this.UserManager.AddPasswordAsync(i, generatedPassword);
+
+            // Send Email
+            TokenResponse token = await this.GetToken(cancellationToken);
+            SendEmailRequest emailRequest = this.BuildWelcomeEmail(i.Email, generatedPassword);
             try {
                 await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
             }
@@ -791,6 +808,36 @@
             return request;
         }
 
+        private SendEmailRequest BuildWelcomeEmail(String emailAddress,
+                                                   String password) {
+            StringBuilder mesasgeBuilder = new StringBuilder();
+            mesasgeBuilder.AppendLine("<html><body>");
+            mesasgeBuilder.AppendLine("<p>Welcome to Transaction Processing System</p>");
+            mesasgeBuilder.AppendLine("<p></p>");
+            mesasgeBuilder.AppendLine("<p>Please find below your user details:</p>");
+            mesasgeBuilder.AppendLine("<table>");
+            mesasgeBuilder.AppendLine("<tr><td><strong>User Name</strong></td></tr>");
+            mesasgeBuilder.AppendLine($"<tr><td id=\"username\">{emailAddress}</td></tr>");
+            mesasgeBuilder.AppendLine("<tr><td><strong>Password</strong></td></tr>");
+            mesasgeBuilder.AppendLine($"<tr><td id=\"password\">{password}</td></tr>");
+            mesasgeBuilder.AppendLine("</table>");
+            mesasgeBuilder.AppendLine("</body></html>");
+
+            SendEmailRequest request = new() {
+                                                 Body = mesasgeBuilder.ToString(),
+                                                 ConnectionIdentifier = Guid.NewGuid(),
+                                                 FromAddress = "golfhandicapping@btinternet.com",
+                                                 IsHtml = true,
+                                                 Subject = "Welcome to Transaction Processing",
+                                                 ToAddresses = new List<String> {
+                                                                                    emailAddress,
+                                                                                    "stuart_ferguson1@outlook.com"
+                                                                                }
+                                             };
+
+            return request;
+        }
+
         /// <summary>
         /// Converts the users claims.
         /// </summary>
@@ -814,6 +861,47 @@
         private async Task<List<String>> ConvertUsersRoles(IdentityUser identityUser) {
             IList<String> roles = await this.UserManager.GetRolesAsync(identityUser);
             return roles.ToList();
+        }
+
+        private static String GenerateRandomPassword(PasswordOptions opts = null) {
+            if (opts == null)
+                opts = new PasswordOptions {
+                                               RequiredLength = 8,
+                                               RequiredUniqueChars = 4,
+                                               RequireDigit = true,
+                                               RequireLowercase = true,
+                                               RequireNonAlphanumeric = true,
+                                               RequireUppercase = true
+                                           };
+
+            String[] randomChars = {
+                                       "ABCDEFGHJKLMNOPQRSTUVWXYZ", // uppercase 
+                                       "abcdefghijkmnopqrstuvwxyz", // lowercase
+                                       "0123456789", // digits
+                                       "!@$?_-" // non-alphanumeric
+                                   };
+
+            Random rand = new Random(Environment.TickCount);
+            List<Char> chars = new List<Char>();
+
+            if (opts.RequireUppercase)
+                chars.Insert(rand.Next(0, chars.Count), randomChars[0][rand.Next(0, randomChars[0].Length)]);
+
+            if (opts.RequireLowercase)
+                chars.Insert(rand.Next(0, chars.Count), randomChars[1][rand.Next(0, randomChars[1].Length)]);
+
+            if (opts.RequireDigit)
+                chars.Insert(rand.Next(0, chars.Count), randomChars[2][rand.Next(0, randomChars[2].Length)]);
+
+            if (opts.RequireNonAlphanumeric)
+                chars.Insert(rand.Next(0, chars.Count), randomChars[3][rand.Next(0, randomChars[3].Length)]);
+
+            for (Int32 i = chars.Count; i < opts.RequiredLength || chars.Distinct().Count() < opts.RequiredUniqueChars; i++) {
+                String rcs = randomChars[rand.Next(0, randomChars.Length)];
+                chars.Insert(rand.Next(0, chars.Count), rcs[rand.Next(0, rcs.Length)]);
+            }
+
+            return new String(chars.ToArray());
         }
 
         private async Task<TokenResponse> GetToken(CancellationToken cancellationToken) {
