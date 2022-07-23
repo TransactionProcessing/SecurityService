@@ -73,48 +73,33 @@
                 options.AddArguments("--no-sandbox");
                 options.AddArguments("--disable-dev-shm-usage");
                 options.AcceptInsecureCertificates = true;
-                //var experimentalFlags = new List<String>();
-                //experimentalFlags.Add("same-site-by-default-cookies@2");
-                //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
-                //options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
 
-                this.WebDriver = new ChromeDriver(options);
+                ChromeDriverService x = ChromeDriverService.CreateDefaultService();
+
+                this.WebDriver = new ChromeDriver(x, options, TimeSpan.FromMinutes(3));
             }
 
             if (browser == "Firefox")
             {
-                //session = webdriver.Firefox(capabilities={"acceptInsecureCerts": True})
-                //FirefoxOptions options = new FirefoxOptions();
-                
-                //this.WebDriver = new FirefoxDriver(options);
-                //FirefoxProfile profile = new ProfilesIni().getProfile("default");
-                //profile.setPreference("network.cookie.cookieBehavior", 2);
-                //this.WebDriver = new FirefoxDriver(profile);
                 FirefoxOptions options = new FirefoxOptions();
                 options.AcceptInsecureCertificates = true;
                 options.AddArguments("-headless");
                 options.LogLevel = FirefoxDriverLogLevel.Debug;
-                //options.SetPreference("network.cookie.sameSite.laxByDefault", false);
-                //options.SetPreference("network.cookie.sameSite.noneRequiresSecure", false);
-                //options.SetPreference("network.cookie.sameSite.schemeful", false);
-                //options.SetPreference("network.cookie.cookieBehavior", 0);
-                //this.WebDriver = new FirefoxDriver(options);
                 FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
                 
-                this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromSeconds(180));
+                this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
             }
 
             if (browser == "Edge")
             {
                 EdgeOptions options = new EdgeOptions();
                 options.AcceptInsecureCertificates = true;
-                //List<String> experimentalFlags = new List<String>();
-                //experimentalFlags.Add("same-site-by-default-cookies@2");
-                //experimentalFlags.Add("cookies-without-same-site-must-be-secure@2");
-                //options.AddLocalStatePreference("browser.enabled_labs_experiments", experimentalFlags);
+                EdgeDriverService x = EdgeDriverService.CreateDefaultService();
 
-                this.WebDriver = new EdgeDriver(options);
+                this.WebDriver = new EdgeDriver(x,options, TimeSpan.FromMinutes(3));
             }
+
+            this.WebDriver.Manage().Timeouts().PageLoad.Add(TimeSpan.FromSeconds(30));
 
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }
