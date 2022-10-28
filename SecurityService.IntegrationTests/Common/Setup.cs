@@ -8,6 +8,7 @@ namespace SecurityService.IntergrationTests.Common
     using Shared.Logger;
     using Shouldly;
     using System.Linq.Expressions;
+    using System.Runtime.CompilerServices;
     using TechTalk.SpecFlow;
 
     [Binding]
@@ -34,7 +35,13 @@ namespace SecurityService.IntergrationTests.Common
 
             try
             {
-                Setup.DatabaseServerNetwork = dockerHelper.SetupTestNetwork("sharednetwork", true);
+                Setup.DatabaseServerNetwork = dockerHelper.SetupTestNetwork("sharednetwork");
+                DockerEnginePlatform enginePlatform = DockerHelper.GetDockerEnginePlatform();
+                if (enginePlatform == DockerEnginePlatform.Windows)
+                {
+                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.SqlServer,("tobiasfenster/mssql-server-dev-unsupported:2019-cu13",true);
+                }
+
                 Setup.DatabaseServerContainer = dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
             }
             catch(Exception ex)
