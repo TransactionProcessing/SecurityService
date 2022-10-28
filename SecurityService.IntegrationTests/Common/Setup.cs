@@ -7,6 +7,7 @@ namespace SecurityService.IntergrationTests.Common
     using NLog;
     using Shared.Logger;
     using Shouldly;
+    using System.Linq.Expressions;
     using TechTalk.SpecFlow;
 
     [Binding]
@@ -31,8 +32,23 @@ namespace SecurityService.IntergrationTests.Common
             dockerHelper.DockerCredentials = Setup.DockerCredentials;
             dockerHelper.SqlServerContainerName = "sharedsqlserver";
 
-            Setup.DatabaseServerNetwork = dockerHelper.SetupTestNetwork("sharednetwork", true);
-            Setup.DatabaseServerContainer = dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
+            try
+            {
+                Setup.DatabaseServerNetwork = dockerHelper.SetupTestNetwork("sharednetwork", true);
+                Setup.DatabaseServerContainer = dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
+            }
+            catch(Exception ex)
+            {
+                global::System.Console.WriteLine(ex.Message);
+                if (ex.InnerException != null)
+                {
+                    global::System.Console.WriteLine(ex.InnerException.Message);
+                    if (ex.InnerException.InnerException != null)
+                    {
+                        global::System.Console.WriteLine(ex.InnerException.InnerException.Message);
+                    }
+                }
+            }
         }
 
         public static String GetConnectionString(String databaseName)
