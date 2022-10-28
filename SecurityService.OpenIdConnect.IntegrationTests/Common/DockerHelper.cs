@@ -33,11 +33,6 @@
         public ISecurityServiceClient SecurityServiceClient;
 
         /// <summary>
-        /// The security service container name
-        /// </summary>
-        public String SecurityServiceContainerName;
-
-        /// <summary>
         /// The security service test UI container name
         /// </summary>
         public String SecurityServiceTestUIContainerName;
@@ -47,31 +42,6 @@
         /// </summary>
         public Int32 SecurityServiceTestUIPort;
 
-        /// <summary>
-        /// The test identifier
-        /// </summary>
-        public Guid TestId;
-
-        /// <summary>
-        /// The containers
-        /// </summary>
-        protected List<IContainerService> Containers;
-
-        /// <summary>
-        /// The security service port
-        /// </summary>
-        protected Int32 SecurityServicePort;
-
-        /// <summary>
-        /// The test networks
-        /// </summary>
-        protected List<INetworkService> TestNetworks;
-
-        /// <summary>
-        /// The logger
-        /// </summary>
-        private readonly NlogLogger Logger;
-
         #endregion
 
         #region Constructors
@@ -80,12 +50,9 @@
         /// Initializes a new instance of the <see cref="DockerHelper"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        public DockerHelper(NlogLogger logger)
+        public DockerHelper()
         {
-            this.Logger = logger;
-            this.Containers = new List<IContainerService>();
-            this.TestNetworks = new List<INetworkService>();
-            this.securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
+            
         }
 
         #endregion
@@ -95,42 +62,29 @@
         public Func<String, String> securityServiceBaseAddressResolver;
         public HttpClient httpClient = new HttpClient();
 
+        public override void SetupContainerNames()
+        {
+            base.SetupContainerNames();
+
+            // Setup the container names
+            this.SecurityServiceContainerName = $"identity-server";
+            this.SecurityServiceTestUIContainerName = $"securityservicetestui{this.TestId:N}";
+        }
+
         /// <summary>
         /// Starts the containers for scenario run.
         /// </summary>
         /// <param name="scenarioName">Name of the scenario.</param>
         public override async Task StartContainersForScenarioRun(String scenarioName)
         {
-            String traceFolder = FdOs.IsWindows() ? $"C:\\home\\txnproc\\trace\\{scenarioName}" : $"/home/txnproc/trace/{scenarioName}";
-            this.HostTraceFolder = traceFolder;
-            Logging.Enabled();
-            Directory.CreateDirectory(this.HostTraceFolder);
-            Guid testGuid = Guid.NewGuid();
-            this.TestId = testGuid;
+            await base.StartContainersForScenarioRun(scenarioName);
 
-            (String, String, String) dockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
-
-            // Setup the container names
-            this.SecurityServiceContainerName = $"identity-server";
-            this.SecurityServiceTestUIContainerName = $"securityservicetestui{testGuid:N}";
-
-            INetworkService testNetwork = this.SetupTestNetwork();
-            this.TestNetworks.Add(testNetwork);
-
-            IContainerService securityServiceContainer = SetupSecurityServiceContainer(this.SecurityServiceContainerName,
-                                                                                                    this.Logger,
-                                                                                                    "securityservice",
-                                                                                                    testNetwork,
-                                                                                                    5001,
-                                                                                                    dockerCredentials,
-                                                                                                    traceFolder);
-
-            this.SecurityServicePort = securityServiceContainer.ToHostExposedEndpoint("5001/tcp").Port;
+            Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
             IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
                                                                                                                 this.SecurityServiceContainerName,
                                                                                                                 this.SecurityServicePort,
-                                                                                                                testNetwork,
+                                                                                                                this.TestNetworks.Last(),
                                                                                                                 ("estateUIClient", "Secret1"));
 
             this.SecurityServiceTestUIPort = securityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
@@ -139,35 +93,12 @@
 
             this.Containers.AddRange(new List<IContainerService>
                                      {
-                                         securityServiceContainer,
                                          securityServiceTestUIContainer
                                      });
-        }
 
-        /// <summary>
-        /// Stops the containers for scenario run.
-        /// </summary>
-        public override async Task StopContainersForScenarioRun()
-        {
-            if (this.Containers.Any())
-            {
-                foreach (IContainerService containerService in this.Containers)
-                {
-                    containerService.StopOnDispose = true;
-                    containerService.RemoveOnDispose = true;
-                    containerService.Dispose();
-                }
-            }
-
-            if (this.TestNetworks.Any())
-            {
-                foreach (INetworkService networkService in this.TestNetworks)
-                {
-                    networkService.Stop();
-                    networkService.Remove(true);
-                }
-            }
-        }
+            DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
+            DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);
+        }              
 
         /// <summary>
         /// Adds the entry to hosts file.
@@ -217,69 +148,7 @@
             proc.Start();
             proc.WaitForExit();
         }
-
-        /// <summary>
-        /// Setups the security service container.
-        /// </summary>
-        /// <param name="containerName">Name of the container.</param>
-        /// <param name="logger">The logger.</param>
-        /// <param name="imageName">Name of the image.</param>
-        /// <param name="networkService">The network service.</param>
-        /// <param name="hostFolder">The host folder.</param>
-        /// <param name="dockerPort">The docker port.</param>
-        /// <param name="dockerCredentials">The docker credentials.</param>
-        /// <param name="forceLatestImage">if set to <c>true</c> [force latest image].</param>
-        /// <param name="additionalEnvironmentVariables">The additional environment variables.</param>
-        /// <returns></returns>
-        private IContainerService SetupSecurityServiceContainer(String containerName,
-                                                                       ILogger logger,
-                                                                       String imageName,
-                                                                       INetworkService networkService,
-                                                                       Int32 dockerPort,
-                                                                       (String URL, String UserName, String Password)? dockerCredentials,
-                                                                       String traceFolder,
-                                                                       Boolean forceLatestImage = false,
-                                                                       List<String> additionalEnvironmentVariables = null)
-        {
-            logger.LogInformation("About to Start Security Container");
-
-            List<String> environmentVariables = new List<String>();
-            environmentVariables.Add($"ServiceOptions:PublicOrigin=https://identity-server:{dockerPort}");
-            environmentVariables.Add($"ServiceOptions:IssuerUrl=https://identity-server:{dockerPort}");
-            environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
-            environmentVariables.Add("urls=https://*:5001");
-
-            if (additionalEnvironmentVariables != null)
-            {
-                environmentVariables.AddRange(additionalEnvironmentVariables);
-            }
-
-            ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(containerName)
-                                                                     .WithEnvironment(environmentVariables.ToArray()).UseImage(imageName, forceLatestImage)
-                                                                     .ExposePort(dockerPort, 5001).UseNetwork(new List<INetworkService>
-                                                                                                              {
-                                                                                                                  networkService
-                                                                                                              }.ToArray());
-
-            if (dockerCredentials.HasValue)
-            {
-                securityServiceContainer.WithCredential(dockerCredentials.Value.URL, dockerCredentials.Value.UserName, dockerCredentials.Value.Password);
-            }
-
-            this.MountHostFolder(securityServiceContainer,"C:\\home\\txnproc\\trace");
-
-            // Now build and return the container                
-            IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort("5001/tcp", 30000);
-            Thread.Sleep(20000); // This hack is in till health checks implemented :|
-
-            DockerHelper.AddEntryToHostsFile("127.0.0.1", containerName);
-            DockerHelper.AddEntryToHostsFile("localhost", containerName);
-
-            logger.LogInformation("Security Service Container Started");
-
-            return builtContainer;
-        }
-
+               
         /// <summary>
         /// Setups the security service test UI container.
         /// </summary>
@@ -308,28 +177,6 @@
                                                                                         }.ToArray()).Build().Start().WaitForPort("5004/tcp", 30000);
 
             return securityServiceTestUIContainer;
-        }
-
-        /// <summary>
-        /// Setups the test network.
-        /// </summary>
-        /// <returns></returns>
-        private INetworkService SetupTestNetwork()
-        {
-            IList<IHostService> hosts = new Hosts().Discover();
-            IHostService docker = hosts.FirstOrDefault(x => x.IsNative) ?? hosts.FirstOrDefault(x => x.Name == "default");
-
-            if (docker.Host.IsWindowsEngine())
-            {
-                return Fd.UseNetwork($"testnetwork{this.TestId:N}").UseDriver("nat").Build();
-            }
-
-            if (docker.Host.IsLinuxEngine())
-            {
-                return Shared.IntegrationTesting.DockerHelper.SetupTestNetwork();
-            }
-
-            return null;
         }
 
         #endregion

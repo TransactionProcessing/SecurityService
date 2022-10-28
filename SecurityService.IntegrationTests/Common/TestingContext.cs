@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using DataTransferObjects.Responses;
     using Microsoft.EntityFrameworkCore.Query.Internal;
+    using Shared.Logger;
 
     /// <summary>
     /// 
@@ -51,6 +52,8 @@
         /// The token response
         /// </summary>
         public TokenResponse TokenResponse;
+
+        public NlogLogger Logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TestingContext"/> class.
