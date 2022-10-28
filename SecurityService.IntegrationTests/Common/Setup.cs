@@ -5,6 +5,7 @@ namespace SecurityService.IntergrationTests.Common
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
     using NLog;
+    using Shared.IntegrationTesting;
     using Shared.Logger;
     using Shouldly;
     using System.Linq.Expressions;
@@ -39,7 +40,7 @@ namespace SecurityService.IntergrationTests.Common
                 DockerEnginePlatform enginePlatform = DockerHelper.GetDockerEnginePlatform();
                 if (enginePlatform == DockerEnginePlatform.Windows)
                 {
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.SqlServer,("tobiasfenster/mssql-server-dev-unsupported:2019-cu13",true));
+                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.SqlServer, ("tobiasfenster/mssql-server-dev-unsupported:2019-cu13", true));
                 }
 
                 Setup.DatabaseServerContainer = dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
