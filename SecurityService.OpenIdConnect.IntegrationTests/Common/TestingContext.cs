@@ -3,7 +3,8 @@
     using System;
     using System.Collections.Generic;
     using DataTransferObjects.Responses;
-    
+    using Shared.Logger;
+
     public class TestingContext
     {
         public DockerHelper DockerHelper { get; set; }
@@ -18,6 +19,8 @@
         public List<String> IdentityResources;
 
         public TokenResponse TokenResponse;
+
+        public NlogLogger Logger { get; set; }
 
         public String ResetPasswordLink { get; set; }
         public String ConfirmEmailAddressLink { get; set; }
