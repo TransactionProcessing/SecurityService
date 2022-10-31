@@ -12,6 +12,11 @@ public class TestMessagingServiceClient : IMessagingServiceClient
     public SendEmailRequest LastEmailRequest { get; private set; } 
     public SendSMSRequest LastSMSRequest { get; private set; }
 
+    public async Task ResendEmail(string accessToken, ResendEmailRequest request, CancellationToken cancellationToken)
+    {
+        
+    }
+
     public async Task<SendEmailResponse> SendEmail(String accessToken,
                                                    SendEmailRequest request,
                                                    CancellationToken cancellationToken) {
