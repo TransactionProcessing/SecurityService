@@ -53,20 +53,20 @@ jobs:
         docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
         docker push stuartferguson/securityservice:master
 
-  buildwidows:
-    name: "Publish Pre-Release Docker for Windows"
-    env:
-        ASPNETCORE_ENVIRONMENT: "Production"
+  #buildwidows:
+  #  name: "Publish Pre-Release Docker for Windows"
+  #  env:
+  #      ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: windows-2019
+  #  runs-on: windows-2019
 
-    steps:
-    - uses: actions/checkout@v2.3.4 
-      with:
-        fetch-depth: 0
+  #  steps:
+  #  - uses: actions/checkout@v2.3.4 
+  #    with:
+  #      fetch-depth: 0
 
-    - name: Publish Windows Images to Docker Hub
-      run: |
-        docker build . --file SecurityService/Dockerfilewindows --tag stuartferguson/securityservicewindows:master
-        docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
-        docker push stuartferguson/securityservicewindows:master
+  #  - name: Publish Windows Images to Docker Hub
+  #    run: |
+  #      docker build . --file SecurityService/Dockerfilewindows --tag stuartferguson/securityservicewindows:master
+  #      docker login --username=${{ secrets.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
+  #      docker push stuartferguson/securityservicewindows:master
