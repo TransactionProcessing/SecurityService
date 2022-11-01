@@ -14,11 +14,18 @@ namespace SecurityService.IntergrationTests.Common
     using Ductus.FluentDocker.Services.Extensions;
     using System.IO;
     using Ductus.FluentDocker.Builders;
+    using Ductus.FluentDocker.Common;
 
     public class LocalDockerHelper : DockerHelper
     {
         public override async Task<IContainerService> SetupEventStoreContainer(INetworkService networkService,
                                                                          Boolean isSecure = false) {
+
+            if (FdOs.IsWindows() == true) {
+                this.HostTraceFolder = this.HostTraceFolder.Replace("C:\\home\\txnproc\\trace\\", "C:\\actions-runner\\_work\\trace\\"); ;
+            }
+
+            this.Trace($"{this.HostTraceFolder}");
             this.Trace("About to Start Event Store Container");
 
             List<String> environmentVariables = new() {
