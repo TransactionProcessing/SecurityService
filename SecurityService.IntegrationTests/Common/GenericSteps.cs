@@ -22,7 +22,7 @@ namespace SecurityService.IntergrationTests.Common
                                                                          Boolean isSecure = false) {
 
             if (FdOs.IsWindows() == true) {
-                this.HostTraceFolder = this.HostTraceFolder.Replace("C:\\home\\txnproc\\trace\\", "C:\\actions-runner\\_work\\trace\\"); ;
+                this.HostTraceFolder = String.Empty;
             }
 
             this.Trace($"{this.HostTraceFolder}");
