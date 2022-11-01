@@ -41,17 +41,6 @@ namespace SecurityService.IntergrationTests.Common
                 if (enginePlatform == DockerEnginePlatform.Windows)
                 {
                     dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.SqlServer, ("stuartferguson/sqlserverwindows:2019-CU18", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.EventStore, ("stuartferguson/eventstore_windows:21.10.0", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.MessagingService, ("stuartferguson/messagingservicewindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.TestHost, ("stuartferguson/testhostswindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.CallbackHandler, ("stuartferguson/callbackhandlerwindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.EstateManagement, ("stuartferguson/estatemanagementwindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.EstateReporting, ("stuartferguson/estatereportingwindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.FileProcessor, ("stuartferguson/fileprocessorwindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.VoucherManagement, ("stuartferguson/vouchermanagementwindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.VoucherManagementAcl, ("stuartferguson/vouchermanagementaclwindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.TransactionProcessor, ("stuartferguson/transactionprocessorwindows:master", true));
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.TransactionProcessorAcl, ("stuartferguson/transactionprocessoraclwindows:master", true));
                 }
 
                 Setup.DatabaseServerContainer = dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);

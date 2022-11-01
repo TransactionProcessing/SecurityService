@@ -43,7 +43,22 @@ namespace SecurityService.IntergrationTests.Common
             this.TestingContext.DockerHelper.SqlServerContainerName = "sharedsqlserver";
 
             this.TestingContext.DockerHelper.SetImageDetails(ContainerType.SecurityService, ("securityservice", false));
-
+            DockerEnginePlatform enginePlatform = DockerHelper.GetDockerEnginePlatform();
+            if (enginePlatform == DockerEnginePlatform.Windows)
+            {
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.SqlServer, ("stuartferguson/sqlserverwindows:2019-CU18", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.EventStore, ("stuartferguson/eventstore_windows:21.10.0", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.MessagingService, ("stuartferguson/messagingservicewindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.TestHost, ("stuartferguson/testhostswindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.CallbackHandler, ("stuartferguson/callbackhandlerwindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.EstateManagement, ("stuartferguson/estatemanagementwindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.EstateReporting, ("stuartferguson/estatereportingwindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.FileProcessor, ("stuartferguson/fileprocessorwindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.VoucherManagement, ("stuartferguson/vouchermanagementwindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.VoucherManagementAcl, ("stuartferguson/vouchermanagementaclwindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.TransactionProcessor, ("stuartferguson/transactionprocessorwindows:master", true));
+                this.TestingContext.DockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.TransactionProcessorAcl, ("stuartferguson/transactionprocessoraclwindows:master", true));
+            }
             this.TestingContext.Logger = logger;
             this.TestingContext.Logger.LogInformation("About to Start Containers for Scenario Run");
             await this.TestingContext.DockerHelper.StartContainersForScenarioRun(scenarioName).ConfigureAwait(false);
