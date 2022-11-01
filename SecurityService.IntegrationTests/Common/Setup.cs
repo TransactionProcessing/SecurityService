@@ -40,7 +40,7 @@ namespace SecurityService.IntergrationTests.Common
                 DockerEnginePlatform enginePlatform = DockerHelper.GetDockerEnginePlatform();
                 if (enginePlatform == DockerEnginePlatform.Windows)
                 {
-                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.SqlServer, ("tobiasfenster/mssql-server-dev-unsupported:2019-cu13", true));
+                    dockerHelper.SetImageDetails(Shared.IntegrationTesting.ContainerType.SqlServer, ("stuartferguson/sqlserverwindows:2019-CU18", true));
                 }
 
                 Setup.DatabaseServerContainer = dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
