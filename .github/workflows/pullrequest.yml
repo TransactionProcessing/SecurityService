@@ -16,13 +16,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
     
-    - name: Trust Certificate
-      run: |
-        Install-Module -Name pki -Force
-        Get-Command -Module pki
-        #$certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        #Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-      shell: pwsh
+    #- name: Trust Certificate
+    #  run: |
+    #    Install-Module -Name pki -Force
+    #    Get-Command -Module pki
+    #    #$certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
+    #    #Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+    #  shell: pwsh
 
 #    - name: Trust Certificate
  #     run: |
@@ -31,30 +31,30 @@ jobs:
          #cp Ceritficates/aspnetapp-root-cert.crt /usr/local/share/ca-certificates/
          #update-ca-certificates
 
-    #- name: Install NET 6
-    #  uses: actions/setup-dotnet@v2
-    #  with:
-    #    dotnet-version: '6.0.x'
+    - name: Install NET 6
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
 
-    #- name: Restore Nuget Packages
-    #  run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
-    #- name: Build Code
-    #  run: dotnet build SecurityService.sln --configuration Release
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
 
-    #- name: Run Unit Tests
-    #  run: |
-    #    echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-    #    dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"
+    - name: Run Unit Tests
+      run: |
+        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
+        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"
     
-    #- name: Build Docker Images
-    #  run: |
-    #    docker build . --file SecurityService/Dockerfile --tag securityservice:latest
-    #    #docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+        #docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
 
-    #- name: Run Integration Tests (Non UI)
-    #  run: |
-    #    dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+    - name: Run Integration Tests (Non UI)
+      run: |
+        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
     #- uses: actions/upload-artifact@v2
     #  if: ${{ failure() }}
