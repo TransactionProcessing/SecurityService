@@ -16,10 +16,16 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
     
+    #- name: Trust Certificate
+    #  run: |
+    #    $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
+    #    Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+
     - name: Trust Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+         openssl x509 -inform DER -in /src/SecurityService/aspnetapp-root-cert.cer -out /src/SecurityService/aspnetapp-root-cert.crt
+         cp /src/SecurityService/aspnetapp-root-cert.crt /usr/local/share/ca-certificates/
+         update-ca-certificates
 
     #- name: Install NET 6
     #  uses: actions/setup-dotnet@v2
@@ -63,10 +69,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
     
-    - name: Trust Certificate
-      run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"           
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+    #- name: Trust Certificate
+    #  run: |
+    #    $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"           
+    #    Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
     #- name: Install NET 6
     #  uses: actions/setup-dotnet@v2
@@ -107,10 +113,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
     
-    - name: Trust Certificate
-      run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"         
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+    #- name: Trust Certificate
+    #  run: |
+    #    $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"         
+    #    Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
     #- name: Install NET 6
     #  uses: actions/setup-dotnet@v2
@@ -151,10 +157,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
     
-    - name: Trust Certificate
-      run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"       
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+    #- name: Trust Certificate
+    #  run: |
+    #    $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"       
+    #    Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
     #- name: Install NET 6
     #  uses: actions/setup-dotnet@v2
