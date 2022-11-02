@@ -29,7 +29,9 @@ jobs:
          cd Certificates
          ls
          #sudo openssl x509 -inform DER -in aspnetapp-root-cert.cer -out aspnetapp-root-cert.crt
-         sudo cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/
+         sudo cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/aspnetapp-root-cert.cer
+         cd /usr/local/share/ca-certificates/
+         ls
          sudo update-ca-certificates
 
     #- name: Install NET 6
