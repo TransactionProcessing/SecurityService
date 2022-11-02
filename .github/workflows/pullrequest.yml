@@ -23,7 +23,7 @@ jobs:
 
     - name: Trust Certificate
       run: |
-         echo "${GITHUB_WORKSPACE}/aspnetapp-root-cert.cer"
+         echo "${GITHUB_WORKSPACE}/Certificates/aspnetapp-root-cert.cer"
          echo test
          openssl x509 -inform DER -in "${GITHUB_WORKSPACE}/aspnetapp-root-cert.cer" -out "${GITHUB_WORKSPACE}/aspnetapp-root-cert.crt"
          cp "${GITHUB_WORKSPACE}/aspnetapp-root-cert.crt" /usr/local/share/ca-certificates/
