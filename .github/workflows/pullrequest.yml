@@ -28,6 +28,7 @@ jobs:
       run: |
          cd Certificates
          ls
+         sudo apt-get install -y ca-certificates
          sudo openssl x509 -inform der -in aspnetapp-root-cert.cer -out aspnetapp-root-cert.crt
          #sudo cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/aspnetapp-root-cert.cer
          #echo copy done
