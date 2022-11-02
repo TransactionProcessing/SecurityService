@@ -28,12 +28,12 @@ jobs:
       run: |
          cd Certificates
          ls
-         #sudo openssl x509 -inform DER -in aspnetapp-root-cert.cer -out aspnetapp-root-cert.crt
-         sudo cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/aspnetapp-root-cert.cer
-         echo copy done
-         cd /usr/local/share/ca-certificates/
-         ls
-         sudo update-ca-certificates
+         sudo openssl x509 -inform der -in aspnetapp-root-cert.cer -out aspnetapp-root-cert.crt
+         #sudo cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/aspnetapp-root-cert.cer
+         #echo copy done
+         #cd /usr/local/share/ca-certificates/
+         #ls
+         #sudo update-ca-certificates
 
     #- name: Install NET 6
     #  uses: actions/setup-dotnet@v2
