@@ -27,6 +27,7 @@ jobs:
     - name: Trust Certificate
       run: |
          cd Certificates
+         ls
          #sudo openssl x509 -inform DER -in aspnetapp-root-cert.cer -out aspnetapp-root-cert.crt
          sudo cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/
          sudo update-ca-certificates
