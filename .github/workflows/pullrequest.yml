@@ -18,10 +18,10 @@ jobs:
     
     - name: Trust Certificate
       run: |
-        Install-Module -Name PKI -Force
-        Get-Command -Module PKI
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        Install-Module -Name PKITools -Force
+        Get-Command -Module PKITools
+        #$certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
+        #Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
       shell: pwsh
 
 #    - name: Trust Certificate
