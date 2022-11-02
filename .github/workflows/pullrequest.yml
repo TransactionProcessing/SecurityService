@@ -33,7 +33,7 @@ jobs:
          echo copy done
          cd /usr/local/share/ca-certificates/
          ls
-         #sudo update-ca-certificates
+         sudo update-ca-certificates
 
     #- name: Install NET 6
     #  uses: actions/setup-dotnet@v2
