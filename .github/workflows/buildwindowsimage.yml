@@ -1,19 +1,19 @@
-#name: Release
+name: Release
 
-#on:
-#  release:
-#    types: [published]
+on:
+  release:
+    types: [published]
 
-#jobs:
-#  build:
-#    name: "Release"
-#    env:
-#        ASPNETCORE_ENVIRONMENT: "Production"
+jobs:
+  build:
+    name: "Release"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
 
-#    runs-on: windows-2019
+    runs-on: windows-2019
 
-#    steps:
-#    - uses: actions/checkout@v2.3.4
+    steps:
+    - uses: actions/checkout@v2.3.4
 
 #    - name: Get the version
 #      id: get_version
