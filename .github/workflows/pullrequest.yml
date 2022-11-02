@@ -23,10 +23,10 @@ jobs:
 
     - name: Trust Certificate
       run: |
-         echo "$env:GITHUB_WORKSPACE\SecurityService\aspnetapp-root-cert.cer"
+         echo "${GITHUB_WORKSPACE}\SecurityService\aspnetapp-root-cert.cer"
          echo ls
-         openssl x509 -inform DER -in "$env:GITHUB_WORKSPACE\SecurityService\aspnetapp-root-cert.cer" -out "$env:GITHUB_WORKSPACE\SecurityService\aspnetapp-root-cert.crt"
-         cp "$env:GITHUB_WORKSPACE\SecurityService\aspnetapp-root-cert.crt" /usr/local/share/ca-certificates/
+         openssl x509 -inform DER -in "${GITHUB_WORKSPACE}\SecurityService\aspnetapp-root-cert.cer" -out "${GITHUB_WORKSPACE}\SecurityService\aspnetapp-root-cert.crt"
+         cp "${GITHUB_WORKSPACE}\SecurityService\aspnetapp-root-cert.crt" /usr/local/share/ca-certificates/
          update-ca-certificates
 
     #- name: Install NET 6
