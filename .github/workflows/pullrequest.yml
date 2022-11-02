@@ -23,9 +23,10 @@ jobs:
 
     - name: Trust Certificate
       run: |
-         sudo openssl x509 -inform DER -in Ceritficates/aspnetapp-root-cert.cer -out Ceritficates/aspnetapp-root-cert.crt
-         cp Ceritficates/aspnetapp-root-cert.crt /usr/local/share/ca-certificates/
-         update-ca-certificates
+         ls
+         #sudo openssl x509 -inform DER -in Ceritficates/aspnetapp-root-cert.cer -out Ceritficates/aspnetapp-root-cert.crt
+         #cp Ceritficates/aspnetapp-root-cert.crt /usr/local/share/ca-certificates/
+         #update-ca-certificates
 
     #- name: Install NET 6
     #  uses: actions/setup-dotnet@v2
