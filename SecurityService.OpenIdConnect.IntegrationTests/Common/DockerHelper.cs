@@ -17,6 +17,7 @@
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
+    using Shared.IntegrationTesting;
     using Shared.Logger;
 
     /// <summary>
@@ -50,7 +51,7 @@
         /// Initializes a new instance of the <see cref="DockerHelper"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        public DockerHelper()
+        public DockerHelper() : base()
         {
             
         }
@@ -108,14 +109,14 @@
         private static void AddEntryToHostsFile(String ipaddress,
                                                 String hostname)
         {
-            if (FdOs.IsWindows())
+            if (BaseDockerHelper.GetDockerEnginePlatform() == DockerEnginePlatform.Windows)
             {
                 using(StreamWriter w = File.AppendText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"drivers\etc\hosts")))
                 {
                     w.WriteLine($"{ipaddress} {hostname}");
                 }
             }
-            else if (FdOs.IsLinux())
+            else if (BaseDockerHelper.GetDockerEnginePlatform() == DockerEnginePlatform.Linux)
             {
                 DockerHelper.ExecuteBashCommand($"echo {ipaddress} {hostname} | sudo tee -a /etc/hosts");
             }
@@ -171,10 +172,9 @@
                                                                                              $"AppSettings:ClientSecret={clientDetails.clientSecret}",
                                                                                              "urls=https://*:5004")
                                                                             .UseImage("securityservicetestui").ExposePort(5004)
-                                                                            .UseNetwork(new List<INetworkService>
-                                                                                        {
-                                                                                            networkService
-                                                                                        }.ToArray()).Build().Start().WaitForPort("5004/tcp", 30000);
+                                                                            .Build().Start().WaitForPort("5004/tcp", 30000);
+
+            networkService.Attach(securityServiceTestUIContainer, false);
 
             return securityServiceTestUIContainer;
         }
