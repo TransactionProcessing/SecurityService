@@ -25,7 +25,7 @@ Background:
 	| Email Address                    | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles      |
 	| estateuser@testestate1.co.uk | 123456   | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
 
-@PRTest
+#@PRTest
 Scenario: Forgot Password
 	Given I am on the application home page
 	When I click the 'Privacy' link
