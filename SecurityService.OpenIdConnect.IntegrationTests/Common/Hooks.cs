@@ -81,14 +81,19 @@
 
             if (browser == "Firefox")
             {
-                FirefoxOptions options = new FirefoxOptions();
-                options.AcceptInsecureCertificates = true;
-                options.AddArguments("-headless");
-                options.LogLevel = FirefoxDriverLogLevel.Debug;
-                FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
-                x.InitializationTimeout = TimeSpan.FromMinutes(3);
-                
-                this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
+                try {
+                    FirefoxOptions options = new FirefoxOptions();
+                    options.AcceptInsecureCertificates = true;
+                    options.AddArguments("-headless");
+                    options.LogLevel = FirefoxDriverLogLevel.Debug;
+                    FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
+                    x.InitializationTimeout = TimeSpan.FromMinutes(3);
+
+                    this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
+                }
+                catch(Exception e) {
+                    Console.WriteLine(e);
+                }
             }
 
             if (browser == "Edge")
