@@ -92,7 +92,7 @@
                     this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
                 }
                 catch(Exception e) {
-                    Console.WriteLine(e);
+                    Console.WriteLine($"My Exception [{e.Message}]");
                 }
             }
 
