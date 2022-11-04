@@ -179,6 +179,43 @@
             return securityServiceTestUIContainer;
         }
 
+        public override async Task<IContainerService> SetupSecurityServiceContainer(INetworkService networkService,
+                                                                              List<String> additionalEnvironmentVariables = null) {
+            this.Trace("About to Start Security Container");
+
+            List<String> environmentVariables = this.GetCommonEnvironmentVariables(DockerPorts.SecurityServiceDockerPort);
+            environmentVariables.Add($"ServiceOptions:PublicOrigin=https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
+            environmentVariables.Add($"ServiceOptions:IssuerUrl=https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
+            environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
+            environmentVariables.Add($"urls=https://*:{DockerPorts.SecurityServiceDockerPort}");
+
+            if (additionalEnvironmentVariables != null)
+            {
+                environmentVariables.AddRange(additionalEnvironmentVariables);
+            }
+
+            ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
+                                                                     .WithEnvironment(environmentVariables.ToArray())
+                                                                     .UseImageDetails(this.GetImageDetails(ContainerType.SecurityService))
+                                                                     .ExposePort(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
+                                                                     .MountHostFolder(this.HostTraceFolder)
+                                                                     .SetDockerCredentials(this.DockerCredentials);
+
+            // Now build and return the container                
+            IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort($"{DockerPorts.SecurityServiceDockerPort}/tcp", 30000);
+
+            networkService.Attach(builtContainer, false);
+
+            this.Trace("Security Service Container Started");
+            this.Containers.Add(builtContainer);
+
+            //  Do a health check here
+            this.SecurityServicePort = builtContainer.ToHostExposedEndpoint($"{DockerPorts.SecurityServiceDockerPort}/tcp").Port;
+            await this.DoHealthCheck(ContainerType.SecurityService);
+
+            return builtContainer;
+        }
+
         #endregion
     }
 }
