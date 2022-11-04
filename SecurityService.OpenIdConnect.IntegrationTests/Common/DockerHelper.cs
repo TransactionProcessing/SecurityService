@@ -80,7 +80,7 @@
         {
             await base.StartContainersForScenarioRun(scenarioName);
 
-            Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
+            securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
             IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
                                                                                                                 this.SecurityServiceContainerName,
