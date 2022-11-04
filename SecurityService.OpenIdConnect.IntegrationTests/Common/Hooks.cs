@@ -86,6 +86,7 @@
                 options.AddArguments("-headless");
                 options.LogLevel = FirefoxDriverLogLevel.Debug;
                 FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
+                x.InitializationTimeout = TimeSpan.FromMinutes(3);
                 
                 this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
             }
