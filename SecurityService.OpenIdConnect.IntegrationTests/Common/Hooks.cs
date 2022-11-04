@@ -85,10 +85,8 @@
                                         FirefoxOptions options = new FirefoxOptions();
                                         options.AcceptInsecureCertificates = true;
                                         options.AddArguments("-headless");
-                                        options.LogLevel = FirefoxDriverLogLevel.Debug;
                                         FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
-                                        x.InitializationTimeout = TimeSpan.FromMinutes(3);
-
+                                        
                                         this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
                                         return Task.CompletedTask;
                                     }, TimeSpan.FromMinutes(3), TimeSpan.FromSeconds(30));
