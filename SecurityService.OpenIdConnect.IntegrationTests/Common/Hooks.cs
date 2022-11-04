@@ -8,6 +8,7 @@
     using OpenQA.Selenium.Edge;
     using OpenQA.Selenium.Firefox;
     using OpenQA.Selenium.Remote;
+    using Shared.IntegrationTesting;
     using TechTalk.SpecFlow;
 
     /// <summary>
@@ -79,15 +80,16 @@
                 this.WebDriver = new ChromeDriver(x, options, TimeSpan.FromMinutes(3));
             }
 
-            if (browser == "Firefox")
-            {
-                FirefoxOptions options = new FirefoxOptions();
-                options.AcceptInsecureCertificates = true;
-                options.AddArguments("-headless");
-                options.LogLevel = FirefoxDriverLogLevel.Debug;
-                FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
-                
-                this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
+            if (browser == "Firefox") {
+                await Retry.For(() => {
+                                        FirefoxOptions options = new FirefoxOptions();
+                                        options.AcceptInsecureCertificates = true;
+                                        options.AddArguments("-headless");
+                                        FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
+                                        
+                                        this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
+                                        return Task.CompletedTask;
+                                    }, TimeSpan.FromMinutes(3), TimeSpan.FromSeconds(30));
             }
 
             if (browser == "Edge")

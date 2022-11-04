@@ -8,11 +8,11 @@
     <PackageReference Include="Duende.IdentityServer" Version="6.1.0" />
     <PackageReference Include="Duende.IdentityServer.EntityFramework.Storage" Version="6.1.0" />
     <PackageReference Include="Duende.IdentityServer.Storage" Version="6.1.0" />
-    <PackageReference Include="MessagingService.Client" Version="1.1.5-build7" />
+    <PackageReference Include="MessagingService.Client" Version="1.1.5-build8" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="6.0.5" />
-    <PackageReference Include="Shared" Version="1.4.1" />
+    <PackageReference Include="Shared" Version="1.4.3" />
   </ItemGroup>
 
   <ItemGroup>

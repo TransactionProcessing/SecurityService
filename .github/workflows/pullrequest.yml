@@ -40,55 +40,54 @@ jobs:
     - name: Build Docker Images
       run: |
         docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
-        #docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
 
     - name: Run Integration Tests (Non UI)
       run: |
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
-    - uses: actions/upload-artifact@v2
-      if: ${{ failure() }}
+    #- uses: actions/upload-artifact@v2
+    #  if: ${{ failure() }}
+    #  with:
+    #    name: tracelogs
+    #    path: c:\home\txnproc\trace\   
+
+
+  buildfirefox:
+    name: "Build and Unit Test Pull Requests - Firefox UI"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
+
+    runs-on: windows-2019
+
+    steps:
+    - uses: actions/checkout@v2.3.4
+    
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"           
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+
+    - name: Install NET 6
+      uses: actions/setup-dotnet@v2
       with:
-        name: tracelogs
-        path: c:\home\txnproc\trace\   
+        dotnet-version: '6.0.x'
 
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
-  #buildfirefox:
-  #  name: "Build and Unit Test Pull Requests - Firefox UI"
-  #  env:
-  #      ASPNETCORE_ENVIRONMENT: "Production"
-
-  #  runs-on: windows-2019
-
-  #  steps:
-  #  - uses: actions/checkout@v2.3.4
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release    
     
-  #  - name: Trust Certificate
-  #    run: |
-  #      $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"           
-  #      Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
 
-  #  - name: Install NET 6
-  #    uses: actions/setup-dotnet@v2
-  #    with:
-  #      dotnet-version: '6.0.x'
-
-  #  - name: Restore Nuget Packages
-  #    run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
-
-  #  - name: Build Code
-  #    run: dotnet build SecurityService.sln --configuration Release    
-    
-  #  - name: Build Docker Images
-  #    run: |
-  #      docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
-  #      docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
-
-  #  - name: Run Integration Tests (UI Firefox)
-  #    env:
-  #      Browser: Firefox
-  #    run: |
-  #      dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest    
+    - name: Run Integration Tests (UI Firefox)
+      env:
+        Browser: Firefox
+      run: |
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest    
 
   #  - uses: actions/upload-artifact@v2
   #    if: ${{ failure() }}
@@ -97,42 +96,42 @@ jobs:
   #      path: c:\home\txnproc\trace\   
 
 
-  #buildchromeui:
-  #  name: "Build and Unit Test Pull Requests - Chrome UI"
-  #  env:
-  #      ASPNETCORE_ENVIRONMENT: "Production"
+  buildchromeui:
+    name: "Build and Unit Test Pull Requests - Chrome UI"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
 
-  #  runs-on: windows-2019
+    runs-on: windows-2019
 
-  #  steps:
-  #  - uses: actions/checkout@v2.3.4
+    steps:
+    - uses: actions/checkout@v2.3.4
     
-  #  - name: Trust Certificate
-  #    run: |
-  #      $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"         
-  #      Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"         
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
-  #  - name: Install NET 6
-  #    uses: actions/setup-dotnet@v2
-  #    with:
-  #      dotnet-version: '6.0.x'
+    - name: Install NET 6
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
 
-  #  - name: Restore Nuget Packages
-  #    run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
-  #  - name: Build Code
-  #    run: dotnet build SecurityService.sln --configuration Release
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
    
-  #  - name: Build Docker Images
-  #    run: |
-  #      docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
-  #      docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
   
-  #  - name: Run Integration Tests (UI Chrome)
-  #    env:
-  #      Browser: Chrome
-  #    run: |  
-  #      dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+    - name: Run Integration Tests (UI Chrome)
+      env:
+        Browser: Chrome
+      run: |  
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
   #  - uses: actions/upload-artifact@v2
   #    if: ${{ failure() }}
@@ -141,44 +140,44 @@ jobs:
   #      path: c:\home\txnproc\trace\   
 
 
-  #buildedgeui:
-  #  name: "Build and Unit Test Pull Requests - Edge UI"
-  #  env:
-  #      ASPNETCORE_ENVIRONMENT: "Production"
+  buildedgeui:
+    name: "Build and Unit Test Pull Requests - Edge UI"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
 
-  #  runs-on: windows-2019
+    runs-on: windows-2019
 
-  #  steps:
-  #  - uses: actions/checkout@v2.3.4
+    steps:
+    - uses: actions/checkout@v2.3.4
     
-  #  - name: Trust Certificate
-  #    run: |
-  #      $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"       
-  #      Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"       
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
-  #  - name: Install NET 6
-  #    uses: actions/setup-dotnet@v2
-  #    with:
-  #      dotnet-version: '6.0.x'
+    - name: Install NET 6
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
 
-  #  - name: Restore Nuget Packages
-  #    run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
 
-  #  - name: Build Code
-  #    run: dotnet build SecurityService.sln --configuration Release
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
     
-  #  - name: Build Docker Images
-  #    run: |
-  #      docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
-  #      docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+    - name: Build Docker Images
+      run: |
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
 
-  #  - name: Run Integration Tests (UI Edge)
-  #    env:
-  #      Browser: Edge
-  #      DriverPath: C:\\SeleniumWebDrivers\\EdgeDriver\\
-  #      DriverExe: msedgedriver.exe
-  #    run: |
-  #      dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest 
+    - name: Run Integration Tests (UI Edge)
+      env:
+        Browser: Edge
+        DriverPath: C:\\SeleniumWebDrivers\\EdgeDriver\\
+        DriverExe: msedgedriver.exe
+      run: |
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest 
 
   #  - uses: actions/upload-artifact@v2
   #    if: ${{ failure() }}

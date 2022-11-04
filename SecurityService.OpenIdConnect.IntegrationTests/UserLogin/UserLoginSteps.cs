@@ -122,6 +122,7 @@ namespace SecurityService.IntegrationTests.UserLogin
             confirmEmailAddressLink.ShouldNotBeNullOrEmpty();
 
             // Cache the link
+            this.TestingContext.DockerHelper.Logger.LogInformation($"ConfirmEmailAddressLink: [{confirmEmailAddressLink}]");
             this.TestingContext.ConfirmEmailAddressLink = confirmEmailAddressLink;
         }
 

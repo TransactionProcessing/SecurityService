@@ -17,6 +17,7 @@
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
+    using Shared.IntegrationTesting;
     using Shared.Logger;
 
     /// <summary>
@@ -50,7 +51,7 @@
         /// Initializes a new instance of the <see cref="DockerHelper"/> class.
         /// </summary>
         /// <param name="logger">The logger.</param>
-        public DockerHelper()
+        public DockerHelper() : base()
         {
             
         }
@@ -79,7 +80,7 @@
         {
             await base.StartContainersForScenarioRun(scenarioName);
 
-            Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
+            securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
             IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
                                                                                                                 this.SecurityServiceContainerName,
@@ -108,14 +109,14 @@
         private static void AddEntryToHostsFile(String ipaddress,
                                                 String hostname)
         {
-            if (FdOs.IsWindows())
+            if (BaseDockerHelper.GetDockerEnginePlatform() == DockerEnginePlatform.Windows)
             {
                 using(StreamWriter w = File.AppendText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"drivers\etc\hosts")))
                 {
                     w.WriteLine($"{ipaddress} {hostname}");
                 }
             }
-            else if (FdOs.IsLinux())
+            else if (BaseDockerHelper.GetDockerEnginePlatform() == DockerEnginePlatform.Linux)
             {
                 DockerHelper.ExecuteBashCommand($"echo {ipaddress} {hostname} | sudo tee -a /etc/hosts");
             }
@@ -171,12 +172,48 @@
                                                                                              $"AppSettings:ClientSecret={clientDetails.clientSecret}",
                                                                                              "urls=https://*:5004")
                                                                             .UseImage("securityservicetestui").ExposePort(5004)
-                                                                            .UseNetwork(new List<INetworkService>
-                                                                                        {
-                                                                                            networkService
-                                                                                        }.ToArray()).Build().Start().WaitForPort("5004/tcp", 30000);
+                                                                            .Build().Start().WaitForPort("5004/tcp", 30000);
+
+            networkService.Attach(securityServiceTestUIContainer, false);
 
             return securityServiceTestUIContainer;
+        }
+
+        public override async Task<IContainerService> SetupSecurityServiceContainer(INetworkService networkService,
+                                                                              List<String> additionalEnvironmentVariables = null) {
+            this.Trace("About to Start Security Container");
+
+            List<String> environmentVariables = this.GetCommonEnvironmentVariables(DockerPorts.SecurityServiceDockerPort);
+            environmentVariables.Add($"ServiceOptions:PublicOrigin=https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
+            environmentVariables.Add($"ServiceOptions:IssuerUrl=https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
+            environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
+            environmentVariables.Add($"urls=https://*:{DockerPorts.SecurityServiceDockerPort}");
+
+            if (additionalEnvironmentVariables != null)
+            {
+                environmentVariables.AddRange(additionalEnvironmentVariables);
+            }
+
+            ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
+                                                                     .WithEnvironment(environmentVariables.ToArray())
+                                                                     .UseImageDetails(this.GetImageDetails(ContainerType.SecurityService))
+                                                                     .ExposePort(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
+                                                                     .MountHostFolder(this.HostTraceFolder)
+                                                                     .SetDockerCredentials(this.DockerCredentials);
+
+            // Now build and return the container                
+            IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort($"{DockerPorts.SecurityServiceDockerPort}/tcp", 30000);
+
+            networkService.Attach(builtContainer, false);
+
+            this.Trace("Security Service Container Started");
+            this.Containers.Add(builtContainer);
+
+            //  Do a health check here
+            this.SecurityServicePort = builtContainer.ToHostExposedEndpoint($"{DockerPorts.SecurityServiceDockerPort}/tcp").Port;
+            await this.DoHealthCheck(ContainerType.SecurityService);
+
+            return builtContainer;
         }
 
         #endregion
