@@ -124,11 +124,11 @@ jobs:
       run: |
         $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
         Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-
-    - name: Install NET 6
+        
+    - name: Install NET 7
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '7.0.x'
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
@@ -178,11 +178,11 @@ jobs:
       run: |
         $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"
         Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-
-    - name: Install NET 6
+        
+    - name: Install NET 7
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '7.0.x'
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
@@ -224,6 +224,11 @@ jobs:
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+        
+    - name: Install NET 7
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '7.0.x'
 
     - name: Build Code
       run: dotnet build SecurityService.sln --configuration Release
