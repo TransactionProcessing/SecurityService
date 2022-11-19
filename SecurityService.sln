@@ -27,9 +27,18 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.Integration
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.OpenIdConnect.IntegrationTests", "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj", "{5BAEC61F-39FF-4197-A73A-A8A8B5BDFE86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityService.SqlServerMigrations", "SecurityService.SqlServerMigrations\SecurityService.SqlServerMigrations.csproj", "{06507A50-DFDF-4842-9BA4-F70F194741D7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.SqlServerMigrations", "SecurityService.SqlServerMigrations\SecurityService.SqlServerMigrations.csproj", "{06507A50-DFDF-4842-9BA4-F70F194741D7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityService.MySqlMigrations", "SecurityService.MySqlMigrations\SecurityService.MySqlMigrations.csproj", "{701F392A-0D5B-4FDD-8135-DA037ECA7A8F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.MySqlMigrations", "SecurityService.MySqlMigrations\SecurityService.MySqlMigrations.csproj", "{701F392A-0D5B-4FDD-8135-DA037ECA7A8F}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0E6B59D1-8D7F-4E48-87AA-7F6215C11713}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\buildwindowsimage.yml = .github\workflows\buildwindowsimage.yml
+		.github\workflows\createrelease.yml = .github\workflows\createrelease.yml
+		.github\workflows\nightlybuild.yml = .github\workflows\nightlybuild.yml
+		.github\workflows\pullrequest.yml = .github\workflows\pullrequest.yml
+		.github\workflows\pushtomaster.yml = .github\workflows\pushtomaster.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

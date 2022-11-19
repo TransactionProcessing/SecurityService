@@ -916,13 +916,20 @@
                                                          Name = SecurityServiceManagerTestData.IdentityResourceName,
                                                          DisplayName = SecurityServiceManagerTestData.IdentityResourceDisplayName,
                                                          Description = SecurityServiceManagerTestData.IdentityResourceDescription,
+                                                         Created = DateTime.Now,
+                                                         Emphasize = false,
+                                                         Enabled = true,
+                                                         Required = false,
+                                                         ShowInDiscoveryDocument = false,
+                                                         NonEditable = false,
                                                          UserClaims = new List<IdentityResourceClaim>
                                                                       {
-                                                                          new IdentityResourceClaim
+                                                                        new IdentityResourceClaim
                                                                           {
-                                                                              Type = SecurityServiceManagerTestData.IdentityResourceUserClaims.First()
+                                                                              Type = "Test"
                                                                           }
-                                                                      }
+                                                                      },
+                                                         //Properties = new List<IdentityResourceProperty>()
                                                      });
             await context.SaveChangesAsync();
 
