@@ -27,7 +27,7 @@ jobs:
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: '7.0.101'
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
@@ -98,14 +98,14 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
     
-    - name: Create Issue on Failed workflow
+    - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
-      uses: dacbd/create-issue-action@main
+      name: Create an issue on build failure
       with:
-        token: ${{ github.token }}
         title: Investigate Nightly Build Failure - Firefox UI
-        body: Url is ${{env.action_url}}
+        token: ${{secrets.GITHUB_TOKEN}}
         labels: nightlybuild
+        body: Url is ${{env.action_url}}
 
   buildchromeui:
     name: "Nightly Build - Chrome UI"
@@ -152,14 +152,14 @@ jobs:
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
             
-    - name: Create Issue on Failed workflow
+    - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
-      uses: dacbd/create-issue-action@main
+      name: Create an issue on build failure
       with:
-        token: ${{ github.token }}
         title: Investigate Nightly Build Failure - Chrome UI
-        body: Url is ${{env.action_url}}
+        token: ${{secrets.GITHUB_TOKEN}}
         labels: nightlybuild
+        body: Url is ${{env.action_url}}
 
   buildedgeui:
     name: "Nightly Build - Edge UI"
@@ -203,51 +203,48 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
-    - name: Create Issue on Failed workflow
+    - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
-      uses: dacbd/create-issue-action@main
+      name: Create an issue on build failure
       with:
-        token: ${{ github.token }}
         title: Investigate Nightly Build Failure - Edge UI
-        body: Url is ${{env.action_url}}
+        token: ${{secrets.GITHUB_TOKEN}}
         labels: nightlybuild
+        body: Url is ${{env.action_url}}
         
-  #codecoverage:
-  #  name: "Nightly Build - Code Coverage"
-  #  env:
-  #      ASPNETCORE_ENVIRONMENT: "Production"
+  codecoverage:
+    name: "Nightly Build - Code Coverage"
+    env:
+        ASPNETCORE_ENVIRONMENT: "Production"
 
-  #  runs-on: ubuntu-latest
+    runs-on: ubuntu-latest
 
-  #  steps:
-  #  - uses: actions/checkout@v2.3.4
+    steps:
+    - uses: actions/checkout@v2.3.4
 
-  #  - name: Install NET 7
-  #    uses: actions/setup-dotnet@v2
-  #    with:
-  #      dotnet-version: '7.0.x'
+    - name: Install NET 7
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '7.0.x'
 
-  #  - name: Restore Nuget Packages
-  #    run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+    - name: Restore Nuget Packages
+      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
         
-  #  - name: Build Code
-  #    run: dotnet build SecurityService.sln --configuration Release
+    - name: Build Code
+      run: dotnet build SecurityService.sln --configuration Release
 
-  #  - name: Run Unit Tests
-  #    run: |
-  #      echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-  #      dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
+    - name: Run Unit Tests
+      run: |
+        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
+        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
 
-  #  - name: Setup Node.js for use with actions
-  #    uses: actions/setup-node@v1.4.4
-    
-  #  - name: Combine Coverage
-  #    run: |
-  #      npm i lcov-result-merger
-  #      ./node_modules/lcov-result-merger/bin/lcov-result-merger.js '*.info' lcov.info
-    
-  #  - name: Upload Code Coverage
-  #    uses: coverallsapp/github-action@master
-  #    with:
-  #        github-token: ${{ secrets.github_token }}
-  #        path-to-lcov: lcov.info    
+    - name: Upload coverage reports to Codecov
+      uses: codecov/codecov-action@v3  
+      with:
+        files: ./lcov1.info
+
+    - name: Upload Code Coverage
+      uses: coverallsapp/github-action@master
+      with:
+          github-token: ${{ secrets.github_token }}
+          path-to-lcov: lcov.info    
