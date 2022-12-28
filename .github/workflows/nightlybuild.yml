@@ -241,10 +241,4 @@ jobs:
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v3  
       with:
-        files: ./lcov1.info
-
-    - name: Upload Code Coverage
-      uses: coverallsapp/github-action@master
-      with:
-          github-token: ${{ secrets.github_token }}
-          path-to-lcov: lcov.info    
+        files: ./lcov1.info 
