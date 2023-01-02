@@ -2,11 +2,9 @@
 {
     using DataTransferObjects.Requests;
     using Swashbuckle.AspNetCore.Filters;
+    using System.Diagnostics.CodeAnalysis;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="CreateRoleRequest" />
+    [ExcludeFromCodeCoverage]
     public class CreateRoleRequestExample : IExamplesProvider<CreateRoleRequest>
     {
         #region Methods

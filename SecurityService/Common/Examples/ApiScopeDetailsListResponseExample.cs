@@ -1,13 +1,11 @@
 ﻿namespace SecurityService.Common.Examples
 {
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using DataTransferObjects.Responses;
     using Swashbuckle.AspNetCore.Filters;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="ApiScopeDetails" />
+    [ExcludeFromCodeCoverage]
     public class ApiScopeDetailsListResponseExample : IExamplesProvider<List<ApiScopeDetails>>
     {
         /// <summary>

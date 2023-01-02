@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.Security.Claims;
     using System.Text.Json;
     using Duende.IdentityServer;
@@ -12,6 +13,7 @@ namespace SecurityService
     using Duende.IdentityServer.Test;
     using IdentityModel;
 
+    [ExcludeFromCodeCoverage]
     public static class Config
     {
         public static IEnumerable<IdentityResource> IdentityResources =>

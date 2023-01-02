@@ -2,11 +2,9 @@
 {
     using DataTransferObjects.Requests;
     using Swashbuckle.AspNetCore.Filters;
+    using System.Diagnostics.CodeAnalysis;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="CreateApiScopeRequest" />
+    [ExcludeFromCodeCoverage]
     public class CreateApiScopeRequestExample : IExamplesProvider<CreateApiScopeRequest>
     {
         #region Methods

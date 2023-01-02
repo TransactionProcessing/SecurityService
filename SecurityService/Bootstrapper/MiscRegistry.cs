@@ -1,6 +1,7 @@
 ﻿namespace SecurityService.Bootstrapper
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using BusinessLogic;
     using Factories;
     using Lamar;
@@ -9,10 +10,7 @@
     using Microsoft.Extensions.Hosting;
     using Shared.General;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="Lamar.ServiceRegistry" />
+    [ExcludeFromCodeCoverage]
     public class MiscRegistry : ServiceRegistry
     {
         #region Constructors

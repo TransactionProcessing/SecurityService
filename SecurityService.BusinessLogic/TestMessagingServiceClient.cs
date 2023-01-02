@@ -1,12 +1,14 @@
 ﻿namespace SecurityService.BusinessLogic;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagingService.Client;
 using MessagingService.DataTransferObjects;
 using Shared.Logger;
 
+[ExcludeFromCodeCoverage]
 public class TestMessagingServiceClient : IMessagingServiceClient
 {
     public SendEmailRequest LastEmailRequest { get; private set; } 

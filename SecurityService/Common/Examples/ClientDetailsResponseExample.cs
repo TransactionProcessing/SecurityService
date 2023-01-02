@@ -2,13 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using DataTransferObjects.Responses;
     using Swashbuckle.AspNetCore.Filters;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="ClientDetails" />
+    [ExcludeFromCodeCoverage]
     public class ClientDetailsResponseExample : IExamplesProvider<ClientDetails>
     {
         #region Methods
