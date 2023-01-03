@@ -25,17 +25,13 @@ public class Confirm : PageModel
 {
     private readonly ISecurityServiceManager SecurityServiceManager;
 
-    private readonly UserManager<IdentityUser> UserManager;
-
     public ViewModel View { get; set; }
         
     [BindProperty]
     public ConfirmInputModel Input { get; set; }
         
-    public Confirm(ISecurityServiceManager securityServiceManager,
-                   UserManager<IdentityUser> userManager) {
+    public Confirm(ISecurityServiceManager securityServiceManager) {
         this.SecurityServiceManager = securityServiceManager;
-        this.UserManager = userManager;
     }
         
     public async Task<IActionResult> OnGet(CancellationToken cancellationToken) {

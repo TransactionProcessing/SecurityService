@@ -85,7 +85,7 @@
             IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
                                                                                                                 this.SecurityServiceContainerName,
                                                                                                                 this.SecurityServicePort,
-                                                                                                                this.TestNetworks.Last(),
+                                                                                                                this.TestNetworks,
                                                                                                                 ("estateUIClient", "Secret1"));
 
             this.SecurityServiceTestUIPort = securityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
@@ -162,7 +162,7 @@
         private IContainerService SetupSecurityServiceTestUIContainer(String containerName,
                                                                              String securityServiceContainerName,
                                                                              Int32 securityServiceContainerPort,
-                                                                             INetworkService networkService,
+                                                                             List<INetworkService> networkServices,
                                                                              (String clientId, String clientSecret) clientDetails)
         {
             // Management API Container
@@ -174,13 +174,16 @@
                                                                             .UseImage("securityservicetestui").ExposePort(5004)
                                                                             .Build().Start().WaitForPort("5004/tcp", 30000);
 
-            networkService.Attach(securityServiceTestUIContainer, false);
+            foreach (INetworkService networkService in networkServices) {
+                networkService.Attach(securityServiceTestUIContainer, false);
+            }
 
             return securityServiceTestUIContainer;
         }
 
-        public override async Task<IContainerService> SetupSecurityServiceContainer(INetworkService networkService,
-                                                                              List<String> additionalEnvironmentVariables = null) {
+        public override async Task<IContainerService> SetupSecurityServiceContainer(List<INetworkService> networkServices,
+                                                                                    List<String> additionalEnvironmentVariables = null)
+        {
             this.Trace("About to Start Security Container");
 
             List<String> environmentVariables = this.GetCommonEnvironmentVariables(DockerPorts.SecurityServiceDockerPort);
@@ -204,7 +207,9 @@
             // Now build and return the container                
             IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort($"{DockerPorts.SecurityServiceDockerPort}/tcp", 30000);
 
-            networkService.Attach(builtContainer, false);
+            foreach (INetworkService networkService in networkServices) {
+                networkService.Attach(builtContainer, false);
+            }
 
             this.Trace("Security Service Container Started");
             this.Containers.Add(builtContainer);
@@ -215,6 +220,7 @@
 
             return builtContainer;
         }
+
 
         #endregion
     }

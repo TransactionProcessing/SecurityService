@@ -11,6 +11,7 @@ using System;
 
 namespace SecurityService
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using System.Net;
@@ -25,6 +26,7 @@ namespace SecurityService
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
+    [ExcludeFromCodeCoverage]
     public class Program
     {
         public static IHostBuilder CreateHostBuilder(String[] args)

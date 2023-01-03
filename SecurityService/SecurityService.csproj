@@ -46,6 +46,7 @@
     <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
     <ProjectReference Include="..\SecurityService.MySqlMigrations\SecurityService.MySqlMigrations.csproj" />
     <ProjectReference Include="..\SecurityService.SqlServerMigrations\SecurityService.SqlServerMigrations.csproj" />
+    <ProjectReference Include="..\SecurityService.UserInterface\SecurityService.UserInterface.csproj" />
   </ItemGroup>
   
   <ItemGroup>

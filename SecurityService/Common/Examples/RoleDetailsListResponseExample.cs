@@ -1,13 +1,11 @@
 ﻿namespace SecurityService.Common.Examples
 {
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using DataTransferObjects.Responses;
     using Swashbuckle.AspNetCore.Filters;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="List{T}.DataTransferObjects.Responses.RoleDetails}}" />
+    [ExcludeFromCodeCoverage]
     public class RoleDetailsListResponseExample : IExamplesProvider<List<RoleDetails>>
     {
         #region Methods

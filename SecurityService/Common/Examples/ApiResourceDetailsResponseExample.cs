@@ -2,13 +2,11 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using DataTransferObjects.Responses;
     using Swashbuckle.AspNetCore.Filters;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="ApiResourceDetails" />
+    [ExcludeFromCodeCoverage]
     public class ApiResourceDetailsResponseExample : IExamplesProvider<ApiResourceDetails>
     {
         #region Methods

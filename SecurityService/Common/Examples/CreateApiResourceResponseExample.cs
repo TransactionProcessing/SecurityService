@@ -2,11 +2,9 @@
 {
     using DataTransferObjects.Responses;
     using Swashbuckle.AspNetCore.Filters;
+    using System.Diagnostics.CodeAnalysis;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="CreateApiResourceResponse" />
+    [ExcludeFromCodeCoverage]
     public class CreateApiResourceResponseExample : IExamplesProvider<CreateApiResourceResponse>
     {
         #region Methods

@@ -2,11 +2,9 @@
 {
     using DataTransferObjects;
     using Swashbuckle.AspNetCore.Filters;
+    using System.Diagnostics.CodeAnalysis;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="CreateClientResponse" />
+    [ExcludeFromCodeCoverage]
     public class CreateClientResponseExample : IExamplesProvider<CreateClientResponse>
     {
         #region Methods

@@ -5,13 +5,11 @@ namespace SecurityService.Common.Examples
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using DataTransferObjects.Responses;
     using Swashbuckle.AspNetCore.Filters;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="IdentityResourceDetails" />
+    [ExcludeFromCodeCoverage]
     public class IdentityResourceDetailsListResponseExample : IExamplesProvider<List<IdentityResourceDetails>>
     {
         #region Methods

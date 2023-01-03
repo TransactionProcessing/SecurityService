@@ -1,6 +1,7 @@
 ﻿namespace SecurityService.Bootstrapper
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using BusinessLogic;
     using Database.DbContexts;
@@ -18,6 +19,7 @@
     using Shared.General;
     using Swashbuckle.AspNetCore.Filters;
 
+    [ExcludeFromCodeCoverage]
     public class MiddlewareRegistry : ServiceRegistry
     {
         public MiddlewareRegistry()

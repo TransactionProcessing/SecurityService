@@ -1,6 +1,8 @@
 ﻿namespace SecurityService.Bootstrapper
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
+    using Common;
     using Database.DbContexts;
     using Lamar;
     using Microsoft.AspNetCore.Identity;
@@ -8,10 +10,7 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <seealso cref="Lamar.ServiceRegistry" />
+    [ExcludeFromCodeCoverage]
     public class IdentityServerRegistry : ServiceRegistry
     {
         #region Constructors
