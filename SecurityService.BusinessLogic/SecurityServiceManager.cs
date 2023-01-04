@@ -37,6 +37,8 @@
 
         private readonly IdentityServerTools IdentityServerTools;
 
+        private readonly ServiceOptions ServiceOptions;
+
         private readonly IMessagingServiceClient MessagingServiceClient;
 
         /// <summary>
@@ -71,7 +73,8 @@
                                       SignInManager<IdentityUser> signInManager,
                                       ConfigurationDbContext configurationDbContext,
                                       IMessagingServiceClient messagingServiceClient,
-                                      IdentityServerTools identityServerTools) {
+                                      IdentityServerTools identityServerTools,
+                                      ServiceOptions serviceOptions) {
             this.PasswordHasher = passwordHasher;
             this.UserManager = userManager;
             this.RoleManager = roleManager;
@@ -79,6 +82,7 @@
             this.ConfigurationDbContext = configurationDbContext;
             this.MessagingServiceClient = messagingServiceClient;
             this.IdentityServerTools = identityServerTools;
+            this.ServiceOptions = serviceOptions;
         }
 
         #endregion
@@ -396,8 +400,7 @@
                 // If we are here we have created the user
                 String confirmationToken = await this.UserManager.GenerateEmailConfirmationTokenAsync(newIdentityUser);
                 confirmationToken = UrlEncoder.Default.Encode(confirmationToken);
-                String baseAddress = ConfigurationReader.GetValue("ServiceOptions", "PublicOrigin");
-                String uri = $"{baseAddress}/Account/EmailConfirmation/Confirm?userName={newIdentityUser.UserName}&confirmationToken={confirmationToken}";
+                String uri = $"{this.ServiceOptions.PublicOrigin}/Account/EmailConfirmation/Confirm?userName={newIdentityUser.UserName}&confirmationToken={confirmationToken}";
 
                 TokenResponse token = await this.GetToken(cancellationToken);
                 SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
@@ -703,8 +706,7 @@
             // User has been found so send an email with reset details
             String resetToken = await this.UserManager.GeneratePasswordResetTokenAsync(user);
             resetToken = UrlEncoder.Default.Encode(resetToken);
-            String baseAddress = ConfigurationReader.GetValue("ServiceOptions", "PublicOrigin");
-            String uri = $"{baseAddress}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={clientId}";
+            String uri = $"{this.ServiceOptions.PublicOrigin}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={clientId}";
 
             TokenResponse token = await this.GetToken(cancellationToken);
             SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
@@ -863,9 +865,10 @@
             return roles.ToList();
         }
 
-        private static String GenerateRandomPassword(PasswordOptions opts = null) {
+        private static String GenerateRandomPassword(Microsoft.AspNetCore.Identity.PasswordOptions opts = null) {
             if (opts == null)
-                opts = new PasswordOptions {
+                opts = new Microsoft.AspNetCore.Identity.PasswordOptions
+                {
                                                RequiredLength = 8,
                                                RequiredUniqueChars = 4,
                                                RequireDigit = true,
@@ -906,8 +909,8 @@
 
         private async Task<TokenResponse> GetToken(CancellationToken cancellationToken) {
             // Get a token to talk to the estate service
-            String clientId = ConfigurationReader.GetValue("AppSettings", "ClientId");
-            String clientSecret = ConfigurationReader.GetValue("AppSettings", "ClientSecret");
+            String clientId = this.ServiceOptions.ClientId;
+            String clientSecret = this.ServiceOptions.ClientSecret;
 
             Logger.LogInformation($"Client Id is {clientId}");
             Logger.LogInformation($"Client Secret is {clientSecret}");

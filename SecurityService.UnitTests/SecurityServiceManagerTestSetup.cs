@@ -134,10 +134,18 @@
             Mock<IMessagingServiceClient> messagingServiceClient = new Mock<IMessagingServiceClient>();
             IdentityServerTools identityServerTools = this.SetupIdentityServerTools();
 
+            ServiceOptions serviceOptions = new ServiceOptions {
+                                                                   ClientId = "clientId",
+                                                                   ClientSecret = "clientSecret",
+                                                                   IssuerUrl = "http://localhost",
+                                                                   PublicOrigin = "http://localhost",
+                                                               };
+
             SecurityServiceManager securityServiceManager =
                 new SecurityServiceManager(this.PasswordHasher.Object, userManager, roleManager, signInManager, configurationDbContext,
                                            messagingServiceClient.Object,
-                                           identityServerTools);
+                                           identityServerTools,
+                                           serviceOptions);
 
             return securityServiceManager;
         }
