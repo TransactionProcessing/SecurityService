@@ -78,7 +78,8 @@
             SecurityServiceManager securityServiceManager =
                 new SecurityServiceManager(passwordHasher.Object, userManager, roleManager, signInManager, configurationDbContext,
                                            messagingServiceClient.Object,
-                                           identityServerTools);
+                                           identityServerTools,
+                                           new ServiceOptions());
 
             securityServiceManager.ShouldNotBeNull();
         }

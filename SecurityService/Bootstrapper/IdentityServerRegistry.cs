@@ -2,6 +2,7 @@
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
+    using BusinessLogic;
     using Common;
     using Database.DbContexts;
     using Lamar;
@@ -21,20 +22,29 @@
         public IdentityServerRegistry()
         {
             // Get the DB Connection Strings
-            String persistedGrantStoreConenctionString = Startup.Configuration.GetConnectionString("PersistedGrantDbContext");
+            String persistedGrantStoreConnectionString = Startup.Configuration.GetConnectionString("PersistedGrantDbContext");
             String configurationConnectionString = Startup.Configuration.GetConnectionString("ConfigurationDbContext");
-            String authenticationConenctionString = Startup.Configuration.GetConnectionString("AuthenticationDbContext");
+            String authenticationConnectionString = Startup.Configuration.GetConnectionString("AuthenticationDbContext");
 
+            ServiceOptions serviceOptions = new ServiceOptions();
+            IConfigurationSection serviceOptionsSection = Startup.Configuration.GetSection("ServiceOptions");
+            serviceOptionsSection.Bind(serviceOptions);
+
+            this.AddSingleton<ServiceOptions>(serviceOptions);
             this.AddIdentity<IdentityUser, IdentityRole>(opt => {
                                                              opt.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
-                                                         }).AddEntityFrameworkStores<AuthenticationDbContext>()
-                .AddDefaultTokenProviders()                                            
+                                                             opt.Password.RequireDigit = serviceOptions.PasswordOptions.RequireDigit;
+                                                             opt.Password.RequireUppercase = serviceOptions.PasswordOptions.RequireUpperCase;
+                                                             opt.Password.RequiredLength = serviceOptions.PasswordOptions.RequiredLength;
+                                                             opt.SignIn.RequireConfirmedEmail = serviceOptions.SignInOptions.RequireConfirmedEmail;
+                                                             opt.User.RequireUniqueEmail = serviceOptions.UserOptions.RequireUniqueEmail;
+                                                         }).AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders()
                 .AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("emailconfirmation");
 
-            this.Configure<DataProtectionTokenProviderOptions>(opt =>
-                                                                       opt.TokenLifespan = TimeSpan.FromHours(2));
+            this.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan =
+                                                                   TimeSpan.FromHours(serviceOptions.TokenOptions.PasswordResetTokenExpiryInHours));
             this.Configure<EmailConfirmationTokenProviderOptions>(opt =>
-                                                                          opt.TokenLifespan = TimeSpan.FromDays(3));
+                                                                          opt.TokenLifespan = TimeSpan.FromHours(serviceOptions.TokenOptions.EmailConfirmationTokenExpiryInHours));
 
 
             IIdentityServerBuilder identityServerBuilder = this.AddIdentityServer(options =>
@@ -46,8 +56,7 @@
                                                                                       options.Events.RaiseFailureEvents = true;
                                                                                       options.Events.RaiseErrorEvents = true;
 
-                                                                                      options.IssuerUri =
-                                                                                          Startup.Configuration.GetValue<String>("ServiceOptions:IssuerUrl");
+                                                                                      options.IssuerUri = serviceOptions.IssuerUrl;
                                                                                   });
 
             identityServerBuilder.AddAspNetIdentity<IdentityUser>();
@@ -58,7 +67,7 @@
             }
             else
             {
-                identityServerBuilder.AddIdentityServerStorage(configurationConnectionString, persistedGrantStoreConenctionString, authenticationConenctionString);
+                identityServerBuilder.AddIdentityServerStorage(configurationConnectionString, persistedGrantStoreConnectionString, authenticationConnectionString);
             }
         }
 
