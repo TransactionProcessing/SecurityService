@@ -200,7 +200,7 @@
             ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
                                                                      .WithEnvironment(environmentVariables.ToArray())
                                                                      .UseImageDetails(this.GetImageDetails(ContainerType.SecurityService))
-                                                                     .ExposePort(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
+                                                                     .ExposePort(DockerPorts.SecurityServiceDockerPort)
                                                                      .MountHostFolder(this.HostTraceFolder)
                                                                      .SetDockerCredentials(this.DockerCredentials);
 
