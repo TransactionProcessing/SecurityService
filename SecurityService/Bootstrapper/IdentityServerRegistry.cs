@@ -73,29 +73,4 @@
 
         #endregion
     }
-
-    public class TokenOptions
-    {
-        public Int32 EmailConfirmationTokenExpiryInHours { get; set; }
-        public Int32 PasswordResetTokenExpiryInHours { get; set; }
-    }
-
-    public class PasswordOptions
-    {
-        public Int32 RequiredLength { get; set; }
-
-        public Boolean RequireDigit { get; set; }
-
-        public Boolean RequireUpperCase { get; set; }
-    }
-
-    public class UserOptions
-    {
-        public Boolean RequireUniqueEmail { get; set; }
-    }
-
-    public class SignInOptions
-    {
-        public Boolean RequireConfirmedEmail { get; set; }
-    }
 }
