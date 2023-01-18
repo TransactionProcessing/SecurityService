@@ -14,7 +14,7 @@
     
     <PackageReference Include="Selenium.Support" Version="4.6.0" />
     <PackageReference Include="Selenium.WebDriver" Version="4.6.0" />
-    <PackageReference Include="Shared.IntegrationTesting" Version="2022.12.2" />
+    <PackageReference Include="Shared.IntegrationTesting" Version="2023.1.0" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
       <PrivateAssets>all</PrivateAssets>

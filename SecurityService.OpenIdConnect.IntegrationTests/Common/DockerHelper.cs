@@ -109,7 +109,7 @@
         private static void AddEntryToHostsFile(String ipaddress,
                                                 String hostname)
         {
-            if (BaseDockerHelper.GetDockerEnginePlatform() == DockerEnginePlatform.Windows)
+            if (FdOs.IsWindows())
             {
                 using(StreamWriter w = File.AppendText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"drivers\etc\hosts")))
                 {
@@ -181,16 +181,24 @@
             return securityServiceTestUIContainer;
         }
 
-        public override async Task<IContainerService> SetupSecurityServiceContainer(List<INetworkService> networkServices,
-                                                                                    List<String> additionalEnvironmentVariables = null)
+        public override async Task<IContainerService> SetupSecurityServiceContainer(List<INetworkService> networkServices)
         {
             this.Trace("About to Start Security Container");
 
-            List<String> environmentVariables = this.GetCommonEnvironmentVariables(DockerPorts.SecurityServiceDockerPort);
+            List<String> environmentVariables = this.GetCommonEnvironmentVariables();
             environmentVariables.Add($"ServiceOptions:PublicOrigin=https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
             environmentVariables.Add($"ServiceOptions:IssuerUrl=https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
             environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
             environmentVariables.Add($"urls=https://*:{DockerPorts.SecurityServiceDockerPort}");
+
+            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequiredLength=6");
+            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireDigit=false");
+            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireUpperCase=false");
+            environmentVariables.Add($"ServiceOptions:UserOptions:RequireUniqueEmail=false");
+            environmentVariables.Add($"ServiceOptions:SignInOptions:RequireConfirmedEmail=false");
+
+
+            List<String> additionalEnvironmentVariables = this.GetAdditionalVariables(ContainerType.SecurityService);
 
             if (additionalEnvironmentVariables != null)
             {
@@ -207,7 +215,8 @@
             // Now build and return the container                
             IContainerService builtContainer = securityServiceContainer.Build().Start().WaitForPort($"{DockerPorts.SecurityServiceDockerPort}/tcp", 30000);
 
-            foreach (INetworkService networkService in networkServices) {
+            foreach (INetworkService networkService in networkServices)
+            {
                 networkService.Attach(builtContainer, false);
             }
 
@@ -220,7 +229,6 @@
 
             return builtContainer;
         }
-
 
         #endregion
     }
