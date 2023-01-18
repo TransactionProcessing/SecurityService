@@ -161,9 +161,7 @@ namespace SecurityService.IntegrationTests.UserLogin
         [When(@"I navigate to the confirm email address")]
         public void WhenINavigateToTheConfirmEmailAddress()
         {
-            var port = this.TestingContext.DockerHelper.GetSecurityServicePort();
-            var linkText = this.TestingContext.ConfirmEmailAddressLink.Replace(":5001/", $":{port}/");
-            this.WebDriver.Navigate().GoToUrl(linkText);
+            this.WebDriver.Navigate().GoToUrl(this.TestingContext.ConfirmEmailAddressLink);
         }
 
         [Then(@"I am presented with the confirm email address successful screen")]
