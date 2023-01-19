@@ -180,30 +180,7 @@
 
             return name;
         }
-
-        public async Task<String> CreateApiScope(String name,
-                                                 String displayName,
-                                                 String description,
-                                                 CancellationToken cancellationToken) {
-            ApiScope apiScope = new ApiScope {
-                                                 Description = description,
-                                                 DisplayName = displayName,
-                                                 Name = name,
-                                                 Emphasize = false,
-                                                 Enabled = true,
-                                                 Required = false,
-                                                 ShowInDiscoveryDocument = true
-                                             };
-
-            // Now translate the model to the entity
-            await this.ConfigurationDbContext.ApiScopes.AddAsync(apiScope.ToEntity(), cancellationToken);
-
-            // Save the changes
-            await this.ConfigurationDbContext.SaveChangesAsync();
-
-            return name;
-        }
-
+        
         public async Task<String> CreateClient(String clientId,
                                                String secret,
                                                String clientName,
@@ -459,40 +436,7 @@
 
             return apiResourceModels;
         }
-
-        public async Task<ApiScope> GetApiScope(String apiScopeName,
-                                                CancellationToken cancellationToken) {
-            ApiScope apiScopeModel = null;
-
-            Duende.IdentityServer.EntityFramework.Entities.ApiScope apiScopeEntity = await this.ConfigurationDbContext.ApiScopes.Where(a => a.Name == apiScopeName)
-                                                                                               .Include(a => a.Properties).Include(a => a.UserClaims)
-                                                                                               .SingleOrDefaultAsync(cancellationToken:cancellationToken);
-
-            if (apiScopeEntity == null) {
-                throw new NotFoundException($"No Api Scope found with Name [{apiScopeName}]");
-            }
-
-            apiScopeModel = apiScopeEntity.ToModel();
-
-            return apiScopeModel;
-        }
-
-        public async Task<List<ApiScope>> GetApiScopes(CancellationToken cancellationToken) {
-            List<ApiScope> apiScopeModels = new List<ApiScope>();
-
-            List<Duende.IdentityServer.EntityFramework.Entities.ApiScope> apiScopeEntities = await this.ConfigurationDbContext.ApiScopes.Include(a => a.Properties)
-                                                                                                       .Include(a => a.UserClaims)
-                                                                                                       .ToListAsync(cancellationToken:cancellationToken);
-
-            if (apiScopeEntities.Any()) {
-                foreach (Duende.IdentityServer.EntityFramework.Entities.ApiScope apiScopeEntity in apiScopeEntities) {
-                    apiScopeModels.Add(apiScopeEntity.ToModel());
-                }
-            }
-
-            return apiScopeModels;
-        }
-
+        
         public async Task<Client> GetClient(String clientId,
                                             CancellationToken cancellationToken) {
             Client clientModel = null;
