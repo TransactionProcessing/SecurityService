@@ -188,7 +188,7 @@
 
             services.IncludeRegistry<IdentityServerRegistry>();
             services.IncludeRegistry<MiddlewareRegistry>();
-
+            services.IncludeRegistry<MediatorRegistry>();
             services.IncludeRegistry<MiscRegistry>();
 
             Startup.Container = new Container(services);
