@@ -5,14 +5,18 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+    using Azure.Core;
     using BusinessLogic;
+    using BusinessLogic.Requests;
     using Common.Examples;
     using DataTransferObjects;
     using DataTransferObjects.Responses;
     using Factories;
+    using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
+    using CreateUserRequest = DataTransferObjects.CreateUserRequest;
 
     /// <summary>
     /// 
@@ -24,11 +28,8 @@
     public class UserController : ControllerBase
     {
         #region Fields
-
-        /// <summary>
-        /// The manager
-        /// </summary>
-        private readonly ISecurityServiceManager Manager;
+        
+        private readonly IMediator Mediator;
 
         private readonly IModelFactory ModelFactory;
 
@@ -41,9 +42,8 @@
         /// </summary>
         /// <param name="manager">The manager.</param>
         /// <param name="modelFactory">The model factory.</param>
-        public UserController(ISecurityServiceManager manager, IModelFactory modelFactory)
-        {
-            this.Manager = manager;
+        public UserController(IMediator mediator, IModelFactory modelFactory){
+            this.Mediator = mediator;
             this.ModelFactory = modelFactory;
         }
 
@@ -63,17 +63,21 @@
         [SwaggerResponseExample(statusCode: 201, typeof(CreateUserResponseExample))]
         public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest, CancellationToken cancellationToken)
         {
+            Guid userId = Guid.NewGuid();
+
+            BusinessLogic.Requests.CreateUserRequest request = BusinessLogic.Requests.CreateUserRequest.Create(userId,
+                                                                                                               createUserRequest.GivenName,
+                                                                                                               createUserRequest.MiddleName,
+                                                                                                               createUserRequest.FamilyName,
+                                                                                                               createUserRequest.EmailAddress,
+                                                                                                               createUserRequest.Password,
+                                                                                                               createUserRequest.EmailAddress,
+                                                                                                               createUserRequest.PhoneNumber,
+                                                                                                               createUserRequest.Claims,
+                                                                                                               createUserRequest.Roles);
+
             // Create the user
-            Guid userId = await this.Manager.CreateUser(createUserRequest.GivenName,
-                                                        createUserRequest.MiddleName,
-                                                        createUserRequest.FamilyName,
-                                                        createUserRequest.EmailAddress,
-                                                        createUserRequest.Password,
-                                                        createUserRequest.EmailAddress,
-                                                        createUserRequest.PhoneNumber,
-                                                        createUserRequest.Claims,
-                                                        createUserRequest.Roles,
-                                                        cancellationToken);
+            await this.Mediator.Send(request, cancellationToken);
 
             // return the result
             return this.Created($"{UserController.ControllerRoute}/{userId}",
@@ -96,7 +100,9 @@
         public async Task<IActionResult> GetUser([FromRoute] Guid userId,
                                                  CancellationToken cancellationToken)
         {
-            Models.UserDetails userDetailsModel = await this.Manager.GetUser(userId, cancellationToken);
+            GetUserRequest request = GetUserRequest.Create(userId);
+
+            Models.UserDetails userDetailsModel = await this.Mediator.Send(request, cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(userDetailsModel));
         }
@@ -115,8 +121,10 @@
         public async Task<IActionResult> GetUsers([FromQuery] String userName,
                                                  CancellationToken cancellationToken)
         {
-            List<Models.UserDetails> userModelList = await this.Manager.GetUsers(userName, cancellationToken);
+            GetUsersRequest request = GetUsersRequest.Create(userName);
             
+            List<Models.UserDetails> userModelList = await this.Mediator.Send(request, cancellationToken);
+
             return this.Ok(this.ModelFactory.ConvertFrom(userModelList));
         }
 

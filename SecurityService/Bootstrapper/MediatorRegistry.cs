@@ -35,5 +35,9 @@ public class MediatorRegistry : ServiceRegistry
         this.AddSingleton<IRequestHandler<GetClientRequest, Client>, ClientRequestHandler>();
         this.AddSingleton<IRequestHandler<GetClientsRequest, List<Client>>, ClientRequestHandler>();
         this.AddSingleton<IRequestHandler<CreateClientRequest, Unit>, ClientRequestHandler>();
+
+        this.AddSingleton<IRequestHandler<GetIdentityResourceRequest, IdentityResource>, IdentityResourceRequestHandler>();
+        this.AddSingleton<IRequestHandler<GetIdentityResourcesRequest, List<IdentityResource>>, IdentityResourceRequestHandler>();
+        this.AddSingleton<IRequestHandler<CreateIdentityResourceRequest>, IdentityResourceRequestHandler>();
     }
 }

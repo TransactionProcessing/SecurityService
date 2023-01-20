@@ -5,15 +5,18 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+    using Azure.Core;
     using BusinessLogic;
+    using BusinessLogic.Requests;
     using Common.Examples;
-    using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using Duende.IdentityServer.Models;
     using Factories;
+    using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
+    using CreateIdentityResourceRequest = DataTransferObjects.Requests.CreateIdentityResourceRequest;
 
     /// <summary>
     /// 
@@ -25,11 +28,8 @@
     public class IdentityResourceController : ControllerBase
     {
         #region Fields
-
-        /// <summary>
-        /// The manager
-        /// </summary>
-        private readonly ISecurityServiceManager Manager;
+        
+        private readonly IMediator Mediator;
 
         /// <summary>
         /// The model factory
@@ -45,10 +45,10 @@
         /// </summary>
         /// <param name="manager">The manager.</param>
         /// <param name="modelFactory">The model factory.</param>
-        public IdentityResourceController(ISecurityServiceManager manager,
+        public IdentityResourceController(IMediator mediator,
                                           IModelFactory modelFactory)
         {
-            this.Manager = manager;
+            this.Mediator = mediator;
             this.ModelFactory = modelFactory;
         }
 
@@ -69,20 +69,21 @@
         public async Task<IActionResult> CreateIdentityResource([FromBody] CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                 CancellationToken cancellationToken)
         {
-            String identityResourceName = await this.Manager.CreateIdentityResource(createIdentityResourceRequest.Name,
-                                                                                    createIdentityResourceRequest.DisplayName,
-                                                                                    createIdentityResourceRequest.Description,
-                                                                                    createIdentityResourceRequest.Required,
-                                                                                    createIdentityResourceRequest.Emphasize,
-                                                                                    createIdentityResourceRequest.ShowInDiscoveryDocument,
-                                                                                    createIdentityResourceRequest.Claims,
-                                                                                    cancellationToken);
+            BusinessLogic.Requests.CreateIdentityResourceRequest request = BusinessLogic.Requests.CreateIdentityResourceRequest.Create(createIdentityResourceRequest.Name,
+                                                                                                                                       createIdentityResourceRequest.DisplayName,
+                                                                                                                                       createIdentityResourceRequest.Description,
+                                                                                                                                       createIdentityResourceRequest.Required,
+                                                                                                                                       createIdentityResourceRequest.Emphasize,
+                                                                                                                                       createIdentityResourceRequest.ShowInDiscoveryDocument,
+                                                                                                                                       createIdentityResourceRequest.Claims);
+
+            await this.Mediator.Send(request, cancellationToken);
 
             // return the result
-            return this.Created($"{IdentityResourceController.ControllerRoute}/{identityResourceName}",
+            return this.Created($"{IdentityResourceController.ControllerRoute}/{createIdentityResourceRequest.Name}",
                                 new CreateIdentityResourceResponse
                                 {
-                                    IdentityResourceName = identityResourceName
+                                    IdentityResourceName = createIdentityResourceRequest.Name
                                 });
         }
 
@@ -99,7 +100,9 @@
         public async Task<IActionResult> GetIdentityResource([FromRoute] String identityResourceName,
                                                              CancellationToken cancellationToken)
         {
-            IdentityResource identityResourceModel = await this.Manager.GetIdentityResource(identityResourceName, cancellationToken);
+            GetIdentityResourceRequest request = GetIdentityResourceRequest.Create(identityResourceName);
+
+            IdentityResource identityResourceModel = await this.Mediator.Send(request, cancellationToken);
 
             // return the result
             return this.Ok(this.ModelFactory.ConvertFrom(identityResourceModel));
@@ -116,7 +119,9 @@
         [SwaggerResponseExample(200, typeof(IdentityResourceDetailsListResponseExample))]
         public async Task<IActionResult> GetIdentityResources(CancellationToken cancellationToken)
         {
-            List<IdentityResource> identityResourceList = await this.Manager.GetIdentityResources(cancellationToken);
+            GetIdentityResourcesRequest request = GetIdentityResourcesRequest.Create();
+
+            List<IdentityResource> identityResourceList = await this.Mediator.Send(request, cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(identityResourceList));
         }
