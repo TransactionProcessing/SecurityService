@@ -83,15 +83,7 @@ namespace SecurityService.BusinessLogic
                                             Boolean showInDiscoveryDocument,
                                             List<String> claims,
                                             CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Creates the role.
-        /// </summary>
-        /// <param name="roleName">Name of the role.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<Guid> CreateRole(String roleName,
-                              CancellationToken cancellationToken);
+        
 
         /// <summary>
         /// Registers the user.
@@ -149,23 +141,7 @@ namespace SecurityService.BusinessLogic
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
         Task<List<IdentityResource>> GetIdentityResources(CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the role.
-        /// </summary>
-        /// <param name="roleId">The role identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<RoleDetails> GetRole(Guid roleId,
-                                  CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the roles.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken);
-
+        
         /// <summary>
         /// Gets the user by user identifier.
         /// </summary>

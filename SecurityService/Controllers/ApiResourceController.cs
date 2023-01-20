@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SecurityService.BusinessLogic.RequestHandlers;
 
 namespace SecurityService.Controllers
 {
@@ -18,8 +17,10 @@ namespace SecurityService.Controllers
     using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using SecurityService.BusinessLogic;
+    using SecurityService.BusinessLogic.Requests;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
+    using CreateApiResourceRequest = DataTransferObjects.Requests.CreateApiResourceRequest;
 
     /// <summary>
     /// 
@@ -52,7 +53,7 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> CreateApiResource([FromBody] CreateApiResourceRequest createApiResourceRequest,
                                                      CancellationToken cancellationToken)
         {
-            BusinessLogic.RequestHandlers.CreateApiResourceRequest request = BusinessLogic.RequestHandlers.CreateApiResourceRequest.Create(createApiResourceRequest.Name,
+            BusinessLogic.Requests.CreateApiResourceRequest request = BusinessLogic.Requests.CreateApiResourceRequest.Create(createApiResourceRequest.Name,
                 createApiResourceRequest.DisplayName,
                 createApiResourceRequest.Description,
                 createApiResourceRequest.Secret,
@@ -81,7 +82,7 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetApiResource([FromRoute] String apiResourceName,
                                                            CancellationToken cancellationToken)
         {
-            BusinessLogic.RequestHandlers.GetApiResourceRequest request = GetApiResourceRequest.Create(apiResourceName);
+            GetApiResourceRequest request = GetApiResourceRequest.Create(apiResourceName);
 
             ApiResource apiResourceModel = await this.Mediator.Send(request, cancellationToken);
 
@@ -100,7 +101,7 @@ namespace SecurityService.Controllers
         [SwaggerResponseExample(201, typeof(ApiResourceDetailsListResponseExample))]
         public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken)
         {
-            BusinessLogic.RequestHandlers.GetApiResourcesRequest request = GetApiResourcesRequest.Create();
+            GetApiResourcesRequest request = GetApiResourcesRequest.Create();
 
             List<ApiResource> apiResourceList = await this.Mediator.Send(request, cancellationToken);
 

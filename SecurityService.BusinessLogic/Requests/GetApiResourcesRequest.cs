@@ -2,7 +2,7 @@
 using Duende.IdentityServer.Models;
 using MediatR;
 
-namespace SecurityService.BusinessLogic.RequestHandlers;
+namespace SecurityService.BusinessLogic.Requests;
 
 public class GetApiResourcesRequest : IRequest<List<ApiResource>>
 {

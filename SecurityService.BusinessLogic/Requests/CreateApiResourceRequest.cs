@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using MediatR;
 
-namespace SecurityService.BusinessLogic.RequestHandlers;
+namespace SecurityService.BusinessLogic.Requests;
 
 public class CreateApiResourceRequest : IRequest<Unit>
 {
@@ -13,12 +13,12 @@ public class CreateApiResourceRequest : IRequest<Unit>
     public List<string> Scopes { get; }
     public List<string> UserClaims { get; }
 
-    private CreateApiResourceRequest(String name,
-        String displayName,
-        String description,
-        String secret,
-        List<String> scopes,
-        List<String> userClaims)
+    private CreateApiResourceRequest(string name,
+        string displayName,
+        string description,
+        string secret,
+        List<string> scopes,
+        List<string> userClaims)
     {
         Name = name;
         DisplayName = displayName;

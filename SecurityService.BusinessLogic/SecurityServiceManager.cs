@@ -228,31 +228,7 @@
 
             return name;
         }
-
-        public async Task<Guid> CreateRole(String roleName,
-                                           CancellationToken cancellationToken) {
-            Guid roleId = Guid.NewGuid();
-
-            IdentityRole newIdentityRole = new IdentityRole {
-                                                                Id = roleId.ToString(),
-                                                                Name = roleName,
-                                                                NormalizedName = roleName.ToUpper()
-                                                            };
-
-            // Ensure role name is not a duplicate
-            if (await this.RoleManager.RoleExistsAsync(newIdentityRole.Name)) {
-                throw new IdentityResultException($"Role {newIdentityRole.Name} already exists", IdentityResult.Failed());
-            }
-
-            IdentityResult createResult = await this.RoleManager.CreateAsync(newIdentityRole);
-
-            if (!createResult.Succeeded) {
-                throw new IdentityResultException($"Error creating role {newIdentityRole.Name}", createResult);
-            }
-
-            return roleId;
-        }
-
+        
         public async Task<Guid> CreateUser(String givenName,
                                            String middleName,
                                            String familyName,
@@ -435,40 +411,6 @@
             }
 
             return identityResourceModels;
-        }
-
-        public async Task<RoleDetails> GetRole(Guid roleId,
-                                               CancellationToken cancellationToken) {
-            IdentityRole identityRole = await this.RoleManager.FindByIdAsync(roleId.ToString());
-
-            if (identityRole == null) {
-                throw new NotFoundException($"No role found with Id {roleId}");
-            }
-
-            // Role has been found
-            RoleDetails response = new RoleDetails {
-                                                       RoleId = Guid.Parse(identityRole.Id),
-                                                       RoleName = identityRole.Name
-                                                   };
-
-            return response;
-        }
-
-        public async Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken) {
-            List<RoleDetails> response = new List<RoleDetails>();
-
-            IQueryable<IdentityRole> query = this.RoleManager.Roles;
-
-            List<IdentityRole> roles = await query.ToListAsyncSafe(cancellationToken);
-
-            foreach (IdentityRole identityRole in roles) {
-                response.Add(new RoleDetails {
-                                                 RoleId = Guid.Parse(identityRole.Id),
-                                                 RoleName = identityRole.Name
-                                             });
-            }
-
-            return response;
         }
 
         public async Task<UserDetails> GetUser(Guid userId,

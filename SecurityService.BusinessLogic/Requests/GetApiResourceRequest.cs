@@ -2,18 +2,18 @@
 using Duende.IdentityServer.Models;
 using MediatR;
 
-namespace SecurityService.BusinessLogic.RequestHandlers;
+namespace SecurityService.BusinessLogic.Requests;
 
 public class GetApiResourceRequest : IRequest<ApiResource>
 {
-    public String Name { get; }
+    public string Name { get; }
 
-    public GetApiResourceRequest(String name)
+    public GetApiResourceRequest(string name)
     {
         Name = name;
     }
 
-    public static GetApiResourceRequest Create(String name)
+    public static GetApiResourceRequest Create(string name)
     {
         return new GetApiResourceRequest(name);
     }
