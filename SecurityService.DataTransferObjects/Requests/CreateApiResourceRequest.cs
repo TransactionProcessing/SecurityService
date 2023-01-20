@@ -6,9 +6,6 @@
     using Newtonsoft.Json;
 
     [ExcludeFromCodeCoverage]
-    /// <summary>
-    /// 
-    /// </summary>
     public class CreateApiResourceRequest
     {
         #region Properties

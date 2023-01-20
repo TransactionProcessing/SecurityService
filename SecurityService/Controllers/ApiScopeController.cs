@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SecurityService.BusinessLogic.RequestHandlers;
+using SecurityService.BusinessLogic.Requests;
 
 namespace SecurityService.Controllers
 {
@@ -32,7 +33,7 @@ namespace SecurityService.Controllers
 
         public ApiScopeController(IMediator mediator, IModelFactory modelFactory)
         {
-            Mediator = mediator;
+            this.Mediator = mediator;
             this.ModelFactory = modelFactory;
         }
 
@@ -43,7 +44,7 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> CreateApiScope([FromBody] CreateApiScopeRequest createApiScopeRequest,
                                                            CancellationToken cancellationToken)
         {
-            BusinessLogic.RequestHandlers.CreateApiScopeRequest request = BusinessLogic.RequestHandlers.CreateApiScopeRequest.Create(createApiScopeRequest.Name,
+            BusinessLogic.Requests.CreateApiScopeRequest request = BusinessLogic.Requests.CreateApiScopeRequest.Create(createApiScopeRequest.Name,
                 createApiScopeRequest.DisplayName,
                 createApiScopeRequest.Description);
 

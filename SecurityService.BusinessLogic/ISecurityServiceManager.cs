@@ -36,25 +36,6 @@ namespace SecurityService.BusinessLogic
 
 
         /// <summary>
-        /// Creates the API resource.
-        /// </summary>
-        /// <param name="name">The name.</param>
-        /// <param name="displayName">The display name.</param>
-        /// <param name="description">The description.</param>
-        /// <param name="secret">The secret.</param>
-        /// <param name="scopes">The scopes.</param>
-        /// <param name="userClaims">The user claims.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<String> CreateApiResource(String name,
-                                       String displayName,
-                                       String description,
-                                       String secret,
-                                       List<String> scopes,
-                                       List<String> userClaims,
-                                       CancellationToken cancellationToken);
-
-        /// <summary>
         /// Creates the client.
         /// </summary>
         /// <param name="clientId">The client identifier.</param>
@@ -136,23 +117,7 @@ namespace SecurityService.BusinessLogic
                               Dictionary<String, String> claims,
                               List<String> roles,
                               CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the API resource.
-        /// </summary>
-        /// <param name="apiResourceName">Name of the API resource.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<ApiResource> GetApiResource(String apiResourceName,
-                                         CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the API resources.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<List<ApiResource>> GetApiResources(CancellationToken cancellationToken);
-
+        
         /// <summary>
         /// Gets the client.
         /// </summary>

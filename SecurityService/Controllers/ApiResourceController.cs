@@ -2,17 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using SecurityService.BusinessLogic.RequestHandlers;
 
 namespace SecurityService.Controllers
 {
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
+    using Azure.Core;
     using Common.Examples;
     using DataTransferObjects;
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using Duende.IdentityServer.Models;
     using Factories;
+    using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using SecurityService.BusinessLogic;
     using Swashbuckle.AspNetCore.Annotations;
@@ -27,24 +30,12 @@ namespace SecurityService.Controllers
     [ExcludeFromCodeCoverage]
     public class ApiResourceController : ControllerBase
     {
-        /// <summary>
-        /// The manager
-        /// </summary>
-        private readonly ISecurityServiceManager Manager;
-
-        /// <summary>
-        /// The model factory
-        /// </summary>
+        private readonly IMediator Mediator;
         private readonly IModelFactory ModelFactory;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ApiResourceController"/> class.
-        /// </summary>
-        /// <param name="manager">The manager.</param>
-        /// <param name="modelFactory">The model factory.</param>
-        public ApiResourceController(ISecurityServiceManager manager, IModelFactory modelFactory)
+        public ApiResourceController(IMediator mediator, IModelFactory modelFactory)
         {
-            this.Manager = manager;
+            this.Mediator = mediator;
             this.ModelFactory = modelFactory;
         }
 
@@ -61,19 +52,20 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> CreateApiResource([FromBody] CreateApiResourceRequest createApiResourceRequest,
                                                      CancellationToken cancellationToken)
         {
-            String apiResourceName = await this.Manager.CreateApiResource(createApiResourceRequest.Name,
-                                                 createApiResourceRequest.DisplayName,
-                                                 createApiResourceRequest.Description,
-                                                 createApiResourceRequest.Secret,
-                                                 createApiResourceRequest.Scopes,
-                                                 createApiResourceRequest.UserClaims,
-                                                 cancellationToken);
+            BusinessLogic.RequestHandlers.CreateApiResourceRequest request = BusinessLogic.RequestHandlers.CreateApiResourceRequest.Create(createApiResourceRequest.Name,
+                createApiResourceRequest.DisplayName,
+                createApiResourceRequest.Description,
+                createApiResourceRequest.Secret,
+                createApiResourceRequest.Scopes,
+                createApiResourceRequest.UserClaims);
 
+            await this.Mediator.Send(request, cancellationToken);
+            
             // return the result
-            return this.Created($"{ApiResourceController.ControllerRoute}/{apiResourceName}", new CreateApiResourceResponse
+            return this.Created($"{ApiResourceController.ControllerRoute}/{createApiResourceRequest.Name}", new CreateApiResourceResponse
                                                                                   {
-                                                                                      ApiResourceName = apiResourceName
-                                                                                  });
+                                                                                      ApiResourceName = createApiResourceRequest.Name
+            });
         }
 
         /// <summary>
@@ -89,7 +81,9 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetApiResource([FromRoute] String apiResourceName,
                                                            CancellationToken cancellationToken)
         {
-            ApiResource apiResourceModel = await this.Manager.GetApiResource(apiResourceName,cancellationToken);
+            BusinessLogic.RequestHandlers.GetApiResourceRequest request = GetApiResourceRequest.Create(apiResourceName);
+
+            ApiResource apiResourceModel = await this.Mediator.Send(request, cancellationToken);
 
             // return the result
             return this.Ok(this.ModelFactory.ConvertFrom(apiResourceModel));
@@ -106,7 +100,9 @@ namespace SecurityService.Controllers
         [SwaggerResponseExample(201, typeof(ApiResourceDetailsListResponseExample))]
         public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken)
         {
-            List<ApiResource> apiResourceList = await this.Manager.GetApiResources(cancellationToken);
+            BusinessLogic.RequestHandlers.GetApiResourcesRequest request = GetApiResourcesRequest.Create();
+
+            List<ApiResource> apiResourceList = await this.Mediator.Send(request, cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(apiResourceList));
         }

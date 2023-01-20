@@ -148,38 +148,6 @@
 
             return result.Succeeded;
         }
-
-        public async Task<String> CreateApiResource(String name,
-                                                    String displayName,
-                                                    String description,
-                                                    String secret,
-                                                    List<String> scopes,
-                                                    List<String> userClaims,
-                                                    CancellationToken cancellationToken) {
-            ApiResource apiResource = new ApiResource {
-                                                          ApiSecrets = new List<Secret> {
-                                                                                            new Secret(secret.ToSha256())
-                                                                                        },
-                                                          Description = description,
-                                                          DisplayName = displayName,
-                                                          Name = name,
-                                                          UserClaims = userClaims
-                                                      };
-
-            if (scopes != null && scopes.Any()) {
-                foreach (String scope in scopes) {
-                    apiResource.Scopes.Add(scope);
-                }
-            }
-
-            // Now translate the model to the entity
-            await this.ConfigurationDbContext.ApiResources.AddAsync(apiResource.ToEntity(), cancellationToken);
-
-            // Save the changes
-            await this.ConfigurationDbContext.SaveChangesAsync();
-
-            return name;
-        }
         
         public async Task<String> CreateClient(String clientId,
                                                String secret,
@@ -401,40 +369,6 @@
             }
 
             return userId;
-        }
-
-        public async Task<ApiResource> GetApiResource(String apiResourceName,
-                                                      CancellationToken cancellationToken) {
-            ApiResource apiResourceModel = null;
-
-            Duende.IdentityServer.EntityFramework.Entities.ApiResource apiResourceEntity = await this.ConfigurationDbContext.ApiResources
-                                                                                                     .Where(a => a.Name == apiResourceName).Include(a => a.Scopes)
-                                                                                                     .Include(a => a.UserClaims)
-                                                                                                     .SingleOrDefaultAsync(cancellationToken:cancellationToken);
-
-            if (apiResourceEntity == null) {
-                throw new NotFoundException($"No Api Resource found with Name [{apiResourceName}]");
-            }
-
-            apiResourceModel = apiResourceEntity.ToModel();
-
-            return apiResourceModel;
-        }
-
-        public async Task<List<ApiResource>> GetApiResources(CancellationToken cancellationToken) {
-            List<ApiResource> apiResourceModels = new List<ApiResource>();
-
-            List<Duende.IdentityServer.EntityFramework.Entities.ApiResource> apiResourceEntities = await this.ConfigurationDbContext.ApiResources.Include(a => a.Scopes)
-                                                                                                             .Include(a => a.UserClaims)
-                                                                                                             .ToListAsync(cancellationToken:cancellationToken);
-
-            if (apiResourceEntities.Any()) {
-                foreach (Duende.IdentityServer.EntityFramework.Entities.ApiResource apiResourceEntity in apiResourceEntities) {
-                    apiResourceModels.Add(apiResourceEntity.ToModel());
-                }
-            }
-
-            return apiResourceModels;
         }
         
         public async Task<Client> GetClient(String clientId,

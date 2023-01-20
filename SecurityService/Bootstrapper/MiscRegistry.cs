@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using Duende.IdentityServer.Models;
-using MediatR;
-using SecurityService.BusinessLogic.RequestHandlers;
-
-namespace SecurityService.Bootstrapper
+﻿namespace SecurityService.Bootstrapper
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -39,24 +34,5 @@ namespace SecurityService.Bootstrapper
         }
 
         #endregion
-    }
-
-    [ExcludeFromCodeCoverage]
-    public class MediatorRegistry : ServiceRegistry
-    {
-        public MediatorRegistry()
-        {
-            this.AddTransient<IMediator, Mediator>();
-
-            // request & notification handlers
-            this.AddTransient<ServiceFactory>(context =>
-            {
-                return t => context.GetService(t);
-            });
-
-            this.AddSingleton<IRequestHandler<GetApiScopeRequest, ApiScope>, ApiScopeRequestHandler>();
-            this.AddSingleton<IRequestHandler<GetApiScopesRequest, List<ApiScope>>, ApiScopeRequestHandler>();
-            this.AddSingleton<IRequestHandler<CreateApiScopeRequest, Unit>, ApiScopeRequestHandler>();
-        }
     }
 }
