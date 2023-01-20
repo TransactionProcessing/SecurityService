@@ -149,63 +149,6 @@
             return result.Succeeded;
         }
         
-        public async Task<String> CreateClient(String clientId,
-                                               String secret,
-                                               String clientName,
-                                               String clientDescription,
-                                               List<String> allowedScopes,
-                                               List<String> allowedGrantTypes,
-                                               String clientUri,
-                                               List<String> clientRedirectUris,
-                                               List<String> clientPostLogoutRedirectUris,
-                                               Boolean requireConsent,
-                                               Boolean allowOfflineAccess,
-                                               CancellationToken cancellationToken) {
-            // Validate the grant types list
-            this.ValidateGrantTypes(allowedGrantTypes);
-
-            // Create the model from the request
-            Client client = new Client {
-                                           ClientId = clientId,
-                                           ClientName = clientName,
-                                           Description = clientDescription,
-                                           ClientSecrets = {
-                                                               new Secret(secret.ToSha256())
-                                                           },
-                                           AllowedGrantTypes = allowedGrantTypes,
-                                           AllowedScopes = allowedScopes,
-                                           RequireConsent = requireConsent,
-                                           AllowOfflineAccess = allowOfflineAccess,
-                                           ClientUri = clientUri
-                                       };
-
-            if (allowedGrantTypes.Contains("hybrid")) {
-                client.RequirePkce = false;
-            }
-
-            if (clientRedirectUris != null && clientRedirectUris.Any()) {
-                client.RedirectUris = new List<String>();
-                foreach (String clientRedirectUri in clientRedirectUris) {
-                    client.RedirectUris.Add(clientRedirectUri);
-                }
-            }
-
-            if (clientPostLogoutRedirectUris != null && clientPostLogoutRedirectUris.Any()) {
-                client.PostLogoutRedirectUris = new List<String>();
-                foreach (String clientPostLogoutRedirectUri in clientPostLogoutRedirectUris) {
-                    client.PostLogoutRedirectUris.Add(clientPostLogoutRedirectUri);
-                }
-            }
-
-            // Now translate the model to the entity
-            await this.ConfigurationDbContext.Clients.AddAsync(client.ToEntity(), cancellationToken);
-
-            // Save the changes
-            await this.ConfigurationDbContext.SaveChangesAsync();
-
-            return clientId;
-        }
-
         public async Task<String> CreateIdentityResource(String name,
                                                          String displayName,
                                                          String description,
@@ -347,38 +290,6 @@
             return userId;
         }
         
-        public async Task<Client> GetClient(String clientId,
-                                            CancellationToken cancellationToken) {
-            Client clientModel = null;
-
-            Duende.IdentityServer.EntityFramework.Entities.Client clientEntity = await this.ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes)
-                                                                                           .Include(c => c.AllowedScopes).Where(c => c.ClientId == clientId)
-                                                                                           .SingleOrDefaultAsync(cancellationToken:cancellationToken);
-
-            if (clientEntity == null) {
-                throw new NotFoundException($"No client found with Client Id [{clientId}]");
-            }
-
-            clientModel = clientEntity.ToModel();
-
-            return clientModel;
-        }
-
-        public async Task<List<Client>> GetClients(CancellationToken cancellationToken) {
-            List<Client> clientModels = new List<Client>();
-
-            List<Duende.IdentityServer.EntityFramework.Entities.Client> clientEntities = await this.ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes)
-                                                                                                   .Include(c => c.AllowedScopes)
-                                                                                                   .ToListAsync(cancellationToken:cancellationToken);
-
-            if (clientEntities.Any()) {
-                foreach (Duende.IdentityServer.EntityFramework.Entities.Client clientEntity in clientEntities) {
-                    clientModels.Add(clientEntity.ToModel());
-                }
-            }
-
-            return clientModels;
-        }
 
         public async Task<IdentityResource> GetIdentityResource(String identityResourceName,
                                                                 CancellationToken cancellationToken) {

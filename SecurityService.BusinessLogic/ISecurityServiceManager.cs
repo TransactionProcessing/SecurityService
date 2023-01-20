@@ -34,35 +34,7 @@ namespace SecurityService.BusinessLogic
                                               String clientId,
                                          CancellationToken cancellationToken);
 
-
-        /// <summary>
-        /// Creates the client.
-        /// </summary>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="secret">The secret.</param>
-        /// <param name="clientName">Name of the client.</param>
-        /// <param name="clientDescription">The client description.</param>
-        /// <param name="allowedScopes">The allowed scopes.</param>
-        /// <param name="allowedGrantTypes">The allowed grant types.</param>
-        /// <param name="clientRedirectUris">The client redirect uris.</param>
-        /// <param name="clientPostLogoutRedirectUris">The client post logout redirect uris.</param>
-        /// <param name="requireConsent">if set to <c>true</c> [require consent].</param>
-        /// <param name="allowOfflineAccess">if set to <c>true</c> [allow offline access].</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<String> CreateClient(String clientId,
-                                  String secret,
-                                  String clientName,
-                                  String clientDescription,
-                                  List<String> allowedScopes,
-                                  List<String> allowedGrantTypes,
-                                  String clientUri,
-                                  List<String> clientRedirectUris,
-                                  List<String> clientPostLogoutRedirectUris,
-                                  Boolean requireConsent,
-                                  Boolean allowOfflineAccess,
-                                  CancellationToken cancellationToken);
-
+        
         /// <summary>
         /// Creates the identity resource.
         /// </summary>
@@ -110,22 +82,6 @@ namespace SecurityService.BusinessLogic
                               List<String> roles,
                               CancellationToken cancellationToken);
         
-        /// <summary>
-        /// Gets the client.
-        /// </summary>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<Client> GetClient(String clientId,
-                               CancellationToken cancellationToken);
-
-        /// <summary>
-        /// Gets the clients.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        Task<List<Client>> GetClients(CancellationToken cancellationToken);
-
         /// <summary>
         /// Gets the identity resource.
         /// </summary>

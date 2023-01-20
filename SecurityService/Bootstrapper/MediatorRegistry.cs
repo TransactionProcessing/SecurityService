@@ -8,6 +8,7 @@ using Duende.IdentityServer.Models;
 using Lamar;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Models;
 
 [ExcludeFromCodeCoverage]
 public class MediatorRegistry : ServiceRegistry
@@ -17,10 +18,7 @@ public class MediatorRegistry : ServiceRegistry
         this.AddTransient<IMediator, Mediator>();
 
         // request & notification handlers
-        this.AddTransient<ServiceFactory>(context =>
-                                          {
-                                              return t => context.GetService(t);
-                                          });
+        this.AddTransient<ServiceFactory>(context => context.GetService);
 
         this.AddSingleton<IRequestHandler<GetApiScopeRequest, ApiScope>, ApiScopeRequestHandler>();
         this.AddSingleton<IRequestHandler<GetApiScopesRequest, List<ApiScope>>, ApiScopeRequestHandler>();
@@ -29,5 +27,13 @@ public class MediatorRegistry : ServiceRegistry
         this.AddSingleton<IRequestHandler<GetApiResourceRequest, ApiResource>, ApiResourceRequestHandler>();
         this.AddSingleton<IRequestHandler<GetApiResourcesRequest, List<ApiResource>>, ApiResourceRequestHandler>();
         this.AddSingleton<IRequestHandler<CreateApiResourceRequest, Unit>, ApiResourceRequestHandler>();
+
+        this.AddSingleton<IRequestHandler<GetRoleRequest, RoleDetails>, RoleRequestHandler>();
+        this.AddSingleton<IRequestHandler<GetRolesRequest, List<RoleDetails>>, RoleRequestHandler>();
+        this.AddSingleton<IRequestHandler<CreateRoleRequest>, RoleRequestHandler>();
+
+        this.AddSingleton<IRequestHandler<GetClientRequest, Client>, ClientRequestHandler>();
+        this.AddSingleton<IRequestHandler<GetClientsRequest, List<Client>>, ClientRequestHandler>();
+        this.AddSingleton<IRequestHandler<CreateClientRequest, Unit>, ClientRequestHandler>();
     }
 }

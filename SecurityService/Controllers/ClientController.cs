@@ -5,16 +5,19 @@
     using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
+    using Azure.Core;
     using BusinessLogic;
+    using BusinessLogic.Requests;
     using Common.Examples;
     using DataTransferObjects;
-    using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using Duende.IdentityServer.Models;
     using Factories;
+    using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
+    using CreateClientRequest = DataTransferObjects.Requests.CreateClientRequest;
 
     /// <summary>
     /// 
@@ -32,6 +35,8 @@
         /// </summary>
         private readonly ISecurityServiceManager Manager;
 
+        private readonly IMediator Mediator;
+
         /// <summary>
         /// The model factory
         /// </summary>
@@ -46,9 +51,9 @@
         /// </summary>
         /// <param name="manager">The manager.</param>
         /// <param name="modelFactory">The model factory.</param>
-        public ClientController(ISecurityServiceManager manager, IModelFactory modelFactory)
+        public ClientController(IMediator mediator, IModelFactory modelFactory)
         {
-            this.Manager = manager;
+            this.Mediator = mediator;
             this.ModelFactory = modelFactory;
         }
 
@@ -68,25 +73,26 @@
         [SwaggerResponseExample(201, typeof(CreateClientResponseExample))]
         public async Task<IActionResult> CreateClient([FromBody] CreateClientRequest createClientRequest, CancellationToken cancellationToken)
         {
+            BusinessLogic.Requests.CreateClientRequest request = BusinessLogic.Requests.CreateClientRequest.Create(createClientRequest.ClientId,
+                                                                                                                   createClientRequest.Secret,
+                                                                                                                   createClientRequest.ClientName,
+                                                                                                                   createClientRequest.ClientDescription,
+                                                                                                                   createClientRequest.AllowedScopes,
+                                                                                                                   createClientRequest.AllowedGrantTypes,
+                                                                                                                   createClientRequest.ClientUri,
+                                                                                                                   createClientRequest.ClientRedirectUris,
+                                                                                                                   createClientRequest.ClientPostLogoutRedirectUris,
+                                                                                                                   createClientRequest.RequireConsent,
+                                                                                                                   createClientRequest.AllowOfflineAccess);
+            
             // Create the client
-            String clientId = await this.Manager.CreateClient(createClientRequest.ClientId,
-                                                              createClientRequest.Secret,
-                                                              createClientRequest.ClientName,
-                                                              createClientRequest.ClientDescription,
-                                                              createClientRequest.AllowedScopes,
-                                                              createClientRequest.AllowedGrantTypes,
-                                                              createClientRequest.ClientUri,
-                                                              createClientRequest.ClientRedirectUris,
-                                                              createClientRequest.ClientPostLogoutRedirectUris,
-                                                              createClientRequest.RequireConsent,
-                                                              createClientRequest.AllowOfflineAccess,
-                                                              cancellationToken);
+            await this.Mediator.Send(request, cancellationToken);
 
             // return the result
-            return this.Created($"{ClientController.ControllerRoute}/{clientId}",
+            return this.Created($"{ClientController.ControllerRoute}/{createClientRequest.ClientId}",
                                 new CreateClientResponse
                                 {
-                                    ClientId = clientId
+                                    ClientId = createClientRequest.ClientId
                                 });
         }
 
@@ -103,7 +109,9 @@
         public async Task<IActionResult> GetClient([FromRoute] String clientId,
                                                  CancellationToken cancellationToken)
         {
-            Client clientModel = await this.Manager.GetClient(clientId, cancellationToken);
+            GetClientRequest request = GetClientRequest.Create(clientId);
+
+            Client clientModel = await this.Mediator.Send(request, cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(clientModel));
         }
@@ -119,7 +127,9 @@
         [SwaggerResponseExample(200, typeof(ClientDetailsListResponseExample))]
         public async Task<IActionResult> GetClients(CancellationToken cancellationToken)
         {
-            List<Client> clientList = await this.Manager.GetClients(cancellationToken);
+            GetClientsRequest request = GetClientsRequest.Create();
+
+            List<Client> clientList = await this.Mediator.Send(request, cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(clientList));
         }
