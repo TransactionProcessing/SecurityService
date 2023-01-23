@@ -26,11 +26,6 @@ namespace SecurityService.Controllers
     {
         #region Fields
 
-        /// <summary>
-        /// The manager
-        /// </summary>
-        private readonly ISecurityServiceManager Manager;
-
         private readonly IMediator Mediator;
 
         private readonly IModelFactory ModelFactory;

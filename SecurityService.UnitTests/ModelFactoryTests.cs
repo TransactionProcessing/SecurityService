@@ -24,22 +24,22 @@
                                            {
                                                Scopes = new List<String>
                                                         {
-                                                            SecurityServiceManagerTestData.AllowedScopes.First()
+                                                            TestData.AllowedScopes.First()
                                                         },
-                                               Description = SecurityServiceManagerTestData.ApiResourceDescription,
-                                               Name = SecurityServiceManagerTestData.ApiResourceName,
-                                               DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
-                                               UserClaims = SecurityServiceManagerTestData.ApiResourceUserClaims,
+                                               Description = TestData.ApiResourceDescription,
+                                               Name = TestData.ApiResourceName,
+                                               DisplayName = TestData.ApiResourceDisplayName,
+                                               UserClaims = TestData.ApiResourceUserClaims,
                                                Enabled = true
                                            };
 
             ApiResourceDetails apiResourceDto = modelFactory.ConvertFrom(apiResourceModel);
 
-            apiResourceDto.Scopes.First().ShouldBe(SecurityServiceManagerTestData.AllowedScopes.First());
-            apiResourceDto.Description.ShouldBe(SecurityServiceManagerTestData.ApiResourceDescription);
-            apiResourceDto.DisplayName.ShouldBe(SecurityServiceManagerTestData.ApiResourceDisplayName);
-            apiResourceDto.Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
-            apiResourceDto.UserClaims.ShouldBe(SecurityServiceManagerTestData.ApiResourceUserClaims);
+            apiResourceDto.Scopes.First().ShouldBe(TestData.AllowedScopes.First());
+            apiResourceDto.Description.ShouldBe(TestData.ApiResourceDescription);
+            apiResourceDto.DisplayName.ShouldBe(TestData.ApiResourceDisplayName);
+            apiResourceDto.Name.ShouldBe(TestData.ApiResourceName);
+            apiResourceDto.UserClaims.ShouldBe(TestData.ApiResourceUserClaims);
             apiResourceDto.Enabled.ShouldBeTrue();
         }
 
@@ -62,17 +62,17 @@
 
             ApiScope apiScopeModel = new ApiScope
             {
-                Description = SecurityServiceManagerTestData.ApiScopeDescription,
-                Name = SecurityServiceManagerTestData.ApiScopeName,
-                DisplayName = SecurityServiceManagerTestData.ApiScopeDisplayName,
+                Description = TestData.ApiScopeDescription,
+                Name = TestData.ApiScopeName,
+                DisplayName = TestData.ApiScopeDisplayName,
                 Enabled = true
             };
 
             ApiScopeDetails apiScopeDto = modelFactory.ConvertFrom(apiScopeModel);
 
-            apiScopeDto.Description.ShouldBe(SecurityServiceManagerTestData.ApiScopeDescription);
-            apiScopeDto.DisplayName.ShouldBe(SecurityServiceManagerTestData.ApiScopeDisplayName);
-            apiScopeDto.Name.ShouldBe(SecurityServiceManagerTestData.ApiScopeName);
+            apiScopeDto.Description.ShouldBe(TestData.ApiScopeDescription);
+            apiScopeDto.DisplayName.ShouldBe(TestData.ApiScopeDisplayName);
+            apiScopeDto.Name.ShouldBe(TestData.ApiScopeName);
             apiScopeDto.Enabled.ShouldBeTrue();
         }
 
@@ -121,12 +121,12 @@
                                            {
                                                Scopes = new List<String>
                                                         {
-                                                            SecurityServiceManagerTestData.AllowedScopes.First()
+                                                            TestData.AllowedScopes.First()
                                                         },
-                                               Description = SecurityServiceManagerTestData.ApiResourceDescription,
-                                               Name = SecurityServiceManagerTestData.ApiResourceName,
-                                               DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
-                                               UserClaims = SecurityServiceManagerTestData.ApiResourceUserClaims,
+                                               Description = TestData.ApiResourceDescription,
+                                               Name = TestData.ApiResourceName,
+                                               DisplayName = TestData.ApiResourceDisplayName,
+                                               UserClaims = TestData.ApiResourceUserClaims,
                                                Enabled = true
                                            };
 
@@ -138,11 +138,11 @@
             apiResourceDtoList.ShouldNotBeNull();
             apiResourceDtoList.ShouldNotBeEmpty();
             apiResourceDtoList.Count.ShouldBe(apiResourceModelList.Count);
-            apiResourceDtoList.First().Scopes.First().ShouldBe(SecurityServiceManagerTestData.AllowedScopes.First());
-            apiResourceDtoList.First().Description.ShouldBe(SecurityServiceManagerTestData.ApiResourceDescription);
-            apiResourceDtoList.First().DisplayName.ShouldBe(SecurityServiceManagerTestData.ApiResourceDisplayName);
-            apiResourceDtoList.First().Name.ShouldBe(SecurityServiceManagerTestData.ApiResourceName);
-            apiResourceDtoList.First().UserClaims.ShouldBe(SecurityServiceManagerTestData.ApiResourceUserClaims);
+            apiResourceDtoList.First().Scopes.First().ShouldBe(TestData.AllowedScopes.First());
+            apiResourceDtoList.First().Description.ShouldBe(TestData.ApiResourceDescription);
+            apiResourceDtoList.First().DisplayName.ShouldBe(TestData.ApiResourceDisplayName);
+            apiResourceDtoList.First().Name.ShouldBe(TestData.ApiResourceName);
+            apiResourceDtoList.First().UserClaims.ShouldBe(TestData.ApiResourceUserClaims);
             apiResourceDtoList.First().Enabled.ShouldBeTrue();
         }
 
@@ -177,9 +177,9 @@
 
             ApiScope apiScopeModel = new ApiScope
             {
-                Description = SecurityServiceManagerTestData.ApiScopeDescription,
-                Name = SecurityServiceManagerTestData.ApiScopeName,
-                DisplayName = SecurityServiceManagerTestData.ApiResourceDisplayName,
+                Description = TestData.ApiScopeDescription,
+                Name = TestData.ApiScopeName,
+                DisplayName = TestData.ApiResourceDisplayName,
                 Enabled = true
             };
 
@@ -191,9 +191,9 @@
             apiScopeDtoList.ShouldNotBeNull();
             apiScopeDtoList.ShouldNotBeEmpty();
             apiScopeDtoList.Count.ShouldBe(apiScopeModelList.Count);
-            apiScopeDtoList.First().Description.ShouldBe(SecurityServiceManagerTestData.ApiScopeDescription);
-            apiScopeDtoList.First().DisplayName.ShouldBe(SecurityServiceManagerTestData.ApiResourceDisplayName);
-            apiScopeDtoList.First().Name.ShouldBe(SecurityServiceManagerTestData.ApiScopeName);
+            apiScopeDtoList.First().Description.ShouldBe(TestData.ApiScopeDescription);
+            apiScopeDtoList.First().DisplayName.ShouldBe(TestData.ApiResourceDisplayName);
+            apiScopeDtoList.First().Name.ShouldBe(TestData.ApiScopeName);
             apiScopeDtoList.First().Enabled.ShouldBeTrue();
         }
 
@@ -204,21 +204,21 @@
 
             Client clientModel = new Client
                                  {
-                                     ClientId = SecurityServiceManagerTestData.ClientId,
-                                     ClientName = SecurityServiceManagerTestData.ClientName,
-                                     Description = SecurityServiceManagerTestData.ClientDescription,
-                                     AllowedGrantTypes = SecurityServiceManagerTestData.AllowedGrantTypes,
-                                     AllowedScopes = SecurityServiceManagerTestData.AllowedScopes,
+                                     ClientId = TestData.ClientId,
+                                     ClientName = TestData.ClientName,
+                                     Description = TestData.ClientDescription,
+                                     AllowedGrantTypes = TestData.AllowedGrantTypes,
+                                     AllowedScopes = TestData.AllowedScopes,
                                      Enabled = true
                                  };
 
             ClientDetails clientDto = modelFactory.ConvertFrom(clientModel);
 
-            clientDto.AllowedGrantTypes.ShouldBe(SecurityServiceManagerTestData.AllowedGrantTypes);
-            clientDto.AllowedScopes.ShouldBe(SecurityServiceManagerTestData.AllowedScopes);
-            clientDto.ClientDescription.ShouldBe(SecurityServiceManagerTestData.ClientDescription);
-            clientDto.ClientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
-            clientDto.ClientName.ShouldBe(SecurityServiceManagerTestData.ClientName);
+            clientDto.AllowedGrantTypes.ShouldBe(TestData.AllowedGrantTypes);
+            clientDto.AllowedScopes.ShouldBe(TestData.AllowedScopes);
+            clientDto.ClientDescription.ShouldBe(TestData.ClientDescription);
+            clientDto.ClientId.ShouldBe(TestData.ClientId);
+            clientDto.ClientName.ShouldBe(TestData.ClientName);
             clientDto.Enabled.ShouldBeTrue();
         }
 
@@ -265,11 +265,11 @@
 
             Client clientModel = new Client
                                  {
-                                     ClientId = SecurityServiceManagerTestData.ClientId,
-                                     ClientName = SecurityServiceManagerTestData.ClientName,
-                                     Description = SecurityServiceManagerTestData.ClientDescription,
-                                     AllowedGrantTypes = SecurityServiceManagerTestData.AllowedGrantTypes,
-                                     AllowedScopes = SecurityServiceManagerTestData.AllowedScopes,
+                                     ClientId = TestData.ClientId,
+                                     ClientName = TestData.ClientName,
+                                     Description = TestData.ClientDescription,
+                                     AllowedGrantTypes = TestData.AllowedGrantTypes,
+                                     AllowedScopes = TestData.AllowedScopes,
                                      Enabled = true
                                  };
             List<Client> clientModelList = new List<Client>();
@@ -280,11 +280,11 @@
             clientDtoList.ShouldNotBeNull();
             clientDtoList.ShouldNotBeEmpty();
             clientDtoList.Count.ShouldBe(clientModelList.Count);
-            clientDtoList.First().AllowedGrantTypes.ShouldBe(SecurityServiceManagerTestData.AllowedGrantTypes);
-            clientDtoList.First().AllowedScopes.ShouldBe(SecurityServiceManagerTestData.AllowedScopes);
-            clientDtoList.First().ClientDescription.ShouldBe(SecurityServiceManagerTestData.ClientDescription);
-            clientDtoList.First().ClientId.ShouldBe(SecurityServiceManagerTestData.ClientId);
-            clientDtoList.First().ClientName.ShouldBe(SecurityServiceManagerTestData.ClientName);
+            clientDtoList.First().AllowedGrantTypes.ShouldBe(TestData.AllowedGrantTypes);
+            clientDtoList.First().AllowedScopes.ShouldBe(TestData.AllowedScopes);
+            clientDtoList.First().ClientDescription.ShouldBe(TestData.ClientDescription);
+            clientDtoList.First().ClientId.ShouldBe(TestData.ClientId);
+            clientDtoList.First().ClientName.ShouldBe(TestData.ClientName);
             clientDtoList.First().Enabled.ShouldBeTrue();
         }
 
@@ -295,9 +295,9 @@
 
             IdentityResource identityResourceModel = new IdentityResource
                                                      {
-                                                         Description = SecurityServiceManagerTestData.IdentityResourceDescription,
-                                                         DisplayName = SecurityServiceManagerTestData.IdentityResourceDisplayName,
-                                                         UserClaims = SecurityServiceManagerTestData.IdentityResourceUserClaims,
+                                                         Description = TestData.IdentityResourceDescription,
+                                                         DisplayName = TestData.IdentityResourceDisplayName,
+                                                         UserClaims = TestData.IdentityResourceUserClaims,
                                                          Emphasize = true,
                                                          ShowInDiscoveryDocument = true,
                                                          Required = true
@@ -305,9 +305,9 @@
 
             IdentityResourceDetails identityResourceDto = modelFactory.ConvertFrom(identityResourceModel);
 
-            identityResourceDto.Description.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDescription);
-            identityResourceDto.DisplayName.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDisplayName);
-            identityResourceDto.Claims.ShouldBe(SecurityServiceManagerTestData.IdentityResourceUserClaims);
+            identityResourceDto.Description.ShouldBe(TestData.IdentityResourceDescription);
+            identityResourceDto.DisplayName.ShouldBe(TestData.IdentityResourceDisplayName);
+            identityResourceDto.Claims.ShouldBe(TestData.IdentityResourceUserClaims);
             identityResourceDto.Emphasize.ShouldBeTrue();
             identityResourceDto.ShowInDiscoveryDocument.ShouldBeTrue();
             identityResourceDto.Required.ShouldBeTrue();
@@ -344,9 +344,9 @@
 
             IdentityResource identityResourceModel = new IdentityResource
                                                      {
-                                                         Description = SecurityServiceManagerTestData.IdentityResourceDescription,
-                                                         DisplayName = SecurityServiceManagerTestData.IdentityResourceDisplayName,
-                                                         UserClaims = SecurityServiceManagerTestData.IdentityResourceUserClaims,
+                                                         Description = TestData.IdentityResourceDescription,
+                                                         DisplayName = TestData.IdentityResourceDisplayName,
+                                                         UserClaims = TestData.IdentityResourceUserClaims,
                                                          Emphasize = true,
                                                          ShowInDiscoveryDocument = true,
                                                          Required = true
@@ -360,9 +360,9 @@
             identityResourceDtoList.ShouldNotBeNull();
             identityResourceDtoList.ShouldNotBeEmpty();
             identityResourceDtoList.Count.ShouldBe(identityResourceModelList.Count);
-            identityResourceDtoList.First().Description.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDescription);
-            identityResourceDtoList.First().DisplayName.ShouldBe(SecurityServiceManagerTestData.IdentityResourceDisplayName);
-            identityResourceDtoList.First().Claims.ShouldBe(SecurityServiceManagerTestData.IdentityResourceUserClaims);
+            identityResourceDtoList.First().Description.ShouldBe(TestData.IdentityResourceDescription);
+            identityResourceDtoList.First().DisplayName.ShouldBe(TestData.IdentityResourceDisplayName);
+            identityResourceDtoList.First().Claims.ShouldBe(TestData.IdentityResourceUserClaims);
             identityResourceDtoList.First().Emphasize.ShouldBeTrue();
             identityResourceDtoList.First().ShowInDiscoveryDocument.ShouldBeTrue();
             identityResourceDtoList.First().Required.ShouldBeTrue();
@@ -399,8 +399,8 @@
 
             RoleDetails roleDetailsModel = new RoleDetails
                                            {
-                                               RoleId = Guid.Parse(SecurityServiceManagerTestData.Role1Id),
-                                               RoleName = SecurityServiceManagerTestData.RoleName
+                                               RoleId = Guid.Parse(TestData.Role1Id),
+                                               RoleName = TestData.RoleName
                                            };
             List<RoleDetails> roleDetailsModelList = new List<RoleDetails>();
             roleDetailsModelList.Add(roleDetailsModel);
@@ -410,8 +410,8 @@
             rolesDetailsDtoList.ShouldNotBeNull();
             rolesDetailsDtoList.ShouldNotBeEmpty();
             rolesDetailsDtoList.Count.ShouldBe(roleDetailsModelList.Count);
-            rolesDetailsDtoList.First().RoleId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.Role1Id));
-            rolesDetailsDtoList.First().RoleName.ShouldBe(SecurityServiceManagerTestData.RoleName);
+            rolesDetailsDtoList.First().RoleId.ShouldBe(Guid.Parse(TestData.Role1Id));
+            rolesDetailsDtoList.First().RoleName.ShouldBe(TestData.RoleName);
         }
 
         [Fact]
@@ -445,12 +445,12 @@
 
             UserDetails userDetailsModel = new UserDetails
                                            {
-                                               PhoneNumber = SecurityServiceManagerTestData.PhoneNumber,
-                                               Username = SecurityServiceManagerTestData.UserName,
-                                               Roles = SecurityServiceManagerTestData.Roles,
-                                               UserId = Guid.Parse(SecurityServiceManagerTestData.User1Id),
-                                               Email = SecurityServiceManagerTestData.EmailAddress,
-                                               Claims = SecurityServiceManagerTestData.Claims
+                                               PhoneNumber = TestData.PhoneNumber,
+                                               Username = TestData.UserName,
+                                               Roles = TestData.Roles,
+                                               UserId = Guid.Parse(TestData.User1Id),
+                                               Email = TestData.EmailAddress,
+                                               Claims = TestData.Claims
                                            };
             List<UserDetails> userDetailsModelList = new List<UserDetails>();
             userDetailsModelList.Add(userDetailsModel);
@@ -460,12 +460,12 @@
             userDetailsDtoList.ShouldNotBeNull();
             userDetailsDtoList.ShouldNotBeEmpty();
             userDetailsDtoList.Count.ShouldBe(userDetailsModelList.Count);
-            userDetailsDtoList.First().UserName.ShouldBe(SecurityServiceManagerTestData.UserName);
-            userDetailsDtoList.First().EmailAddress.ShouldBe(SecurityServiceManagerTestData.EmailAddress);
-            userDetailsDtoList.First().PhoneNumber.ShouldBe(SecurityServiceManagerTestData.PhoneNumber);
-            userDetailsDtoList.First().UserId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.User1Id));
-            userDetailsDtoList.First().Claims.ShouldBe(SecurityServiceManagerTestData.Claims);
-            userDetailsDtoList.First().Roles.ShouldBe(SecurityServiceManagerTestData.Roles);
+            userDetailsDtoList.First().UserName.ShouldBe(TestData.UserName);
+            userDetailsDtoList.First().EmailAddress.ShouldBe(TestData.EmailAddress);
+            userDetailsDtoList.First().PhoneNumber.ShouldBe(TestData.PhoneNumber);
+            userDetailsDtoList.First().UserId.ShouldBe(Guid.Parse(TestData.User1Id));
+            userDetailsDtoList.First().Claims.ShouldBe(TestData.Claims);
+            userDetailsDtoList.First().Roles.ShouldBe(TestData.Roles);
         }
 
         [Fact]
@@ -475,14 +475,14 @@
 
             RoleDetails roleDetailsModel = new RoleDetails
                                            {
-                                               RoleId = Guid.Parse(SecurityServiceManagerTestData.Role1Id),
-                                               RoleName = SecurityServiceManagerTestData.RoleName
+                                               RoleId = Guid.Parse(TestData.Role1Id),
+                                               RoleName = TestData.RoleName
                                            };
 
             DataTransferObjects.Responses.RoleDetails roleDetailsDto = modelFactory.ConvertFrom(roleDetailsModel);
 
-            roleDetailsDto.RoleId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.Role1Id));
-            roleDetailsDto.RoleName.ShouldBe(SecurityServiceManagerTestData.RoleName);
+            roleDetailsDto.RoleId.ShouldBe(Guid.Parse(TestData.Role1Id));
+            roleDetailsDto.RoleName.ShouldBe(TestData.RoleName);
         }
 
         [Fact]
@@ -504,22 +504,22 @@
 
             UserDetails userDetailsModel = new UserDetails
                                            {
-                                               PhoneNumber = SecurityServiceManagerTestData.PhoneNumber,
-                                               Username = SecurityServiceManagerTestData.UserName,
-                                               Roles = SecurityServiceManagerTestData.Roles,
-                                               UserId = Guid.Parse(SecurityServiceManagerTestData.User1Id),
-                                               Email = SecurityServiceManagerTestData.EmailAddress,
-                                               Claims = SecurityServiceManagerTestData.Claims
+                                               PhoneNumber = TestData.PhoneNumber,
+                                               Username = TestData.UserName,
+                                               Roles = TestData.Roles,
+                                               UserId = Guid.Parse(TestData.User1Id),
+                                               Email = TestData.EmailAddress,
+                                               Claims = TestData.Claims
                                            };
 
             DataTransferObjects.Responses.UserDetails userDetailsDto = modelFactory.ConvertFrom(userDetailsModel);
 
-            userDetailsDto.UserName.ShouldBe(SecurityServiceManagerTestData.UserName);
-            userDetailsDto.EmailAddress.ShouldBe(SecurityServiceManagerTestData.EmailAddress);
-            userDetailsDto.PhoneNumber.ShouldBe(SecurityServiceManagerTestData.PhoneNumber);
-            userDetailsDto.UserId.ShouldBe(Guid.Parse(SecurityServiceManagerTestData.User1Id));
-            userDetailsDto.Claims.ShouldBe(SecurityServiceManagerTestData.Claims);
-            userDetailsDto.Roles.ShouldBe(SecurityServiceManagerTestData.Roles);
+            userDetailsDto.UserName.ShouldBe(TestData.UserName);
+            userDetailsDto.EmailAddress.ShouldBe(TestData.EmailAddress);
+            userDetailsDto.PhoneNumber.ShouldBe(TestData.PhoneNumber);
+            userDetailsDto.UserId.ShouldBe(Guid.Parse(TestData.User1Id));
+            userDetailsDto.Claims.ShouldBe(TestData.Claims);
+            userDetailsDto.Roles.ShouldBe(TestData.Roles);
         }
 
         [Fact]

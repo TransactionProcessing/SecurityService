@@ -29,12 +29,7 @@
     public class ClientController : ControllerBase
     {
         #region Fields
-
-        /// <summary>
-        /// The manager
-        /// </summary>
-        private readonly ISecurityServiceManager Manager;
-
+        
         private readonly IMediator Mediator;
 
         /// <summary>

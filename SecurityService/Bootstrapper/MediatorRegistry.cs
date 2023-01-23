@@ -1,5 +1,6 @@
 ﻿namespace SecurityService.Bootstrapper;
 
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using BusinessLogic.RequestHandlers;
@@ -39,5 +40,15 @@ public class MediatorRegistry : ServiceRegistry
         this.AddSingleton<IRequestHandler<GetIdentityResourceRequest, IdentityResource>, IdentityResourceRequestHandler>();
         this.AddSingleton<IRequestHandler<GetIdentityResourcesRequest, List<IdentityResource>>, IdentityResourceRequestHandler>();
         this.AddSingleton<IRequestHandler<CreateIdentityResourceRequest>, IdentityResourceRequestHandler>();
+
+        this.AddSingleton<IRequestHandler<GetUserRequest, UserDetails>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<GetUsersRequest, List<UserDetails>>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<CreateUserRequest>, UserRequestHandler>();
+
+        this.AddSingleton<IRequestHandler<ChangeUserPasswordRequest, (Boolean, String)>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<ConfirmUserEmailAddressRequest, Boolean>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<ProcessPasswordResetConfirmationRequest, String>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<ProcessPasswordResetRequest>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SendWelcomeEmailRequest>, UserRequestHandler>();
     }
 }

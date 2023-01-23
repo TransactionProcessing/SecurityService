@@ -13,21 +13,37 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using System.Threading;
     using DataTransferObjects.Responses;
     using Duende.IdentityServer;
+    using Duende.IdentityServer.Configuration;
+    using Duende.IdentityServer.EntityFramework.DbContexts;
+    using Duende.IdentityServer.EntityFramework.Entities;
+    using Duende.IdentityServer.Extensions;
+    using Duende.IdentityServer.Models;
+    using Duende.IdentityServer.Services;
     using IdentityModel;
     using MediatR;
     using MessagingService.Client;
     using MessagingService.DataTransferObjects;
+    using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.EntityFrameworkCore;
+    using Microsoft.Extensions.DependencyInjection;
     using Requests;
     using SecurityService.BusinessLogic.Exceptions;
     using Shared.Exceptions;
     using Shared.General;
     using Shared.Logger;
+    using Client = Duende.IdentityServer.EntityFramework.Entities.Client;
     using UserDetails = Models.UserDetails;
 
     public class UserRequestHandler : IRequestHandler<CreateUserRequest>,
                                       IRequestHandler<GetUserRequest, UserDetails>,
-                                      IRequestHandler<GetUsersRequest, List<UserDetails>>{
+                                      IRequestHandler<GetUsersRequest, List<UserDetails>>,
+    IRequestHandler<ChangeUserPasswordRequest, (Boolean,String)>,
+                                      IRequestHandler<ConfirmUserEmailAddressRequest, Boolean>,
+                                      IRequestHandler<ProcessPasswordResetConfirmationRequest,String>,
+                                      IRequestHandler<ProcessPasswordResetRequest>,
+    IRequestHandler<SendWelcomeEmailRequest>
+    {
         private readonly IPasswordHasher<IdentityUser> PasswordHasher;
 
         private readonly UserManager<IdentityUser> UserManager;
@@ -38,17 +54,21 @@ namespace SecurityService.BusinessLogic.RequestHandlers
 
         private readonly IdentityServerTools IdentityServerTools;
 
+        private readonly ConfigurationDbContext ConfigurationDbContext;
+
         public UserRequestHandler(IPasswordHasher<IdentityUser> passwordHasher,
                                   UserManager<IdentityUser> userManager,
                                   ServiceOptions serviceOptions,
                                   IMessagingServiceClient messagingServiceClient,
-                                  IdentityServerTools identityServerTools)
+                                  IdentityServerTools identityServerTools,
+                                  ConfigurationDbContext configurationDbContext)
         {
             this.PasswordHasher = passwordHasher;
             this.UserManager = userManager;
             this.ServiceOptions = serviceOptions;
             this.MessagingServiceClient = messagingServiceClient;
             this.IdentityServerTools = identityServerTools;
+            this.ConfigurationDbContext = configurationDbContext;
         }
         public async Task<Unit> Handle(CreateUserRequest request, CancellationToken cancellationToken){
 
@@ -418,6 +438,160 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             }
 
             return new String(chars.ToArray());
+        }
+
+        public async Task<(Boolean, String)> Handle(ChangeUserPasswordRequest request, CancellationToken cancellationToken){
+            // Find the user based on the user name passed in
+            IdentityUser user = await this.UserManager.FindByNameAsync(request.UserName);
+
+            if (user == null)
+            {
+                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
+                // this prevents giving away info to a potential hacker...
+                // TODO: maybe log something here...
+                return (false, String.Empty);
+            }
+
+            IdentityResult result = await this.UserManager.ChangePasswordAsync(user, request.CurrentPassword,
+                                                                               request.NewPassword);
+
+            if (result.Succeeded == false)
+            {
+                // Log any errors
+                Logger.LogWarning($"Errors during password change for user [{request.UserName} and Client [{request.ClientId}]");
+                foreach (IdentityError identityError in result.Errors)
+                {
+                    Logger.LogWarning($"Code {identityError.Code} Description {identityError.Description}");
+                }
+            }
+
+            // build the redirect uri
+            Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == request.ClientId, cancellationToken:cancellationToken);
+
+            if (client == null)
+            {
+                Logger.LogWarning($"Client not found for clientId {request.ClientId}");
+                // TODO: need to redirect somewhere...
+                return (false, String.Empty);
+            }
+
+            Logger.LogWarning($"Client uri {client.ClientUri}");
+            return (true, client.ClientUri);
+        }
+
+        public async Task<Boolean> Handle(ConfirmUserEmailAddressRequest request, CancellationToken cancellationToken){
+            IdentityUser identityUser = await this.UserManager.FindByNameAsync(request.UserName);
+
+            if (identityUser == null)
+            {
+                Logger.LogWarning($"No user found with username {request.UserName}");
+                return false;
+            }
+
+            IdentityResult result = await this.UserManager.ConfirmEmailAsync(identityUser, request.ConfirmEmailToken);
+
+            if (result.Succeeded == false)
+            {
+                Logger.LogWarning($"Errors during confirm email for user [{request.UserName}");
+                foreach (IdentityError identityError in result.Errors)
+                {
+                    Logger.LogWarning($"Code {identityError.Code} Description {identityError.Description}");
+                }
+            }
+
+            return result.Succeeded;
+        }
+
+        public async Task<String> Handle(ProcessPasswordResetConfirmationRequest request, CancellationToken cancellationToken){
+            // Find the user based on the user name passed in
+            IdentityUser user = await this.UserManager.FindByNameAsync(request.Username);
+
+            if (user == null)
+            {
+                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
+                // this prevents giving away info to a potential hacker...
+                // TODO: maybe log something here...
+                Logger.LogWarning($"user not found for username {request.Username}");
+                return String.Empty;
+            }
+
+            IdentityResult result = await this.UserManager.ResetPasswordAsync(user, request.Token, request.Password);
+
+            // handle the result... 
+            if (result.Succeeded == false)
+            {
+                // Log any errors
+                Logger.LogWarning($"Errors during password reset for user [{request.Username} and Client [{request.ClientId}]");
+                foreach (IdentityError identityError in result.Errors)
+                {
+                    Logger.LogWarning($"Code {identityError.Code} Description {identityError.Description}");
+                }
+            }
+
+            // build the redirect uri
+            Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == request.ClientId, cancellationToken:cancellationToken);
+
+            if (client == null)
+            {
+                Logger.LogWarning($"Client not found for clientId {request.ClientId}");
+                // TODO: need to redirect somewhere...
+                return String.Empty;
+            }
+
+            Logger.LogWarning($"Client uri {client.ClientUri}");
+            return client.ClientUri;
+        }
+
+        public async Task<Unit> Handle(ProcessPasswordResetRequest request, CancellationToken cancellationToken){
+            // Find the user based on the user name passed in
+            IdentityUser user = await this.UserManager.FindByNameAsync(request.Username);
+
+            if (user == null)
+            {
+                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
+                // this prevents giving away info to a potential hacker...
+                // TODO: maybe log something here...
+                return Unit.Value;
+            }
+
+            // User has been found so send an email with reset details
+            String resetToken = await this.UserManager.GeneratePasswordResetTokenAsync(user);
+            resetToken = UrlEncoder.Default.Encode(resetToken);
+            String uri = $"{this.ServiceOptions.PublicOrigin}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={request.ClientId}";
+
+            TokenResponse token = await this.GetToken(cancellationToken);
+            SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
+            try
+            {
+                await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
+
+            return Unit.Value;
+        }
+
+        public async Task<Unit> Handle(SendWelcomeEmailRequest request, CancellationToken cancellationToken){
+            IdentityUser i = await this.UserManager.FindByNameAsync(request.UserName);
+            await this.UserManager.RemovePasswordAsync(i);
+            String generatedPassword = UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password);
+            await this.UserManager.AddPasswordAsync(i, generatedPassword);
+
+            // Send Email
+            TokenResponse token = await this.GetToken(cancellationToken);
+            SendEmailRequest emailRequest = this.BuildWelcomeEmail(i.Email, generatedPassword);
+            try
+            {
+                await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError(ex);
+            }
+
+            return Unit.Value;
         }
     }
 }
