@@ -1,4 +1,8 @@
-﻿namespace SecurityService.Controllers
+﻿using MediatR;
+using SecurityService.BusinessLogic.RequestHandlers;
+using SecurityService.BusinessLogic.Requests;
+
+namespace SecurityService.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -24,24 +28,12 @@
     [ExcludeFromCodeCoverage]
     public class ApiScopeController : ControllerBase
     {
-        /// <summary>
-        /// The manager
-        /// </summary>
-        private readonly ISecurityServiceManager Manager;
-
-        /// <summary>
-        /// The model factory
-        /// </summary>
+        private readonly IMediator Mediator;
         private readonly IModelFactory ModelFactory;
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ApiResourceController" /> class.
-        /// </summary>
-        /// <param name="manager">The manager.</param>
-        /// <param name="modelFactory">The model factory.</param>
-        public ApiScopeController(ISecurityServiceManager manager, IModelFactory modelFactory)
+        public ApiScopeController(IMediator mediator, IModelFactory modelFactory)
         {
-            this.Manager = manager;
+            this.Mediator = mediator;
             this.ModelFactory = modelFactory;
         }
 
@@ -52,16 +44,17 @@
         public async Task<IActionResult> CreateApiScope([FromBody] CreateApiScopeRequest createApiScopeRequest,
                                                            CancellationToken cancellationToken)
         {
-            String apiScopeName = await this.Manager.CreateApiScope(createApiScopeRequest.Name,
-                                                                       createApiScopeRequest.DisplayName,
-                                                                       createApiScopeRequest.Description,
-                                                                       cancellationToken);
+            BusinessLogic.Requests.CreateApiScopeRequest request = BusinessLogic.Requests.CreateApiScopeRequest.Create(createApiScopeRequest.Name,
+                createApiScopeRequest.DisplayName,
+                createApiScopeRequest.Description);
+
+            await this.Mediator.Send(request, cancellationToken);
 
             // return the result
-            return this.Created($"{ApiScopeController.ControllerRoute}/{apiScopeName}", new CreateApiScopeResponse
+            return this.Created($"{ApiScopeController.ControllerRoute}/{createApiScopeRequest.Name}", new CreateApiScopeResponse
                                                                                         {
-                                                                                            ApiScopeName = apiScopeName
-                                                                                        });
+                                                                                            ApiScopeName = createApiScopeRequest.Name
+            });
         }
 
         /// <summary>
@@ -77,7 +70,9 @@
         public async Task<IActionResult> GetApiScope([FromRoute] String apiScopeName,
                                                      CancellationToken cancellationToken)
         {
-            ApiScope apiScopeModel = await this.Manager.GetApiScope(apiScopeName, cancellationToken);
+            GetApiScopeRequest request = GetApiScopeRequest.Create(apiScopeName);
+
+            ApiScope apiScopeModel = await this.Mediator.Send(request, cancellationToken);
 
             // return the result
             return this.Ok(this.ModelFactory.ConvertFrom(apiScopeModel));
@@ -94,7 +89,9 @@
         [SwaggerResponseExample(200, typeof(ApiScopeDetailsListResponseExample))]
         public async Task<IActionResult> GetApiScopes(CancellationToken cancellationToken)
         {
-            List<ApiScope> apiScopeList = await this.Manager.GetApiScopes(cancellationToken);
+            GetApiScopesRequest request = GetApiScopesRequest.Create();
+
+            List<ApiScope> apiScopeList = await this.Mediator.Send(request, cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(apiScopeList));
         }

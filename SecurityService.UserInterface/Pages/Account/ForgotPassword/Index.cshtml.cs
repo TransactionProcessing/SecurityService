@@ -16,21 +16,22 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using MediatR;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Requests;
 
 [SecurityHeaders]
 [AllowAnonymous]
-public class Index : PageModel
-{
-    private readonly ISecurityServiceManager SecurityServiceManager;
+public class Index : PageModel{
+    private readonly IMediator Mediator;
     
     public ViewModel View { get; set; }
         
     [BindProperty]
     public IndexInputModel Input { get; set; }
         
-    public Index(ISecurityServiceManager securityServiceManager) {
-        this.SecurityServiceManager = securityServiceManager;
+    public Index(IMediator mediator) {
+        this.Mediator = mediator;
     }
         
     public async Task<IActionResult> OnGet(string returnUrl)
@@ -47,7 +48,8 @@ public class Index : PageModel
             return Redirect("Login/Index");
         }
 
-        await this.SecurityServiceManager.ProcessPasswordResetRequest(Input.Username, Input.EmailAddress, Input.ClientId, cancellationToken);
+        ProcessPasswordResetRequest request = ProcessPasswordResetRequest.Create(Input.Username, Input.EmailAddress, Input.ClientId);
+        await this.Mediator.Send(request, cancellationToken);
 
         View = new ViewModel() {
                                    UserMessage = "Password Reset sent, please check your registered email for further instructions."

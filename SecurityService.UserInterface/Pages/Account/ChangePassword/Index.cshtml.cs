@@ -18,22 +18,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Duende.IdentityServer.EntityFramework.Entities;
+using MediatR;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Requests;
 using Shared.Logger;
 
 [SecurityHeaders]
 [AllowAnonymous]
 public class Index : PageModel
 {
-    private readonly ISecurityServiceManager SecurityServiceManager;
+    private readonly IMediator Mediator;
     
     public ViewModel View { get; set; }
         
     [BindProperty]
     public IndexInputModel Input { get; set; }
         
-    public Index(ISecurityServiceManager securityServiceManager) {
-        this.SecurityServiceManager = securityServiceManager;
+    public Index(IMediator mediator) {
+        this.Mediator = mediator;
     }
         
     public async Task<IActionResult> OnGet(String returnUrl)
@@ -60,8 +62,9 @@ public class Index : PageModel
             ModelState.AddModelError(String.Empty, PasswordsDontMatch);
             return this.Page();
         }
+        ChangeUserPasswordRequest request = ChangeUserPasswordRequest.Create(Input.Username, Input.CurrentPassword, Input.NewPassword, Input.ClientId);
+        (Boolean, String) result = await this.Mediator.Send(request, cancellationToken);
 
-        (Boolean, String) result = await this.SecurityServiceManager.ChangePassword(Input.Username, Input.CurrentPassword, Input.NewPassword, Input.ClientId, cancellationToken);
         Logger.LogWarning(Input.ClientId);
         Logger.LogWarning(result.Item1.ToString());
         Logger.LogWarning(result.Item2);

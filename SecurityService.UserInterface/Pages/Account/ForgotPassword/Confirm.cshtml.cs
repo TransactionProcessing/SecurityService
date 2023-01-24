@@ -16,26 +16,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Requests;
 
 [SecurityHeaders]
 [AllowAnonymous]
 public class Confirm : PageModel
 {
-    private readonly ISecurityServiceManager SecurityServiceManager;
-
-    private readonly UserManager<IdentityUser> UserManager;
-
+    private readonly IMediator Mediator;
+    
     public ViewModel View { get; set; }
         
     [BindProperty]
     public ConfirmInputModel Input { get; set; }
         
-    public Confirm(ISecurityServiceManager securityServiceManager,
-                   UserManager<IdentityUser> userManager) {
-        this.SecurityServiceManager = securityServiceManager;
-        this.UserManager = userManager;
+    public Confirm(IMediator mediator){
+        this.Mediator = mediator;
     }
         
     public async Task<IActionResult> OnGet(string returnUrl) {
@@ -58,7 +56,8 @@ public class Confirm : PageModel
 
         if (ModelState.IsValid) {
             // process the password change
-            String redirect = await this.SecurityServiceManager.ProcessPasswordResetConfirmation(Input.Username, Input.Token, Input.Password, Input.ClientId, cancellationToken);
+            ProcessPasswordResetConfirmationRequest request = ProcessPasswordResetConfirmationRequest.Create(Input.Username, Input.Token, Input.Password, Input.ClientId);
+            String redirect = await this.Mediator.Send(request, cancellationToken);
             return this.Redirect(redirect);
         }
 

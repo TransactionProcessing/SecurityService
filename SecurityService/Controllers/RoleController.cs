@@ -7,14 +7,17 @@ using System.Threading.Tasks;
 namespace SecurityService.Controllers
 {
     using System.Threading;
+    using Azure.Core;
     using BusinessLogic;
+    using BusinessLogic.Requests;
     using Common.Examples;
-    using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using Factories;
+    using MediatR;
     using Microsoft.AspNetCore.Mvc;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
+    using CreateRoleRequest = DataTransferObjects.Requests.CreateRoleRequest;
 
     [Route(RoleController.ControllerRoute)]
     [ApiController]
@@ -23,10 +26,7 @@ namespace SecurityService.Controllers
     {
         #region Fields
 
-        /// <summary>
-        /// The manager
-        /// </summary>
-        private readonly ISecurityServiceManager Manager;
+        private readonly IMediator Mediator;
 
         private readonly IModelFactory ModelFactory;
 
@@ -34,14 +34,9 @@ namespace SecurityService.Controllers
 
         #region Constructors
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RoleController" /> class.
-        /// </summary>
-        /// <param name="manager">The manager.</param>
-        /// <param name="modelFactory">The model factory.</param>
-        public RoleController(ISecurityServiceManager manager, IModelFactory modelFactory)
+        public RoleController(IMediator mediator, IModelFactory modelFactory)
         {
-            this.Manager = manager;
+            this.Mediator = mediator;
             this.ModelFactory = modelFactory;
         }
 
@@ -61,9 +56,10 @@ namespace SecurityService.Controllers
         [SwaggerResponseExample(statusCode: 201, typeof(CreateRoleResponseExample))]
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest createRoleRequest, CancellationToken cancellationToken)
         {
-            // Create the role
-            Guid roleId = await this.Manager.CreateRole(createRoleRequest.RoleName,
-                                                        cancellationToken);
+            Guid roleId = Guid.NewGuid();
+            BusinessLogic.Requests.CreateRoleRequest request = BusinessLogic.Requests.CreateRoleRequest.Create(roleId, createRoleRequest.RoleName);
+
+            await this.Mediator.Send(request, cancellationToken);
 
             // return the result
             return this.Created($"{RoleController.ControllerRoute}/{roleId}",
@@ -86,7 +82,9 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetRole([FromRoute] Guid roleId,
                                                  CancellationToken cancellationToken)
         {
-            Models.RoleDetails roleDetailsModel = await this.Manager.GetRole(roleId, cancellationToken);
+            GetRoleRequest request = GetRoleRequest.Create(roleId);
+
+            Models.RoleDetails roleDetailsModel = await this.Mediator.Send(request, cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(roleDetailsModel));
         }
@@ -103,7 +101,9 @@ namespace SecurityService.Controllers
         [SwaggerResponseExample(statusCode: 200, typeof(RoleDetailsListResponseExample))]
         public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
         {
-            List<Models.RoleDetails> roleDetailsModel = await this.Manager.GetRoles(cancellationToken);
+            GetRolesRequest request = GetRolesRequest.Create();
+
+            List<Models.RoleDetails> roleDetailsModel = await this.Mediator.Send(request, cancellationToken);
 
             return this.Ok(this.ModelFactory.ConvertFrom(roleDetailsModel));
         }

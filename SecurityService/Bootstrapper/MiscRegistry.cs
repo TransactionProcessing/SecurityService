@@ -20,7 +20,6 @@
         /// </summary>
         public MiscRegistry()
         {
-            this.AddScoped<ISecurityServiceManager, SecurityServiceManager>();
             this.AddSingleton<IModelFactory, ModelFactory>();
 
             if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")) {

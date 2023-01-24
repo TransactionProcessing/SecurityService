@@ -16,22 +16,24 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Requests;
 
 [SecurityHeaders]
 [AllowAnonymous]
 public class Confirm : PageModel
 {
-    private readonly ISecurityServiceManager SecurityServiceManager;
+    private readonly IMediator Mediator;
 
     public ViewModel View { get; set; }
         
     [BindProperty]
     public ConfirmInputModel Input { get; set; }
         
-    public Confirm(ISecurityServiceManager securityServiceManager) {
-        this.SecurityServiceManager = securityServiceManager;
+    public Confirm(IMediator mediator){
+        this.Mediator = mediator;
     }
         
     public async Task<IActionResult> OnGet(CancellationToken cancellationToken) {
@@ -39,7 +41,9 @@ public class Confirm : PageModel
         await BuildModelAsync();
 
         // mark the email address as confirmed
-        Boolean result = await this.SecurityServiceManager.ConfirmEmailAddress(Input.Username, Input.Token, cancellationToken);
+        ConfirmUserEmailAddressRequest request = ConfirmUserEmailAddressRequest.Create(Input.Username,
+                                                                                       Input.Token);
+        Boolean result = await this.Mediator.Send(request, cancellationToken);
 
         if (result == false) {
             this.View.UserMessage = $"Failed confirming user email address for username {Input.Username}";
@@ -47,7 +51,8 @@ public class Confirm : PageModel
         else {
             this.View.UserMessage = $"Thanks for confirming your email address, you should receive a welcome email soon.";
             // Send the welcome email 
-            await this.SecurityServiceManager.SendWelcomeEmail(Input.Username, cancellationToken);
+            SendWelcomeEmailRequest sendWelcomeEmailRequest = SendWelcomeEmailRequest.Create(Input.Username);
+            await this.Mediator.Send(sendWelcomeEmailRequest, cancellationToken);
         }
         return Page();
     }
