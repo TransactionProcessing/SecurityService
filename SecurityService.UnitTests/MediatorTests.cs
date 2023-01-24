@@ -18,6 +18,7 @@ namespace SecurityService.UnitTests
 {
     using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
     using System.Diagnostics;
+    using System.IO;
     using BusinessLogic.Requests;
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Microsoft.AspNetCore.Identity;
@@ -57,6 +58,8 @@ namespace SecurityService.UnitTests
             this.Requests.Add(TestData.ProcessPasswordResetConfirmationRequest);
             this.Requests.Add(TestData.ProcessPasswordResetRequest);
             this.Requests.Add(TestData.SendWelcomeEmailRequest);
+
+            Directory.CreateDirectory("D:\\home\\");
         }
 
         [Fact]
