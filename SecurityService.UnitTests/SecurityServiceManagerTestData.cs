@@ -332,9 +332,7 @@
         public static ProcessPasswordResetRequest ProcessPasswordResetRequest => ProcessPasswordResetRequest.Create(TestData.UserName, TestData.EmailAddress, TestData.ClientId);
 
         public static SendWelcomeEmailRequest SendWelcomeEmailRequest => SendWelcomeEmailRequest.Create(TestData.UserName);
-
     }
-
 }
 
     
