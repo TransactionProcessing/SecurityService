@@ -2,7 +2,7 @@
 
   <PropertyGroup>
 	  <TargetFramework>net7.0</TargetFramework>
-    <DebugType>None</DebugType>
+    <DebugType>Full</DebugType>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
@@ -29,6 +29,10 @@
   <ItemGroup>
     <ProjectReference Include="..\SecurityService.BusinessLogic\SecurityService.BusinessLogic.csproj" />
     <ProjectReference Include="..\SecurityService\SecurityService.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="RequestHandler\" />
   </ItemGroup>
 
 </Project>

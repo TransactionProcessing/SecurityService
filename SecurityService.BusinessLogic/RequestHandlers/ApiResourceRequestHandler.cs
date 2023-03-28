@@ -1,5 +1,4 @@
-﻿namespace SecurityService.BusinessLogic.RequestHandlers
-{
+﻿namespace SecurityService.BusinessLogic.RequestHandlers{
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -11,7 +10,7 @@
     using IdentityModel;
     using MediatR;
     using Microsoft.EntityFrameworkCore;
-    using SecurityService.BusinessLogic.Requests;
+    using Requests;
     using Shared.Exceptions;
 
     public class ApiResourceRequestHandler : IRequestHandler<CreateApiResourceRequest>,
