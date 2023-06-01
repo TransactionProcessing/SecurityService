@@ -15,6 +15,7 @@ namespace SecurityService
     using System.IO;
     using System.Linq;
     using System.Net;
+    using System.Reflection;
     using System.Security.Authentication;
     using System.Security.Cryptography.X509Certificates;
     using Lamar.Microsoft.DependencyInjection;
@@ -32,11 +33,10 @@ namespace SecurityService
         public static IHostBuilder CreateHostBuilder(String[] args)
         {
             //At this stage, we only need our hosting file for ip and ports
-            IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("hosting.json", optional: true)
-                                                                  .AddJsonFile("hosting.development.json", optional: true).AddEnvironmentVariables().Build();
-
-
-
+            FileInfo fi = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
+            IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(fi.Directory.FullName).AddJsonFile("hosting.json", optional:false)
+                                                                  .AddJsonFile("hosting.development.json", optional:true).AddEnvironmentVariables().Build();
+            
             IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
             hostBuilder.UseWindowsService();
             hostBuilder = hostBuilder.UseLamar();
@@ -71,7 +71,7 @@ namespace SecurityService
                                                                                                              // Enable support for HTTP1 and HTTP2 (required if you want to host gRPC endpoints)
                                                                                                              listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
                                                                                                              // Configure Kestrel to use a certificate from a local .PFX file for hosting HTTPS
-                                                                                                             listenOptions.UseHttps(Program.LoadCertificate());
+                                                                                                             listenOptions.UseHttps(Program.LoadCertificate(fi.Directory.FullName));
                                                                                                          });
                                                                                       });
 
@@ -79,13 +79,12 @@ namespace SecurityService
             return hostBuilder;
         }
 
-        private static X509Certificate2 LoadCertificate()
+        private static X509Certificate2 LoadCertificate(String path)
         {
             //just to ensure that we are picking the right file! little bit of ugly code:
-            var files = Directory.GetFiles(Directory.GetCurrentDirectory());
+            var files = Directory.GetFiles(path);
             var certificateFile = files.First(name => name.Contains("pfx"));
-            Console.WriteLine(certificateFile);
-
+            
             var cert = new X509Certificate2(certificateFile, "password");
             return cert;
         }
