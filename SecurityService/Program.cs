@@ -31,8 +31,6 @@ namespace SecurityService
     {
         public static IHostBuilder CreateHostBuilder(String[] args)
         {
-            Console.Title = "Security Service";
-
             //At this stage, we only need our hosting file for ip and ports
             IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory()).AddJsonFile("hosting.json", optional: true)
                                                                   .AddJsonFile("hosting.development.json", optional: true).AddEnvironmentVariables().Build();
@@ -40,6 +38,7 @@ namespace SecurityService
 
 
             IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
+            hostBuilder.UseWindowsService();
             hostBuilder = hostBuilder.UseLamar();
             hostBuilder = hostBuilder.ConfigureWebHostDefaults(webBuilder =>
                                                             {
