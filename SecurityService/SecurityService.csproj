@@ -10,6 +10,7 @@
 	  <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
 	  <PackageReference Include="Lamar" Version="10.0.1" />
 	  <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="10.0.1" />
+	  <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="7.0.0" />
 	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
 	  <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="6.0.2" />
 	  <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="6.0.5" />
