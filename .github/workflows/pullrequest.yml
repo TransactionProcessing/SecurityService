@@ -32,9 +32,7 @@ jobs:
         dotnet-version: '7.0.x'
 
     - name: Restore Nuget Packages
-      env:
-          GITHUBTOKEN: ${{ secrets.PRIVATEFEED_APIKEY }}
-      run: dotnet restore SecurityService.sln --source https://api.nuget.org/v3/index.json --source https://www.myget.org/F/transactionprocessing/api/v3/index.json
+      run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: Build Code
       run: dotnet build SecurityService.sln --configuration Release
@@ -46,7 +44,7 @@ jobs:
     
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest --build-arg NUGET_TOKEN=${{ secrets.PRIVATEFEED_APIKEY }}
+        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
 
     - name: Run Integration Tests (Non UI)
       run: |
