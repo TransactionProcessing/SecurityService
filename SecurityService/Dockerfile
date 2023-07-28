@@ -2,9 +2,16 @@ FROM stuartferguson/txnprocbase AS base
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
+
+# Set the ARG for your GitHub Secret
+ARG NUGET_TOKEN
+
 WORKDIR /src
 COPY ["Certificates/*.*", "Certificates/"]
 COPY ["SecurityService/NuGet.Config", "."]
+# Replace the placeholders in the NuGet.config file with the GitHub Secret
+RUN sed -i "s|NUGET_TOKEN|${NUGET_TOKEN}|g" NuGet.Config
+
 COPY ["SecurityService/SecurityService.csproj", "SecurityService/"]
 COPY ["SecurityService.BusinessLogic/SecurityService.BusinessLogic.csproj", "SecurityService.BusinessLogic/"]
 COPY ["SecurityService.DataTransferObjects/SecurityService.DataTransferObjects.csproj", "SecurityService.DataTransferObjects/"]
