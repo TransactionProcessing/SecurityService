@@ -93,83 +93,83 @@ namespace SecurityService.IntegrationTests.Token
         {
 #line 4
 #line hidden
-            TechTalk.SpecFlow.Table table27 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table22 = new TechTalk.SpecFlow.Table(new string[] {
                         "Role Name"});
-            table27.AddRow(new string[] {
+            table22.AddRow(new string[] {
                         "Estate"});
-            table27.AddRow(new string[] {
+            table22.AddRow(new string[] {
                         "Merchant"});
 #line 6
- testRunner.Given("I create the following roles", ((string)(null)), table27, "Given ");
+ testRunner.Given("I create the following roles", ((string)(null)), table22, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table28 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table23 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Description"});
-            table28.AddRow(new string[] {
+            table23.AddRow(new string[] {
                         "estateManagement",
                         "estateManagement Scope",
                         "A scope for estateManagement"});
-            table28.AddRow(new string[] {
+            table23.AddRow(new string[] {
                         "transactionProcessor",
                         "transactionProcessor Scope",
                         "A scope for transactionProcessor"});
-            table28.AddRow(new string[] {
+            table23.AddRow(new string[] {
                         "transactionProcessorAcl",
                         "transactionProcessorAcl Scope",
                         "A scope for transactionProcessorAcl"});
 #line 11
- testRunner.Given("I create the following api scopes", ((string)(null)), table28, "Given ");
+ testRunner.Given("I create the following api scopes", ((string)(null)), table23, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table29 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table24 = new TechTalk.SpecFlow.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table29.AddRow(new string[] {
+            table24.AddRow(new string[] {
                         "estateManagement",
                         "Estate Managememt REST",
                         "Secret1",
                         "estateManagement",
                         "MerchantId, EstateId, role"});
-            table29.AddRow(new string[] {
+            table24.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
                         ""});
-            table29.AddRow(new string[] {
+            table24.AddRow(new string[] {
                         "transactionProcessorAcl",
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorAcl",
                         "MerchantId, EstateId, role"});
 #line 17
- testRunner.Given("I create the following api resources", ((string)(null)), table29, "Given ");
+ testRunner.Given("I create the following api resources", ((string)(null)), table24, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table30 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table25 = new TechTalk.SpecFlow.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
                         "Scopes",
                         "GrantTypes"});
-            table30.AddRow(new string[] {
+            table25.AddRow(new string[] {
                         "serviceClient",
                         "Service Client",
                         "Secret1",
                         "estateManagement,transactionProcessor,transactionProcessorAcl",
                         "client_credentials"});
-            table30.AddRow(new string[] {
+            table25.AddRow(new string[] {
                         "merchantClient",
                         "Merchant Client",
                         "Secret1",
                         "transactionProcessorAcl",
                         "password"});
 #line 23
- testRunner.Given("I create the following clients", ((string)(null)), table30, "Given ");
+ testRunner.Given("I create the following clients", ((string)(null)), table25, "Given ");
 #line hidden
-            TechTalk.SpecFlow.Table table31 = new TechTalk.SpecFlow.Table(new string[] {
+            TechTalk.SpecFlow.Table table26 = new TechTalk.SpecFlow.Table(new string[] {
                         "Email Address",
                         "Password",
                         "Phone Number",
@@ -178,7 +178,7 @@ namespace SecurityService.IntegrationTests.Token
                         "Family Name",
                         "Claims",
                         "Roles"});
-            table31.AddRow(new string[] {
+            table26.AddRow(new string[] {
                         "merchantuser@testmerchant1.co.uk",
                         "123456",
                         "123456789",
@@ -188,7 +188,7 @@ namespace SecurityService.IntegrationTests.Token
                         "EstateId:1,MerchantId:2",
                         "Merchant"});
 #line 28
- testRunner.Given("I create the following users", ((string)(null)), table31, "Given ");
+ testRunner.Given("I create the following users", ((string)(null)), table26, "Given ");
 #line hidden
         }
         
@@ -197,16 +197,16 @@ namespace SecurityService.IntegrationTests.Token
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Get Client Token")]
+        [Xunit.SkippableFactAttribute(DisplayName="Get Tokens")]
         [Xunit.TraitAttribute("FeatureTitle", "Token")]
-        [Xunit.TraitAttribute("Description", "Get Client Token")]
+        [Xunit.TraitAttribute("Description", "Get Tokens")]
         [Xunit.TraitAttribute("Category", "PRTest")]
-        public void GetClientToken()
+        public void GetTokens()
         {
             string[] tagsOfScenario = new string[] {
                     "PRTest"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Client Token", null, tagsOfScenario, argumentsOfScenario, featureTags);
+            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Tokens", null, tagsOfScenario, argumentsOfScenario, featureTags);
 #line 33
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
@@ -220,59 +220,32 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 this.FeatureBackground();
 #line hidden
-                TechTalk.SpecFlow.Table table32 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table27 = new TechTalk.SpecFlow.Table(new string[] {
                             "ClientId",
                             "ClientSecret"});
-                table32.AddRow(new string[] {
+                table27.AddRow(new string[] {
                             "serviceClient",
                             "Secret1"});
 #line 34
- testRunner.When("I request a client token with the following values", ((string)(null)), table32, "When ");
+ testRunner.When("I request a client token with the following values", ((string)(null)), table27, "When ");
 #line hidden
 #line 37
  testRunner.Then("my token is returned", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
-        [Xunit.SkippableFactAttribute(DisplayName="Get Password Token")]
-        [Xunit.TraitAttribute("FeatureTitle", "Token")]
-        [Xunit.TraitAttribute("Description", "Get Password Token")]
-        [Xunit.TraitAttribute("Category", "PRTest")]
-        public void GetPasswordToken()
-        {
-            string[] tagsOfScenario = new string[] {
-                    "PRTest"};
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Password Token", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 40
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-#line 4
-this.FeatureBackground();
-#line hidden
-                TechTalk.SpecFlow.Table table33 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table28 = new TechTalk.SpecFlow.Table(new string[] {
                             "ClientId",
                             "ClientSecret",
                             "Username",
                             "Password"});
-                table33.AddRow(new string[] {
+                table28.AddRow(new string[] {
                             "merchantClient",
                             "Secret1",
                             "merchantuser@testmerchant1.co.uk",
                             "123456"});
-#line 41
- testRunner.When("I request a password token with the following values", ((string)(null)), table33, "When ");
+#line 38
+ testRunner.When("I request a password token with the following values", ((string)(null)), table28, "When ");
 #line hidden
-#line 44
+#line 41
  testRunner.Then("my token is returned", ((string)(null)), ((TechTalk.SpecFlow.Table)(null)), "Then ");
 #line hidden
             }

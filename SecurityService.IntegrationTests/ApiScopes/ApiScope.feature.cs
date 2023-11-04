@@ -84,88 +84,6 @@ namespace SecurityService.IntegrationTests.ApiScopes
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Create Api Scope")]
-        [Xunit.TraitAttribute("FeatureTitle", "ApiScope")]
-        [Xunit.TraitAttribute("Description", "Create Api Scope")]
-        public void CreateApiScope()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create Api Scope", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 4
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-                TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Name",
-                            "DisplayName",
-                            "Description"});
-                table6.AddRow(new string[] {
-                            "testscope",
-                            "Test Scope",
-                            "A scope for testing"});
-#line 5
- testRunner.Given("I create the following api scopes", ((string)(null)), table6, "Given ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
-        [Xunit.SkippableFactAttribute(DisplayName="Get Api Scope")]
-        [Xunit.TraitAttribute("FeatureTitle", "ApiScope")]
-        [Xunit.TraitAttribute("Description", "Get Api Scope")]
-        public void GetApiScope()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Api Scope", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 9
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-                TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Name",
-                            "DisplayName",
-                            "Description"});
-                table7.AddRow(new string[] {
-                            "testscope1",
-                            "Test Scope1",
-                            "A scope for testing 1"});
-                table7.AddRow(new string[] {
-                            "testscope2",
-                            "Test Scope2",
-                            "A scope for testing 2"});
-#line 10
- testRunner.Given("I create the following api scopes", ((string)(null)), table7, "Given ");
-#line hidden
-                TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Name",
-                            "DisplayName",
-                            "Description"});
-                table8.AddRow(new string[] {
-                            "testscope1",
-                            "Test Scope1",
-                            "A scope for testing 1"});
-#line 14
- testRunner.When("I get the api scope with name \'testscope1\' the api scope details are returned as " +
-                        "follows", ((string)(null)), table8, "When ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
         [Xunit.SkippableFactAttribute(DisplayName="Get Api Scopes")]
         [Xunit.TraitAttribute("FeatureTitle", "ApiScope")]
         [Xunit.TraitAttribute("Description", "Get Api Scopes")]
@@ -176,7 +94,7 @@ this.ScenarioInitialize(scenarioInfo);
                     "PRTest"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Api Scopes", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 19
+#line 5
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -186,35 +104,59 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table9 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table5 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
                             "DisplayName",
                             "Description"});
-                table9.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "testscope1",
                             "Test Scope1",
                             "A scope for testing 1"});
-                table9.AddRow(new string[] {
+                table5.AddRow(new string[] {
                             "testscope2",
                             "Test Scope2",
                             "A scope for testing 2"});
-#line 20
-testRunner.Given("I create the following api scopes", ((string)(null)), table9, "Given ");
+#line 6
+ testRunner.Given("I create the following api scopes", ((string)(null)), table5, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table10 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table6 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
                             "DisplayName",
                             "Description"});
-                table10.AddRow(new string[] {
+                table6.AddRow(new string[] {
                             "testscope1",
                             "Test Scope1",
                             "A scope for testing 1"});
-                table10.AddRow(new string[] {
+#line 10
+ testRunner.When("I get the api scope with name \'testscope1\' the api scope details are returned as " +
+                        "follows", ((string)(null)), table6, "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table7 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description"});
+                table7.AddRow(new string[] {
                             "testscope2",
                             "Test Scope2",
                             "A scope for testing 2"});
-#line 24
- testRunner.When("I get the api scopes 2 api scope details are returned as follows", ((string)(null)), table10, "When ");
+#line 13
+ testRunner.When("I get the api scope with name \'testscope2\' the api scope details are returned as " +
+                        "follows", ((string)(null)), table7, "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table8 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description"});
+                table8.AddRow(new string[] {
+                            "testscope1",
+                            "Test Scope1",
+                            "A scope for testing 1"});
+                table8.AddRow(new string[] {
+                            "testscope2",
+                            "Test Scope2",
+                            "A scope for testing 2"});
+#line 16
+ testRunner.When("I get the api scopes 2 api scope details are returned as follows", ((string)(null)), table8, "When ");
 #line hidden
             }
             this.ScenarioCleanup();

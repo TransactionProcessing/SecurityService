@@ -84,71 +84,6 @@ namespace SecurityService.IntegrationTests.Roles
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Create Role")]
-        [Xunit.TraitAttribute("FeatureTitle", "Roles")]
-        [Xunit.TraitAttribute("Description", "Create Role")]
-        public void CreateRole()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create Role", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 4
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-                TechTalk.SpecFlow.Table table22 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table22.AddRow(new string[] {
-                            "TestRole1"});
-#line 5
- testRunner.Given("I create the following roles", ((string)(null)), table22, "Given ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
-        [Xunit.SkippableFactAttribute(DisplayName="Get Role")]
-        [Xunit.TraitAttribute("FeatureTitle", "Roles")]
-        [Xunit.TraitAttribute("Description", "Get Role")]
-        public void GetRole()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Role", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 9
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-                TechTalk.SpecFlow.Table table23 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table23.AddRow(new string[] {
-                            "TestRole1"});
-#line 10
- testRunner.Given("I create the following roles", ((string)(null)), table23, "Given ");
-#line hidden
-                TechTalk.SpecFlow.Table table24 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Role Name"});
-                table24.AddRow(new string[] {
-                            "TestRole1"});
-#line 13
- testRunner.When("I get the role with name \'TestRole1\' the role details are returned as follows", ((string)(null)), table24, "When ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
         [Xunit.SkippableFactAttribute(DisplayName="Get Roles")]
         [Xunit.TraitAttribute("FeatureTitle", "Roles")]
         [Xunit.TraitAttribute("Description", "Get Roles")]
@@ -159,7 +94,7 @@ this.ScenarioInitialize(scenarioInfo);
                     "PRTest"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Roles", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 18
+#line 5
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -169,27 +104,48 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table25 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
                             "Role Name"});
-                table25.AddRow(new string[] {
+                table17.AddRow(new string[] {
                             "TestRole1"});
-                table25.AddRow(new string[] {
+                table17.AddRow(new string[] {
                             "TestRole2"});
-                table25.AddRow(new string[] {
+                table17.AddRow(new string[] {
                             "TestRole3"});
-#line 19
- testRunner.Given("I create the following roles", ((string)(null)), table25, "Given ");
+#line 6
+ testRunner.Given("I create the following roles", ((string)(null)), table17, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table26 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table18 = new TechTalk.SpecFlow.Table(new string[] {
                             "Role Name"});
-                table26.AddRow(new string[] {
+                table18.AddRow(new string[] {
                             "TestRole1"});
-                table26.AddRow(new string[] {
+#line 11
+ testRunner.When("I get the role with name \'TestRole1\' the role details are returned as follows", ((string)(null)), table18, "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table19 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Role Name"});
+                table19.AddRow(new string[] {
                             "TestRole2"});
-                table26.AddRow(new string[] {
+#line 14
+ testRunner.When("I get the role with name \'TestRole2\' the role details are returned as follows", ((string)(null)), table19, "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table20 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Role Name"});
+                table20.AddRow(new string[] {
                             "TestRole3"});
-#line 24
- testRunner.When("I get the roles 3 roles details are returned as follows", ((string)(null)), table26, "When ");
+#line 17
+ testRunner.When("I get the role with name \'TestRole3\' the role details are returned as follows", ((string)(null)), table20, "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table21 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Role Name"});
+                table21.AddRow(new string[] {
+                            "TestRole1"});
+                table21.AddRow(new string[] {
+                            "TestRole2"});
+                table21.AddRow(new string[] {
+                            "TestRole3"});
+#line 20
+ testRunner.When("I get the roles 3 roles details are returned as follows", ((string)(null)), table21, "When ");
 #line hidden
             }
             this.ScenarioCleanup();

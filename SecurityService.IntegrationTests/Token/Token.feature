@@ -30,14 +30,11 @@ Background:
 	| merchantuser@testmerchant1.co.uk | 123456   | 123456789    | Test       |             | User 1      | EstateId:1,MerchantId:2 | Merchant |
 
 @PRTest
-Scenario: Get Client Token
+Scenario: Get Tokens
 	When I request a client token with the following values
 	| ClientId      | ClientSecret |
 	| serviceClient | Secret1      |
 	Then my token is returned
-
-@PRTest
-Scenario: Get Password Token
 	When I request a password token with the following values
 	| ClientId       | ClientSecret | Username                         | Password |
 	| merchantClient | Secret1      | merchantuser@testmerchant1.co.uk | 123456   |

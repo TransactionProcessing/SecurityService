@@ -84,95 +84,6 @@ namespace SecurityService.IntegrationTests.IdentityResource
             this.TestTearDown();
         }
         
-        [Xunit.SkippableFactAttribute(DisplayName="Create Identity Resource")]
-        [Xunit.TraitAttribute("FeatureTitle", "IdentityResource")]
-        [Xunit.TraitAttribute("Description", "Create Identity Resource")]
-        public void CreateIdentityResource()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Create Identity Resource", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 4
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-                TechTalk.SpecFlow.Table table17 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Name",
-                            "DisplayName",
-                            "Description",
-                            "UserClaims"});
-                table17.AddRow(new string[] {
-                            "testresource",
-                            "Test Resource",
-                            "A resource for testing",
-                            "Claim1,Claim2"});
-#line 5
- testRunner.Given("I create the following identity resources", ((string)(null)), table17, "Given ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
-        [Xunit.SkippableFactAttribute(DisplayName="Get Identity Resource")]
-        [Xunit.TraitAttribute("FeatureTitle", "IdentityResource")]
-        [Xunit.TraitAttribute("Description", "Get Identity Resource")]
-        public void GetIdentityResource()
-        {
-            string[] tagsOfScenario = ((string[])(null));
-            System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
-            TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Identity Resource", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 9
-this.ScenarioInitialize(scenarioInfo);
-#line hidden
-            if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
-            {
-                testRunner.SkipScenario();
-            }
-            else
-            {
-                this.ScenarioStart();
-                TechTalk.SpecFlow.Table table18 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Name",
-                            "DisplayName",
-                            "Description",
-                            "UserClaims"});
-                table18.AddRow(new string[] {
-                            "testresource1",
-                            "Test Resource1",
-                            "A resource for testing 1",
-                            "Claim1,Claim2"});
-                table18.AddRow(new string[] {
-                            "testresource2",
-                            "Test Resource2",
-                            "A resource for testing 2",
-                            "Claim1,Claim2"});
-#line 10
- testRunner.Given("I create the following identity resources", ((string)(null)), table18, "Given ");
-#line hidden
-                TechTalk.SpecFlow.Table table19 = new TechTalk.SpecFlow.Table(new string[] {
-                            "Name",
-                            "DisplayName",
-                            "Description",
-                            "UserClaims"});
-                table19.AddRow(new string[] {
-                            "testresource1",
-                            "Test Resource1",
-                            "A resource for testing 1",
-                            "Claim1,Claim2"});
-#line 14
- testRunner.When("I get the identity resource with name \'testresource1\' the identity resource detai" +
-                        "ls are returned as follows", ((string)(null)), table19, "When ");
-#line hidden
-            }
-            this.ScenarioCleanup();
-        }
-        
         [Xunit.SkippableFactAttribute(DisplayName="Get Identity Resources")]
         [Xunit.TraitAttribute("FeatureTitle", "IdentityResource")]
         [Xunit.TraitAttribute("Description", "Get Identity Resources")]
@@ -183,7 +94,7 @@ this.ScenarioInitialize(scenarioInfo);
                     "PRTest"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             TechTalk.SpecFlow.ScenarioInfo scenarioInfo = new TechTalk.SpecFlow.ScenarioInfo("Get Identity Resources", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 19
+#line 5
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((TagHelper.ContainsIgnoreTag(tagsOfScenario) || TagHelper.ContainsIgnoreTag(featureTags)))
@@ -193,41 +104,69 @@ this.ScenarioInitialize(scenarioInfo);
             else
             {
                 this.ScenarioStart();
-                TechTalk.SpecFlow.Table table20 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table13 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
                             "DisplayName",
                             "Description",
                             "UserClaims"});
-                table20.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "testresource1",
                             "Test Resource1",
                             "A resource for testing 1",
                             "Claim1,Claim2"});
-                table20.AddRow(new string[] {
+                table13.AddRow(new string[] {
                             "testresource2",
                             "Test Resource2",
                             "A resource for testing 2",
                             "Claim1,Claim2"});
-#line 20
- testRunner.Given("I create the following identity resources", ((string)(null)), table20, "Given ");
+#line 6
+ testRunner.Given("I create the following identity resources", ((string)(null)), table13, "Given ");
 #line hidden
-                TechTalk.SpecFlow.Table table21 = new TechTalk.SpecFlow.Table(new string[] {
+                TechTalk.SpecFlow.Table table14 = new TechTalk.SpecFlow.Table(new string[] {
                             "Name",
                             "DisplayName",
                             "Description",
                             "UserClaims"});
-                table21.AddRow(new string[] {
+                table14.AddRow(new string[] {
                             "testresource1",
                             "Test Resource1",
                             "A resource for testing 1",
                             "Claim1,Claim2"});
-                table21.AddRow(new string[] {
+#line 10
+ testRunner.When("I get the identity resource with name \'testresource1\' the identity resource detai" +
+                        "ls are returned as follows", ((string)(null)), table14, "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table15 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description",
+                            "UserClaims"});
+                table15.AddRow(new string[] {
                             "testresource2",
                             "Test Resource2",
                             "A resource for testing 2",
                             "Claim1,Claim2"});
-#line 24
- testRunner.When("I get the identity resources 2 identity resource details are returned as follows", ((string)(null)), table21, "When ");
+#line 13
+ testRunner.When("I get the identity resource with name \'testresource2\' the identity resource detai" +
+                        "ls are returned as follows", ((string)(null)), table15, "When ");
+#line hidden
+                TechTalk.SpecFlow.Table table16 = new TechTalk.SpecFlow.Table(new string[] {
+                            "Name",
+                            "DisplayName",
+                            "Description",
+                            "UserClaims"});
+                table16.AddRow(new string[] {
+                            "testresource1",
+                            "Test Resource1",
+                            "A resource for testing 1",
+                            "Claim1,Claim2"});
+                table16.AddRow(new string[] {
+                            "testresource2",
+                            "Test Resource2",
+                            "A resource for testing 2",
+                            "Claim1,Claim2"});
+#line 16
+ testRunner.When("I get the identity resources 2 identity resource details are returned as follows", ((string)(null)), table16, "When ");
 #line hidden
             }
             this.ScenarioCleanup();
