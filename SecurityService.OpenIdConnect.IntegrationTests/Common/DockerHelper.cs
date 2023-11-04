@@ -78,6 +78,8 @@
         /// <param name="scenarioName">Name of the scenario.</param>
         public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
+            this.Trace($"Test Id is {this.TestId} and Scenrio {scenarioName}");
+
             await base.StartContainersForScenarioRun(scenarioName,dockerServices);
 
             securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
@@ -165,12 +167,17 @@
                                                                              List<INetworkService> networkServices,
                                                                              (String clientId, String clientSecret) clientDetails)
         {
-            // Management API Container
+            List<String> additionalEnvironmentVariables = this.GetAdditionalVariables(ContainerType.SecurityService);
+
+
             IContainerService securityServiceTestUIContainer = new Builder().UseContainer().WithName(containerName)
                                                                             .WithEnvironment($"AppSettings:Authority=https://identity-server:{securityServiceContainerPort}",
                                                                                              $"AppSettings:ClientId={clientDetails.clientId}",
                                                                                              $"AppSettings:ClientSecret={clientDetails.clientSecret}",
-                                                                                             "urls=https://*:5004")
+                                                                                             "urls=https://*:5004",
+                                                                                             "Logging:LogLevel:Microsoft=Information",
+                                                                                             "Logging:LogLevel:Default=Information",
+                                                                                             "Logging:EventLog:LogLevel:Default=None")
                                                                             .UseImage("securityservicetestui").ExposePort(5004)
                                                                             .Build().Start().WaitForPort("5004/tcp", 30000);
 
@@ -196,8 +203,7 @@
             environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireUpperCase=false");
             environmentVariables.Add($"ServiceOptions:UserOptions:RequireUniqueEmail=false");
             environmentVariables.Add($"ServiceOptions:SignInOptions:RequireConfirmedEmail=false");
-
-
+            
             List<String> additionalEnvironmentVariables = this.GetAdditionalVariables(ContainerType.SecurityService);
 
             if (additionalEnvironmentVariables != null)
