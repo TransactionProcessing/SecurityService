@@ -16,18 +16,23 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
 
-    - name: Install NET 7
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '7.0.x'
-
     - name: Set Up Variables
       run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
       
+    - name: Trust Root Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        
     - name: Trust Certificate
       run: |
         $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root        
+
+    - name: Install NET 7
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '7.0.x'    
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
@@ -49,6 +54,12 @@ jobs:
       run: |
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest    
 
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: nonuilogs
+        path: C:\\Users\\runneradmin\\txnproc
+
     - name: Create Issue on Failed workflow
       if: ${{ failure() }}
       uses: dacbd/create-issue-action@main
@@ -68,18 +79,23 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
 
-    - name: Install NET 7
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '7.0.x'
-
     - name: Set Up Variables
       run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
       
+    - name: Trust Root Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        
     - name: Trust Certificate
       run: |
         $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root        
+
+    - name: Install NET 7
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '7.0.x'    
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
@@ -97,6 +113,12 @@ jobs:
         Browser: Firefox
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: firefoxlogs
+        path: C:\\Users\\runneradmin\\txnproc
     
     - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
@@ -117,18 +139,23 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
 
-    - name: Install NET 7
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '7.0.x'
-
     - name: Set Up Variables
       run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
       
+    - name: Trust Root Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        
     - name: Trust Certificate
       run: |
         $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root        
+
+    - name: Install NET 7
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '7.0.x'    
         
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
@@ -151,7 +178,13 @@ jobs:
         Browser: Chrome
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
-            
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: chromelogs
+        path: C:\\Users\\runneradmin\\txnproc
+        
     - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
       name: Create an issue on build failure
@@ -171,23 +204,23 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
 
-    - name: Install NET 7
-      uses: actions/setup-dotnet@v2
-      with:
-        dotnet-version: '7.0.x'
-
     - name: Set Up Variables
       run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
       
-    - name: Trust Certificate
+    - name: Trust Root Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
         Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
         
+    - name: Trust Certificate
+      run: |
+        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
+        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root        
+
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.0.101'
+        dotnet-version: '7.0.x'    
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
@@ -207,6 +240,12 @@ jobs:
         DriverExe: msedgedriver.exe
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: edgelogs
+        path: C:\\Users\\runneradmin\\txnproc  
 
     - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
