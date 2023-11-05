@@ -21,7 +21,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
-		<PackageReference Include="Shared" Version="2023.1.0" />
+		<PackageReference Include="Shared" Version="2023.11.1" />
 	</ItemGroup>
 	<ItemGroup>
     <Folder Include="DbContexts\" />

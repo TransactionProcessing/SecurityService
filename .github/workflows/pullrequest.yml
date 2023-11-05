@@ -53,8 +53,8 @@ jobs:
     - uses: actions/upload-artifact@v2
       if: ${{ failure() }}
       with:
-        name: tracelogswindows
-        path: c:\\home\\txnproc\\trace\\
+        name: nonuilogs
+        path: C:\\Users\\runneradmin\\txnproc
 
 
   buildfirefox:
@@ -99,11 +99,11 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest    
 
-  #  - uses: actions/upload-artifact@v2
-  #    if: ${{ failure() }}
-  #    with:
-  #      name: tracelogs
-  #      path: c:\home\txnproc\trace\   
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: firefoxlogs
+        path: C:\\Users\\runneradmin\\txnproc
 
 
   buildchromeui:
@@ -148,11 +148,11 @@ jobs:
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
-  #  - uses: actions/upload-artifact@v2
-  #    if: ${{ failure() }}
-  #    with:
-  #      name: tracelogs
-  #      path: c:\home\txnproc\trace\   
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: chromelogs
+        path: C:\\Users\\runneradmin\\txnproc
 
 
   buildedgeui:
@@ -199,8 +199,8 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest 
 
-  #  - uses: actions/upload-artifact@v2
-  #    if: ${{ failure() }}
-  #    with:
-  #      name: tracelogs
-  #      path: c:\home\txnproc\trace\   
+    - uses: actions/upload-artifact@v2
+      if: ${{ failure() }}
+      with:
+        name: edgelogs
+        path: C:\\Users\\runneradmin\\txnproc  

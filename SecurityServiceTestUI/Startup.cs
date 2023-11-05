@@ -13,7 +13,9 @@ namespace SecurityServiceTestUI
 {
     using System.IdentityModel.Tokens.Jwt;
     using System.Net.Http;
+    using HealthChecks.UI.Client;
     using Microsoft.AspNetCore.Authentication;
+    using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.IdentityModel.Tokens;
 
     public class Startup
@@ -37,6 +39,8 @@ namespace SecurityServiceTestUI
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
             Console.WriteLine($"Authority is {Configuration.GetValue<String>("AppSettings:Authority")}");
+            
+            services.AddHealthChecks();
 
             services.AddAuthentication(options =>
                                        {
@@ -113,6 +117,18 @@ namespace SecurityServiceTestUI
             app.UseEndpoints(endpoints =>
                              {
                                  endpoints.MapDefaultControllerRoute();
+                                 endpoints.MapHealthChecks("health",
+                                                           new HealthCheckOptions
+                                                           {
+                                                               Predicate = _ => true,
+                                                               ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse
+                                                           });
+                                 endpoints.MapHealthChecks("healthui",
+                                                           new HealthCheckOptions
+                                                           {
+                                                               Predicate = _ => true,
+                                                               ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                                                           });
                              });
         }
     }
