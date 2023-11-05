@@ -124,8 +124,7 @@ public class ClientRequestHandlerTests
     [Fact]
     public async Task ClientRequestHandler_CreateClientRequest_HybridClient_RequestIsHandled()
     {
-        CreateClientRequest request = TestData.CreateClientRequest;
-        request.AllowedGrantTypes.Add("hybrid");
+        CreateClientRequest request = TestData.CreateHybridClientRequest;
 
         await this.RequestHandler.Handle(request, CancellationToken.None);
 

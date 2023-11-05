@@ -144,6 +144,10 @@
         public static List<String> AllowedGrantTypes = new List<String>{
                                                                            "client_credentials"
                                                                        };
+        public static List<String> AllowedGrantTypesWithHybrid = new List<String>{
+                                                                           "client_credentials",
+                                                                           "hybrid"
+                                                                       };
 
         public static Boolean RequireConsentTrue = true;
 
@@ -276,6 +280,19 @@
                                                                                              TestData.ClientPostLogoutRedirectUris,
                                                                                              TestData.RequireConsentTrue,
                                                                                              TestData.AllowOfflineAccessTrue);
+
+        public static CreateClientRequest CreateHybridClientRequest =>
+            CreateClientRequest.Create(TestData.ClientId,
+                                       TestData.ClientSecret,
+                                       TestData.ClientName,
+                                       TestData.ClientDescription,
+                                       TestData.AllowedScopes,
+                                       TestData.AllowedGrantTypesWithHybrid,
+                                       TestData.ClientUri,
+                                       TestData.ClientRedirectUris,
+                                       TestData.ClientPostLogoutRedirectUris,
+                                       TestData.RequireConsentTrue,
+                                       TestData.AllowOfflineAccessTrue);
 
         public static GetClientRequest GetClientRequest => GetClientRequest.Create(TestData.ClientId);
 
