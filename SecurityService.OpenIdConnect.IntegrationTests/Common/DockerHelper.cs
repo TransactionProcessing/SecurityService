@@ -14,11 +14,15 @@
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Commands;
     using Ductus.FluentDocker.Common;
+    using Ductus.FluentDocker.Executors;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
+    using Newtonsoft.Json;
+    using Shared.HealthChecks;
     using Shared.IntegrationTesting;
     using Shared.Logger;
+    using Shouldly;
 
     /// <summary>
     /// 
@@ -82,26 +86,86 @@
 
             await base.StartContainersForScenarioRun(scenarioName,dockerServices);
 
+            await StartContainer(SetupSecurityServiceTestUIContainer, this.TestNetworks);
+
             securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
-            IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
-                                                                                                                this.SecurityServiceContainerName,
-                                                                                                                this.SecurityServicePort,
-                                                                                                                this.TestNetworks,
-                                                                                                                ("estateUIClient", "Secret1"));
 
-            this.SecurityServiceTestUIPort = securityServiceTestUIContainer.ToHostExposedEndpoint("5004/tcp").Port;
+
+            //IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
+            //                                                                                                    this.SecurityServiceContainerName,
+            //                                                                                                    this.SecurityServicePort,
+            //                                                                                                    this.TestNetworks,
+            //                                                                                                    ("estateUIClient", "Secret1"));
+
+            //
 
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient);
 
-            this.Containers.AddRange(new List<IContainerService>
-                                     {
-                                         securityServiceTestUIContainer
-                                     });
+            //this.Containers.AddRange(new List<IContainerService>
+            //                         {
+            //                             securityServiceTestUIContainer
+            //                         });
 
             DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
             DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);
-        }              
+        }
+
+        protected async Task DoTestUIHealthCheck()
+        {
+            await Retry.For(async () => {
+                                this.Trace($"About to do health check for Test UI");
+
+                                String healthCheck =
+                                    await this.HealthCheckClient.PerformHealthCheck("https", "127.0.0.1", this.SecurityServiceTestUIPort, CancellationToken.None);
+
+                                HealthCheckResult result = JsonConvert.DeserializeObject<HealthCheckResult>(healthCheck);
+
+                                this.Trace($"health check complete for Test UI result is [{healthCheck}]");
+
+                                result.Status.ShouldBe(HealthCheckStatus.Healthy.ToString(), $"Service Type: Test UI Details {healthCheck}");
+                                this.Trace($"health check complete for Test UI");
+                            },
+                            TimeSpan.FromMinutes(3),
+                            TimeSpan.FromSeconds(20));
+        }
+
+        protected async Task<IContainerService> StartContainer(Func<ContainerBuilder> buildContainerFunc, List<INetworkService> networkServices)
+        {
+            ConsoleStream<String> consoleLogs = null;
+            try
+            {
+                var containerBuilder = buildContainerFunc();
+
+                IContainerService builtContainer = containerBuilder.Build();
+                consoleLogs = builtContainer.Logs(true);
+                var startedContainer = builtContainer.Start();
+                foreach (INetworkService networkService in networkServices)
+                {
+                    networkService.Attach(startedContainer, false);
+                }
+
+                this.Trace($"Test UI Container Started");
+                this.Containers.Add(startedContainer);
+
+                this.SecurityServiceTestUIPort = startedContainer.ToHostExposedEndpoint("5004/tcp").Port;
+
+                await this.DoTestUIHealthCheck();
+                
+                return startedContainer;
+            }
+            catch (Exception ex)
+            {
+                while (consoleLogs.IsFinished == false)
+                {
+                    var s = consoleLogs.TryRead(10000);
+                    this.Trace(s);
+                }
+
+                this.Error($"Error starting container [{buildContainerFunc.Method.Name}]", ex);
+                throw;
+            }
+        }
 
         /// <summary>
         /// Adds the entry to hosts file.
@@ -151,39 +215,22 @@
             proc.Start();
             proc.WaitForExit();
         }
-               
-        /// <summary>
-        /// Setups the security service test UI container.
-        /// </summary>
-        /// <param name="containerName">Name of the container.</param>
-        /// <param name="securityServiceContainerName">Name of the security service container.</param>
-        /// <param name="securityServiceContainerPort">The security service container port.</param>
-        /// <param name="networkService">The network service.</param>
-        /// <param name="clientDetails">The client details.</param>
-        /// <returns></returns>
-        private IContainerService SetupSecurityServiceTestUIContainer(String containerName,
-                                                                             String securityServiceContainerName,
-                                                                             Int32 securityServiceContainerPort,
-                                                                             List<INetworkService> networkServices,
-                                                                             (String clientId, String clientSecret) clientDetails)
-        {
-            List<String> additionalEnvironmentVariables = this.GetAdditionalVariables(ContainerType.SecurityService);
+        
+        private const String SetupSecurityServiceTestUIContainerName = "";
 
+        private ContainerBuilder SetupSecurityServiceTestUIContainer(){
 
-            IContainerService securityServiceTestUIContainer = new Builder().UseContainer().WithName(containerName)
-                                                                            .WithEnvironment($"AppSettings:Authority=https://identity-server:{securityServiceContainerPort}",
-                                                                                             $"AppSettings:ClientId={clientDetails.clientId}",
-                                                                                             $"AppSettings:ClientSecret={clientDetails.clientSecret}",
-                                                                                             "urls=https://*:5004",
-                                                                                             "Logging:LogLevel:Microsoft=Information",
-                                                                                             "Logging:LogLevel:Default=Information",
-                                                                                             "Logging:EventLog:LogLevel:Default=None")
-                                                                            .UseImage("securityservicetestui").ExposePort(5004)
-                                                                            .Build().Start().WaitForPort("5004/tcp", 30000);
+            var clientDetails = ("estateUIClient", "Secret1");
 
-            foreach (INetworkService networkService in networkServices) {
-                networkService.Attach(securityServiceTestUIContainer, false);
-            }
+            ContainerBuilder securityServiceTestUIContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
+                                                                           .WithEnvironment($"AppSettings:Authority=https://identity-server:{this.SecurityServicePort}",
+                                                                                            $"AppSettings:ClientId={clientDetails.Item1}",
+                                                                                            $"AppSettings:ClientSecret={clientDetails.Item2}",
+                                                                                            "urls=https://*:5004",
+                                                                                            "Logging:LogLevel:Microsoft=Information",
+                                                                                            "Logging:LogLevel:Default=Information",
+                                                                                            "Logging:EventLog:LogLevel:Default=None")
+                                                                           .UseImage("securityservicetestui").ExposePort(5004);
 
             return securityServiceTestUIContainer;
         }
