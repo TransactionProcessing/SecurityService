@@ -31,7 +31,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.SqlServerMi
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.MySqlMigrations", "SecurityService.MySqlMigrations\SecurityService.MySqlMigrations.csproj", "{701F392A-0D5B-4FDD-8135-DA037ECA7A8F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityService.UserInterface", "SecurityService.UserInterface\SecurityService.UserInterface.csproj", "{DA8C3E4B-5ACB-4941-B05F-EC46D1D60CD7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.UserInterface", "SecurityService.UserInterface\SecurityService.UserInterface.csproj", "{DA8C3E4B-5ACB-4941-B05F-EC46D1D60CD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
