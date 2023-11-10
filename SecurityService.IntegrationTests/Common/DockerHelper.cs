@@ -30,7 +30,7 @@ namespace SecurityService.IntergrationTests.Common
         public ISecurityServiceClient SecurityServiceClient;
                 
         public async Task StartContainersForScenarioRun(String scenarioName){
-            DockerServices dockerServices = DockerServices.SecurityService | DockerServices.SqlServer | DockerServices.MessagingService | DockerServices.EventStore;
+            DockerServices dockerServices = DockerServices.SecurityService | DockerServices.SqlServer;
 
             await base.StartContainersForScenarioRun(scenarioName, dockerServices);
                                    
@@ -82,6 +82,14 @@ namespace SecurityService.IntergrationTests.Common
 
             // Now build and return the container                
             return securityServiceContainer;
+        }
+
+        public override async Task CreateEstateSubscriptions(String estateName){
+            
+        }
+
+        public override async Task CreateGenericSubscriptions(){
+            
         }
     }
 }
