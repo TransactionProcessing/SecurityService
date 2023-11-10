@@ -24,13 +24,16 @@
     {
         public MiddlewareRegistry()
         {
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") || Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase"))
-            {
+            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")){
+                this.AddHealthChecks();
+            }
+            else if (Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase")){
                 this.AddHealthChecks().AddMessagingService();
             }
             else
             {
                 this.AddHealthChecks()
+                    .AddMessagingService()
                     .AddSqlServer(ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
                                   "SELECT 1;",
                                   "Persisted Grant DB",
