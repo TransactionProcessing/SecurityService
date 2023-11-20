@@ -19,12 +19,20 @@ jobs:
     - name: Trust Root Certificate
       run: |
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-        pwsh -Command "Import-PfxCertificate -FilePath $certPath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        sudo update-ca-certificates
 
     - name: Trust Certificate
       run: |
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-        pwsh -Command "Import-PfxCertificate -FilePath $certPath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        sudo update-ca-certificates
         
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
