@@ -23,8 +23,8 @@ jobs:
     - name: Trust Root Certificate
       run: |
         expect -c '
-          set certPath "$env:GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-          set password "your_password"
+          set certPath "$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+          set password "password"
           
           spawn openssl pkcs12 -in $certPath -out temp.pem -nodes -password pass:$password
           spawn sudo cp temp.pem /usr/local/share/ca-certificates/your-cert.crt
@@ -39,8 +39,8 @@ jobs:
     - name: Trust Certificate
       run: |
         expect -c '
-          set certPath "$env:GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-          set password "your_password"
+          set certPath "$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+          set password "password"
           
           spawn openssl pkcs12 -in $certPath -out temp.pem -nodes -password pass:$password
           spawn sudo cp temp.pem /usr/local/share/ca-certificates/your-cert.crt
