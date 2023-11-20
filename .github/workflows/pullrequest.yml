@@ -62,7 +62,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: nonuilogs
-        path: C:\\Users\\runneradmin\\txnproc
+        path: /home/txnproc/trace/
 
 
   buildfirefox:
@@ -119,7 +119,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: firefoxlogs
-        path: C:\\Users\\runneradmin\\txnproc
+        path: /home/txnproc/trace/
 
 
   buildchromeui:
@@ -176,7 +176,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: chromelogs
-        path: C:\\Users\\runneradmin\\txnproc
+        path: /home/txnproc/trace/
 
 
   buildedgeui:
@@ -235,4 +235,4 @@ jobs:
       if: ${{ failure() }}
       with:
         name: edgelogs
-        path: C:\\Users\\runneradmin\\txnproc  
+        path: /home/txnproc/trace/
