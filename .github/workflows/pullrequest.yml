@@ -44,7 +44,7 @@ jobs:
     
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
 
     - name: Run Integration Tests (Non UI)
       run: |
