@@ -43,6 +43,7 @@ namespace SecurityService.IntergrationTests.Common
 
         public override ContainerBuilder SetupSecurityServiceContainer()
         {
+            
             this.Trace("About to Start Security Container");
 
             List<String> environmentVariables = this.GetCommonEnvironmentVariables();

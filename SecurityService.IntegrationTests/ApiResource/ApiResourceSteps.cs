@@ -10,6 +10,7 @@
     using Clients;
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
+    using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Newtonsoft.Json;
     using Shouldly;
@@ -29,6 +30,8 @@
         /// </summary>
         private readonly TestingContext TestingContext;
 
+        private readonly SecurityServiceSteps SecurityServiceSteps;
+
         #endregion
 
         #region Constructors
@@ -40,6 +43,7 @@
         public ApiResourceSteps(TestingContext testingContext)
         {
             this.TestingContext = testingContext;
+            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient);
         }
 
         #endregion
@@ -53,29 +57,8 @@
         [Given(@"I create the following api resources")]
         public async Task GivenICreateTheFollowingApiResources(Table table)
         {
-            foreach (TableRow tableRow in table.Rows)
-            {
-                // Get the scopes
-                String scopes = SpecflowTableHelper.GetStringRowValue(tableRow, "Scopes");
-                String userClaims = SpecflowTableHelper.GetStringRowValue(tableRow, "UserClaims");
-
-                CreateApiResourceRequest createApiResourceRequest = new CreateApiResourceRequest
-                                                                    {
-                                                                        Secret = SpecflowTableHelper.GetStringRowValue(tableRow, "Secret"),
-                                                                        Name = SpecflowTableHelper.GetStringRowValue(tableRow, "Name"),
-                                                                        Scopes = string.IsNullOrEmpty(scopes) ? null : scopes.Split(",").ToList(),
-                                                                        UserClaims = string.IsNullOrEmpty(userClaims) ? null : userClaims.Split(",").ToList(),
-                                                                        Description = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
-                                                                        DisplayName = SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayName")
-                                                                    };
-                CreateApiResourceResponse createApiResourceResponse =
-                    await this.CreateApiResource(createApiResourceRequest, CancellationToken.None).ConfigureAwait(false);
-
-                createApiResourceResponse.ShouldNotBeNull();
-                createApiResourceResponse.ApiResourceName.ShouldNotBeNullOrEmpty();
-
-                this.TestingContext.ApiResources.Add(createApiResourceResponse.ApiResourceName);
-            }
+            List<CreateApiResourceRequest> requests = table.Rows.ToCreateApiResourceRequests();
+            await this.SecurityServiceSteps.GivenTheFollowingApiResourcesExist(requests);
         }
 
         /// <summary>
@@ -85,39 +68,9 @@
         /// <param name="table">The table.</param>
         [When(@"I get the api resources (.*) api resource details are returned as follows")]
         public async Task WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(Int32 numberOfApiResources,
-                                                                                        Table table)
-        {
-            List<ApiResourceDetails> apiResourceDetailsList = await this.GetApiResources(CancellationToken.None).ConfigureAwait(false);
-            apiResourceDetailsList.Count.ShouldBe(numberOfApiResources);
-            foreach (TableRow tableRow in table.Rows)
-            {
-                String apiResourceName = SpecflowTableHelper.GetStringRowValue(tableRow, "Name");
-                ApiResourceDetails apiResourceDetails = apiResourceDetailsList.SingleOrDefault(u => u.Name == apiResourceName);
-
-                String scopes = SpecflowTableHelper.GetStringRowValue(tableRow, "Scopes");
-                String userClaims = SpecflowTableHelper.GetStringRowValue(tableRow, "UserClaims");
-
-                apiResourceDetails.Description.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Description"));
-                apiResourceDetails.Name.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Name"));
-                apiResourceDetails.DisplayName.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayName"));
-                if (string.IsNullOrEmpty(scopes))
-                {
-                    apiResourceDetails.Scopes.ShouldBeEmpty();
-                }
-                else
-                {
-                    apiResourceDetails.Scopes.ShouldBe(scopes.Split(",").ToList());
-                }
-
-                if (string.IsNullOrEmpty(userClaims))
-                {
-                    apiResourceDetails.UserClaims.ShouldBeEmpty();
-                }
-                else
-                {
-                    apiResourceDetails.UserClaims.ShouldBe(userClaims.Split(",").ToList());
-                }
-            }
+                                                                                        Table table){
+            List<ApiResourceDetails> expectedDetails = table.Rows.ToApiResourceDetails();
+            await this.SecurityServiceSteps.WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(expectedDetails, CancellationToken.None);
         }
 
         /// <summary>
@@ -129,76 +82,12 @@
         public async Task WhenIGetTheApiResourceWithNameTheApiResourceDetailsAreReturnedAsFollows(String apiResourceName,
                                                                                                   Table table)
         {
-            ApiResourceDetails apiResourceDetails = await this.GetApiResource(apiResourceName, CancellationToken.None).ConfigureAwait(false);
-
-            table.Rows.Count.ShouldBe(1);
-            TableRow tableRow = table.Rows.First();
-            apiResourceDetails.ShouldNotBeNull();
-
-            String scopes = SpecflowTableHelper.GetStringRowValue(tableRow, "Scopes");
-            String userClaims = SpecflowTableHelper.GetStringRowValue(tableRow, "UserClaims");
-
-            apiResourceDetails.Description.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Description"));
-            apiResourceDetails.Name.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Name"));
-            apiResourceDetails.DisplayName.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayName"));
-            if (string.IsNullOrEmpty(scopes))
-            {
-                apiResourceDetails.Scopes.ShouldBeEmpty();
-            }
-            else
-            {
-                apiResourceDetails.Scopes.ShouldBe(scopes.Split(",").ToList());
-            }
-
-            if (string.IsNullOrEmpty(userClaims))
-            {
-                apiResourceDetails.UserClaims.ShouldBeEmpty();
-            }
-            else
-            {
-                apiResourceDetails.UserClaims.ShouldBe(userClaims.Split(",").ToList());
-            }
+            List<ApiResourceDetails> expectedDetails = table.Rows.ToApiResourceDetails();
+            await this.SecurityServiceSteps.WhenIGetTheApiResourceWithNameTheApiResourceDetailsAreReturnedAsFollows(expectedDetails, apiResourceName, CancellationToken.None);
         }
+        
+   
 
-        /// <summary>
-        /// Creates the API resource.
-        /// </summary>
-        /// <param name="createApiResourceRequest">The create API resource request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="Exception">Http Status Code [{response.StatusCode}] Message [{responseBody}]</exception>
-        private async Task<CreateApiResourceResponse> CreateApiResource(CreateApiResourceRequest createApiResourceRequest,
-                                                                        CancellationToken cancellationToken)
-        {
-            CreateApiResourceResponse createApiResourceResponse =  await this.TestingContext.DockerHelper.SecurityServiceClient.CreateApiResource(createApiResourceRequest, cancellationToken).ConfigureAwait(false);
-            return createApiResourceResponse;
-        }
-
-        /// <summary>
-        /// Gets the API resource.
-        /// </summary>
-        /// <param name="apiResourceName">Name of the API resource.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="Exception">Http Status Code [{response.StatusCode}] Message [{responseBody}]</exception>
-        private async Task<ApiResourceDetails> GetApiResource(String apiResourceName,
-                                                              CancellationToken cancellationToken)
-        {
-            ApiResourceDetails apiResourceDetails = await this.TestingContext.DockerHelper.SecurityServiceClient.GetApiResource(apiResourceName, cancellationToken).ConfigureAwait(false);
-            return apiResourceDetails;
-        }
-
-        /// <summary>
-        /// Gets the API resources.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        /// <exception cref="Exception">Http Status Code [{response.StatusCode}] Message [{responseBody}]</exception>
-        private async Task<List<ApiResourceDetails>> GetApiResources(CancellationToken cancellationToken)
-        {
-            List<ApiResourceDetails> apiResourceDetailsList = await this.TestingContext.DockerHelper.SecurityServiceClient.GetApiResources(cancellationToken).ConfigureAwait(false);
-            return apiResourceDetailsList;
-        }
 
         #endregion
     }

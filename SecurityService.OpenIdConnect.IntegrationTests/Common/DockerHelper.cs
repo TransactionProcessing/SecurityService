@@ -156,10 +156,11 @@
             }
             catch (Exception ex)
             {
-                while (consoleLogs.IsFinished == false)
-                {
-                    var s = consoleLogs.TryRead(10000);
-                    this.Trace(s);
+                if (consoleLogs != null){
+                    while (consoleLogs.IsFinished == false){
+                        var s = consoleLogs.TryRead(10000);
+                        this.Trace(s);
+                    }
                 }
 
                 this.Error($"Error starting container [{buildContainerFunc.Method.Name}]", ex);
