@@ -79,6 +79,9 @@
                 }
 
                 if (testUIPort.HasValue){
+                    clientUri = clientUri.Replace("[url]", "localhost");
+                    clientUri = clientUri.Replace("[port]", testUIPort.ToString());
+
                     redirectUris = redirectUris.Replace("[url]", "localhost");
                     redirectUris = redirectUris.Replace("[port]", testUIPort.ToString());
                     postLogoutRedirectUris = postLogoutRedirectUris.Replace("[url]", "localhost");
