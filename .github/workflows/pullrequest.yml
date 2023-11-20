@@ -77,53 +77,21 @@ jobs:
 
     - name: Trust Root Certificate
       run: |
-        sudo apt-get install expect
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
         password="password"
 
-        # Use expect to automate the passphrase input
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -clcerts -nokeys -out certificate.crt -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -nocerts -out private.key -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        sudo cp certificate.crt /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
         sudo update-ca-certificates
 
-        sudo cp private.key /etc/ssl/private/aspnetapp-root-cert.key
-        sudo chmod 400 /etc/ssl/private/aspnetapp-root-cert.key
-       
     - name: Trust Certificate
       run: |
-        sudo apt-get install expect
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
         password="password"
 
-        # Use expect to automate the passphrase input
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -clcerts -nokeys -out certificate.crt -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -nocerts -out private.key -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        sudo cp certificate.crt /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
         sudo update-ca-certificates
-
-        sudo cp private.key /etc/ssl/private/aspnetapp-web-api.key
-        sudo chmod 400 /etc/ssl/private/aspnetapp-web-api.key
         
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
@@ -166,53 +134,21 @@ jobs:
 
     - name: Trust Root Certificate
       run: |
-        sudo apt-get install expect
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
         password="password"
 
-        # Use expect to automate the passphrase input
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -clcerts -nokeys -out certificate.crt -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -nocerts -out private.key -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        sudo cp certificate.crt /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
         sudo update-ca-certificates
 
-        sudo cp private.key /etc/ssl/private/aspnetapp-root-cert.key
-        sudo chmod 400 /etc/ssl/private/aspnetapp-root-cert.key
-       
     - name: Trust Certificate
       run: |
-        sudo apt-get install expect
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
         password="password"
 
-        # Use expect to automate the passphrase input
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -clcerts -nokeys -out certificate.crt -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -nocerts -out private.key -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        sudo cp certificate.crt /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
         sudo update-ca-certificates
-
-        sudo cp private.key /etc/ssl/private/aspnetapp-web-api.key
-        sudo chmod 400 /etc/ssl/private/aspnetapp-web-api.key
 
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
@@ -255,53 +191,21 @@ jobs:
 
     - name: Trust Root Certificate
       run: |
-        sudo apt-get install expect
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
         password="password"
 
-        # Use expect to automate the passphrase input
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -clcerts -nokeys -out certificate.crt -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -nocerts -out private.key -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        sudo cp certificate.crt /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
         sudo update-ca-certificates
 
-        sudo cp private.key /etc/ssl/private/aspnetapp-root-cert.key
-        sudo chmod 400 /etc/ssl/private/aspnetapp-root-cert.key
-       
     - name: Trust Certificate
       run: |
-        sudo apt-get install expect
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
         password="password"
 
-        # Use expect to automate the passphrase input
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -clcerts -nokeys -out certificate.crt -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        expect -c "
-        spawn openssl pkcs12 -in \"$certPath\" -nocerts -out private.key -password pass:\"$password\"
-        expect \"Enter Import Password:\" { send \"$password\n\" }
-        expect eof
-        "
-
-        sudo cp certificate.crt /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
         sudo update-ca-certificates
-
-        sudo cp private.key /etc/ssl/private/aspnetapp-web-api.key
-        sudo chmod 400 /etc/ssl/private/aspnetapp-web-api.key
 
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
