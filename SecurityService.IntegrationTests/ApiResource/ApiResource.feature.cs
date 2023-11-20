@@ -179,7 +179,7 @@ testRunner.When("I get the api resource with name \'testresource2\' the api reso
                             "Scope1,Scope2",
                             "Claim1,Claim2"});
 #line 16
- testRunner.When("I get the api resources 2 api resource details are returned as follows", ((string)(null)), table4, "When ");
+testRunner.When("I get the api resources 2 api resource details are returned as follows", ((string)(null)), table4, "When ");
 #line hidden
             }
             this.ScenarioCleanup();

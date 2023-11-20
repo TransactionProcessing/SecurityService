@@ -33,6 +33,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.MySqlMigrat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SecurityService.UserInterface", "SecurityService.UserInterface\SecurityService.UserInterface.csproj", "{DA8C3E4B-5ACB-4941-B05F-EC46D1D60CD7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SecurityService.IntegrationTesting.Helpers", "SecurityService.IntegrationTesting.Helpers\SecurityService.IntegrationTesting.Helpers.csproj", "{A06BD7CA-6CAF-48DE-BF78-D3772927951B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +93,10 @@ Global
 		{DA8C3E4B-5ACB-4941-B05F-EC46D1D60CD7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA8C3E4B-5ACB-4941-B05F-EC46D1D60CD7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA8C3E4B-5ACB-4941-B05F-EC46D1D60CD7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A06BD7CA-6CAF-48DE-BF78-D3772927951B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A06BD7CA-6CAF-48DE-BF78-D3772927951B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A06BD7CA-6CAF-48DE-BF78-D3772927951B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A06BD7CA-6CAF-48DE-BF78-D3772927951B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -109,6 +115,7 @@ Global
 		{06507A50-DFDF-4842-9BA4-F70F194741D7} = {FBA324D4-A2B7-4539-B63E-AF254EA7DA50}
 		{701F392A-0D5B-4FDD-8135-DA037ECA7A8F} = {FBA324D4-A2B7-4539-B63E-AF254EA7DA50}
 		{DA8C3E4B-5ACB-4941-B05F-EC46D1D60CD7} = {FBA324D4-A2B7-4539-B63E-AF254EA7DA50}
+		{A06BD7CA-6CAF-48DE-BF78-D3772927951B} = {62BD199E-BDB7-4D33-92E4-3FE97D5EBC91}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {91D97431-DF9A-4A33-860E-27734BFD4496}

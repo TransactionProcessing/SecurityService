@@ -11,20 +11,28 @@ jobs:
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2.3.4
 
     - name: Trust Root Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-        
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        sudo update-ca-certificates
+
     - name: Trust Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        sudo update-ca-certificates
         
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
@@ -44,7 +52,7 @@ jobs:
     
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
+        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
 
     - name: Run Integration Tests (Non UI)
       run: |
@@ -54,7 +62,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: nonuilogs
-        path: C:\\Users\\runneradmin\\txnproc
+        path: /home/txnproc/trace/
 
 
   buildfirefox:
@@ -62,20 +70,28 @@ jobs:
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2.3.4
 
     - name: Trust Root Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-        
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        sudo update-ca-certificates
+
     - name: Trust Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"           
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        sudo update-ca-certificates
         
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
@@ -90,8 +106,8 @@ jobs:
     
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
-        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/Dockerfile --tag securityservicetestui:latest
 
     - name: Run Integration Tests (UI Firefox)
       env:
@@ -103,7 +119,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: firefoxlogs
-        path: C:\\Users\\runneradmin\\txnproc
+        path: /home/txnproc/trace/
 
 
   buildchromeui:
@@ -111,21 +127,29 @@ jobs:
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2.3.4
 
     - name: Trust Root Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-    
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        sudo update-ca-certificates
+
     - name: Trust Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"         
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-        
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        sudo update-ca-certificates
+
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
       with:
@@ -139,8 +163,8 @@ jobs:
    
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
-        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/Dockerfile --tag securityservicetestui:latest
   
     - name: Run Integration Tests (UI Chrome)
       env:
@@ -152,7 +176,7 @@ jobs:
       if: ${{ failure() }}
       with:
         name: chromelogs
-        path: C:\\Users\\runneradmin\\txnproc
+        path: /home/txnproc/trace/
 
 
   buildedgeui:
@@ -160,21 +184,29 @@ jobs:
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: windows-2019
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v2.3.4
 
     - name: Trust Root Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-        
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        sudo update-ca-certificates
+
     - name: Trust Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"       
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-        
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        sudo update-ca-certificates
+
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
       with:
@@ -188,8 +220,8 @@ jobs:
     
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest 
-        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+        docker build . --file SecurityService/Dockerfile --tag securityservice:latest 
+        docker build . --file SecurityServiceTestUI/Dockerfile --tag securityservicetestui:latest
 
     - name: Run Integration Tests (UI Edge)
       env:
@@ -203,4 +235,4 @@ jobs:
       if: ${{ failure() }}
       with:
         name: edgelogs
-        path: C:\\Users\\runneradmin\\txnproc  
+        path: /home/txnproc/trace/

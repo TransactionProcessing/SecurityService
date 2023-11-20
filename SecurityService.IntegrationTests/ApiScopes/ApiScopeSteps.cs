@@ -10,6 +10,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
     using Clients;
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
+    using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Shouldly;
 
@@ -28,6 +29,8 @@ namespace SecurityService.IntegrationTests.ApiScopes
 
         #endregion
 
+        private readonly SecurityServiceSteps SecurityServiceSteps;
+
         #region Constructors
 
         /// <summary>
@@ -37,6 +40,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
         public ApiScopeSteps(TestingContext testingContext)
         {
             this.TestingContext = testingContext;
+            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient);
         }
 
         #endregion
@@ -48,22 +52,8 @@ namespace SecurityService.IntegrationTests.ApiScopes
         [Given(@"I create the following api scopes")]
         public async Task GivenICreateTheFollowingApiScopes(Table table)
         {
-            foreach (TableRow tableRow in table.Rows)
-            {
-                CreateApiScopeRequest createApiScopeRequest = new CreateApiScopeRequest
-                                                              {
-                                                                  Name = SpecflowTableHelper.GetStringRowValue(tableRow, "Name"),
-                                                                  Description = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
-                                                                  DisplayName = SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayName")
-                                                              };
-                var createApiScopeResponse =
-                    await this.CreateApiScope(createApiScopeRequest, CancellationToken.None).ConfigureAwait(false);
-
-                createApiScopeResponse.ShouldNotBeNull();
-                createApiScopeResponse.ApiScopeName.ShouldNotBeNullOrEmpty();
-
-                this.TestingContext.ApiScopes.Add(createApiScopeResponse.ApiScopeName);
-            }
+            List<CreateApiScopeRequest> requests = table.Rows.ToCreateApiScopeRequests();
+            await this.SecurityServiceSteps.GivenICreateTheFollowingApiScopes(requests);
         }
 
         /// <summary>
@@ -74,15 +64,9 @@ namespace SecurityService.IntegrationTests.ApiScopes
         [When(@"I get the api scope with name '(.*)' the api scope details are returned as follows")]
         public async Task WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(String apiScopeName, Table table)
         {
-            ApiScopeDetails apiScopeDetails = await this.GetApiScope(apiScopeName, CancellationToken.None).ConfigureAwait(false);
-
-            table.Rows.Count.ShouldBe(1);
-            TableRow tableRow = table.Rows.First();
-            apiScopeDetails.ShouldNotBeNull();
+            List<ApiScopeDetails> expectedDetails = table.Rows.ToApiScopeDetails();
+            await this.SecurityServiceSteps.WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(expectedDetails,apiScopeName, CancellationToken.None);
             
-            apiScopeDetails.Description.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Description"));
-            apiScopeDetails.Name.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Name"));
-            apiScopeDetails.DisplayName.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayName"));
         }
 
         /// <summary>
@@ -93,54 +77,8 @@ namespace SecurityService.IntegrationTests.ApiScopes
         [When(@"I get the api scopes (.*) api scope details are returned as follows")]
         public async Task WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(Int32 numberOfApiScopes, Table table)
         {
-            List<ApiScopeDetails> apiScopeDetailsList = await this.GetApiScopes(CancellationToken.None).ConfigureAwait(false);
-            apiScopeDetailsList.Count.ShouldBe(numberOfApiScopes);
-            foreach (TableRow tableRow in table.Rows)
-            {
-                String apiScopeName = SpecflowTableHelper.GetStringRowValue(tableRow, "Name");
-                ApiScopeDetails? apiResourceDetails = apiScopeDetailsList.SingleOrDefault(u => u.Name == apiScopeName);
-
-                apiResourceDetails.Description.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Description"));
-                apiResourceDetails.Name.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "Name"));
-                apiResourceDetails.DisplayName.ShouldBe(SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayName"));
-            }
-        }
-
-        /// <summary>
-        /// Creates the API scope.
-        /// </summary>
-        /// <param name="createApiScopeRequest">The create API scope request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        private async Task<CreateApiScopeResponse> CreateApiScope(CreateApiScopeRequest createApiScopeRequest,
-                                                                  CancellationToken cancellationToken)
-        {
-            CreateApiScopeResponse createApiScopeResponse = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateApiScope(createApiScopeRequest, cancellationToken).ConfigureAwait(false);
-            return createApiScopeResponse;
-        }
-
-        /// <summary>
-        /// Gets the API scope.
-        /// </summary>
-        /// <param name="apiScopeName">Name of the API scope.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        private async Task<ApiScopeDetails> GetApiScope(String apiScopeName,
-                                                              CancellationToken cancellationToken)
-        {
-            ApiScopeDetails apiScopeDetails = await this.TestingContext.DockerHelper.SecurityServiceClient.GetApiScope(apiScopeName, cancellationToken).ConfigureAwait(false);
-            return apiScopeDetails;
-        }
-
-        /// <summary>
-        /// Gets the API scopes.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        private async Task<List<ApiScopeDetails>> GetApiScopes(CancellationToken cancellationToken)
-        {
-            List<ApiScopeDetails> apiScopeDetailsList = await this.TestingContext.DockerHelper.SecurityServiceClient.GetApiScopes(cancellationToken).ConfigureAwait(false);
-            return apiScopeDetailsList;
+            List<ApiScopeDetails> expectedDetails = table.Rows.ToApiScopeDetails();
+            await this.SecurityServiceSteps.WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(expectedDetails, CancellationToken.None);
         }
     }
 }

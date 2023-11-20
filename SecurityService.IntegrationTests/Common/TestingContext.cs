@@ -52,6 +52,7 @@
         /// The token response
         /// </summary>
         public TokenResponse TokenResponse;
+        public String AccessToken;
 
         public NlogLogger Logger;
 

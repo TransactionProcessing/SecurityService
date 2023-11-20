@@ -65,43 +65,49 @@
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
-            //browser = "Edge";
-
+            //browser = "Firefox";
             if (browser == null || browser == "Chrome")
             {
                 ChromeOptions options = new ChromeOptions();
                 options.AddArguments("--disable-gpu");
+                options.AddArguments("--headless");
                 options.AddArguments("--no-sandbox");
                 options.AddArguments("--disable-dev-shm-usage");
+                options.AddArguments("disable-infobars");
+                options.AddArguments("--disable-extensions");
+                options.AddArguments("--window-size=1280x1024");
                 options.AcceptInsecureCertificates = true;
-
-                ChromeDriverService x = ChromeDriverService.CreateDefaultService();
-
-                this.WebDriver = new ChromeDriver(x, options, TimeSpan.FromMinutes(3));
+                this.WebDriver = new ChromeDriver(options);
+                this.WebDriver.Manage().Window.Maximize();
             }
 
-            if (browser == "Firefox") {
-                await Retry.For(() => {
-                                        FirefoxOptions options = new FirefoxOptions();
-                                        options.AcceptInsecureCertificates = true;
-                                        options.AddArguments("-headless");
-                                        FirefoxDriverService x = FirefoxDriverService.CreateDefaultService();
-                                        
-                                        this.WebDriver = new FirefoxDriver(x, options, TimeSpan.FromMinutes(3));
-                                        return Task.CompletedTask;
-                                    }, TimeSpan.FromMinutes(3), TimeSpan.FromSeconds(30));
+            if (browser == "Firefox")
+            {
+                FirefoxOptions options = new FirefoxOptions();
+                options.AddArguments("--headless");
+                options.SetPreference("network.cookie.cookieBehavior", 0);
+                options.AcceptInsecureCertificates = true;
+
+                await Retry.For(async () =>
+                                {
+                                    this.WebDriver = new FirefoxDriver(options);
+                                }, TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(60));
+
+                this.WebDriver.Manage().Window.Maximize();
             }
 
             if (browser == "Edge")
             {
                 EdgeOptions options = new EdgeOptions();
                 options.AcceptInsecureCertificates = true;
-                EdgeDriverService x = EdgeDriverService.CreateDefaultService();
-
-                this.WebDriver = new EdgeDriver(x,options, TimeSpan.FromMinutes(3));
+                options.AddArguments("--headless");
+                options.AddArguments("--window-size=1280x1024");
+                await Retry.For(async () =>
+                                {
+                                    this.WebDriver = new EdgeDriver(options);
+                                }, TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(60));
+                this.WebDriver.Manage().Window.Maximize();
             }
-
-            this.WebDriver.Manage().Timeouts().PageLoad.Add(TimeSpan.FromSeconds(30));
 
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
         }

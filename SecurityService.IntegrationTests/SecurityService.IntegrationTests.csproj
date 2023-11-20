@@ -10,7 +10,7 @@
     
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
     
-    <PackageReference Include="Shared.IntegrationTesting" Version="2023.11.1" />
+    <PackageReference Include="Shared.IntegrationTesting" Version="2023.11.3" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.2" />
@@ -23,7 +23,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Ductus.FluentDocker" Version="2.10.59" />
-    <PackageReference Include="Shouldly" Version="4.1.0" />
+    <PackageReference Include="Shouldly" Version="4.2.1" />
     <PackageReference Include="SpecFlow" Version="3.9.74" />
     <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.74" />
     <PackageReference Include="SpecFlow.xUnit" Version="3.9.74" />
@@ -37,6 +37,7 @@
     <ProjectReference Include="..\SecurityService.Client\SecurityService.Client.csproj" />
     <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />
     <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
+    <ProjectReference Include="..\SecurityService.IntegrationTesting.Helpers\SecurityService.IntegrationTesting.Helpers.csproj" />
   </ItemGroup>
 
   <ItemGroup>
