@@ -43,11 +43,6 @@ jobs:
        
     - name: Trust Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-
-    - name: Trust Certificate
-      run: |
         sudo apt-get install expect
         certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
         password="password"
