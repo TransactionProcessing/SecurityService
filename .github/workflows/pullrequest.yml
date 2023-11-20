@@ -16,41 +16,15 @@ jobs:
     steps:
     - uses: actions/checkout@v2.3.4
 
-    - name: Install Expect 
-      run: |
-        sudo apt-get install expect
-
     - name: Trust Root Certificate
       run: |
-        expect -c '
-          set certPath "$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-          set password "password"
-          
-          spawn openssl pkcs12 -in $certPath -out temp.pem -nodes -password pass:$password
-          spawn sudo cp temp.pem /usr/local/share/ca-certificates/your-cert.crt
-          spawn sudo update-ca-certificates
-
-          expect "Enter Import Password:" {
-              send "$password\r"
-              exp_continue
-          }
-        '
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+        pwsh -Command "Import-PfxCertificate -FilePath $certPath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root"
 
     - name: Trust Certificate
       run: |
-        expect -c '
-          set certPath "$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-          set password "password"
-          
-          spawn openssl pkcs12 -in $certPath -out temp.pem -nodes -password pass:$password
-          spawn sudo cp temp.pem /usr/local/share/ca-certificates/your-cert.crt
-          spawn sudo update-ca-certificates
-
-          expect "Enter Import Password:" {
-              send "$password\r"
-              exp_continue
-          }
-        '
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+        pwsh -Command "Import-PfxCertificate -FilePath $certPath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root"
         
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
