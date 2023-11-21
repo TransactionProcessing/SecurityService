@@ -17,7 +17,7 @@ jobs:
     - uses: actions/checkout@v2.3.4
 
     - name: Set Up Variables
-      run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
+      run: echo "action_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
       
     - name: Trust Root Certificate
       run: |
@@ -88,7 +88,7 @@ jobs:
     - uses: actions/checkout@v2.3.4
 
     - name: Set Up Variables
-      run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
+      run: echo "action_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
       
     - name: Trust Root Certificate
       run: |
@@ -156,7 +156,7 @@ jobs:
     - uses: actions/checkout@v2.3.4
 
     - name: Set Up Variables
-      run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
+      run: echo "action_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
       
     - name: Trust Root Certificate
       run: |
@@ -229,17 +229,25 @@ jobs:
     - uses: actions/checkout@v2.3.4
 
     - name: Set Up Variables
-      run: echo ("action_url=" + $env:GITHUB_SERVER_URL+ "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID) >> $env:GITHUB_ENV
+      run: echo "action_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
       
     - name: Trust Root Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-root-cert.pfx"         
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-        
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+        sudo update-ca-certificates
+
     - name: Trust Certificate
       run: |
-        $certPath = "$env:GITHUB_WORKSPACE\Certificates\aspnetapp-web-api.pfx"        
-        Import-PfxCertificate -FilePath $certpath -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root        
+        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+        password="password"
+
+        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+        sudo update-ca-certificates
 
     - name: Install NET 7
       uses: actions/setup-dotnet@v2
@@ -254,8 +262,8 @@ jobs:
     
     - name: Build Docker Images
       run: |
-        docker build . --file SecurityService/DockerfileWindows --tag securityservice:latest
-        docker build . --file SecurityServiceTestUI/DockerfileWindows --tag securityservicetestui:latest
+        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+        docker build . --file SecurityServiceTestUI/Dockerfile --tag securityservicetestui:latest
 
     - name: Run Integration Tests (UI Edge)
       env:
