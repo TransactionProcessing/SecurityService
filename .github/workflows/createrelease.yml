@@ -123,6 +123,6 @@ jobs:
       if: ${{ github.event.release.prerelease == false }} 
       run: |
         dotnet pack "SecurityService.Client\SecurityService.Client.csproj" /p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output Nugets
-        dotnet nuget push Nugets/SecurityService.Client.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }}
+        dotnet nuget push Nugets/SecurityService.Client.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }} --skip-duplicate 
         dotnet pack "SecurityService.IntegrationTesting.Helpers\SecurityService.IntegrationTesting.Helpers.csproj" /p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output Nugets -c Release            
-        dotnet nuget push Nugets/SecurityService.IntegrationTesting.Helpers.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }}
+        dotnet nuget push Nugets/SecurityService.IntegrationTesting.Helpers.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }} --skip-duplicate 
