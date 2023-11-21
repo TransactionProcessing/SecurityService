@@ -13,8 +13,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\SecurityService.Client\SecurityService.Client.csproj" />
-    <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
+    <ProjectReference Include="..\SecurityService.Client\SecurityService.Client.csproj" PrivateAssets="All" />
+    <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" PrivateAssets="All" />
   </ItemGroup>
 
+	<Target Name="IncludeP2PAssets">
+		<ItemGroup>
+			<BuildOutputInPackage Include="$(OutputPath)SecurityService.DataTransferObjects.dll" />
+			<BuildOutputInPackage Include="$(OutputPath)SecurityService.Client.dll" />
+		</ItemGroup>
+	</Target>		
 </Project>
