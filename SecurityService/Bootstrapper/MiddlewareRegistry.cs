@@ -48,7 +48,7 @@
                                   "SELECT 1;",
                                   "Authentication DB",
                                   HealthStatus.Unhealthy,
-                                  new string[] { "db", "sql", "sqlserver", "authentication" }).AddMessagingService();
+                                  new string[] { "db", "sql", "sqlserver", "authentication" });
             }
 
             this.AddSwaggerGen(c =>
