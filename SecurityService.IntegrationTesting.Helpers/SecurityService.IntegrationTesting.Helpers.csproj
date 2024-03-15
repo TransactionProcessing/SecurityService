@@ -18,7 +18,7 @@
     <!--<PackageReference Include="Reqnroll" Version="1.0.1" />-->
     <!--<PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="1.0.1" />
     <PackageReference Include="Reqnroll.xUnit" Version="1.0.1" />-->
-    <PackageReference Include="Shared.IntegrationTesting" Version="2024.3.2" />
+    <PackageReference Include="Shared.IntegrationTesting" Version="2024.3.3" />
     <!--<PackageReference Include="Shouldly" Version="4.2.1" />-->
     <!--<PackageReference Include="xunit.runner.visualstudio" Version="2.4.5">
 	    <PrivateAssets>all</PrivateAssets>

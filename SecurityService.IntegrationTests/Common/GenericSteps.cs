@@ -39,15 +39,7 @@ namespace SecurityService.IntergrationTests.Common
             NlogLogger logger = new NlogLogger();
             logger.Initialise(LogManager.GetLogger(scenarioName), scenarioName);
             LogManager.AddHiddenAssembly(typeof(NlogLogger).Assembly);
-
-            //this.TestingContext.DockerHelper = new DockerHelper();
-            //this.TestingContext.DockerHelper.Logger = logger;
-            //this.TestingContext.DockerHelper.SqlServerContainer = Setup.DatabaseServerContainer;
-            //this.TestingContext.DockerHelper.SqlServerNetwork = Setup.DatabaseServerNetwork;
-            //this.TestingContext.DockerHelper.DockerCredentials = Setup.DockerCredentials;
-            //this.TestingContext.DockerHelper.SqlCredentials = Setup.SqlCredentials;
-            //this.TestingContext.DockerHelper.SqlServerContainerName = "sharedsqlserver";
-
+            
             DockerServices dockerServices = DockerServices.SecurityService | DockerServices.SqlServer;
 
             this.TestingContext.DockerHelper = new DockerHelper();
@@ -73,10 +65,10 @@ namespace SecurityService.IntergrationTests.Common
         }
 
         [AfterScenario]
-        public async Task StopSystem()
-        {
+        public async Task StopSystem(){
+            DockerServices sharedDockerServices = DockerServices.SqlServer;
             this.TestingContext.Logger.LogInformation("About to Stop Containers for Scenario Run");
-            await this.TestingContext.DockerHelper.StopContainersForScenarioRun().ConfigureAwait(false);
+            await this.TestingContext.DockerHelper.StopContainersForScenarioRun(sharedDockerServices).ConfigureAwait(false);
             this.TestingContext.Logger.LogInformation("Containers for Scenario Run Stopped");
         }
     }
