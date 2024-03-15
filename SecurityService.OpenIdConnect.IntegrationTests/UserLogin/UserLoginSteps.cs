@@ -1,5 +1,4 @@
 ﻿using System;
-using TechTalk.SpecFlow;
 
 namespace SecurityService.IntegrationTests.UserLogin
 {
@@ -15,6 +14,7 @@ namespace SecurityService.IntegrationTests.UserLogin
     using IntergrationTests.Common;
     using Newtonsoft.Json;
     using OpenQA.Selenium;
+    using Reqnroll;
     using Shared.IntegrationTesting;
     using Shouldly;
     using Xunit.Sdk;

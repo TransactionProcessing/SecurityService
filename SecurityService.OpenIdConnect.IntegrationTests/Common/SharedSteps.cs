@@ -12,8 +12,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
     using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
+    using Reqnroll;
+    using Shared.IntegrationTesting;
     using Shouldly;
-    using TechTalk.SpecFlow;
 
     [Binding]
     [Scope(Tag = "shared")]
@@ -30,7 +31,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         }
 
         [Given(@"I create the following roles")]
-        public async Task GivenICreateTheFollowingRoles(Table table)
+        public async Task GivenICreateTheFollowingRoles(DataTable table)
         {
             List<CreateRoleRequest> requests = table.Rows.ToCreateRoleRequests();
             List<(String, Guid)> responses = await this.SecurityServiceSteps.GivenICreateTheFollowingRoles(requests, CancellationToken.None);
@@ -55,21 +56,21 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         }
 
         [Given(@"I create the following identity resources")]
-        public async Task GivenICreateTheFollowingIdentityResources(Table table)
+        public async Task GivenICreateTheFollowingIdentityResources(DataTable table)
         {
-            foreach (TableRow tableRow in table.Rows)
+            foreach (DataTableRow tableRow in table.Rows)
             {
                 // Get the scopes
-                String userClaims = SpecflowTableHelper.GetStringRowValue(tableRow, "UserClaims");
+                String userClaims = ReqnrollTableHelper.GetStringRowValue(tableRow, "UserClaims");
 
                 CreateIdentityResourceRequest createIdentityResourceRequest = new CreateIdentityResourceRequest
                                                                               {
-                                                                                  Name = SpecflowTableHelper
+                                                                                  Name = ReqnrollTableHelper
                                                                                          .GetStringRowValue(tableRow, "Name")
                                                                                          .Replace("[id]", this.TestingContext.DockerHelper.TestId.ToString("N")),
                                                                                   Claims = string.IsNullOrEmpty(userClaims) ? null : userClaims.Split(",").ToList(),
-                                                                                  Description = SpecflowTableHelper.GetStringRowValue(tableRow, "Description"),
-                                                                                  DisplayName = SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayName")
+                                                                                  Description = ReqnrollTableHelper.GetStringRowValue(tableRow, "Description"),
+                                                                                  DisplayName = ReqnrollTableHelper.GetStringRowValue(tableRow, "DisplayName")
                                                                               };
 
                 await this.CreateIdentityResource(createIdentityResourceRequest, CancellationToken.None).ConfigureAwait(false);
@@ -77,7 +78,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         }
 
         [Given(@"I create the following api resources")]
-        public async Task GivenICreateTheFollowingApiResources(Table table)
+        public async Task GivenICreateTheFollowingApiResources(DataTable table)
         {
             List<CreateApiResourceRequest> requests = table.Rows.ToCreateApiResourceRequests(this.TestingContext.DockerHelper.TestId);
             await this.SecurityServiceSteps.GivenTheFollowingApiResourcesExist(requests);
@@ -123,7 +124,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         }
 
         [Given(@"I create the following clients")]
-        public async Task GivenICreateTheFollowingClients(Table table)
+        public async Task GivenICreateTheFollowingClients(DataTable table)
         {
             List<CreateClientRequest> requests = table.Rows.ToCreateClientRequests(this.TestingContext.DockerHelper.TestId, this.TestingContext.DockerHelper.SecurityServiceTestUIPort);
             List<(String clientId, String secret, List<String> allowedGrantTypes)> clients = await this.SecurityServiceSteps.GivenTheFollowingClientsExist(requests);
@@ -135,7 +136,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         }
 
         [Given(@"I create the following users")]
-        public async Task GivenICreateTheFollowingUsers(Table table)
+        public async Task GivenICreateTheFollowingUsers(DataTable table)
         {
             List<CreateUserRequest> requests = table.Rows.ToCreateUserRequests();
 

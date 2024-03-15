@@ -1,5 +1,4 @@
 ﻿using System;
-using TechTalk.SpecFlow;
 
 namespace SecurityService.IntegrationTests.ApiScopes
 {
@@ -12,6 +11,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
     using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
+    using Reqnroll;
     using Shouldly;
 
     /// <summary>
@@ -50,7 +50,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"I create the following api scopes")]
-        public async Task GivenICreateTheFollowingApiScopes(Table table)
+        public async Task GivenICreateTheFollowingApiScopes(DataTable table)
         {
             List<CreateApiScopeRequest> requests = table.Rows.ToCreateApiScopeRequests();
             await this.SecurityServiceSteps.GivenICreateTheFollowingApiScopes(requests);
@@ -62,7 +62,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
         /// <param name="apiScopeName">Name of the API scope.</param>
         /// <param name="table">The table.</param>
         [When(@"I get the api scope with name '(.*)' the api scope details are returned as follows")]
-        public async Task WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(String apiScopeName, Table table)
+        public async Task WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(String apiScopeName, DataTable table)
         {
             List<ApiScopeDetails> expectedDetails = table.Rows.ToApiScopeDetails();
             await this.SecurityServiceSteps.WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(expectedDetails,apiScopeName, CancellationToken.None);
@@ -75,7 +75,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
         /// <param name="numberOfApiScopes">The number of API scopes.</param>
         /// <param name="table">The table.</param>
         [When(@"I get the api scopes (.*) api scope details are returned as follows")]
-        public async Task WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(Int32 numberOfApiScopes, Table table)
+        public async Task WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(Int32 numberOfApiScopes, DataTable table)
         {
             List<ApiScopeDetails> expectedDetails = table.Rows.ToApiScopeDetails();
             await this.SecurityServiceSteps.WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(expectedDetails, CancellationToken.None);

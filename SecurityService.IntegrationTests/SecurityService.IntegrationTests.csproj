@@ -8,9 +8,15 @@
 
   <ItemGroup>
     
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.4.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
     
-    <PackageReference Include="Shared.IntegrationTesting" Version="2023.11.3" />
+    <PackageReference Include="Reqnroll" Version="1.0.1" />
+    
+    <PackageReference Include="Reqnroll.Tools.MsBuild.Generation" Version="1.0.1" />
+    
+    <PackageReference Include="Reqnroll.xUnit" Version="1.0.1" />
+    
+    <PackageReference Include="Shared.IntegrationTesting" Version="2024.3.2" />
     <PackageReference Include="System.Data.SqlClient" Version="4.8.6" />
     <PackageReference Include="xunit" Version="2.4.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.2" />
@@ -24,9 +30,6 @@
     </PackageReference>
     <PackageReference Include="Ductus.FluentDocker" Version="2.10.59" />
     <PackageReference Include="Shouldly" Version="4.2.1" />
-    <PackageReference Include="SpecFlow" Version="3.9.74" />
-    <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.9.74" />
-    <PackageReference Include="SpecFlow.xUnit" Version="3.9.74" />
   </ItemGroup>
 
   <ItemGroup>
@@ -38,30 +41,6 @@
     <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />
     <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
     <ProjectReference Include="..\SecurityService.IntegrationTesting.Helpers\SecurityService.IntegrationTesting.Helpers.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="ApiScopes\ApiScope.feature.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Clients\Clients.feature.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Clients.feature</DependentUpon>
-    </Compile>
-    <Compile Update="IdentityResource\IdentityResource.feature.cs">
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Update="Roles\Roles.feature.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Roles.feature</DependentUpon>
-    </Compile>
-    <Compile Update="Users\Users.feature.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Users.feature</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>

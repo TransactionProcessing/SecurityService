@@ -1,5 +1,4 @@
 ﻿using System;
-using TechTalk.SpecFlow;
 
 namespace SecurityService.IntegrationTests.IdentityResource
 {
@@ -10,6 +9,7 @@ namespace SecurityService.IntegrationTests.IdentityResource
     using Clients;
     using DataTransferObjects.Responses;
     using IntergrationTests.Common;
+    using Reqnroll;
     using SecurityService.DataTransferObjects.Requests;
     using SecurityService.IntegrationTesting.Helpers;
     using Shouldly;
@@ -43,7 +43,7 @@ namespace SecurityService.IntegrationTests.IdentityResource
         #endregion
         
         [Given(@"I create the following identity resources")]
-        public async Task GivenICreateTheFollowingIdentityResources(Table table){
+        public async Task GivenICreateTheFollowingIdentityResources(DataTable table){
             List<CreateIdentityResourceRequest> requests = table.Rows.ToCreateIdentityResourceRequest();
             List<CreateIdentityResourceResponse> responses = await this.SecurityServiceSteps.GivenICreateTheFollowingIdentityResources(requests, CancellationToken.None);
 
@@ -53,14 +53,14 @@ namespace SecurityService.IntegrationTests.IdentityResource
         }
         
         [When(@"I get the identity resource with name '(.*)' the identity resource details are returned as follows")]
-        public async Task WhenIGetTheIdentityResourceWithNameTheIdentityResourceDetailsAreReturnedAsFollows(String identityResourceName, Table table)
+        public async Task WhenIGetTheIdentityResourceWithNameTheIdentityResourceDetailsAreReturnedAsFollows(String identityResourceName, DataTable table)
         {
             List<IdentityResourceDetails> expectedIdentityResourceDetailsList = table.Rows.ToIdentityResourceDetails();
             await this.SecurityServiceSteps.WhenIGetTheIdentityResourceWithNameTheIdentityResourceDetailsAreReturnedAsFollows(expectedIdentityResourceDetailsList, identityResourceName, CancellationToken.None);
         }
         
         [When(@"I get the identity resources (.*) identity resource details are returned as follows")]
-        public async Task WhenIGetTheIdentityResourcesIdentityResourceDetailsAreReturnedAsFollows(Int32 numberOfIdentityResources, Table table)
+        public async Task WhenIGetTheIdentityResourcesIdentityResourceDetailsAreReturnedAsFollows(Int32 numberOfIdentityResources, DataTable table)
         {
             List<IdentityResourceDetails> expectedIdentityResourceDetailsList = table.Rows.ToIdentityResourceDetails();
             await this.SecurityServiceSteps.WhenIGetTheIdentityResourcesIdentityResourceDetailsAreReturnedAsFollows(expectedIdentityResourceDetailsList, CancellationToken.None);

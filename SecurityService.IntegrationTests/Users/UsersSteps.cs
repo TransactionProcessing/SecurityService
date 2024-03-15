@@ -12,8 +12,8 @@
     using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using Newtonsoft.Json;
+    using Reqnroll;
     using Shouldly;
-    using TechTalk.SpecFlow;
 
     /// <summary>
     /// 
@@ -54,7 +54,7 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"I create the following users")]
-        public async Task GivenICreateTheFollowingUsers(Table table){
+        public async Task GivenICreateTheFollowingUsers(DataTable table){
             List<CreateUserRequest> requests = table.Rows.ToCreateUserRequests();
 
             List<(String, Guid)> results = await this.SecurityServiceSteps.GivenICreateTheFollowingUsers(requests, CancellationToken.None);
@@ -66,7 +66,7 @@
 
         [When(@"I get the users (.*) users details are returned as follows")]
         public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(Int32 numberOfUsers,
-                                                                           Table table){
+                                                                           DataTable table){
             List<UserDetails> userDetailsList = table.Rows.ToUserDetails();
             await this.SecurityServiceSteps.WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(userDetailsList, CancellationToken.None);
         }
@@ -78,7 +78,7 @@
         /// <param name="table">The table.</param>
         [When(@"I get the user with user name '(.*)' the user details are returned as follows")]
         public async Task WhenIGetTheUserWithUserNameTheUserDetailsAreReturnedAsFollows(String userName,
-                                                                                        Table table)
+                                                                                        DataTable table)
         {
             // Get the user id
             Guid userId = this.TestingContext.Users.Single(u => u.Key == userName).Value;

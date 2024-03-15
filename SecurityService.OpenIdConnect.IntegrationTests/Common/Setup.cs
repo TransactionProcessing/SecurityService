@@ -2,12 +2,13 @@
 
 namespace SecurityService.IntergrationTests.Common
 {
+    using System.Threading.Tasks;
     using Ductus.FluentDocker.Services;
     using Ductus.FluentDocker.Services.Extensions;
     using NLog;
+    using Reqnroll;
     using Shared.Logger;
     using Shouldly;
-    using TechTalk.SpecFlow;
 
     [Binding]
     public class Setup
@@ -17,7 +18,7 @@ namespace SecurityService.IntergrationTests.Common
         public static (String usename, String password) SqlCredentials = ("sa", "thisisalongpassword123!");
         public static (String url, String username, String password) DockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
         [BeforeTestRun]
-        protected static void GlobalSetup()
+        protected static async Task GlobalSetup()
         {
             ShouldlyConfiguration.DefaultTaskTimeout = TimeSpan.FromMinutes(1);
 
@@ -32,7 +33,7 @@ namespace SecurityService.IntergrationTests.Common
             dockerHelper.SqlServerContainerName = "sharedsqlserver";
 
             Setup.DatabaseServerNetwork = dockerHelper.SetupTestNetwork("sharednetwork", true);
-            Setup.DatabaseServerContainer = dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
+            Setup.DatabaseServerContainer = await dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
         }
 
         public static String GetConnectionString(String databaseName)

@@ -6,9 +6,9 @@ namespace SecurityService.IntergrationTests.Common
 {
     using System.Threading.Tasks;
     using NLog;
+    using Reqnroll;
     using Shared.IntegrationTesting;
     using Shared.Logger;
-    using TechTalk.SpecFlow;
 
     [Binding]
     [Scope(Tag = "base")]

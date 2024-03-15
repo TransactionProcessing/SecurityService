@@ -76,6 +76,10 @@
             this.SecurityServiceTestUIContainerName = $"securityservicetestui{this.TestId:N}";
         }
 
+        public override async Task CreateSubscriptions(){
+            // Nothing to set up here
+        }
+
         /// <summary>
         /// Starts the containers for scenario run.
         /// </summary>
@@ -263,7 +267,7 @@
                                                                      .WithEnvironment(environmentVariables.ToArray())
                                                                      .UseImageDetails(this.GetImageDetails(ContainerType.SecurityService))
                                                                      .ExposePort(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
-                                                                     .MountHostFolder(this.HostTraceFolder)
+                                                                     .MountHostFolder(this.DockerPlatform, this.HostTraceFolder)
                                                                      .SetDockerCredentials(this.DockerCredentials);
 
             return securityServiceContainer;

@@ -8,7 +8,7 @@ using Shared.IntegrationTesting;
 using Shouldly;
 using System.Collections.Generic;
 using System.Threading;
-using TechTalk.SpecFlow;
+using Reqnroll;
 
 public class SecurityServiceSteps{
     private readonly ISecurityServiceClient SecurityServiceClient;
@@ -35,13 +35,13 @@ public class SecurityServiceSteps{
         }
     }
 
-    public async Task GivenTheFollowingApiResourcesExist(Table table){
-        foreach (TableRow tableRow in table.Rows){
-            String resourceName = SpecflowTableHelper.GetStringRowValue(tableRow, "ResourceName");
-            String displayName = SpecflowTableHelper.GetStringRowValue(tableRow, "DisplayName");
-            String secret = SpecflowTableHelper.GetStringRowValue(tableRow, "Secret");
-            String scopes = SpecflowTableHelper.GetStringRowValue(tableRow, "Scopes");
-            String userClaims = SpecflowTableHelper.GetStringRowValue(tableRow, "UserClaims");
+    public async Task GivenTheFollowingApiResourcesExist(DataTable table){
+        foreach (DataTableRow tableRow in table.Rows){
+            String resourceName = ReqnrollTableHelper.GetStringRowValue(tableRow, "ResourceName");
+            String displayName = ReqnrollTableHelper.GetStringRowValue(tableRow, "DisplayName");
+            String secret = ReqnrollTableHelper.GetStringRowValue(tableRow, "Secret");
+            String scopes = ReqnrollTableHelper.GetStringRowValue(tableRow, "Scopes");
+            String userClaims = ReqnrollTableHelper.GetStringRowValue(tableRow, "UserClaims");
 
             List<String> splitScopes = scopes.Split(",").ToList();
             List<String> splitUserClaims = userClaims.Split(",").ToList();

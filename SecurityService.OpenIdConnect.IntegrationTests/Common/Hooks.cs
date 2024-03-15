@@ -8,8 +8,8 @@
     using OpenQA.Selenium.Edge;
     using OpenQA.Selenium.Firefox;
     using OpenQA.Selenium.Remote;
+    using Reqnroll;
     using Shared.IntegrationTesting;
-    using TechTalk.SpecFlow;
 
     /// <summary>
     /// 

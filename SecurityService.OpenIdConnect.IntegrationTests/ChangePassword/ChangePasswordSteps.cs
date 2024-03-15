@@ -8,9 +8,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
 {
     using IntergrationTests.Common;
     using OpenQA.Selenium;
+    using Reqnroll;
     using SecurityService.IntegrationTests.UserLogin;
     using Shouldly;
-    using TechTalk.SpecFlow;
 
     [Binding]
     [Scope(Tag = "changepassword")]
