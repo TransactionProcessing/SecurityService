@@ -150,7 +150,7 @@
                 }
 
                 this.Trace($"Test UI Container Started");
-                this.Containers.Add(startedContainer);
+                this.Containers.Add((DockerServices.SecurityService, startedContainer));
 
                 this.SecurityServiceTestUIPort = startedContainer.ToHostExposedEndpoint("5004/tcp").Port;
 
