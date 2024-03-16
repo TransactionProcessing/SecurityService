@@ -10,7 +10,8 @@ namespace SecurityService.IntergrationTests.Common
     using Shouldly;
     using System.Linq.Expressions;
     using System.Runtime.CompilerServices;
-    using TechTalk.SpecFlow;
+    using System.Threading.Tasks;
+    using Reqnroll;
 
     [Binding]
     public class Setup
@@ -19,38 +20,16 @@ namespace SecurityService.IntergrationTests.Common
         public static INetworkService DatabaseServerNetwork;
         public static (String usename, String password) SqlCredentials = ("sa", "thisisalongpassword123!");
         public static (String url, String username, String password) DockerCredentials = ("https://www.docker.com", "stuartferguson", "Sc0tland");
-        [BeforeTestRun]
-        protected static void GlobalSetup()
+
+        public static async Task GlobalSetup(DockerHelper dockerHelper)
         {
             ShouldlyConfiguration.DefaultTaskTimeout = TimeSpan.FromMinutes(1);
-
-            DockerHelper dockerHelper = new DockerHelper();
-
-            NlogLogger logger = new NlogLogger();
-            logger.Initialise(LogManager.GetLogger("Specflow"), "Specflow");
-            LogManager.AddHiddenAssembly(typeof(NlogLogger).Assembly);
-            dockerHelper.Logger = logger;
             dockerHelper.SqlCredentials = Setup.SqlCredentials;
             dockerHelper.DockerCredentials = Setup.DockerCredentials;
             dockerHelper.SqlServerContainerName = "sharedsqlserver";
 
-            try
-            {
-                Setup.DatabaseServerNetwork = dockerHelper.SetupTestNetwork("sharednetwork");
-                Setup.DatabaseServerContainer = dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
-            }
-            catch(Exception ex)
-            {
-                global::System.Console.WriteLine(ex.Message);
-                if (ex.InnerException != null)
-                {
-                    global::System.Console.WriteLine(ex.InnerException.Message);
-                    if (ex.InnerException.InnerException != null)
-                    {
-                        global::System.Console.WriteLine(ex.InnerException.InnerException.Message);
-                    }
-                }
-            }
+            Setup.DatabaseServerNetwork = dockerHelper.SetupTestNetwork("sharednetwork", true);
+            Setup.DatabaseServerContainer = await dockerHelper.SetupSqlServerContainer(Setup.DatabaseServerNetwork);
         }
 
         public static String GetConnectionString(String databaseName)

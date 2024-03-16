@@ -12,10 +12,7 @@
     using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
-    using Microsoft.EntityFrameworkCore.Design;
-    using Newtonsoft.Json;
-    using Shouldly;
-    using TechTalk.SpecFlow;
+    using Reqnroll;
 
     /// <summary>
     /// 
@@ -56,7 +53,7 @@
         /// </summary>
         /// <param name="table">The table.</param>
         [Given(@"I create the following clients")]
-        public async Task GivenICreateTheFollowingClients(Table table)
+        public async Task GivenICreateTheFollowingClients(DataTable table)
         {
             List<CreateClientRequest> requests = table.Rows.ToCreateClientRequests();
             List<(String clientId, String secret, List<String> allowedGrantTypes)> clients = await this.SecurityServiceSteps.GivenTheFollowingClientsExist(requests);
@@ -73,7 +70,7 @@
         /// <param name="table">The table.</param>
         [When(@"I get the clients (.*) clients details are returned as follows")]
         public async Task WhenIGetTheClientsClientsDetailsAreReturnedAsFollows(Int32 numberOfClients,
-                                                                               Table table){
+                                                                               DataTable table){
             List<ClientDetails> expectedClientDetails = table.Rows.ToClientDetails();
             await this.SecurityServiceSteps.WhenIGetTheClientsClientsDetailsAreReturnedAsFollows(expectedClientDetails, CancellationToken.None);
         }
@@ -85,7 +82,7 @@
         /// <param name="table">The table.</param>
         [When(@"I get the client with client id '(.*)' the client details are returned as follows")]
         public async Task WhenIGetTheClientWithClientIdTheClientDetailsAreReturnedAsFollows(String clientId,
-                                                                                            Table table){
+                                                                                            DataTable table){
             List<ClientDetails> expectedClientDetails = table.Rows.ToClientDetails();
             await this.SecurityServiceSteps.WhenIGetTheClientWithClientIdTheClientDetailsAreReturnedAsFollows(expectedClientDetails, clientId, CancellationToken.None);
         }

@@ -2,7 +2,6 @@
 
 namespace SecurityService.IntegrationTests.Token
 {
-    using TechTalk.SpecFlow;
     using System;
     using System.Collections.Generic;
     using System.Text;
@@ -10,6 +9,7 @@ namespace SecurityService.IntegrationTests.Token
     using System.Threading.Tasks;
     using DataTransferObjects.Responses;
     using IntergrationTests.Common;
+    using Reqnroll;
     using Shouldly;
     using SecurityService.IntegrationTesting.Helpers;
 

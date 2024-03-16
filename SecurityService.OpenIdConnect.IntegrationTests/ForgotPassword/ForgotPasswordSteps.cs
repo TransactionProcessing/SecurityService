@@ -13,10 +13,10 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
     using IntergrationTests.Common;
     using Newtonsoft.Json;
     using OpenQA.Selenium;
+    using Reqnroll;
     using SecurityService.IntegrationTests.UserLogin;
     using Shared.IntegrationTesting;
     using Shouldly;
-    using TechTalk.SpecFlow;
 
     [Binding]
     [Scope(Tag = "forgotpassword")]

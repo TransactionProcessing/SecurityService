@@ -23,15 +23,13 @@ namespace SecurityService.IntergrationTests.Common
     using Ductus.FluentDocker.Services.Extensions;
     using Microsoft.EntityFrameworkCore;
     using Shared.IntegrationTesting;
-    using TechTalk.SpecFlow;
-
+    
     public class DockerHelper : Shared.IntegrationTesting.DockerHelper
     {
         public ISecurityServiceClient SecurityServiceClient;
                 
-        public async Task StartContainersForScenarioRun(String scenarioName){
-            DockerServices dockerServices = DockerServices.SecurityService | DockerServices.SqlServer;
-
+        public async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
+        {
             await base.StartContainersForScenarioRun(scenarioName, dockerServices);
                                    
             Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
@@ -68,7 +66,7 @@ namespace SecurityService.IntergrationTests.Common
             ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
                                                                      .WithEnvironment(environmentVariables.ToArray())
                                                                      .UseImageDetails(this.GetImageDetails(ContainerType.SecurityService))
-                                                                     .MountHostFolder(this.HostTraceFolder)
+                                                                     .MountHostFolder(this.DockerPlatform, this.HostTraceFolder)
                                                                      .SetDockerCredentials(this.DockerCredentials);
 
             Int32? hostPort = this.GetHostPort(ContainerType.SecurityService);
@@ -84,13 +82,9 @@ namespace SecurityService.IntergrationTests.Common
             // Now build and return the container                
             return securityServiceContainer;
         }
-
-        public override async Task CreateEstateSubscriptions(String estateName){
-            
-        }
-
-        public override async Task CreateGenericSubscriptions(){
-            
+        
+        public override async Task CreateSubscriptions(){
+            // No subscriptions needed
         }
     }
 }

@@ -9,13 +9,13 @@ namespace SecurityService.IntergrationTests.Common
     using Shared.Logger;
     using System.Threading.Tasks;
     using Ductus.FluentDocker.Services;
-    using TechTalk.SpecFlow;
     using Ductus.FluentDocker.Model.Builders;
     using Ductus.FluentDocker.Services.Extensions;
     using System.IO;
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Common;
-    
+    using Reqnroll;
+
     [Binding]
     [Scope(Tag = "base")]
     public class GenericSteps
@@ -39,9 +39,17 @@ namespace SecurityService.IntergrationTests.Common
             NlogLogger logger = new NlogLogger();
             logger.Initialise(LogManager.GetLogger(scenarioName), scenarioName);
             LogManager.AddHiddenAssembly(typeof(NlogLogger).Assembly);
+            
+            DockerServices dockerServices = DockerServices.SecurityService | DockerServices.SqlServer;
 
             this.TestingContext.DockerHelper = new DockerHelper();
             this.TestingContext.DockerHelper.Logger = logger;
+            this.TestingContext.Logger = logger;
+            this.TestingContext.DockerHelper.RequiredDockerServices = dockerServices;
+            this.TestingContext.Logger.LogInformation("About to Start Global Setup");
+
+            await Setup.GlobalSetup(this.TestingContext.DockerHelper);
+
             this.TestingContext.DockerHelper.SqlServerContainer = Setup.DatabaseServerContainer;
             this.TestingContext.DockerHelper.SqlServerNetwork = Setup.DatabaseServerNetwork;
             this.TestingContext.DockerHelper.DockerCredentials = Setup.DockerCredentials;
@@ -52,15 +60,15 @@ namespace SecurityService.IntergrationTests.Common
             
             this.TestingContext.Logger = logger;
             this.TestingContext.Logger.LogInformation("About to Start Containers for Scenario Run");
-            await this.TestingContext.DockerHelper.StartContainersForScenarioRun(scenarioName).ConfigureAwait(false);
+            await this.TestingContext.DockerHelper.StartContainersForScenarioRun(scenarioName, dockerServices).ConfigureAwait(false);
             this.TestingContext.Logger.LogInformation("Containers for Scenario Run Started");
         }
 
         [AfterScenario]
-        public async Task StopSystem()
-        {
+        public async Task StopSystem(){
+            DockerServices sharedDockerServices = DockerServices.SqlServer;
             this.TestingContext.Logger.LogInformation("About to Stop Containers for Scenario Run");
-            await this.TestingContext.DockerHelper.StopContainersForScenarioRun().ConfigureAwait(false);
+            await this.TestingContext.DockerHelper.StopContainersForScenarioRun(sharedDockerServices).ConfigureAwait(false);
             this.TestingContext.Logger.LogInformation("Containers for Scenario Run Stopped");
         }
     }

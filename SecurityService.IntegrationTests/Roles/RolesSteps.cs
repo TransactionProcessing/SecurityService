@@ -1,5 +1,4 @@
 ﻿using System;
-using TechTalk.SpecFlow;
 
 namespace SecurityService.IntegrationTests.Roles
 {
@@ -11,6 +10,7 @@ namespace SecurityService.IntegrationTests.Roles
     using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
+    using Reqnroll;
     using Shouldly;
 
     [Binding]
@@ -43,7 +43,7 @@ namespace SecurityService.IntegrationTests.Roles
         #endregion
 
         [Given(@"I create the following roles")]
-        public async Task GivenICreateTheFollowingRoles(Table table){
+        public async Task GivenICreateTheFollowingRoles(DataTable table){
             List<CreateRoleRequest> requests = table.Rows.ToCreateRoleRequests();
             List<(String, Guid)> responses = await this.SecurityServiceSteps.GivenICreateTheFollowingRoles(requests, CancellationToken.None);
             foreach ((String, Guid) response in responses){
@@ -52,7 +52,7 @@ namespace SecurityService.IntegrationTests.Roles
         }
 
         [When(@"I get the role with name '(.*)' the role details are returned as follows")]
-        public async Task WhenIGetTheRoleWithNameTheRoleDetailsAreReturnedAsFollows(String roleName, Table table)
+        public async Task WhenIGetTheRoleWithNameTheRoleDetailsAreReturnedAsFollows(String roleName, DataTable table)
         {
             List<RoleDetails> requests = table.Rows.ToRoleDetails();
             // Get the role id
