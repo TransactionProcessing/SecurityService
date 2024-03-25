@@ -8,7 +8,7 @@ namespace SecurityService.BusinessLogic.Requests
 {
     using MediatR;
 
-    public class SendWelcomeEmailRequest : IRequest<Unit>
+    public class SendWelcomeEmailRequest : IRequest
     {
         public String UserName{ get; }
 

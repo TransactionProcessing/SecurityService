@@ -143,11 +143,15 @@ namespace SecurityService.UnitTests {
             Mock<IServiceProvider> serviceProvider = new Mock<IServiceProvider>();
             Mock<IIssuerNameService> issuerNameService = new Mock<IIssuerNameService>();
             Mock<ITokenCreationService> tokenCreationService = new Mock<ITokenCreationService>();
-            Mock<ISystemClock> systemClock = new Mock<ISystemClock>();
+            Mock<IClock> systemClock = new Mock<IClock>();
+            systemClock.Setup(c => c.UtcNow).Returns(DateTimeOffset.UtcNow);
+            
             serviceProvider.Setup(m => m.GetService(typeof(IdentityServerOptions))).Returns(new IdentityServerOptions());
 
-            IdentityServerTools identityServerTools = new IdentityServerTools(serviceProvider.Object, issuerNameService.Object, tokenCreationService.Object,
-                                                                              systemClock.Object);
+            issuerNameService.Setup(i => i.GetCurrentAsync()).ReturnsAsync("Test Issuer");
+
+            IdentityServerTools identityServerTools = new IdentityServerTools(issuerNameService.Object, tokenCreationService.Object,
+                                                                              systemClock.Object, new IdentityServerOptions());
 
             return identityServerTools;
         }

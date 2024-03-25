@@ -8,7 +8,7 @@ namespace SecurityService.BusinessLogic.Requests
 {
     using MediatR;
 
-    public  class ProcessPasswordResetRequest : IRequest<Unit>
+    public  class ProcessPasswordResetRequest : IRequest
     {
         public String Username{ get; }
         public String EmailAddress{ get; }

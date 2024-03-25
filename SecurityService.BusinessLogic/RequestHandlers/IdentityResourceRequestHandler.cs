@@ -25,7 +25,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             this.ConfigurationDbContext = configurationDbContext;
         }
 
-        public async Task<Unit> Handle(CreateIdentityResourceRequest request, CancellationToken cancellationToken){
+        public async Task Handle(CreateIdentityResourceRequest request, CancellationToken cancellationToken){
             IdentityResource identityResource = new IdentityResource(request.Name, request.DisplayName, request.Claims);
             identityResource.Emphasize = request.Emphasize;
             identityResource.Required = request.Required;
@@ -37,8 +37,6 @@ namespace SecurityService.BusinessLogic.RequestHandlers
 
             // Save the changes
             await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
-
-            return Unit.Value;
         }
 
         public async Task<IdentityResource> Handle(GetIdentityResourceRequest request, CancellationToken cancellationToken){

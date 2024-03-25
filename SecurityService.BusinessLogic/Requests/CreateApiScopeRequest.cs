@@ -3,7 +3,7 @@
 using System;
 using MediatR;
 
-public class CreateApiScopeRequest : IRequest<Unit>{
+public class CreateApiScopeRequest : IRequest{
     #region Constructors
 
     public CreateApiScopeRequest(String name, String displayName, String description){

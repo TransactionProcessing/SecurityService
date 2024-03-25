@@ -2,7 +2,7 @@
     using System;
     using MediatR;
 
-    public class CreateRoleRequest : IRequest<Unit>{
+    public class CreateRoleRequest : IRequest{
         #region Constructors
 
         private CreateRoleRequest(Guid roleId, String name){

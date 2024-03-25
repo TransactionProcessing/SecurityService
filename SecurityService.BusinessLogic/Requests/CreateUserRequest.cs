@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using MediatR;
 
-    public class CreateUserRequest : IRequest<Unit>{
+    public class CreateUserRequest : IRequest{
         #region Constructors
 
         private CreateUserRequest(Guid userId,

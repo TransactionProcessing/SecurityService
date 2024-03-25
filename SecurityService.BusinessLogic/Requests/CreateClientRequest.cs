@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using MediatR;
 
-    public class CreateClientRequest : IRequest<Unit>{
+    public class CreateClientRequest : IRequest{
         #region Constructors
 
         private CreateClientRequest(String clientId,

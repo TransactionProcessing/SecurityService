@@ -28,7 +28,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             this.ConfigurationDbContext = configurationDbContext;
         }
 
-        public async Task<Unit> Handle(CreateClientRequest request, CancellationToken cancellationToken){
+        public async Task Handle(CreateClientRequest request, CancellationToken cancellationToken){
             // Validate the grant types list
             this.ValidateGrantTypes(request.AllowedGrantTypes);
 
@@ -70,8 +70,6 @@ namespace SecurityService.BusinessLogic.RequestHandlers
 
             // Save the changes
             await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
-
-            return Unit.Value;
         }
 
         public async Task<Client> Handle(GetClientRequest request, CancellationToken cancellationToken){
