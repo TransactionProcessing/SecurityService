@@ -32,7 +32,7 @@
 
         #region Methods
 
-        public async Task<Unit> Handle(CreateApiResourceRequest request, CancellationToken cancellationToken){
+        public async Task Handle(CreateApiResourceRequest request, CancellationToken cancellationToken){
             ApiResource apiResource = new ApiResource{
                                                          ApiSecrets = new List<Secret>{
                                                                                           new Secret(request.Secret.ToSha256())
@@ -54,8 +54,6 @@
 
             // Save the changes
             await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
-
-            return Unit.Value;
         }
 
         public async Task<ApiResource> Handle(GetApiResourceRequest request, CancellationToken cancellationToken){

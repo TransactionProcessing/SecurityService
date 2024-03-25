@@ -34,10 +34,10 @@ jobs:
         sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
         sudo update-ca-certificates
         
-    - name: Install NET 7
+    - name: Install NET 8
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: '8.0.x'
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
@@ -93,10 +93,10 @@ jobs:
         sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
         sudo update-ca-certificates
         
-    - name: Install NET 7
+    - name: Install NET 8
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: '8.0.x'
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
@@ -150,10 +150,10 @@ jobs:
         sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
         sudo update-ca-certificates
 
-    - name: Install NET 7
+    - name: Install NET 8
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: '8.0.x'
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
@@ -207,10 +207,10 @@ jobs:
         sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
         sudo update-ca-certificates
 
-    - name: Install NET 7
+    - name: Install NET 8
       uses: actions/setup-dotnet@v2
       with:
-        dotnet-version: '7.0.x'
+        dotnet-version: '8.0.x'
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}

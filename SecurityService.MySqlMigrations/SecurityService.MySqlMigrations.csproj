@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
 	  <DebugType>None</DebugType>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="6.2.0-rc.1" />
-		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="7.0.0" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="7.0.2" />
+		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.0.3" />
+		<PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.2" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.3" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />

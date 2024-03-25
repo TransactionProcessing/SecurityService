@@ -4,7 +4,7 @@ using MediatR;
 
 namespace SecurityService.BusinessLogic.Requests;
 
-public class CreateApiResourceRequest : IRequest<Unit>
+public class CreateApiResourceRequest : IRequest
 {
     public string Name { get; }
     public string DisplayName { get; }

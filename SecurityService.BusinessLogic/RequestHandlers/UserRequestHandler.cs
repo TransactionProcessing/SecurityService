@@ -70,7 +70,7 @@
 
         #region Methods
 
-        public async Task<Unit> Handle(CreateUserRequest request, CancellationToken cancellationToken){
+        public async Task Handle(CreateUserRequest request, CancellationToken cancellationToken){
             // request is valid now add the user
             IdentityUser newIdentityUser = new IdentityUser{
                                                                Id = request.UserId.ToString(),
@@ -173,8 +173,6 @@
                     }
                 }
             }
-
-            return Unit.Value;
         }
 
         public async Task<UserDetails> Handle(GetUserRequest request, CancellationToken cancellationToken){
@@ -323,7 +321,7 @@
             return client.ClientUri;
         }
 
-        public async Task<Unit> Handle(ProcessPasswordResetRequest request, CancellationToken cancellationToken){
+        public async Task Handle(ProcessPasswordResetRequest request, CancellationToken cancellationToken){
             // Find the user based on the user name passed in
             IdentityUser user = await this.UserManager.FindByNameAsync(request.Username);
 
@@ -331,7 +329,7 @@
                 // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
                 // this prevents giving away info to a potential hacker...
                 // TODO: maybe log something here...
-                return Unit.Value;
+                return;
             }
 
             // User has been found so send an email with reset details
@@ -347,11 +345,9 @@
             catch(Exception ex){
                 Logger.LogError(ex);
             }
-
-            return Unit.Value;
         }
 
-        public async Task<Unit> Handle(SendWelcomeEmailRequest request, CancellationToken cancellationToken){
+        public async Task Handle(SendWelcomeEmailRequest request, CancellationToken cancellationToken){
             IdentityUser i = await this.UserManager.FindByNameAsync(request.UserName);
             await this.UserManager.RemovePasswordAsync(i);
             String generatedPassword = UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password);
@@ -366,8 +362,6 @@
             catch(Exception ex){
                 Logger.LogError(ex);
             }
-
-            return Unit.Value;
         }
 
         private SendEmailRequest BuildEmailConfirmationRequest(IdentityUser user,

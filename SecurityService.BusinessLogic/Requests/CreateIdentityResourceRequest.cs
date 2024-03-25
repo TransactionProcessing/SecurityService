@@ -3,7 +3,7 @@
     using System.Collections.Generic;
     using MediatR;
 
-    public class CreateIdentityResourceRequest : IRequest<Unit>{
+    public class CreateIdentityResourceRequest : IRequest{
         #region Constructors
 
         private CreateIdentityResourceRequest(String name,

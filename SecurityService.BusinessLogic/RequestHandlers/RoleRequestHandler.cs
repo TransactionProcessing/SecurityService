@@ -22,7 +22,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
         public RoleRequestHandler(RoleManager<IdentityRole> roleManager){
             this.RoleManager = roleManager;
         }
-        public async Task<Unit> Handle(CreateRoleRequest request, CancellationToken cancellationToken){
+        public async Task Handle(CreateRoleRequest request, CancellationToken cancellationToken){
             IdentityRole newIdentityRole = new IdentityRole
                                            {
                                                Id = request.RoleId.ToString(),
@@ -42,8 +42,6 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             {
                 throw new IdentityResultException($"Error creating role {newIdentityRole.Name}", createResult);
             }
-
-            return Unit.Value;
         }
 
         public async Task<RoleDetails> Handle(GetRoleRequest request, CancellationToken cancellationToken){

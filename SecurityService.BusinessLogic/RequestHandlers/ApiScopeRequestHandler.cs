@@ -30,7 +30,7 @@
 
         #region Methods
 
-        public async Task<Unit> Handle(CreateApiScopeRequest request, CancellationToken cancellationToken){
+        public async Task Handle(CreateApiScopeRequest request, CancellationToken cancellationToken){
             ApiScope apiScope = new ApiScope{
                                                 Description = request.Description,
                                                 DisplayName = request.DisplayName,
@@ -46,8 +46,6 @@
 
             // Save the changes
             await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
-
-            return Unit.Value;
         }
 
         public async Task<ApiScope> Handle(GetApiScopeRequest request, CancellationToken cancellationToken){
