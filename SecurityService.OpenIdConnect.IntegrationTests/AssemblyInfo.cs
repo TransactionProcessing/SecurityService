@@ -16,5 +16,5 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM.
 
 [assembly: Guid("70c8d747-842f-4d4d-8c60-f7c46bf81088")]
-[assembly: LevelOfParallelism(2)]
+[assembly: LevelOfParallelism(1)]
 [assembly: Parallelizable(ParallelScope.Fixtures)]
