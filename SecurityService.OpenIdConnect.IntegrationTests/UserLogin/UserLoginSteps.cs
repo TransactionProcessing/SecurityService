@@ -17,8 +17,7 @@ namespace SecurityService.IntegrationTests.UserLogin
     using Reqnroll;
     using Shared.IntegrationTesting;
     using Shouldly;
-    using Xunit.Sdk;
-
+    
     [Binding]
     [Scope(Tag = "userlogin")]
     public class UserLoginSteps
