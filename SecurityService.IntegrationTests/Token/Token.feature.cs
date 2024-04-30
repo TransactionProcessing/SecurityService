@@ -19,17 +19,19 @@ namespace SecurityService.IntegrationTests.Token
     
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "1.0.0.0")]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    [Xunit.TraitAttribute("Category", "base")]
-    [Xunit.TraitAttribute("Category", "token")]
-    [Xunit.TraitAttribute("Category", "clients")]
-    [Xunit.TraitAttribute("Category", "apiresources")]
-    [Xunit.TraitAttribute("Category", "users")]
-    [Xunit.TraitAttribute("Category", "roles")]
-    [Xunit.TraitAttribute("Category", "apiscopes")]
-    public partial class TokenFeature : object, Xunit.IClassFixture<TokenFeature.FixtureData>, Xunit.IAsyncLifetime
+    [NUnit.Framework.TestFixtureAttribute()]
+    [NUnit.Framework.DescriptionAttribute("Token")]
+    [NUnit.Framework.CategoryAttribute("base")]
+    [NUnit.Framework.CategoryAttribute("token")]
+    [NUnit.Framework.CategoryAttribute("clients")]
+    [NUnit.Framework.CategoryAttribute("apiresources")]
+    [NUnit.Framework.CategoryAttribute("users")]
+    [NUnit.Framework.CategoryAttribute("roles")]
+    [NUnit.Framework.CategoryAttribute("apiscopes")]
+    public partial class TokenFeature
     {
         
-        private static Reqnroll.ITestRunner testRunner;
+        private Reqnroll.ITestRunner testRunner;
         
         private static string[] featureTags = new string[] {
                 "base",
@@ -40,35 +42,30 @@ namespace SecurityService.IntegrationTests.Token
                 "roles",
                 "apiscopes"};
         
-        private Xunit.Abstractions.ITestOutputHelper _testOutputHelper;
-        
 #line 1 "Token.feature"
 #line hidden
         
-        public TokenFeature(TokenFeature.FixtureData fixtureData, Xunit.Abstractions.ITestOutputHelper testOutputHelper)
+        [NUnit.Framework.OneTimeSetUpAttribute()]
+        public virtual async System.Threading.Tasks.Task FeatureSetupAsync()
         {
-            this._testOutputHelper = testOutputHelper;
-        }
-        
-        public static async System.Threading.Tasks.Task FeatureSetupAsync()
-        {
-            testRunner = Reqnroll.TestRunnerManager.GetTestRunnerForAssembly(null, Reqnroll.xUnit.ReqnrollPlugin.XUnitParallelWorkerTracker.Instance.GetWorkerId());
+            testRunner = Reqnroll.TestRunnerManager.GetTestRunnerForAssembly(null, NUnit.Framework.TestContext.CurrentContext.WorkerId);
             Reqnroll.FeatureInfo featureInfo = new Reqnroll.FeatureInfo(new System.Globalization.CultureInfo("en-US"), "Token", "Token", null, ProgrammingLanguage.CSharp, featureTags);
             await testRunner.OnFeatureStartAsync(featureInfo);
         }
         
-        public static async System.Threading.Tasks.Task FeatureTearDownAsync()
+        [NUnit.Framework.OneTimeTearDownAttribute()]
+        public virtual async System.Threading.Tasks.Task FeatureTearDownAsync()
         {
-            string testWorkerId = testRunner.TestWorkerId;
             await testRunner.OnFeatureEndAsync();
             testRunner = null;
-            Reqnroll.xUnit.ReqnrollPlugin.XUnitParallelWorkerTracker.Instance.ReleaseWorker(testWorkerId);
         }
         
+        [NUnit.Framework.SetUpAttribute()]
         public async System.Threading.Tasks.Task TestInitializeAsync()
         {
         }
         
+        [NUnit.Framework.TearDownAttribute()]
         public async System.Threading.Tasks.Task TestTearDownAsync()
         {
             await testRunner.OnScenarioEndAsync();
@@ -77,7 +74,7 @@ namespace SecurityService.IntegrationTests.Token
         public void ScenarioInitialize(Reqnroll.ScenarioInfo scenarioInfo)
         {
             testRunner.OnScenarioInitialize(scenarioInfo);
-            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<Xunit.Abstractions.ITestOutputHelper>(_testOutputHelper);
+            testRunner.ScenarioContext.ScenarioContainer.RegisterInstanceAs<NUnit.Framework.TestContext>(NUnit.Framework.TestContext.CurrentContext);
         }
         
         public async System.Threading.Tasks.Task ScenarioStartAsync()
@@ -193,20 +190,9 @@ namespace SecurityService.IntegrationTests.Token
 #line hidden
         }
         
-        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
-        {
-            await this.TestInitializeAsync();
-        }
-        
-        async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
-        {
-            await this.TestTearDownAsync();
-        }
-        
-        [Xunit.SkippableFactAttribute(DisplayName="Get Tokens")]
-        [Xunit.TraitAttribute("FeatureTitle", "Token")]
-        [Xunit.TraitAttribute("Description", "Get Tokens")]
-        [Xunit.TraitAttribute("Category", "PRTest")]
+        [NUnit.Framework.TestAttribute()]
+        [NUnit.Framework.DescriptionAttribute("Get Tokens")]
+        [NUnit.Framework.CategoryAttribute("PRTest")]
         public async System.Threading.Tasks.Task GetTokens()
         {
             string[] tagsOfScenario = new string[] {
@@ -256,22 +242,6 @@ await this.FeatureBackgroundAsync();
 #line hidden
             }
             await this.ScenarioCleanupAsync();
-        }
-        
-        [System.CodeDom.Compiler.GeneratedCodeAttribute("Reqnroll", "1.0.0.0")]
-        [System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-        public class FixtureData : object, Xunit.IAsyncLifetime
-        {
-            
-            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.InitializeAsync()
-            {
-                await TokenFeature.FeatureSetupAsync();
-            }
-            
-            async System.Threading.Tasks.Task Xunit.IAsyncLifetime.DisposeAsync()
-            {
-                await TokenFeature.FeatureTearDownAsync();
-            }
         }
     }
 }
