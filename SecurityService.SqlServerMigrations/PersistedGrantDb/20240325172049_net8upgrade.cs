@@ -9,8 +9,9 @@ namespace SecurityService.SqlServerMigrations.PersistedGrantDb
     public partial class net8upgrade : Migration
     {
         /// <inheritdoc />
-        protected override void Up(MigrationBuilder migrationBuilder)
-        {
+        protected override void Up(MigrationBuilder migrationBuilder){
+            migrationBuilder.DropPrimaryKey("PK_ServerSideSessions", "ServerSideSessions");
+
             migrationBuilder.AlterColumn<long>(
                 name: "Id",
                 table: "ServerSideSessions",
@@ -20,6 +21,8 @@ namespace SecurityService.SqlServerMigrations.PersistedGrantDb
                 oldType: "int")
                 .Annotation("SqlServer:Identity", "1, 1")
                 .OldAnnotation("SqlServer:Identity", "1, 1");
+
+            migrationBuilder.AddPrimaryKey("PK_ServerSideSessions", "ServerSideSessions","Id");
 
             migrationBuilder.CreateTable(
                 name: "PushedAuthorizationRequests",
