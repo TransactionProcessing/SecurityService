@@ -12,6 +12,8 @@ namespace SecurityService.MySqlMigrations.PersistedGrantDb
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropPrimaryKey("PK_ServerSideSessions", "ServerSideSessions");
+
             migrationBuilder.AlterColumn<long>(
                 name: "Id",
                 table: "ServerSideSessions",
@@ -21,6 +23,8 @@ namespace SecurityService.MySqlMigrations.PersistedGrantDb
                 oldType: "int")
                 .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
 
+            migrationBuilder.AddPrimaryKey("PK_ServerSideSessions", "ServerSideSessions", "Id");
+
             migrationBuilder.AlterColumn<long>(
                 name: "Id",
                 table: "PersistedGrants",
@@ -29,7 +33,7 @@ namespace SecurityService.MySqlMigrations.PersistedGrantDb
                 oldClrType: typeof(long),
                 oldType: "bigint")
                 .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn);
-
+            
             migrationBuilder.CreateTable(
                 name: "PushedAuthorizationRequests",
                 columns: table => new
