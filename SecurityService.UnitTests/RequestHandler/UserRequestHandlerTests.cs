@@ -391,21 +391,21 @@ public class UserRequestHandlerTests{
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
-        (Boolean success, String clientUrl) result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        ChangeUserPasswordResult result = await this.RequestHandler.Handle(request, CancellationToken.None);
 
-        result.success.ShouldBeTrue();
-        result.clientUrl.ShouldNotBeNullOrEmpty();
+        result.IsSuccessful.ShouldBeTrue();
+        result.RedirectUri.ShouldNotBeNullOrEmpty();
     }
 
     [Fact]
     public async Task UserRequestHandler_ChangeUserPasswordRequest_UserNotFound_RequestIsHandled()
     {
         ChangeUserPasswordRequest request = TestData.ChangeUserPasswordRequest;
-        
-        (Boolean success, String clientUrl) result = await this.RequestHandler.Handle(request, CancellationToken.None);
 
-        result.success.ShouldBeFalse();
-        result.clientUrl.ShouldBeEmpty();
+        ChangeUserPasswordResult result = await this.RequestHandler.Handle(request, CancellationToken.None);
+
+        result.IsSuccessful.ShouldBeFalse();
+        result.RedirectUri.ShouldBeNullOrEmpty();
     }
 
     [Fact]
@@ -424,10 +424,10 @@ public class UserRequestHandlerTests{
         
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
-        (Boolean success, String clientUrl) result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        ChangeUserPasswordResult result = await this.RequestHandler.Handle(request, CancellationToken.None);
 
-        result.success.ShouldBeFalse();
-        result.clientUrl.ShouldBeEmpty();
+        result.IsSuccessful.ShouldBeFalse();
+        result.RedirectUri.ShouldBeNullOrEmpty();
     }
 
     [Fact]
@@ -458,10 +458,10 @@ public class UserRequestHandlerTests{
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(),
                                                                                It.IsAny<String>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
-        (Boolean success, String clientUrl) result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        ChangeUserPasswordResult result = await this.RequestHandler.Handle(request, CancellationToken.None);
 
-        result.success.ShouldBeTrue();
-        result.clientUrl.ShouldNotBeNullOrEmpty();
+        result.IsSuccessful.ShouldBeTrue();
+        result.RedirectUri.ShouldNotBeNullOrEmpty();
     }
 
     [Fact]

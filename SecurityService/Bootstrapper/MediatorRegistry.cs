@@ -50,7 +50,7 @@ public class MediatorRegistry : ServiceRegistry
         this.AddSingleton<IRequestHandler<GetUsersRequest, List<UserDetails>>, UserRequestHandler>();
         this.AddSingleton<IRequestHandler<CreateUserRequest>, UserRequestHandler>();
 
-        this.AddSingleton<IRequestHandler<ChangeUserPasswordRequest, (Boolean, String)>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<ChangeUserPasswordRequest, ChangeUserPasswordResult>, UserRequestHandler>();
         this.AddSingleton<IRequestHandler<ConfirmUserEmailAddressRequest, Boolean>, UserRequestHandler>();
         this.AddSingleton<IRequestHandler<ProcessPasswordResetConfirmationRequest, String>, UserRequestHandler>();
         this.AddSingleton<IRequestHandler<ProcessPasswordResetRequest>, UserRequestHandler>();
