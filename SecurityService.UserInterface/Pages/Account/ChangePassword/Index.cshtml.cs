@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SecurityService.Models;
 
 namespace IdentityServerHost.Pages.ChangePassword;
 
@@ -63,17 +64,17 @@ public class Index : PageModel
             return this.Page();
         }
         ChangeUserPasswordRequest request = ChangeUserPasswordRequest.Create(Input.Username, Input.CurrentPassword, Input.NewPassword, Input.ClientId);
-        (Boolean, String) result = await this.Mediator.Send(request, cancellationToken);
+        ChangeUserPasswordResult? result = await this.Mediator.Send(request, cancellationToken);
 
-        Logger.LogWarning(Input.ClientId);
-        Logger.LogWarning(result.Item1.ToString());
-        Logger.LogWarning(result.Item2);
-        if (result.Item1 == false) {
+        Logger.LogDebug(Input.ClientId);
+        Logger.LogDebug(result.IsSuccessful.ToString());
+        Logger.LogDebug(result.RedirectUri);
+        if (result.IsSuccessful== false) {
             ModelState.AddModelError(String.Empty, ErrorChangingPassword);
             return this.Page();
         }
 
-        return this.Redirect(result.Item2);
+        return this.Redirect(result.RedirectUri);
     }
         
     private async Task BuildModelAsync(String returnUrl)
