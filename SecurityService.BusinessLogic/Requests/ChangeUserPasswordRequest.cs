@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace SecurityService.BusinessLogic.Requests
 {
     using MediatR;
+    using SecurityService.Models;
 
-    public class ChangeUserPasswordRequest :IRequest<(Boolean,String)>
+    public class ChangeUserPasswordRequest :IRequest<ChangeUserPasswordResult>
     {
         public String UserName{ get; }
         public String CurrentPassword{ get; }

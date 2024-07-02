@@ -19,6 +19,7 @@
     using Microsoft.AspNetCore.Identity;
     using Microsoft.EntityFrameworkCore;
     using Requests;
+    using SecurityService.Models;
     using Shared.Exceptions;
     using Shared.General;
     using Shared.Logger;
@@ -27,7 +28,7 @@
     public class UserRequestHandler : IRequestHandler<CreateUserRequest>,
                                       IRequestHandler<GetUserRequest, UserDetails>,
                                       IRequestHandler<GetUsersRequest, List<UserDetails>>,
-                                      IRequestHandler<ChangeUserPasswordRequest, (Boolean, String)>,
+                                      IRequestHandler<ChangeUserPasswordRequest, ChangeUserPasswordResult>,
                                       IRequestHandler<ConfirmUserEmailAddressRequest, Boolean>,
                                       IRequestHandler<ProcessPasswordResetConfirmationRequest, String>,
                                       IRequestHandler<ProcessPasswordResetRequest>,
@@ -229,7 +230,7 @@
             return response;
         }
 
-        public async Task<(Boolean, String)> Handle(ChangeUserPasswordRequest request, CancellationToken cancellationToken){
+        public async Task<ChangeUserPasswordResult> Handle(ChangeUserPasswordRequest request, CancellationToken cancellationToken){
             // Find the user based on the user name passed in
             IdentityUser user = await this.UserManager.FindByNameAsync(request.UserName);
 
@@ -237,7 +238,7 @@
                 // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
                 // this prevents giving away info to a potential hacker...
                 // TODO: maybe log something here...
-                return (false, String.Empty);
+                return new ChangeUserPasswordResult { IsSuccessful = false };
             }
 
             IdentityResult result = await this.UserManager.ChangePasswordAsync(user,
@@ -246,9 +247,9 @@
 
             if (result.Succeeded == false){
                 // Log any errors
-                Logger.LogWarning($"Errors during password change for user [{request.UserName} and Client [{request.ClientId}]");
+                Logger.LogInformation($"Errors during password change for user [{request.UserName} and Client [{request.ClientId}]");
                 foreach (IdentityError identityError in result.Errors){
-                    Logger.LogWarning($"Code {identityError.Code} Description {identityError.Description}");
+                    Logger.LogInformation($"Code {identityError.Code} Description {identityError.Description}");
                 }
             }
 
@@ -256,29 +257,29 @@
             Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == request.ClientId, cancellationToken:cancellationToken);
 
             if (client == null){
-                Logger.LogWarning($"Client not found for clientId {request.ClientId}");
+                Logger.LogInformation($"Client not found for clientId {request.ClientId}");
                 // TODO: need to redirect somewhere...
-                return (false, String.Empty);
+                return new ChangeUserPasswordResult { IsSuccessful = false };
             }
 
-            Logger.LogWarning($"Client uri {client.ClientUri}");
-            return (true, client.ClientUri);
+            Logger.LogDebug($"Client uri {client.ClientUri}");
+            return new ChangeUserPasswordResult { IsSuccessful = true, RedirectUri = client.ClientUri};
         }
 
         public async Task<Boolean> Handle(ConfirmUserEmailAddressRequest request, CancellationToken cancellationToken){
             IdentityUser identityUser = await this.UserManager.FindByNameAsync(request.UserName);
 
             if (identityUser == null){
-                Logger.LogWarning($"No user found with username {request.UserName}");
+                Logger.LogInformation($"No user found with username {request.UserName}");
                 return false;
             }
 
             IdentityResult result = await this.UserManager.ConfirmEmailAsync(identityUser, request.ConfirmEmailToken);
 
             if (result.Succeeded == false){
-                Logger.LogWarning($"Errors during confirm email for user [{request.UserName}");
+                Logger.LogInformation($"Errors during confirm email for user [{request.UserName}");
                 foreach (IdentityError identityError in result.Errors){
-                    Logger.LogWarning($"Code {identityError.Code} Description {identityError.Description}");
+                    Logger.LogInformation($"Code {identityError.Code} Description {identityError.Description}");
                 }
             }
 
@@ -293,7 +294,7 @@
                 // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
                 // this prevents giving away info to a potential hacker...
                 // TODO: maybe log something here...
-                Logger.LogWarning($"user not found for username {request.Username}");
+                Logger.LogInformation($"user not found for username {request.Username}");
                 return String.Empty;
             }
 
@@ -302,9 +303,9 @@
             // handle the result... 
             if (result.Succeeded == false){
                 // Log any errors
-                Logger.LogWarning($"Errors during password reset for user [{request.Username} and Client [{request.ClientId}]");
+                Logger.LogInformation($"Errors during password reset for user [{request.Username} and Client [{request.ClientId}]");
                 foreach (IdentityError identityError in result.Errors){
-                    Logger.LogWarning($"Code {identityError.Code} Description {identityError.Description}");
+                    Logger.LogInformation($"Code {identityError.Code} Description {identityError.Description}");
                 }
             }
 
@@ -312,7 +313,7 @@
             Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == request.ClientId, cancellationToken:cancellationToken);
 
             if (client == null){
-                Logger.LogWarning($"Client not found for clientId {request.ClientId}");
+                Logger.LogInformation($"Client not found for clientId {request.ClientId}");
                 // TODO: need to redirect somewhere...
                 return String.Empty;
             }
