@@ -5,7 +5,7 @@ on:
     types: [published]
 
 jobs:
-  build:
+  buildlinux:
     name: "Release"
     env:
         ASPNETCORE_ENVIRONMENT: "Production"
@@ -47,77 +47,17 @@ jobs:
     - name: Publish API
       if: ${{ github.event.release.prerelease == false }} 
       run: dotnet publish "SecurityService\SecurityService.csproj" --configuration Release --output publishOutput -r win-x64 --self-contained             
-    
-    - name: Create Zip package 🐙
-      id: package
-      uses: OctopusDeploy/create-zip-package-action@v3
-      with:
-        package_id: SecurityService
-        version: ${{ steps.get_version.outputs.VERSION }}
-        base_path: /home/runner/work/SecurityService/SecurityService/publishOutput
-        files: "**/*"
-        output_folder: /home/runner/work/SecurityService/SecurityService
 
-    - name: Push a package to Octopus Deploy 🐙
-      uses: OctopusDeploy/push-package-action@v3
-      with:
-        api_key: ${{ secrets.OCTOPUS_APIKEY }}
-        server: ${{ secrets.OCTOPUS_URL }}
-        space: ${{ secrets.OCTOPUS_SPACE }}
-        packages: ${{ steps.package.outputs.package_file_path }}
-            
-    - name: Get Release
-      if: ${{ github.event.release.prerelease == false }} 
-      id: getrelease
-      uses: octokit/request-action@v2.0.17
-      with:
-          route: GET /repos/StuartFerguson/SecurityService/releases/tags/${{ steps.get_version.outputs.VERSION }}
-      env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Build Release Package
+      run: |
+         cd /home/runner/work/SecurityService/SecurityService/publishOutput
+         zip -r ../securityservice.zip ./*
 
-    - name: Build Release Notes
-      if: ${{ github.event.release.prerelease == false }} 
-      id: buildreleasenotes
-      uses: gr2m/get-json-paths-action@v1.x
+    - name: Upload the artifact
+      uses: actions/upload-artifact@v3
       with:
-          json: ${{ steps.getrelease.outputs.data }}
-          releasenote: "body"
-    
-    - name: Create a release in Octopus Deploy 🐙
-      uses: OctopusDeploy/create-release-action@v3
-      id: "create_release"
-      with:
-        api_key: ${{ secrets.OCTOPUS_APIKEY }}
-        server: ${{ secrets.OCTOPUS_URL }}
-        space: ${{ secrets.OCTOPUS_SPACE }}
-        project: "Security Service"
-        package_version: ${{ steps.get_version.outputs.VERSION }}
-        release_notes: ${{ steps.buildreleasenotes.outputs.releasenote }}
-        release_number: ${{ steps.get_version.outputs.VERSION }}
-        ignore_existing: true
-        channel: "Default"
-
-    - name: Deploy a release in Octopus Deploy 🐙
-      uses: OctopusDeploy/deploy-release-action@v3
-      id: "deploy_release"
-      with:
-        api_key: ${{ secrets.OCTOPUS_APIKEY }}
-        server: ${{ secrets.OCTOPUS_URL }}
-        space: ${{ secrets.OCTOPUS_SPACE }}
-        project: "Security Service"
-        release_number: ${{steps.create_release.outputs.release_number}}
-        environments: |
-            Staging      
-            
-    - name: Await task in Octopus Deploy 🐙
-      uses: OctopusDeploy/await-task-action@v3
-      with:
-        api_key: ${{ secrets.OCTOPUS_APIKEY }}
-        server: ${{ secrets.OCTOPUS_URL }}
-        space: ${{ secrets.OCTOPUS_SPACE }}
-        timeout_after: 300
-        polling_interval: 30
-        server_task_id: ${{ fromJson(steps.deploy_release.outputs.server_tasks)[0].serverTaskId }}
+        name: securityservice
+        path: securityservice.zip
 
     - name: Build and Publish Nuget Packages
       if: ${{ github.event.release.prerelease == false }} 
@@ -125,4 +65,70 @@ jobs:
         dotnet pack "SecurityService.Client\SecurityService.Client.csproj" /p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output Nugets
         dotnet nuget push Nugets/SecurityService.Client.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }} --skip-duplicate 
         dotnet pack "SecurityService.IntegrationTesting.Helpers\SecurityService.IntegrationTesting.Helpers.csproj" /p:PackageVersion=${{ steps.get_version.outputs.VERSION }} --output Nugets -c Release            
-        dotnet nuget push Nugets/SecurityService.IntegrationTesting.Helpers.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }} --skip-duplicate 
+        dotnet nuget push Nugets/SecurityService.IntegrationTesting.Helpers.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }} --skip-duplicate         
+        
+  deploystaging:
+    runs-on: stagingserver
+    needs: buildlinux
+    environment: staging
+    name: "Deploy to Staging"
+    
+    steps:
+      - name: Download the artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: securityservice
+
+      - name: Remove existing  Windows service
+        run: |
+          $serviceName = "Transaction Processing - Security Service"
+          # Check if the service exists
+          if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
+            Stop-Service -Name $serviceName
+            sc.exe delete $serviceName
+          }
+
+      - name: Unzip the files
+        run: |
+          Expand-Archive -Path securityservice.zip -DestinationPath "C:\txnproc\transactionprocessing\securityservice" -Force
+      
+      - name: Install as a Windows service
+        run: |
+          $serviceName = "Transaction Processing - Security Service"
+          $servicePath = "C:\txnproc\transactionprocessing\securityservice\SecurityService.exe"
+                   
+          New-Service -Name $serviceName -BinaryPathName $servicePath -Description "Transaction Processing - Security Service" -DisplayName "Transaction Processing - Security Service" -StartupType Automatic
+          Start-Service -Name $serviceName    
+
+  deployproduction:
+    runs-on: productionserver
+    needs: [buildlinux, deploystaging]
+    environment: production
+    name: "Deploy to Production"
+    
+    steps:
+      - name: Download the artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: securityservice
+
+      - name: Remove existing  Windows service
+        run: |
+          $serviceName = "Transaction Processing - Security Service"
+          # Check if the service exists
+          if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
+            Stop-Service -Name $serviceName
+            sc.exe delete $serviceName
+          }
+
+      - name: Unzip the files
+        run: |
+          Expand-Archive -Path securityservice.zip -DestinationPath "C:\txnproc\transactionprocessing\securityservice" -Force
+      
+      - name: Install as a Windows service
+        run: |
+          $serviceName = "Transaction Processing - Security Service"
+          $servicePath = "C:\txnproc\transactionprocessing\securityservice\SecurityService.exe"
+                   
+          New-Service -Name $serviceName -BinaryPathName $servicePath -Description "Transaction Processing - Security Service" -DisplayName "Transaction Processing - Security Service" -StartupType Automatic
+          Start-Service -Name $serviceName          
