@@ -5,9 +5,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Duende.IdentityServer" Version="7.0.3" />
+    <PackageReference Include="Duende.IdentityServer" Version="7.0.6" />
     <PackageReference Include="Duende.IdentityServer.EntityFramework.Storage" Version="7.0.3" />
-    <PackageReference Include="Duende.IdentityServer.Storage" Version="7.0.3" />
+    <PackageReference Include="Duende.IdentityServer.Storage" Version="7.0.6" />
     <PackageReference Include="MediatR" Version="12.2.0" />
     <PackageReference Include="MessagingService.Client" Version="2024.4.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
