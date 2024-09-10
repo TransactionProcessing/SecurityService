@@ -58,7 +58,7 @@ jobs:
       run: |
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
 
-    - uses: actions/upload-artifact@v4.1.7
+    - uses: actions/upload-artifact@v4.4.0
       if: ${{ failure() }}
       with:
         name: nonuilogs
@@ -115,7 +115,7 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest    
 
-    - uses: actions/upload-artifact@v4.1.7
+    - uses: actions/upload-artifact@v4.4.0
       if: ${{ failure() }}
       with:
         name: firefoxlogs
@@ -172,7 +172,7 @@ jobs:
       run: |  
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
-    - uses: actions/upload-artifact@v4.1.7
+    - uses: actions/upload-artifact@v4.4.0
       if: ${{ failure() }}
       with:
         name: chromelogs
@@ -231,7 +231,7 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest 
 
-    - uses: actions/upload-artifact@v4.1.7
+    - uses: actions/upload-artifact@v4.4.0
       if: ${{ failure() }}
       with:
         name: edgelogs
