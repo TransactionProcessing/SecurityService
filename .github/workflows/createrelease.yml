@@ -54,7 +54,7 @@ jobs:
          zip -r ../securityservice.zip ./*
 
     - name: Upload the artifact
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4.4.0
       with:
         name: securityservice
         path: securityservice.zip
@@ -75,7 +75,7 @@ jobs:
     
     steps:
       - name: Download the artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.8
         with:
           name: securityservice
 
@@ -108,7 +108,7 @@ jobs:
     
     steps:
       - name: Download the artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4.1.8
         with:
           name: securityservice
 
