@@ -47,9 +47,9 @@ public class Index : PageModel{
         if (Input.Button == "cancel") {
             return Redirect("Login/Index");
         }
-
-        ProcessPasswordResetRequest request = ProcessPasswordResetRequest.Create(Input.Username, Input.EmailAddress, Input.ClientId);
-        await this.Mediator.Send(request, cancellationToken);
+        SecurityServiceCommands.ProcessPasswordResetRequestCommand command = new(Input.Username, Input.EmailAddress, Input.ClientId);
+        var result = await this.Mediator.Send(command, cancellationToken);
+        // TODO: handle the result
 
         View = new ViewModel() {
                                    UserMessage = "Password Reset sent, please check your registered email for further instructions."

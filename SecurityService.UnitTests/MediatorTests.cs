@@ -11,7 +11,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
+using MessagingService.Client;
+using MessagingService.DataTransferObjects;
+using SimpleResults;
 using Xunit;
 
 namespace SecurityService.UnitTests
@@ -35,29 +39,29 @@ namespace SecurityService.UnitTests
         private List<IBaseRequest> Requests = new List<IBaseRequest>();
 
         public MediatorTests(){
-            this.Requests.Add(TestData.CreateApiResourceRequest);
+            this.Requests.Add(TestData.CreateApiResourceCommand);
             this.Requests.Add(TestData.GetApiResourceRequest);
             this.Requests.Add(TestData.GetApiResourcesRequest);
-            this.Requests.Add(TestData.CreateApiScopeRequest);
+            this.Requests.Add(TestData.CreateApiScopeCommand);
             this.Requests.Add(TestData.GetApiScopeRequest);
             this.Requests.Add(TestData.GetApiScopesRequest);
-            this.Requests.Add(TestData.CreateClientRequest);
+            this.Requests.Add(TestData.CreateClientCommand);
             this.Requests.Add(TestData.GetClientRequest);
             this.Requests.Add(TestData.GetClientsRequest);
-            this.Requests.Add(TestData.CreateIdentityResourceRequest);
+            this.Requests.Add(TestData.CreateIdentityResourceCommand);
             this.Requests.Add(TestData.GetIdentityResourceRequest);
             this.Requests.Add(TestData.GetIdentityResourcesRequest);
-            this.Requests.Add(TestData.CreateUserRequest);
+            this.Requests.Add(TestData.CreateUserCommand);
             this.Requests.Add(TestData.GetUserRequest);
             this.Requests.Add(TestData.GetUsersRequest);
-            this.Requests.Add(TestData.CreateRoleRequest);
+            this.Requests.Add(TestData.CreateRoleCommand);
             this.Requests.Add(TestData.GetRoleRequest);
             this.Requests.Add(TestData.GetRolesRequest);
-            this.Requests.Add(TestData.ChangeUserPasswordRequest);
-            this.Requests.Add(TestData.ConfirmUserEmailAddressRequest);
-            this.Requests.Add(TestData.ProcessPasswordResetConfirmationRequest);
-            this.Requests.Add(TestData.ProcessPasswordResetRequest);
-            this.Requests.Add(TestData.SendWelcomeEmailRequest);
+            this.Requests.Add(TestData.ChangeUserPasswordCommand);
+            this.Requests.Add(TestData.ConfirmUserEmailAddressCommand);
+            this.Requests.Add(TestData.ProcessPasswordResetConfirmationCommand);
+            this.Requests.Add(TestData.ProcessPasswordResetRequestCommand);
+            this.Requests.Add(TestData.SendWelcomeEmailCommand);
 
             Directory.CreateDirectory("D:\\home\\");
         }
@@ -86,7 +90,7 @@ namespace SecurityService.UnitTests
             {
                 try
                 {
-                    if (baseRequest is CreateUserRequest ||
+                    if (baseRequest is SecurityServiceCommands.CreateUserCommand ||
                         baseRequest is GetRoleRequest){
                         await authDb.CreateAsync(new IdentityRole(TestData.RoleName));
                     }
@@ -147,7 +151,22 @@ namespace SecurityService.UnitTests
                                           s.AddDbContext<ConfigurationDbContext>(builder => builder.UseInMemoryDatabase("Configuration"), ServiceLifetime.Singleton);
                                           s.AddDbContext<PersistedGrantDbContext>(builder => builder.UseInMemoryDatabase("PersistedGrantDb"), ServiceLifetime.Singleton);
                                           s.AddDbContext<AuthenticationDbContext>(builder => builder.UseInMemoryDatabase("Authentication"), ServiceLifetime.Singleton);
-                                          });
+                                          s.AddSingleton<IMessagingServiceClient, DummyMessagingServiceClient>();
+            });
         }
+    }
+
+    public class DummyMessagingServiceClient : IMessagingServiceClient {
+        public async Task<Result> SendEmail(String accessToken,
+                                            SendEmailRequest request,
+                                            CancellationToken cancellationToken) => Result.Success();
+
+        public async Task<Result> ResendEmail(String accessToken,
+                                              ResendEmailRequest request,
+                                              CancellationToken cancellationToken) => Result.Success();
+
+        public async Task<Result> SendSMS(String accessToken,
+                                          SendSMSRequest request,
+                                          CancellationToken cancellationToken) => Result.Success();
     }
 }

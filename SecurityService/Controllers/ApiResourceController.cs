@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shared.Results;
+using SimpleResults;
 
 namespace SecurityService.Controllers
 {
@@ -53,20 +55,16 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> CreateApiResource([FromBody] CreateApiResourceRequest createApiResourceRequest,
                                                      CancellationToken cancellationToken)
         {
-            BusinessLogic.Requests.CreateApiResourceRequest request = BusinessLogic.Requests.CreateApiResourceRequest.Create(createApiResourceRequest.Name,
+            SecurityServiceCommands.CreateApiResourceCommand command = new(createApiResourceRequest.Name,
                 createApiResourceRequest.DisplayName,
                 createApiResourceRequest.Description,
                 createApiResourceRequest.Secret,
                 createApiResourceRequest.Scopes,
                 createApiResourceRequest.UserClaims);
 
-            await this.Mediator.Send(request, cancellationToken);
-            
-            // return the result
-            return this.Created($"{ApiResourceController.ControllerRoute}/{createApiResourceRequest.Name}", new CreateApiResourceResponse
-                                                                                  {
-                                                                                      ApiResourceName = createApiResourceRequest.Name
-            });
+            Result result = await this.Mediator.Send(command, cancellationToken);
+            // TODO: Handle failed result
+            return result.ToActionResultX();
         }
 
         /// <summary>

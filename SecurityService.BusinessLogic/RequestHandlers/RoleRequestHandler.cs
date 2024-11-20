@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SecurityService.DataTransferObjects.Requests;
+using SimpleResults;
 
 namespace SecurityService.BusinessLogic.RequestHandlers
 {
@@ -14,7 +16,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using Requests;
     using Shared.Exceptions;
 
-    public class RoleRequestHandler : IRequestHandler<CreateRoleRequest>,
+    public class RoleRequestHandler : IRequestHandler<SecurityServiceCommands.CreateRoleCommand, Result>,
                                       IRequestHandler<GetRoleRequest, RoleDetails>,
                                       IRequestHandler<GetRolesRequest, List<RoleDetails>>{
         private readonly RoleManager<IdentityRole> RoleManager;
@@ -22,26 +24,28 @@ namespace SecurityService.BusinessLogic.RequestHandlers
         public RoleRequestHandler(RoleManager<IdentityRole> roleManager){
             this.RoleManager = roleManager;
         }
-        public async Task Handle(CreateRoleRequest request, CancellationToken cancellationToken){
+        public async Task<Result> Handle(SecurityServiceCommands.CreateRoleCommand command, CancellationToken cancellationToken){
+
             IdentityRole newIdentityRole = new IdentityRole
-                                           {
-                                               Id = request.RoleId.ToString(),
-                                               Name = request.Name,
-                                               NormalizedName = request.Name.ToUpper()
-                                           };
+            {
+                Id = command.RoleId.ToString(),
+                Name = command.Name,
+                NormalizedName = command.Name.ToUpper()
+            };
 
             // Ensure role name is not a duplicate
             if (await this.RoleManager.RoleExistsAsync(newIdentityRole.Name))
             {
-                throw new IdentityResultException($"Role {newIdentityRole.Name} already exists", IdentityResult.Failed());
+                return Result.Conflict($"Role {newIdentityRole.Name} already exists");
             }
 
             IdentityResult createResult = await this.RoleManager.CreateAsync(newIdentityRole);
 
             if (!createResult.Succeeded)
             {
-                throw new IdentityResultException($"Error creating role {newIdentityRole.Name}", createResult);
+                return Result.Failure($"Error creating role {newIdentityRole.Name} {createResult}");
             }
+            return Result.Success();
         }
 
         public async Task<RoleDetails> Handle(GetRoleRequest request, CancellationToken cancellationToken){

@@ -37,49 +37,47 @@ public class RoleRequestHandlerTests
     }
 
     [Fact]
-    public async Task RoleRequestHandler_CreateRoleRequest_RequestIsHandled()
+    public async Task RoleRequestHandler_CreateRoleCommand_RequestIsHandled()
     {
-        CreateRoleRequest request = TestData.CreateRoleRequest;
+        SecurityServiceCommands.CreateRoleCommand command = TestData.CreateRoleCommand;
 
         this.SetupRequestHandlers.RoleValidator.Setup(r => r.ValidateAsync(It.IsAny<RoleManager<IdentityRole>>(), It.IsAny<IdentityRole>())).ReturnsAsync(IdentityResult.Success);
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 roleCount = await this.AuthenticationDbContext.Roles.CountAsync();
         roleCount.ShouldBe(1);
     }
 
     [Fact]
-    public async Task RoleRequestHandler_CreateRoleRequest_RoleAlreadyExists_RequestIsHandled()
+    public async Task RoleRequestHandler_CreateRoleCommand_RoleAlreadyExists_RequestIsHandled()
     {
-        CreateRoleRequest request = TestData.CreateRoleRequest;
+        SecurityServiceCommands.CreateRoleCommand command = TestData.CreateRoleCommand;
 
         await this.AuthenticationDbContext.Roles.AddAsync(new IdentityRole()
                                                           {
-                                                              Id = TestData.CreateRoleRequest.RoleId.ToString(),
-                                                              Name = TestData.CreateRoleRequest.Name,
-                                                              NormalizedName = TestData.CreateRoleRequest.Name.ToUpper()
+                                                              Id = TestData.CreateRoleCommand.RoleId.ToString(),
+                                                              Name = TestData.CreateRoleCommand.Name,
+                                                              NormalizedName = TestData.CreateRoleCommand.Name.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync(CancellationToken.None);
 
-        Should.Throw<IdentityResultException>(async () =>
-                                              {
-                                                  await this.RequestHandler.Handle(request, CancellationToken.None);
-                                              });
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();                                              
     }
 
     [Fact]
-    public async Task RoleRequestHandler_CreateRoleRequest_RoleCreateFailed_RequestIsHandled()
+    public async Task RoleRequestHandler_CreateRoleCommand_RoleCreateFailed_RequestIsHandled()
     {
-        CreateRoleRequest request = TestData.CreateRoleRequest;
+        SecurityServiceCommands.CreateRoleCommand command = TestData.CreateRoleCommand;
 
         List<IdentityError> errors = new List<IdentityError>();
         errors.Add(new IdentityError());
         this.SetupRequestHandlers.RoleValidator.Setup(r => r.ValidateAsync(It.IsAny<RoleManager<IdentityRole>>(), It.IsAny<IdentityRole>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
-        Should.Throw<IdentityResultException>(async () =>
-                                              {
-                                                  await this.RequestHandler.Handle(request, CancellationToken.None);
-                                              });
+        
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
 
     [Fact]

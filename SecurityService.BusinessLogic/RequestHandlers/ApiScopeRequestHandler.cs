@@ -1,4 +1,8 @@
-﻿namespace SecurityService.BusinessLogic.RequestHandlers{
+﻿using SecurityService.DataTransferObjects.Requests;
+using SimpleResults;
+
+namespace SecurityService.BusinessLogic.RequestHandlers{
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading;
@@ -11,7 +15,7 @@
     using Requests;
     using Shared.Exceptions;
 
-    public class ApiScopeRequestHandler : IRequestHandler<CreateApiScopeRequest>,
+    public class ApiScopeRequestHandler : IRequestHandler<SecurityServiceCommands.CreateApiScopeCommand, Result>,
                                           IRequestHandler<GetApiScopeRequest, ApiScope>,
                                           IRequestHandler<GetApiScopesRequest, List<ApiScope>>{
         #region Fields
@@ -30,22 +34,25 @@
 
         #region Methods
 
-        public async Task Handle(CreateApiScopeRequest request, CancellationToken cancellationToken){
-            ApiScope apiScope = new ApiScope{
-                                                Description = request.Description,
-                                                DisplayName = request.DisplayName,
-                                                Name = request.Name,
-                                                Emphasize = false,
-                                                Enabled = true,
-                                                Required = false,
-                                                ShowInDiscoveryDocument = true
-                                            };
+        public async Task<Result> Handle(SecurityServiceCommands.CreateApiScopeCommand command, CancellationToken cancellationToken){
+            ApiScope apiScope = new ApiScope
+            {
+                Description = command.Description,
+                DisplayName = command.DisplayName,
+                Name = command.Name,
+                Emphasize = false,
+                Enabled = true,
+                Required = false,
+                ShowInDiscoveryDocument = true
+            };
 
             // Now translate the model to the entity
             await this.ConfigurationDbContext.ApiScopes.AddAsync(apiScope.ToEntity(), cancellationToken);
 
             // Save the changes
             await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
 
         public async Task<ApiScope> Handle(GetApiScopeRequest request, CancellationToken cancellationToken){

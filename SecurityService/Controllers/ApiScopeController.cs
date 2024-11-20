@@ -44,11 +44,12 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> CreateApiScope([FromBody] CreateApiScopeRequest createApiScopeRequest,
                                                            CancellationToken cancellationToken)
         {
-            BusinessLogic.Requests.CreateApiScopeRequest request = BusinessLogic.Requests.CreateApiScopeRequest.Create(createApiScopeRequest.Name,
+            SecurityServiceCommands.CreateApiScopeCommand command = new(createApiScopeRequest.Name,
                 createApiScopeRequest.DisplayName,
                 createApiScopeRequest.Description);
 
-            await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(command, cancellationToken);
+            // TODO: Handle failed result
 
             // return the result
             return this.Created($"{ApiScopeController.ControllerRoute}/{createApiScopeRequest.Name}", new CreateApiScopeResponse

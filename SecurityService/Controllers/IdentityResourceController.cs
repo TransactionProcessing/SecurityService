@@ -69,7 +69,7 @@
         public async Task<IActionResult> CreateIdentityResource([FromBody] CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                 CancellationToken cancellationToken)
         {
-            BusinessLogic.Requests.CreateIdentityResourceRequest request = BusinessLogic.Requests.CreateIdentityResourceRequest.Create(createIdentityResourceRequest.Name,
+            SecurityServiceCommands.CreateIdentityResourceCommand command = new(createIdentityResourceRequest.Name,
                                                                                                                                        createIdentityResourceRequest.DisplayName,
                                                                                                                                        createIdentityResourceRequest.Description,
                                                                                                                                        createIdentityResourceRequest.Required,
@@ -77,7 +77,8 @@
                                                                                                                                        createIdentityResourceRequest.ShowInDiscoveryDocument,
                                                                                                                                        createIdentityResourceRequest.Claims);
 
-            await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(command, cancellationToken);
+            // TODO: Handle failed result
 
             // return the result
             return this.Created($"{IdentityResourceController.ControllerRoute}/{createIdentityResourceRequest.Name}",

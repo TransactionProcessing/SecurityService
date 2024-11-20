@@ -68,7 +68,7 @@
         [SwaggerResponseExample(201, typeof(CreateClientResponseExample))]
         public async Task<IActionResult> CreateClient([FromBody] CreateClientRequest createClientRequest, CancellationToken cancellationToken)
         {
-            BusinessLogic.Requests.CreateClientRequest request = BusinessLogic.Requests.CreateClientRequest.Create(createClientRequest.ClientId,
+            SecurityServiceCommands.CreateClientCommand command = new(createClientRequest.ClientId,
                                                                                                                    createClientRequest.Secret,
                                                                                                                    createClientRequest.ClientName,
                                                                                                                    createClientRequest.ClientDescription,
@@ -81,7 +81,8 @@
                                                                                                                    createClientRequest.AllowOfflineAccess);
             
             // Create the client
-            await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(command, cancellationToken);
+            // TODO: handle failed result
 
             // return the result
             return this.Created($"{ClientController.ControllerRoute}/{createClientRequest.ClientId}",

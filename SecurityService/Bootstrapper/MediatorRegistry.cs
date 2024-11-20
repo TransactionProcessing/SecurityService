@@ -1,4 +1,6 @@
-﻿namespace SecurityService.Bootstrapper;
+﻿using SimpleResults;
+
+namespace SecurityService.Bootstrapper;
 
 using System;
 using System.Collections.Generic;
@@ -28,32 +30,32 @@ public class MediatorRegistry : ServiceRegistry
 
         this.AddSingleton<IRequestHandler<GetApiScopeRequest, ApiScope>, ApiScopeRequestHandler>();
         this.AddSingleton<IRequestHandler<GetApiScopesRequest, List<ApiScope>>, ApiScopeRequestHandler>();
-        this.AddSingleton<IRequestHandler<CreateApiScopeRequest>, ApiScopeRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateApiScopeCommand, Result>, ApiScopeRequestHandler>();
 
         this.AddSingleton<IRequestHandler<GetApiResourceRequest, ApiResource>, ApiResourceRequestHandler>();
         this.AddSingleton<IRequestHandler<GetApiResourcesRequest, List<ApiResource>>, ApiResourceRequestHandler>();
-        this.AddSingleton<IRequestHandler<CreateApiResourceRequest>, ApiResourceRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateApiResourceCommand, Result>, ApiResourceRequestHandler>();
 
         this.AddSingleton<IRequestHandler<GetRoleRequest, RoleDetails>, RoleRequestHandler>();
         this.AddSingleton<IRequestHandler<GetRolesRequest, List<RoleDetails>>, RoleRequestHandler>();
-        this.AddSingleton<IRequestHandler<CreateRoleRequest>, RoleRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateRoleCommand, Result>, RoleRequestHandler>();
 
         this.AddSingleton<IRequestHandler<GetClientRequest, Client>, ClientRequestHandler>();
         this.AddSingleton<IRequestHandler<GetClientsRequest, List<Client>>, ClientRequestHandler>();
-        this.AddSingleton<IRequestHandler<CreateClientRequest>, ClientRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateClientCommand, Result>, ClientRequestHandler>();
 
         this.AddSingleton<IRequestHandler<GetIdentityResourceRequest, IdentityResource>, IdentityResourceRequestHandler>();
         this.AddSingleton<IRequestHandler<GetIdentityResourcesRequest, List<IdentityResource>>, IdentityResourceRequestHandler>();
-        this.AddSingleton<IRequestHandler<CreateIdentityResourceRequest>, IdentityResourceRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateIdentityResourceCommand, Result>, IdentityResourceRequestHandler>();
 
         this.AddSingleton<IRequestHandler<GetUserRequest, UserDetails>, UserRequestHandler>();
         this.AddSingleton<IRequestHandler<GetUsersRequest, List<UserDetails>>, UserRequestHandler>();
-        this.AddSingleton<IRequestHandler<CreateUserRequest>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateUserCommand, Result>, UserRequestHandler>();
 
-        this.AddSingleton<IRequestHandler<ChangeUserPasswordRequest, ChangeUserPasswordResult>, UserRequestHandler>();
-        this.AddSingleton<IRequestHandler<ConfirmUserEmailAddressRequest, Boolean>, UserRequestHandler>();
-        this.AddSingleton<IRequestHandler<ProcessPasswordResetConfirmationRequest, String>, UserRequestHandler>();
-        this.AddSingleton<IRequestHandler<ProcessPasswordResetRequest>, UserRequestHandler>();
-        this.AddSingleton<IRequestHandler<SendWelcomeEmailRequest>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.ChangeUserPasswordCommand, Result<ChangeUserPasswordResult>>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.ConfirmUserEmailAddressCommand, Result>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.ProcessPasswordResetConfirmationCommand, Result<String>>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.ProcessPasswordResetRequestCommand, Result>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceCommands.SendWelcomeEmailCommand, Result>, UserRequestHandler>();
     }
 }

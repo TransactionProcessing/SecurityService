@@ -30,9 +30,10 @@ public class ApiScopeRequestHandlerTests
     [Fact]
     public async Task ApiScopeRequestHandler_CreateApiScopeRequest_RequestIsHandled()
     {
-        CreateApiScopeRequest request = TestData.CreateApiScopeRequest;
+        SecurityServiceCommands.CreateApiScopeCommand command = TestData.CreateApiScopeCommand;
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 scopeCount = await this.Context.ApiScopes.CountAsync();
         scopeCount.ShouldBe(1);

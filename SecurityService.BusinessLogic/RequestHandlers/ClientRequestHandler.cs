@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SecurityService.DataTransferObjects.Requests;
+using SimpleResults;
 
 namespace SecurityService.BusinessLogic.RequestHandlers
 {
@@ -19,7 +21,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using Client = Duende.IdentityServer.Models.Client;
     using Secret = Duende.IdentityServer.Models.Secret;
 
-    public class ClientRequestHandler : IRequestHandler<CreateClientRequest>,
+    public class ClientRequestHandler : IRequestHandler<SecurityServiceCommands.CreateClientCommand, Result>,
                                         IRequestHandler<GetClientRequest, Client>,
                                         IRequestHandler<GetClientsRequest, List<Client>>{
         private readonly ConfigurationDbContext ConfigurationDbContext;
@@ -28,39 +30,48 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             this.ConfigurationDbContext = configurationDbContext;
         }
 
-        public async Task Handle(CreateClientRequest request, CancellationToken cancellationToken){
+        public async Task<Result> Handle(SecurityServiceCommands.CreateClientCommand command, CancellationToken cancellationToken){
             // Validate the grant types list
-            this.ValidateGrantTypes(request.AllowedGrantTypes);
+            Result validationResult = this.ValidateGrantTypes(command.AllowedGrantTypes);
+            if (validationResult.IsFailed) {
+                return validationResult;
+            }
 
             // Create the model from the request
-            Client client = new Client{
-                                          ClientId = request.ClientId,
-                                          ClientName = request.ClientName,
-                                          Description = request.ClientDescription,
-                                          ClientSecrets ={
-                                                             new Secret(request.Secret.ToSha256())
+            Client client = new Client
+            {
+                ClientId = command.ClientId,
+                ClientName = command.ClientName,
+                Description = command.ClientDescription,
+                ClientSecrets ={
+                                                             new Secret(command.Secret.ToSha256())
                                                          },
-                                          AllowedGrantTypes = request.AllowedGrantTypes,
-                                          AllowedScopes = request.AllowedScopes,
-                                          RequireConsent = request.RequireConsent,
-                                          AllowOfflineAccess = request.AllowOfflineAccess,
-                                          ClientUri = request.ClientUri
-                                      };
+                AllowedGrantTypes = command.AllowedGrantTypes,
+                AllowedScopes = command.AllowedScopes,
+                RequireConsent = command.RequireConsent,
+                AllowOfflineAccess = command.AllowOfflineAccess,
+                ClientUri = command.ClientUri
+            };
 
-            if (request.AllowedGrantTypes.Contains("hybrid")){
+            if (command.AllowedGrantTypes.Contains("hybrid"))
+            {
                 client.RequirePkce = false;
             }
 
-            if (request.ClientRedirectUris != null && request.ClientRedirectUris.Any()){
+            if (command.ClientRedirectUris != null && command.ClientRedirectUris.Any())
+            {
                 client.RedirectUris = new List<String>();
-                foreach (String clientRedirectUri in request.ClientRedirectUris){
+                foreach (String clientRedirectUri in command.ClientRedirectUris)
+                {
                     client.RedirectUris.Add(clientRedirectUri);
                 }
             }
 
-            if (request.ClientPostLogoutRedirectUris != null && request.ClientPostLogoutRedirectUris.Any()){
+            if (command.ClientPostLogoutRedirectUris != null && command.ClientPostLogoutRedirectUris.Any())
+            {
                 client.PostLogoutRedirectUris = new List<String>();
-                foreach (String clientPostLogoutRedirectUri in request.ClientPostLogoutRedirectUris){
+                foreach (String clientPostLogoutRedirectUri in command.ClientPostLogoutRedirectUris)
+                {
                     client.PostLogoutRedirectUris.Add(clientPostLogoutRedirectUri);
                 }
             }
@@ -70,6 +81,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers
 
             // Save the changes
             await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
 
         public async Task<Client> Handle(GetClientRequest request, CancellationToken cancellationToken){
@@ -107,7 +120,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             return clientModels;
         }
 
-        private void ValidateGrantTypes(List<String> allowedGrantTypes){
+        private Result ValidateGrantTypes(List<String> allowedGrantTypes){
             // Get a list of valid grant types
             List<String> validTypesList = new List<String>();
 
@@ -121,8 +134,9 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             List<String> invalidGrantTypes = allowedGrantTypes.Where(a => validTypesList.All(v => v != a)).ToList();
 
             if (invalidGrantTypes.Any()){
-                throw new ArgumentException(nameof(allowedGrantTypes), $"The grant types [{String.Join(", ", invalidGrantTypes)}] are not valid to create a new client");
+                return Result.Invalid($"The grant types [{String.Join(", ", invalidGrantTypes)}] are not valid to create a new client");
             }
+            return Result.Success();
         }
     }
 }

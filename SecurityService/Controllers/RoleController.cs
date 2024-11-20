@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Shared.Results;
 
 namespace SecurityService.Controllers
 {
@@ -57,16 +58,12 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest createRoleRequest, CancellationToken cancellationToken)
         {
             Guid roleId = Guid.NewGuid();
-            BusinessLogic.Requests.CreateRoleRequest request = BusinessLogic.Requests.CreateRoleRequest.Create(roleId, createRoleRequest.RoleName);
+            SecurityServiceCommands.CreateRoleCommand command  = new(roleId, createRoleRequest.RoleName);
 
-            await this.Mediator.Send(request, cancellationToken);
-
+            var result = await this.Mediator.Send(command, cancellationToken);
+            // TODO: Handle failed result
             // return the result
-            return this.Created($"{RoleController.ControllerRoute}/{roleId}",
-                                new CreateRoleResponse
-                                {
-                                    RoleId = roleId
-                                });
+            return result.ToActionResultX();
         }
 
         /// <summary>

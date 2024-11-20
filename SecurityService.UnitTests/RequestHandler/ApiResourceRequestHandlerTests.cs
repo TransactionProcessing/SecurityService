@@ -28,9 +28,10 @@ public class ApiResourceRequestHandlerTests{
 
     [Fact]
     public async Task ApiResourceRequestHandler_CreateApiResourceRequest_RequestIsHandled(){
-        CreateApiResourceRequest request = TestData.CreateApiResourceRequest;
+        SecurityServiceCommands.CreateApiResourceCommand command = TestData.CreateApiResourceCommand;
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 resourceCount = await this.Context.ApiResources.CountAsync();
         resourceCount.ShouldBe(1);
@@ -39,14 +40,11 @@ public class ApiResourceRequestHandlerTests{
     [Fact]
     public async Task ApiResourceRequestHandler_CreateApiResourceRequest_NoScopes_RequestIsHandled()
     {
-        CreateApiResourceRequest request = CreateApiResourceRequest.Create(TestData.CreateApiResourceRequest.Name,
-                                                                           TestData.CreateApiResourceRequest.DisplayName,
-                                                                           TestData.CreateApiResourceRequest.Description,
-                                                                           TestData.CreateApiResourceRequest.Secret,
-                                                                           new List<String>(),
-                                                                           TestData.CreateApiResourceRequest.UserClaims);
+        SecurityServiceCommands.CreateApiResourceCommand command = TestData.CreateApiResourceCommand;
+        command = command with { Scopes = new List<String>() };
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 resourceCount = await this.Context.ApiResources.CountAsync();
         resourceCount.ShouldBe(1);
@@ -54,14 +52,11 @@ public class ApiResourceRequestHandlerTests{
 
     [Fact]
     public async Task ApiResourceRequestHandler_CreateApiResourceRequest_NullScopes_RequestIsHandled(){
-        CreateApiResourceRequest request = CreateApiResourceRequest.Create(TestData.CreateApiResourceRequest.Name,
-                                                                           TestData.CreateApiResourceRequest.DisplayName,
-                                                                           TestData.CreateApiResourceRequest.Description,
-                                                                           TestData.CreateApiResourceRequest.Secret,
-                                                                           null,
-                                                                           TestData.CreateApiResourceRequest.UserClaims);
+        SecurityServiceCommands.CreateApiResourceCommand command = TestData.CreateApiResourceCommand;
+        command = command with { Scopes = null };
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 resourceCount = await this.Context.ApiResources.CountAsync();
         resourceCount.ShouldBe(1);

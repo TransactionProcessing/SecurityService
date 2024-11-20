@@ -29,9 +29,10 @@ public class IdentityResourceRequestHandlerTests
     [Fact]
     public async Task IdentityResourceRequestHandler_CreateIdentityResourceRequest_RequestIsHandled()
     {
-        CreateIdentityResourceRequest request = TestData.CreateIdentityResourceRequest;
+        SecurityServiceCommands.CreateIdentityResourceCommand command = TestData.CreateIdentityResourceCommand;
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 clientCount = await this.Context.IdentityResources.CountAsync();
         clientCount.ShouldBe(1);

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SecurityService.DataTransferObjects.Requests;
+using SimpleResults;
 
 namespace SecurityService.BusinessLogic.RequestHandlers
 {
@@ -16,7 +18,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using Requests;
     using Shared.Exceptions;
 
-    public class IdentityResourceRequestHandler : IRequestHandler<CreateIdentityResourceRequest>,
+    public class IdentityResourceRequestHandler : IRequestHandler<SecurityServiceCommands.CreateIdentityResourceCommand, Result>,
                                                   IRequestHandler<GetIdentityResourceRequest, IdentityResource>,
                                                   IRequestHandler<GetIdentityResourcesRequest, List<IdentityResource>>{
         private readonly ConfigurationDbContext ConfigurationDbContext;
@@ -25,18 +27,20 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             this.ConfigurationDbContext = configurationDbContext;
         }
 
-        public async Task Handle(CreateIdentityResourceRequest request, CancellationToken cancellationToken){
-            IdentityResource identityResource = new IdentityResource(request.Name, request.DisplayName, request.Claims);
-            identityResource.Emphasize = request.Emphasize;
-            identityResource.Required = request.Required;
-            identityResource.ShowInDiscoveryDocument = request.ShowInDiscoveryDocument;
-            identityResource.Description = request.Description;
+        public async Task<Result> Handle(SecurityServiceCommands.CreateIdentityResourceCommand command, CancellationToken cancellationToken){
+            IdentityResource identityResource = new IdentityResource(command.Name, command.DisplayName, command.Claims);
+            identityResource.Emphasize = command.Emphasize;
+            identityResource.Required = command.Required;
+            identityResource.ShowInDiscoveryDocument = command.ShowInDiscoveryDocument;
+            identityResource.Description = command.Description;
 
             // Now translate the model to the entity
             await this.ConfigurationDbContext.IdentityResources.AddAsync(identityResource.ToEntity(), cancellationToken);
 
             // Save the changes
             await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
 
         public async Task<IdentityResource> Handle(GetIdentityResourceRequest request, CancellationToken cancellationToken){

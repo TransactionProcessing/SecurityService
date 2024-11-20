@@ -1,4 +1,6 @@
-﻿namespace SecurityService.BusinessLogic.RequestHandlers{
+﻿using Shared.Results;
+
+namespace SecurityService.BusinessLogic.RequestHandlers{
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -7,6 +9,7 @@
     using System.Text.Encodings.Web;
     using System.Threading;
     using System.Threading.Tasks;
+    using Azure.Core;
     using DataTransferObjects.Responses;
     using Duende.IdentityServer;
     using Duende.IdentityServer.EntityFramework.DbContexts;
@@ -23,16 +26,18 @@
     using Shared.Exceptions;
     using Shared.General;
     using Shared.Logger;
+    using SimpleResults;
+    using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
     using UserDetails = Models.UserDetails;
 
-    public class UserRequestHandler : IRequestHandler<CreateUserRequest>,
+    public class UserRequestHandler : IRequestHandler<SecurityServiceCommands.CreateUserCommand, Result>,
                                       IRequestHandler<GetUserRequest, UserDetails>,
                                       IRequestHandler<GetUsersRequest, List<UserDetails>>,
-                                      IRequestHandler<ChangeUserPasswordRequest, ChangeUserPasswordResult>,
-                                      IRequestHandler<ConfirmUserEmailAddressRequest, Boolean>,
-                                      IRequestHandler<ProcessPasswordResetConfirmationRequest, String>,
-                                      IRequestHandler<ProcessPasswordResetRequest>,
-                                      IRequestHandler<SendWelcomeEmailRequest>{
+                                      IRequestHandler<SecurityServiceCommands.ChangeUserPasswordCommand, Result<ChangeUserPasswordResult>>,
+                                      IRequestHandler<SecurityServiceCommands.ConfirmUserEmailAddressCommand, Result>,
+                                      IRequestHandler<SecurityServiceCommands.ProcessPasswordResetConfirmationCommand, Result<String>>,
+                                      IRequestHandler<SecurityServiceCommands.ProcessPasswordResetRequestCommand, Result>,
+                                      IRequestHandler<SecurityServiceCommands.SendWelcomeEmailCommand, Result> {
         #region Fields
 
         private readonly ConfigurationDbContext ConfigurationDbContext;
@@ -71,84 +76,35 @@
 
         #region Methods
 
-        public async Task Handle(CreateUserRequest request, CancellationToken cancellationToken){
+        public async Task<Result> Handle(SecurityServiceCommands.CreateUserCommand command,
+                                         CancellationToken cancellationToken) {
             // request is valid now add the user
-            IdentityUser newIdentityUser = new IdentityUser{
-                                                               Id = request.UserId.ToString(),
-                                                               Email = request.EmailAddress,
-                                                               UserName = request.UserName,
-                                                               NormalizedEmail = request.EmailAddress.ToUpper(),
-                                                               NormalizedUserName = request.UserName.ToUpper(),
-                                                               SecurityStamp = Guid.NewGuid().ToString("D"),
-                                                               PhoneNumber = request.PhoneNumber,
-                                                           };
+            IdentityUser newIdentityUser = new IdentityUser {
+                Id = command.UserId.ToString(),
+                Email = command.EmailAddress,
+                UserName = command.UserName,
+                NormalizedEmail = command.EmailAddress.ToUpper(),
+                NormalizedUserName = command.UserName.ToUpper(),
+                SecurityStamp = Guid.NewGuid().ToString("D"),
+                PhoneNumber = command.PhoneNumber,
+            };
 
-            String passwordValue = String.IsNullOrEmpty(request.Password) ? UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password) : request.Password;
+            String passwordValue = String.IsNullOrEmpty(command.Password) ? UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password) : command.Password;
 
             // Hash the default password
-            newIdentityUser.PasswordHash =
-                this.PasswordHasher.HashPassword(newIdentityUser, passwordValue);
+            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValue);
 
-            if (String.IsNullOrEmpty(newIdentityUser.PasswordHash)){
-                throw new IdentityResultException("Error generating password hash value, hash was null or empty", IdentityResult.Failed());
+            if (String.IsNullOrEmpty(newIdentityUser.PasswordHash)) {
+                return Result.Failure("Error generating password hash value, hash was null or empty");
             }
 
-            // Default all IdentityResults to failed
-            IdentityResult createResult = IdentityResult.Failed();
-            IdentityResult addRolesResult = IdentityResult.Failed();
-            IdentityResult addClaimsResult = IdentityResult.Failed();
+            // Create the User
+            Result createResult = await this.CreateUser(newIdentityUser);
+            Result addRolesToUserResult = await this.AddRolesToUser(newIdentityUser, command.Roles);
+            Result addClaimsToUserResult = await this.AddClaimsToUser(newIdentityUser, command);
 
-            try{
-                // Create the User
-                createResult = await this.UserManager.CreateAsync(newIdentityUser);
-
-                if (!createResult.Succeeded){
-                    throw new IdentityResultException($"Error creating user {newIdentityUser.UserName}", createResult);
-                }
-
-                // Add the requested roles to the user
-                if (request.Roles != null && request.Roles.Any()){
-                    addRolesResult = await this.UserManager.AddToRolesAsync(newIdentityUser, request.Roles);
-
-                    if (!addRolesResult.Succeeded){
-                        throw new IdentityResultException($"Error adding roles [{String.Join(",", request.Roles)}] to user {newIdentityUser.UserName}", addRolesResult);
-                    }
-                }
-                else{
-                    addRolesResult = IdentityResult.Success;
-                }
-
-                // Add the requested claims
-                List<Claim> claimsToAdd = new List<Claim>();
-                if (request.Claims != null){
-                    foreach (KeyValuePair<String, String> claim in request.Claims){
-                        claimsToAdd.Add(new Claim(claim.Key, claim.Value));
-                    }
-                }
-
-                // Add the email address and role as claims
-                if (request.Roles != null){
-                    foreach (String requestRole in request.Roles){
-                        claimsToAdd.Add(new Claim(JwtClaimTypes.Role, requestRole));
-                    }
-                }
-
-                claimsToAdd.Add(new Claim(JwtClaimTypes.Email, request.EmailAddress));
-                claimsToAdd.Add(new Claim(JwtClaimTypes.GivenName, request.GivenName));
-                claimsToAdd.Add(new Claim(JwtClaimTypes.FamilyName, request.FamilyName));
-
-                if (String.IsNullOrEmpty(request.MiddleName) == false){
-                    claimsToAdd.Add(new Claim(JwtClaimTypes.MiddleName, request.MiddleName));
-                }
-
-                addClaimsResult = await this.UserManager.AddClaimsAsync(newIdentityUser, claimsToAdd);
-
-                if (!addClaimsResult.Succeeded){
-                    List<String> claimList = new List<String>();
-                    claimsToAdd.ForEach(c => claimList.Add($"Name: {c.Type} Value: {c.Value}"));
-                    throw new IdentityResultException($"Error adding claims [{String.Join(",", claimsToAdd)}] to user {newIdentityUser.UserName}", addClaimsResult);
-                }
-
+            Result sendEmailResult;
+            if (createResult.IsSuccess && addRolesToUserResult.IsSuccess && addClaimsToUserResult.IsSuccess) {
                 // If we are here we have created the user
                 String confirmationToken = await this.UserManager.GenerateEmailConfirmationTokenAsync(newIdentityUser);
                 confirmationToken = UrlEncoder.Default.Encode(confirmationToken);
@@ -156,24 +112,88 @@
 
                 TokenResponse token = await this.GetToken(cancellationToken);
                 SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
-                try{
-                    await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-                }
-                catch(Exception ex){
-                    Logger.LogError(ex);
-                }
+                sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+                // TODO: not so fussed if this fails, maybe just some logging that can be alerted on???
             }
-            finally{
-                // Do some cleanup here (if the create was successful but one fo the other steps failed)
-                if ((createResult == IdentityResult.Success) && (!addRolesResult.Succeeded || !addClaimsResult.Succeeded)){
-                    // User has been created so need to remove this
-                    IdentityResult deleteResult = await this.UserManager.DeleteAsync(newIdentityUser);
 
-                    if (!deleteResult.Succeeded){
-                        throw new IdentityResultException($"Error deleting user {newIdentityUser.UserName} as part of cleanup", deleteResult);
-                    }
+            if (createResult.IsFailed || addRolesToUserResult.IsFailed || addClaimsToUserResult.IsFailed) {
+                // User has been created so need to remove this
+                IdentityResult deleteResult = await this.UserManager.DeleteAsync(newIdentityUser);
+
+                if (deleteResult.Succeeded == false) {
+                    return Result.Failure($"Error deleting user {newIdentityUser.UserName} as part of cleanup {deleteResult}");
+                }
+
+                return Result.Failure($"At least one part of the user creation failed - createResult: {createResult.IsSuccess} addRolesToUserResult: {addRolesToUserResult.IsSuccess} addClaimsToUserResult: {addClaimsToUserResult.IsSuccess}");
+            }
+
+            return Result.Success();
+        }
+
+        private async Task<Result> CreateUser(IdentityUser newIdentityUser) {
+            var createResult = await this.UserManager.CreateAsync(newIdentityUser);
+
+            if (!createResult.Succeeded)
+            {
+                return Result.Failure($"Error creating user {newIdentityUser.UserName} {createResult}");
+            }
+            return Result.Success();
+        }
+
+        private async Task<Result> AddRolesToUser(IdentityUser newIdentityUser, List<String> roles) {
+            // Add the requested roles to the user
+            if (roles != null && roles.Any())
+            {
+                IdentityResult addRolesResult = await this.UserManager.AddToRolesAsync(newIdentityUser, roles);
+
+                if (!addRolesResult.Succeeded)
+                {
+                    return Result.Failure($"Error adding roles [{String.Join(",", roles)}] to user {newIdentityUser.UserName} {addRolesResult}");
                 }
             }
+
+            return Result.Success();
+        }
+
+        private async Task<Result> AddClaimsToUser(IdentityUser newIdentityUser, SecurityServiceCommands.CreateUserCommand command) {
+            // Add the requested claims
+            List<Claim> claimsToAdd = new List<Claim>();
+            if (command.Claims != null)
+            {
+                foreach (KeyValuePair<String, String> claim in command.Claims)
+                {
+                    claimsToAdd.Add(new Claim(claim.Key, claim.Value));
+                }
+            }
+
+            // Add the email address and role as claims
+            if (command.Roles != null)
+            {
+                foreach (String requestRole in command.Roles)
+                {
+                    claimsToAdd.Add(new Claim(JwtClaimTypes.Role, requestRole));
+                }
+            }
+
+            claimsToAdd.Add(new Claim(JwtClaimTypes.Email, command.EmailAddress));
+            claimsToAdd.Add(new Claim(JwtClaimTypes.GivenName, command.GivenName));
+            claimsToAdd.Add(new Claim(JwtClaimTypes.FamilyName, command.FamilyName));
+
+            if (String.IsNullOrEmpty(command.MiddleName) == false)
+            {
+                claimsToAdd.Add(new Claim(JwtClaimTypes.MiddleName, command.MiddleName));
+            }
+
+            var addClaimsResult = await this.UserManager.AddClaimsAsync(newIdentityUser, claimsToAdd);
+
+            if (!addClaimsResult.Succeeded)
+            {
+                List<String> claimList = new List<String>();
+                claimsToAdd.ForEach(c => claimList.Add($"Name: {c.Type} Value: {c.Value}"));
+                return Result.Failure($"Error adding claims [{String.Join(",", claimsToAdd)}] to user {newIdentityUser.UserName} {addClaimsResult}");
+            }
+
+            return Result.Success();
         }
 
         public async Task<UserDetails> Handle(GetUserRequest request, CancellationToken cancellationToken){
@@ -230,126 +250,131 @@
             return response;
         }
 
-        public async Task<ChangeUserPasswordResult> Handle(ChangeUserPasswordRequest request, CancellationToken cancellationToken){
+        public async Task<Result<ChangeUserPasswordResult>> Handle(SecurityServiceCommands.ChangeUserPasswordCommand command, CancellationToken cancellationToken){
+            
             // Find the user based on the user name passed in
-            IdentityUser user = await this.UserManager.FindByNameAsync(request.UserName);
+            IdentityUser user = await this.UserManager.FindByNameAsync(command.UserName);
 
             if (user == null){
-                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
                 // this prevents giving away info to a potential hacker...
-                // TODO: maybe log something here...
-                return new ChangeUserPasswordResult { IsSuccessful = false };
+                return Result.NotFound();
             }
 
             IdentityResult result = await this.UserManager.ChangePasswordAsync(user,
-                                                                               request.CurrentPassword,
-                                                                               request.NewPassword);
+                command.CurrentPassword,
+                command.NewPassword);
 
             if (result.Succeeded == false){
                 // Log any errors
-                Logger.LogInformation($"Errors during password change for user [{request.UserName} and Client [{request.ClientId}]");
+                Logger.LogInformation($"Errors during password change for user [{command.UserName} and Client [{command.ClientId}]");
                 foreach (IdentityError identityError in result.Errors){
                     Logger.LogInformation($"Code {identityError.Code} Description {identityError.Description}");
                 }
+
+                return Result.Failure($"Errors during password change for user [{command.UserName} and Client [{command.ClientId}]");
             }
 
             // build the redirect uri
-            Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == request.ClientId, cancellationToken:cancellationToken);
+            Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == command.ClientId, cancellationToken:cancellationToken);
 
             if (client == null){
-                Logger.LogInformation($"Client not found for clientId {request.ClientId}");
-                // TODO: need to redirect somewhere...
-                return new ChangeUserPasswordResult { IsSuccessful = false };
+                Logger.LogInformation($"Client not found for clientId {command.ClientId}");
+                return Result.Invalid($"Client not found for clientId {command.ClientId}");
             }
 
-            Logger.LogDebug($"Client uri {client.ClientUri}");
-            return new ChangeUserPasswordResult { IsSuccessful = true, RedirectUri = client.ClientUri};
+            return Result.Success(new ChangeUserPasswordResult { IsSuccessful = true, RedirectUri = client.ClientUri});
         }
 
-        public async Task<Boolean> Handle(ConfirmUserEmailAddressRequest request, CancellationToken cancellationToken){
-            IdentityUser identityUser = await this.UserManager.FindByNameAsync(request.UserName);
+        public async Task<Result> Handle(SecurityServiceCommands.ConfirmUserEmailAddressCommand command, CancellationToken cancellationToken){
+            IdentityUser identityUser = await this.UserManager.FindByNameAsync(command.UserName);
 
-            if (identityUser == null){
-                Logger.LogInformation($"No user found with username {request.UserName}");
-                return false;
+            if (identityUser == null)
+            {
+                Logger.LogInformation($"No user found with username {command.UserName}");
+                return Result.NotFound($"No user found with username {command.UserName}");
             }
 
-            IdentityResult result = await this.UserManager.ConfirmEmailAsync(identityUser, request.ConfirmEmailToken);
+            IdentityResult result = await this.UserManager.ConfirmEmailAsync(identityUser, command.ConfirmEmailToken);
 
-            if (result.Succeeded == false){
-                Logger.LogInformation($"Errors during confirm email for user [{request.UserName}");
-                foreach (IdentityError identityError in result.Errors){
+            if (result.Succeeded == false)
+            {
+                Logger.LogInformation($"Errors during confirm email for user [{command.UserName}");
+                foreach (IdentityError identityError in result.Errors)
+                {
                     Logger.LogInformation($"Code {identityError.Code} Description {identityError.Description}");
                 }
+                return Result.Failure($"Errors during confirm email for user [{command.UserName}");
             }
 
-            return result.Succeeded;
+            return Result.Success();
         }
 
-        public async Task<String> Handle(ProcessPasswordResetConfirmationRequest request, CancellationToken cancellationToken){
+        public async Task<Result<String>> Handle(SecurityServiceCommands.ProcessPasswordResetConfirmationCommand command, CancellationToken cancellationToken){
             // Find the user based on the user name passed in
-            IdentityUser user = await this.UserManager.FindByNameAsync(request.Username);
+            IdentityUser user = await this.UserManager.FindByNameAsync(command.Username);
 
-            if (user == null){
-                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
+            if (user == null)
+            {
                 // this prevents giving away info to a potential hacker...
-                // TODO: maybe log something here...
-                Logger.LogInformation($"user not found for username {request.Username}");
-                return String.Empty;
+                Logger.LogInformation($"user not found for username {command.Username}");
+                return Result.NotFound($"user not found for username {command.Username}");
             }
 
-            IdentityResult result = await this.UserManager.ResetPasswordAsync(user, request.Token, request.Password);
+            IdentityResult result = await this.UserManager.ResetPasswordAsync(user, command.Token, command.Password);
 
             // handle the result... 
-            if (result.Succeeded == false){
+            if (result.Succeeded == false)
+            {
                 // Log any errors
-                Logger.LogInformation($"Errors during password reset for user [{request.Username} and Client [{request.ClientId}]");
-                foreach (IdentityError identityError in result.Errors){
+                Logger.LogInformation($"Errors during password reset for user [{command.Username} and Client [{command.ClientId}]");
+                foreach (IdentityError identityError in result.Errors)
+                {
                     Logger.LogInformation($"Code {identityError.Code} Description {identityError.Description}");
                 }
+
+                return Result.Failure($"Errors during password reset for user [{command.Username} and Client [{command.ClientId}]");
             }
 
             // build the redirect uri
-            Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == request.ClientId, cancellationToken:cancellationToken);
+            Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == command.ClientId, cancellationToken: cancellationToken);
 
-            if (client == null){
-                Logger.LogInformation($"Client not found for clientId {request.ClientId}");
-                // TODO: need to redirect somewhere...
-                return String.Empty;
+            if (client == null)
+            {
+                Logger.LogInformation($"Client not found for clientId {command.ClientId}");
+                return Result.Invalid($"Client not found for clientId {command.ClientId}");
             }
 
             Logger.LogWarning($"Client uri {client.ClientUri}");
-            return client.ClientUri;
+            return Result.Success<String>(client.ClientUri);
         }
 
-        public async Task Handle(ProcessPasswordResetRequest request, CancellationToken cancellationToken){
+        public async Task<Result> Handle(SecurityServiceCommands.ProcessPasswordResetRequestCommand command, CancellationToken cancellationToken){
             // Find the user based on the user name passed in
-            IdentityUser user = await this.UserManager.FindByNameAsync(request.Username);
+            IdentityUser user = await this.UserManager.FindByNameAsync(command.Username);
 
-            if (user == null){
-                // TODO: Redirect to a success page so the user doesnt know if the username is correct or not,
+            if (user == null)
+            {
                 // this prevents giving away info to a potential hacker...
-                // TODO: maybe log something here...
-                return;
+                return Result.NotFound();
             }
 
             // User has been found so send an email with reset details
             String resetToken = await this.UserManager.GeneratePasswordResetTokenAsync(user);
             resetToken = UrlEncoder.Default.Encode(resetToken);
-            String uri = $"{this.ServiceOptions.PublicOrigin}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={request.ClientId}";
+            String uri = $"{this.ServiceOptions.PublicOrigin}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={command.ClientId}";
 
             TokenResponse token = await this.GetToken(cancellationToken);
             SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
-            try{
-                await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-            }
-            catch(Exception ex){
-                Logger.LogError(ex);
-            }
+            
+            Result result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+            if (result.IsFailed)
+                return ResultHelpers.CreateFailure(result);
+
+            return Result.Success();
         }
 
-        public async Task Handle(SendWelcomeEmailRequest request, CancellationToken cancellationToken){
-            IdentityUser i = await this.UserManager.FindByNameAsync(request.UserName);
+        public async Task<Result> Handle(SecurityServiceCommands.SendWelcomeEmailCommand command, CancellationToken cancellationToken){
+            IdentityUser i = await this.UserManager.FindByNameAsync(command.Username);
             await this.UserManager.RemovePasswordAsync(i);
             String generatedPassword = UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password);
             await this.UserManager.AddPasswordAsync(i, generatedPassword);
@@ -357,12 +382,11 @@
             // Send Email
             TokenResponse token = await this.GetToken(cancellationToken);
             SendEmailRequest emailRequest = this.BuildWelcomeEmail(i.Email, generatedPassword);
-            try{
-                await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-            }
-            catch(Exception ex){
-                Logger.LogError(ex);
-            }
+            var result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+            if (result.IsFailed)
+                return ResultHelpers.CreateFailure(result);
+
+            return Result.Success();
         }
 
         private SendEmailRequest BuildEmailConfirmationRequest(IdentityUser user,
@@ -451,7 +475,6 @@
             return request;
         }
 
-        // TODO: Another request ?
         private async Task<Dictionary<String, String>> ConvertUsersClaims(IdentityUser identityUser){
             Dictionary<String, String> response = new Dictionary<String, String>();
             IList<Claim> claims = await this.UserManager.GetClaimsAsync(identityUser);
@@ -462,7 +485,6 @@
             return response;
         }
 
-        // TODO: Another request ?
         private async Task<List<String>> ConvertUsersRoles(IdentityUser identityUser){
             IList<String> roles = await this.UserManager.GetRolesAsync(identityUser);
             return roles.ToList();

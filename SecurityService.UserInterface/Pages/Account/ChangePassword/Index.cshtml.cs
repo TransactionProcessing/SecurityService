@@ -63,8 +63,8 @@ public class Index : PageModel
             ModelState.AddModelError(String.Empty, PasswordsDontMatch);
             return this.Page();
         }
-        ChangeUserPasswordRequest request = ChangeUserPasswordRequest.Create(Input.Username, Input.CurrentPassword, Input.NewPassword, Input.ClientId);
-        ChangeUserPasswordResult? result = await this.Mediator.Send(request, cancellationToken);
+        SecurityServiceCommands.ChangeUserPasswordCommand command = new(Input.Username, Input.CurrentPassword, Input.NewPassword, Input.ClientId);
+        ChangeUserPasswordResult? result = await this.Mediator.Send(command, cancellationToken);
 
         Logger.LogDebug(Input.ClientId);
         Logger.LogDebug(result.IsSuccessful.ToString());

@@ -1,4 +1,7 @@
-﻿namespace SecurityService.Controllers
+﻿using Shared.Results;
+using SimpleResults;
+
+namespace SecurityService.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -65,7 +68,7 @@
         {
             Guid userId = Guid.NewGuid();
 
-            BusinessLogic.Requests.CreateUserRequest request = BusinessLogic.Requests.CreateUserRequest.Create(userId,
+            SecurityServiceCommands.CreateUserCommand command =new(userId,
                                                                                                                createUserRequest.GivenName,
                                                                                                                createUserRequest.MiddleName,
                                                                                                                createUserRequest.FamilyName,
@@ -77,14 +80,11 @@
                                                                                                                createUserRequest.Roles);
 
             // Create the user
-            await this.Mediator.Send(request, cancellationToken);
+            Result result = await this.Mediator.Send(command, cancellationToken);
+            // TODO: Handle failed result
 
             // return the result
-            return this.Created($"{UserController.ControllerRoute}/{userId}",
-                                new CreateUserResponse
-                                {
-                                    UserId =  userId
-                                });
+            return result.ToActionResultX();
         }
 
         /// <summary>

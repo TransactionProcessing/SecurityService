@@ -8,7 +8,6 @@
     using BusinessLogic.Requests;
     using DataTransferObjects;
     using Microsoft.AspNetCore.Identity;
-    using CreateUserRequest = BusinessLogic.Requests.CreateUserRequest;
 
     public class TestData{
         public static String UserName = "00000001";
@@ -243,8 +242,8 @@
 
         public static String ApiScopeDescription = "Test Api Scope Description";
 
-        public static CreateUserRequest CreateUserRequest =>
-            CreateUserRequest.Create(Guid.Parse(TestData.UserId),
+        public static SecurityServiceCommands.CreateUserCommand CreateUserCommand =>
+            new(Guid.Parse(TestData.UserId),
                                      TestData.GivenName,
                                      TestData.MiddleName,
                                      TestData.FamilyName,
@@ -258,8 +257,8 @@
         public static GetUserRequest GetUserRequest => GetUserRequest.Create(Guid.Parse(TestData.UserId));
         public static GetUsersRequest GetUsersRequest => GetUsersRequest.Create(null);
 
-        public static CreateApiResourceRequest CreateApiResourceRequest =>
-            CreateApiResourceRequest.Create(TestData.ApiResourceName,
+        public static SecurityServiceCommands.CreateApiResourceCommand CreateApiResourceCommand =>
+            new(TestData.ApiResourceName,
                                             TestData.ApiResourceDisplayName,
                                             TestData.ApiResourceDescription,
                                             TestData.ApiResourceSecret,
@@ -269,7 +268,7 @@
         public static GetApiResourceRequest GetApiResourceRequest => GetApiResourceRequest.Create(TestData.ApiResourceName);
         public static GetApiResourcesRequest GetApiResourcesRequest => GetApiResourcesRequest.Create();
 
-        public static CreateClientRequest CreateClientRequest => CreateClientRequest.Create(TestData.ClientId,
+        public static SecurityServiceCommands.CreateClientCommand CreateClientCommand => new(TestData.ClientId,
                                                                                              TestData.ClientSecret,
                                                                                              TestData.ClientName,
                                                                                              TestData.ClientDescription,
@@ -281,8 +280,8 @@
                                                                                              TestData.RequireConsentTrue,
                                                                                              TestData.AllowOfflineAccessTrue);
 
-        public static CreateClientRequest CreateHybridClientRequest =>
-            CreateClientRequest.Create(TestData.ClientId,
+        public static SecurityServiceCommands.CreateClientCommand CreateHybridClientCommand =>
+            new(TestData.ClientId,
                                        TestData.ClientSecret,
                                        TestData.ClientName,
                                        TestData.ClientDescription,
@@ -298,11 +297,11 @@
 
         public static GetClientsRequest GetClientsRequest => GetClientsRequest.Create();
 
-        public static CreateApiScopeRequest CreateApiScopeRequest => CreateApiScopeRequest.Create(TestData.ApiScopeName,
+        public static SecurityServiceCommands.CreateApiScopeCommand CreateApiScopeCommand  => new(TestData.ApiScopeName,
                                                                                                   TestData.ApiScopeDisplayName,
                                                                                                   TestData.ApiScopeDescription);
 
-        public static CreateIdentityResourceRequest CreateIdentityResourceRequest => CreateIdentityResourceRequest.Create(TestData.IdentityResourceName,
+        public static SecurityServiceCommands.CreateIdentityResourceCommand CreateIdentityResourceCommand => new(TestData.IdentityResourceName,
                                                                                                                           TestData.IdentityResourceDisplayName,
                                                                                                                           TestData.IdentityResourceDescription,
                                                                                                                           TestData.IdentityResourceRequired,
@@ -310,7 +309,7 @@
                                                                                                                           TestData.IdentityResourceShowInDiscoveryDocument,
                                                                                                                           TestData.IdentityResourceUserClaims);
         
-        public static CreateRoleRequest CreateRoleRequest => CreateRoleRequest.Create(Guid.Parse(TestData.Role1Id), TestData.RoleName);
+        public static SecurityServiceCommands.CreateRoleCommand CreateRoleCommand => new(Guid.Parse(TestData.Role1Id), TestData.RoleName);
 
         public static GetApiScopeRequest GetApiScopeRequest => GetApiScopeRequest.Create(TestData.ApiScopeName);
         public static GetApiScopesRequest GetApiScopesRequest => GetApiScopesRequest.Create();
@@ -332,23 +331,21 @@
 
         public static String PasswordResetToken = "Token";
 
-        public static ChangeUserPasswordRequest ChangeUserPasswordRequest =>
-            ChangeUserPasswordRequest.Create(TestData.UserName,
+        public static SecurityServiceCommands.ChangeUserPasswordCommand ChangeUserPasswordCommand =>
+            new(TestData.UserName,
                                              TestData.Password,
                                              TestData.Password,
                                              TestData.ClientId);
-        public static ConfirmUserEmailAddressRequest ConfirmUserEmailAddressRequest =>
-            ConfirmUserEmailAddressRequest.Create(TestData.UserName,
+        public static SecurityServiceCommands.ConfirmUserEmailAddressCommand ConfirmUserEmailAddressCommand => new(TestData.UserName,
                                                   TestData.ConfirmEmailToken);
-        public static ProcessPasswordResetConfirmationRequest ProcessPasswordResetConfirmationRequest =>
-            ProcessPasswordResetConfirmationRequest.Create(TestData.UserName,
+        public static SecurityServiceCommands.ProcessPasswordResetConfirmationCommand ProcessPasswordResetConfirmationCommand =>new (TestData.UserName,
                                                            TestData.PasswordResetToken,
                                                            TestData.Password,
                                                            TestData.ClientId);
 
-        public static ProcessPasswordResetRequest ProcessPasswordResetRequest => ProcessPasswordResetRequest.Create(TestData.UserName, TestData.EmailAddress, TestData.ClientId);
+        public static SecurityServiceCommands.ProcessPasswordResetRequestCommand ProcessPasswordResetRequestCommand => new(TestData.UserName, TestData.EmailAddress, TestData.ClientId);
 
-        public static SendWelcomeEmailRequest SendWelcomeEmailRequest => SendWelcomeEmailRequest.Create(TestData.UserName);
+        public static SecurityServiceCommands.SendWelcomeEmailCommand SendWelcomeEmailCommand  => new(TestData.UserName);
     }
 }
 
