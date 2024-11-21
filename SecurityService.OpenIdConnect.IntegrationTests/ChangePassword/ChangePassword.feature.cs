@@ -186,7 +186,8 @@ await this.FeatureBackgroundAsync();
                             "Middle Name",
                             "Family Name",
                             "Claims",
-                            "Roles"});
+                            "Roles",
+                            "Password"});
                 table5.AddRow(new string[] {
                             "estateuser@testestate1.co.uk",
                             "123456789",
@@ -194,7 +195,8 @@ await this.FeatureBackgroundAsync();
                             "",
                             "User 1",
                             "EstateId:1",
-                            "Estate"});
+                            "Estate",
+                            "123456"});
 #line 27
  await testRunner.GivenAsync("I create the following users", ((string)(null)), table5, "Given ");
 #line hidden
@@ -233,7 +235,7 @@ await this.FeatureBackgroundAsync();
  await testRunner.ThenAsync("I am presented with a change password screen", ((string)(null)), ((Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 41
- await testRunner.WhenAsync("I enter my old password \'123456\'", ((string)(null)), ((Reqnroll.Table)(null)), "When ");
+ await testRunner.WhenAsync("I enter my old password", ((string)(null)), ((Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 42
  await testRunner.WhenAsync("I enter my new password \'Pa55word!\'", ((string)(null)), ((Reqnroll.Table)(null)), "When ");

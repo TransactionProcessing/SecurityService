@@ -44,10 +44,16 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
             changePasswordButton.ShouldNotBeNull();
         }
 
-        [When(@"I enter my old password '([^']*)'")]
-        public async Task WhenIEnterMyOldPassword(string oldPassword)
+        //[When(@"I enter my old password '([^']*)'")]
+        //public async Task WhenIEnterMyOldPassword(string oldPassword)
+        //{
+        //    this.WebDriver.FillIn("Input.CurrentPassword", oldPassword);
+        //}
+
+        [When("I enter my old password")]
+        public void WhenIEnterMyOldPassword()
         {
-            this.WebDriver.FillIn("Input.CurrentPassword", oldPassword);
+            this.WebDriver.FillIn("Input.CurrentPassword", this.TestingContext.Password);
         }
 
         [When(@"I enter my new password '([^']*)'")]

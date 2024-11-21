@@ -90,7 +90,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             };
 
             String passwordValue = String.IsNullOrEmpty(command.Password) ? UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password) : command.Password;
-
+            
             // Hash the default password
             newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValue);
 
@@ -281,6 +281,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 return Result.Invalid($"Client not found for clientId {command.ClientId}");
             }
 
+            Logger.LogWarning($"Client uri: {client.ClientUri}");
             return Result.Success(new ChangeUserPasswordResult { IsSuccessful = true, RedirectUri = client.ClientUri});
         }
 
@@ -343,7 +344,6 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 return Result.Invalid($"Client not found for clientId {command.ClientId}");
             }
 
-            Logger.LogWarning($"Client uri {client.ClientUri}");
             return Result.Success<String>(client.ClientUri);
         }
 

@@ -25,8 +25,8 @@ Background:
 @PRTest
 Scenario: Change Passwword
 	Given I create the following users
-	| Email Address                | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles  |
-	| estateuser@testestate1.co.uk | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
+	| Email Address                | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles  | Password |
+	| estateuser@testestate1.co.uk | 123456789    | Test       |             | User 1      | EstateId:1 | Estate | 123456   |
 	Then I get an email with a confirm email address link
 	When I navigate to the confirm email address
 	Then I am presented with the confirm email address successful screen
@@ -38,7 +38,7 @@ Scenario: Change Passwword
 	Then I am presented with the privacy screen
 	When I click the 'ChangePassword' link
 	Then I am presented with a change password screen
-	When I enter my old password '123456'
+	When I enter my old password
 	When I enter my new password 'Pa55word!'
 	And I confirm my new password 'Pa55word!'
 	And I click the change password button
