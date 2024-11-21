@@ -41,20 +41,6 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
             }
         }
 
-        private async Task<CreateApiResourceResponse> CreateApiResource(CreateApiResourceRequest createApiResourceRequest,
-                                                                        CancellationToken cancellationToken)
-        {
-            CreateApiResourceResponse createApiResourceResponse = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateApiResource(createApiResourceRequest, cancellationToken).ConfigureAwait(false);
-            return createApiResourceResponse;
-        }
-
-        private async Task<CreateClientResponse> CreateClient(CreateClientRequest createClientRequest,
-                                                              CancellationToken cancellationToken)
-        {
-            CreateClientResponse createClientResponse = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateClient(createClientRequest, cancellationToken).ConfigureAwait(false);
-            return createClientResponse;
-        }
-
         [Given(@"I create the following identity resources")]
         public async Task GivenICreateTheFollowingIdentityResources(DataTable table)
         {
@@ -90,36 +76,29 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         private async Task CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                              CancellationToken cancellationToken)
         {
-            CreateIdentityResourceResponse createIdentityResourceResponse = null;
-
             List<IdentityResourceDetails> identityResourceList = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(cancellationToken);
 
-            if (identityResourceList == null || identityResourceList.Any() == false)
-            {
-                createIdentityResourceResponse = await this
-                                                                                 .TestingContext.DockerHelper.SecurityServiceClient
-                                                                                 .CreateIdentityResource(createIdentityResourceRequest, cancellationToken)
-                                                                                 .ConfigureAwait(false);
-                createIdentityResourceResponse.ShouldNotBeNull();
-                createIdentityResourceResponse.IdentityResourceName.ShouldNotBeNullOrEmpty();
+            if (identityResourceList == null || identityResourceList.Any() == false) {
+                var result = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateIdentityResource(createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
+                result.IsSuccess.ShouldBeTrue();
 
-                this.TestingContext.IdentityResources.Add(createIdentityResourceResponse.IdentityResourceName);
+                this.TestingContext.IdentityResources.Add(createIdentityResourceRequest.Name);
             }
             else
             {
-                if (identityResourceList.Where(i => i.Name == createIdentityResourceRequest.Name).Any())
+                if (identityResourceList.Any(i => i.Name == createIdentityResourceRequest.Name))
                 {
                     return;
                 }
 
-                createIdentityResourceResponse = await this
+                var result = await this
                                                        .TestingContext.DockerHelper.SecurityServiceClient
                                                        .CreateIdentityResource(createIdentityResourceRequest, cancellationToken)
                                                        .ConfigureAwait(false);
-                createIdentityResourceResponse.ShouldNotBeNull();
-                createIdentityResourceResponse.IdentityResourceName.ShouldNotBeNullOrEmpty();
+                result.IsSuccess.ShouldBeTrue();
+                
 
-                this.TestingContext.IdentityResources.Add(createIdentityResourceResponse.IdentityResourceName);
+                this.TestingContext.IdentityResources.Add(createIdentityResourceRequest.Name);
             }
         }
 

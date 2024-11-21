@@ -16,8 +16,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
     using Shared.Exceptions;
 
     public class ApiScopeRequestHandler : IRequestHandler<SecurityServiceCommands.CreateApiScopeCommand, Result>,
-                                          IRequestHandler<GetApiScopeRequest, ApiScope>,
-                                          IRequestHandler<GetApiScopesRequest, List<ApiScope>>{
+                                          IRequestHandler<SecurityServiceQueries.GetApiScopeQuery, Result<ApiScope>>,
+                                          IRequestHandler<SecurityServiceQueries.GetApiScopesQuery, Result<List<ApiScope>>>{
         #region Fields
 
         private readonly ConfigurationDbContext ConfigurationDbContext;
@@ -55,23 +55,23 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return Result.Success();
         }
 
-        public async Task<ApiScope> Handle(GetApiScopeRequest request, CancellationToken cancellationToken){
+        public async Task<Result<ApiScope>> Handle(SecurityServiceQueries.GetApiScopeQuery query, CancellationToken cancellationToken){
             ApiScope apiScopeModel = null;
 
-            Duende.IdentityServer.EntityFramework.Entities.ApiScope apiScopeEntity = await this.ConfigurationDbContext.ApiScopes.Where(a => a.Name == request.Name)
+            Duende.IdentityServer.EntityFramework.Entities.ApiScope apiScopeEntity = await this.ConfigurationDbContext.ApiScopes.Where(a => a.Name == query.Name)
                                                                                                .Include(a => a.Properties).Include(a => a.UserClaims)
                                                                                                .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
             if (apiScopeEntity == null){
-                throw new NotFoundException($"No Api Scope found with Name [{request.Name}]");
+                return Result.NotFound($"No Api Scope found with Name [{query.Name}]");
             }
 
             apiScopeModel = apiScopeEntity.ToModel();
 
-            return apiScopeModel;
+            return Result.Success(apiScopeModel);
         }
 
-        public async Task<List<ApiScope>> Handle(GetApiScopesRequest request, CancellationToken cancellationToken){
+        public async Task<Result<List<ApiScope>>> Handle(SecurityServiceQueries.GetApiScopesQuery query, CancellationToken cancellationToken){
             List<ApiScope> apiScopeModels = new List<ApiScope>();
 
             List<Duende.IdentityServer.EntityFramework.Entities.ApiScope> apiScopeEntities = await this.ConfigurationDbContext.ApiScopes.Include(a => a.Properties)
@@ -84,7 +84,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 }
             }
 
-            return apiScopeModels;
+            return Result.Success(apiScopeModels);
         }
 
         #endregion

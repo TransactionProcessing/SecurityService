@@ -1,4 +1,6 @@
-﻿namespace SecurityService.Controllers
+﻿using SimpleResults;
+
+namespace SecurityService.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -11,10 +13,12 @@
     using Common.Examples;
     using DataTransferObjects;
     using DataTransferObjects.Responses;
+    using Duende.IdentityServer.EntityFramework.Entities;
     using Duende.IdentityServer.Models;
     using Factories;
     using MediatR;
     using Microsoft.AspNetCore.Mvc;
+    using Shared.Results;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
     using CreateClientRequest = DataTransferObjects.Requests.CreateClientRequest;
@@ -105,11 +109,16 @@
         public async Task<IActionResult> GetClient([FromRoute] String clientId,
                                                  CancellationToken cancellationToken)
         {
-            GetClientRequest request = GetClientRequest.Create(clientId);
+            SecurityServiceQueries.GetClientQuery query = new(clientId);
 
-            Client clientModel = await this.Mediator.Send(request, cancellationToken);
+            var result= await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(clientModel));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         /// <summary>
@@ -123,11 +132,16 @@
         [SwaggerResponseExample(200, typeof(ClientDetailsListResponseExample))]
         public async Task<IActionResult> GetClients(CancellationToken cancellationToken)
         {
-            GetClientsRequest request = GetClientsRequest.Create();
+            SecurityServiceQueries.GetClientsQuery query = new();
 
-            List<Client> clientList = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(clientList));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         #endregion

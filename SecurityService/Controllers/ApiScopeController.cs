@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SecurityService.BusinessLogic.RequestHandlers;
 using SecurityService.BusinessLogic.Requests;
+using SimpleResults;
 
 namespace SecurityService.Controllers
 {
@@ -16,9 +17,10 @@ namespace SecurityService.Controllers
     using Duende.IdentityServer.Models;
     using Factories;
     using Microsoft.AspNetCore.Mvc;
+    using Shared.Results;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
-
+    
     /// <summary>
     /// 
     /// </summary>
@@ -52,10 +54,7 @@ namespace SecurityService.Controllers
             // TODO: Handle failed result
 
             // return the result
-            return this.Created($"{ApiScopeController.ControllerRoute}/{createApiScopeRequest.Name}", new CreateApiScopeResponse
-                                                                                        {
-                                                                                            ApiScopeName = createApiScopeRequest.Name
-            });
+            return result.ToActionResultX();
         }
 
         /// <summary>
@@ -71,12 +70,15 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetApiScope([FromRoute] String apiScopeName,
                                                      CancellationToken cancellationToken)
         {
-            GetApiScopeRequest request = GetApiScopeRequest.Create(apiScopeName);
+            SecurityServiceQueries.GetApiScopeQuery query = new(apiScopeName);
 
-            ApiScope apiScopeModel = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(query, cancellationToken);
+            if (result.IsFailed)
+                return result.ToActionResultX();
 
-            // return the result
-            return this.Ok(this.ModelFactory.ConvertFrom(apiScopeModel));
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         /// <summary>
@@ -90,11 +92,16 @@ namespace SecurityService.Controllers
         [SwaggerResponseExample(200, typeof(ApiScopeDetailsListResponseExample))]
         public async Task<IActionResult> GetApiScopes(CancellationToken cancellationToken)
         {
-            GetApiScopesRequest request = GetApiScopesRequest.Create();
+            SecurityServiceQueries.GetApiScopesQuery query = new();
 
-            List<ApiScope> apiScopeList = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(apiScopeList));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         #region Others

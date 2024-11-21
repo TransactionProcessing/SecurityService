@@ -21,35 +21,28 @@ public class MediatorRegistry : ServiceRegistry
     {
         this.AddTransient<IMediator, Mediator>();
 
-        // request & notification handlers
-        //this.AddTransient<ServiceFactory>(context => context.GetService);
-        //this.AddMediatR(configuration => {
-        //                    configuration.RegisterServicesFromAssembly(typeof(BusinessLogic.UserOptions).Assembly);
-        //                    //configuration.AutoRegisterRequestProcessors = true;
-        //                });
-
-        this.AddSingleton<IRequestHandler<GetApiScopeRequest, ApiScope>, ApiScopeRequestHandler>();
-        this.AddSingleton<IRequestHandler<GetApiScopesRequest, List<ApiScope>>, ApiScopeRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetApiScopeQuery, Result<ApiScope>>, ApiScopeRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetApiScopesQuery, Result<List<ApiScope>>>, ApiScopeRequestHandler>();
         this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateApiScopeCommand, Result>, ApiScopeRequestHandler>();
 
-        this.AddSingleton<IRequestHandler<GetApiResourceRequest, ApiResource>, ApiResourceRequestHandler>();
-        this.AddSingleton<IRequestHandler<GetApiResourcesRequest, List<ApiResource>>, ApiResourceRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetApiResourceQuery, Result<ApiResource>>, ApiResourceRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetApiResourcesQuery, Result<List<ApiResource>>>, ApiResourceRequestHandler>();
         this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateApiResourceCommand, Result>, ApiResourceRequestHandler>();
 
-        this.AddSingleton<IRequestHandler<GetRoleRequest, RoleDetails>, RoleRequestHandler>();
-        this.AddSingleton<IRequestHandler<GetRolesRequest, List<RoleDetails>>, RoleRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetRoleQuery, Result<RoleDetails>>, RoleRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetRolesQuery, Result<List<RoleDetails>>>, RoleRequestHandler>();
         this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateRoleCommand, Result>, RoleRequestHandler>();
 
-        this.AddSingleton<IRequestHandler<GetClientRequest, Client>, ClientRequestHandler>();
-        this.AddSingleton<IRequestHandler<GetClientsRequest, List<Client>>, ClientRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetClientQuery, Result<Client>>, ClientRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetClientsQuery, Result<List<Client>>>, ClientRequestHandler>();
         this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateClientCommand, Result>, ClientRequestHandler>();
 
-        this.AddSingleton<IRequestHandler<GetIdentityResourceRequest, IdentityResource>, IdentityResourceRequestHandler>();
-        this.AddSingleton<IRequestHandler<GetIdentityResourcesRequest, List<IdentityResource>>, IdentityResourceRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetIdentityResourceQuery, Result<IdentityResource>>, IdentityResourceRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetIdentityResourcesQuery, Result<List<IdentityResource>>>, IdentityResourceRequestHandler>();
         this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateIdentityResourceCommand, Result>, IdentityResourceRequestHandler>();
 
-        this.AddSingleton<IRequestHandler<GetUserRequest, UserDetails>, UserRequestHandler>();
-        this.AddSingleton<IRequestHandler<GetUsersRequest, List<UserDetails>>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetUserQuery, Result<UserDetails>>, UserRequestHandler>();
+        this.AddSingleton<IRequestHandler<SecurityServiceQueries.GetUsersQuery, Result<List<UserDetails>>>, UserRequestHandler>();
         this.AddSingleton<IRequestHandler<SecurityServiceCommands.CreateUserCommand, Result>, UserRequestHandler>();
 
         this.AddSingleton<IRequestHandler<SecurityServiceCommands.ChangeUserPasswordCommand, Result<ChangeUserPasswordResult>>, UserRequestHandler>();

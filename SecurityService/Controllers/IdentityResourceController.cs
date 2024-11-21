@@ -1,4 +1,6 @@
-﻿namespace SecurityService.Controllers
+﻿using SimpleResults;
+
+namespace SecurityService.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -14,6 +16,7 @@
     using Factories;
     using MediatR;
     using Microsoft.AspNetCore.Mvc;
+    using Shared.Results;
     using Swashbuckle.AspNetCore.Annotations;
     using Swashbuckle.AspNetCore.Filters;
     using CreateIdentityResourceRequest = DataTransferObjects.Requests.CreateIdentityResourceRequest;
@@ -101,12 +104,16 @@
         public async Task<IActionResult> GetIdentityResource([FromRoute] String identityResourceName,
                                                              CancellationToken cancellationToken)
         {
-            GetIdentityResourceRequest request = GetIdentityResourceRequest.Create(identityResourceName);
+            SecurityServiceQueries.GetIdentityResourceQuery query = new(identityResourceName);
 
-            IdentityResource identityResourceModel = await this.Mediator.Send(request, cancellationToken);
+            Result<IdentityResource> result = await this.Mediator.Send(query, cancellationToken);
 
-            // return the result
-            return this.Ok(this.ModelFactory.ConvertFrom(identityResourceModel));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         /// <summary>
@@ -118,13 +125,17 @@
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<IdentityResourceDetails>))]
         [SwaggerResponseExample(200, typeof(IdentityResourceDetailsListResponseExample))]
-        public async Task<IActionResult> GetIdentityResources(CancellationToken cancellationToken)
-        {
-            GetIdentityResourcesRequest request = GetIdentityResourcesRequest.Create();
+        public async Task<IActionResult> GetIdentityResources(CancellationToken cancellationToken) {
+            SecurityServiceQueries.GetIdentityResourcesQuery query = new();
 
-            List<IdentityResource> identityResourceList = await this.Mediator.Send(request, cancellationToken);
+            Result<List<IdentityResource>> result = await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(identityResourceList));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         #endregion

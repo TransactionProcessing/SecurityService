@@ -123,52 +123,58 @@ public class ClientRequestHandlerTests
     [Fact]
     public async Task ClientRequestHandler_GetClientRequest_RequestIsHandled()
     {
-        GetClientRequest request = TestData.GetClientRequest;
+        SecurityServiceQueries.GetClientQuery query  = TestData.GetClientQuery;
 
         await this.Context.Clients.AddAsync(new Duende.IdentityServer.EntityFramework.Entities.Client()
                                             {
-                                                ClientId = request.ClientId,
+                                                ClientId = query.ClientId,
                                             });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        Client model = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        model.ShouldNotBeNull();
-        model.ClientId.ShouldBe(request.ClientId);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ClientId.ShouldBe(query.ClientId);
     }
 
     [Fact]
     public async Task ClientRequestHandler_GetClientRequest_RecordNotFound_RequestIsHandled()
     {
-        GetClientRequest request = TestData.GetClientRequest;
+        SecurityServiceQueries.GetClientQuery query = TestData.GetClientQuery;
 
-        Should.Throw<NotFoundException>(async () => {
-                                            await this.RequestHandler.Handle(request, CancellationToken.None);
-                                        });
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.NotFound);
     }
 
     [Fact]
     public async Task ClientRequestHandler_GetClientsRequest_RequestIsHandled()
     {
-        GetClientsRequest request = TestData.GetClientsRequest;
+        SecurityServiceQueries.GetClientsQuery query = TestData.GetClientsQuery;
 
         await this.Context.Clients.AddAsync(new Duende.IdentityServer.EntityFramework.Entities.Client(){
-                                                                                                           ClientId = TestData.GetClientRequest.ClientId,
+                                                                                                           ClientId = TestData.GetClientQuery.ClientId,
                                                                                                        });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        List<Client> models = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        models.ShouldHaveSingleItem();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldHaveSingleItem();
     }
 
     [Fact]
     public async Task ClientRequestHandler_GetClientsRequest_NoRecordsFound_RequestIsHandled()
     {
-        GetClientsRequest request = TestData.GetClientsRequest;
+        SecurityServiceQueries.GetClientsQuery query = TestData.GetClientsQuery;
 
-        List<Client> models = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        models.ShouldBeEmpty();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldBeEmpty();
     }
 }

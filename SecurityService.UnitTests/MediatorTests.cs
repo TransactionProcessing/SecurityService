@@ -40,23 +40,23 @@ namespace SecurityService.UnitTests
 
         public MediatorTests(){
             this.Requests.Add(TestData.CreateApiResourceCommand);
-            this.Requests.Add(TestData.GetApiResourceRequest);
-            this.Requests.Add(TestData.GetApiResourcesRequest);
+            this.Requests.Add(TestData.GetApiResourceQuery);
+            this.Requests.Add(TestData.GetApiResourcesQuery);
             this.Requests.Add(TestData.CreateApiScopeCommand);
-            this.Requests.Add(TestData.GetApiScopeRequest);
-            this.Requests.Add(TestData.GetApiScopesRequest);
+            this.Requests.Add(TestData.GetApiScopeQuery);
+            this.Requests.Add(TestData.GetApiScopesQuery);
             this.Requests.Add(TestData.CreateClientCommand);
-            this.Requests.Add(TestData.GetClientRequest);
-            this.Requests.Add(TestData.GetClientsRequest);
+            this.Requests.Add(TestData.GetClientQuery);
+            this.Requests.Add(TestData.GetClientsQuery);
             this.Requests.Add(TestData.CreateIdentityResourceCommand);
-            this.Requests.Add(TestData.GetIdentityResourceRequest);
-            this.Requests.Add(TestData.GetIdentityResourcesRequest);
+            this.Requests.Add(TestData.GetIdentityResourceQuery);
+            this.Requests.Add(TestData.GetIdentityResourcesQuery);
             this.Requests.Add(TestData.CreateUserCommand);
-            this.Requests.Add(TestData.GetUserRequest);
-            this.Requests.Add(TestData.GetUsersRequest);
+            this.Requests.Add(TestData.GetUserQuery);
+            this.Requests.Add(TestData.GetUsersQuery);
             this.Requests.Add(TestData.CreateRoleCommand);
-            this.Requests.Add(TestData.GetRoleRequest);
-            this.Requests.Add(TestData.GetRolesRequest);
+            this.Requests.Add(TestData.GetRoleQuery);
+            this.Requests.Add(TestData.GetRolesQuery);
             this.Requests.Add(TestData.ChangeUserPasswordCommand);
             this.Requests.Add(TestData.ConfirmUserEmailAddressCommand);
             this.Requests.Add(TestData.ProcessPasswordResetConfirmationCommand);
@@ -91,7 +91,7 @@ namespace SecurityService.UnitTests
                 try
                 {
                     if (baseRequest is SecurityServiceCommands.CreateUserCommand ||
-                        baseRequest is GetRoleRequest){
+                        baseRequest is SecurityServiceQueries.GetRoleQuery){
                         await authDb.CreateAsync(new IdentityRole(TestData.RoleName));
                     }
                     else{

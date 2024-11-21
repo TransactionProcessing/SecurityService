@@ -17,8 +17,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using Shared.Exceptions;
 
     public class RoleRequestHandler : IRequestHandler<SecurityServiceCommands.CreateRoleCommand, Result>,
-                                      IRequestHandler<GetRoleRequest, RoleDetails>,
-                                      IRequestHandler<GetRolesRequest, List<RoleDetails>>{
+                                      IRequestHandler<SecurityServiceQueries.GetRoleQuery, Result<RoleDetails>>,
+                                      IRequestHandler<SecurityServiceQueries.GetRolesQuery, Result<List<RoleDetails>>>{
         private readonly RoleManager<IdentityRole> RoleManager;
 
         public RoleRequestHandler(RoleManager<IdentityRole> roleManager){
@@ -48,12 +48,12 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             return Result.Success();
         }
 
-        public async Task<RoleDetails> Handle(GetRoleRequest request, CancellationToken cancellationToken){
-            IdentityRole identityRole = await this.RoleManager.FindByIdAsync(request.RoleId.ToString());
+        public async Task<Result<RoleDetails>> Handle(SecurityServiceQueries.GetRoleQuery query, CancellationToken cancellationToken){
+            IdentityRole identityRole = await this.RoleManager.FindByIdAsync(query.RoleId.ToString());
 
             if (identityRole == null)
             {
-                throw new NotFoundException($"No role found with Id {request.RoleId}");
+                return Result.NotFound($"No role found with Id {query.RoleId}");
             }
 
             // Role has been found
@@ -63,15 +63,15 @@ namespace SecurityService.BusinessLogic.RequestHandlers
                                        RoleName = identityRole.Name
                                    };
 
-            return response;
+            return  Result.Success(response);
         }
 
-        public async Task<List<RoleDetails>> Handle(GetRolesRequest request, CancellationToken cancellationToken){
+        public async Task<Result<List<RoleDetails>>> Handle(SecurityServiceQueries.GetRolesQuery query, CancellationToken cancellationToken){
             List<RoleDetails> response = new List<RoleDetails>();
 
-            IQueryable<IdentityRole> query = this.RoleManager.Roles;
+            IQueryable<IdentityRole> roleQuery = this.RoleManager.Roles;
 
-            List<IdentityRole> roles = await query.ToListAsyncSafe(cancellationToken);
+            List<IdentityRole> roles = await roleQuery.ToListAsyncSafe(cancellationToken);
 
             foreach (IdentityRole identityRole in roles)
             {
@@ -82,7 +82,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
                              });
             }
 
-            return response;
+            return Result.Success(response);
         }
     }
 }

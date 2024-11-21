@@ -22,8 +22,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using Secret = Duende.IdentityServer.Models.Secret;
 
     public class ClientRequestHandler : IRequestHandler<SecurityServiceCommands.CreateClientCommand, Result>,
-                                        IRequestHandler<GetClientRequest, Client>,
-                                        IRequestHandler<GetClientsRequest, List<Client>>{
+                                        IRequestHandler<SecurityServiceQueries.GetClientQuery, Result<Client>>,
+                                        IRequestHandler<SecurityServiceQueries.GetClientsQuery, Result<List<Client>>>{
         private readonly ConfigurationDbContext ConfigurationDbContext;
 
         public ClientRequestHandler(ConfigurationDbContext configurationDbContext){
@@ -85,24 +85,24 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             return Result.Success();
         }
 
-        public async Task<Client> Handle(GetClientRequest request, CancellationToken cancellationToken){
+        public async Task<Result<Client>> Handle(SecurityServiceQueries.GetClientQuery query, CancellationToken cancellationToken){
             Client clientModel = null;
 
             Duende.IdentityServer.EntityFramework.Entities.Client clientEntity = await this.ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes)
-                                                                                           .Include(c => c.AllowedScopes).Where(c => c.ClientId == request.ClientId)
+                                                                                           .Include(c => c.AllowedScopes).Where(c => c.ClientId == query.ClientId)
                                                                                            .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
             if (clientEntity == null)
             {
-                throw new NotFoundException($"No client found with Client Id [{request.ClientId}]");
+                return Result.NotFound($"No client found with Client Id [{query.ClientId}]");
             }
 
             clientModel = clientEntity.ToModel();
 
-            return clientModel;
+            return  Result.Success(clientModel);
         }
 
-        public async Task<List<Client>> Handle(GetClientsRequest request, CancellationToken cancellationToken){
+        public async Task<Result<List<Client>>> Handle(SecurityServiceQueries.GetClientsQuery query, CancellationToken cancellationToken){
             List<Client> clientModels = new List<Client>();
 
             List<Duende.IdentityServer.EntityFramework.Entities.Client> clientEntities = await this.ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes)
@@ -117,7 +117,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
                 }
             }
 
-            return clientModels;
+            return  Result.Success(clientModels);
         }
 
         private Result ValidateGrantTypes(List<String> allowedGrantTypes){

@@ -31,8 +31,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
     using UserDetails = Models.UserDetails;
 
     public class UserRequestHandler : IRequestHandler<SecurityServiceCommands.CreateUserCommand, Result>,
-                                      IRequestHandler<GetUserRequest, UserDetails>,
-                                      IRequestHandler<GetUsersRequest, List<UserDetails>>,
+                                      IRequestHandler<SecurityServiceQueries.GetUserQuery, Result<UserDetails>>,
+                                      IRequestHandler<SecurityServiceQueries.GetUsersQuery, Result<List<UserDetails>>>,
                                       IRequestHandler<SecurityServiceCommands.ChangeUserPasswordCommand, Result<ChangeUserPasswordResult>>,
                                       IRequestHandler<SecurityServiceCommands.ConfirmUserEmailAddressCommand, Result>,
                                       IRequestHandler<SecurityServiceCommands.ProcessPasswordResetConfirmationCommand, Result<String>>,
@@ -196,20 +196,19 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return Result.Success();
         }
 
-        public async Task<UserDetails> Handle(GetUserRequest request, CancellationToken cancellationToken){
-            Guard.ThrowIfInvalidGuid(request.UserId, nameof(request.UserId));
+        public async Task<Result<UserDetails>> Handle(SecurityServiceQueries.GetUserQuery query, CancellationToken cancellationToken){
 
-            IdentityUser user = await this.UserManager.FindByIdAsync(request.UserId.ToString());
+            IdentityUser user = await this.UserManager.FindByIdAsync(query.UserId.ToString());
 
             if (user == null){
-                throw new NotFoundException($"No user found with user Id {request.UserId}");
+                return Result.NotFound($"No user found with user Id {query.UserId}");
             }
 
             UserDetails response = new UserDetails();
             response.Email = user.Email;
             response.PhoneNumber = user.PhoneNumber;
-            response.UserId = request.UserId;
-            response.SubjectId = request.UserId.ToString();
+            response.UserId = query.UserId;
+            response.SubjectId = query.UserId.ToString();
             response.Username = user.UserName;
 
             // Get the users roles
@@ -218,19 +217,19 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             // Get the users claims
             response.Claims = await this.ConvertUsersClaims(user);
 
-            return response;
+            return Result.Success(response);
         }
 
-        public async Task<List<UserDetails>> Handle(GetUsersRequest request, CancellationToken cancellationToken){
+        public async Task<Result<List<UserDetails>>> Handle(SecurityServiceQueries.GetUsersQuery query, CancellationToken cancellationToken){
             List<UserDetails> response = new List<UserDetails>();
 
-            IQueryable<IdentityUser> query = this.UserManager.Users;
+            IQueryable<IdentityUser> userQuery = this.UserManager.Users;
 
-            if (String.IsNullOrEmpty(request.UserName) == false){
-                query = query.Where(u => u.UserName.Contains(request.UserName));
+            if (String.IsNullOrEmpty(query.UserName) == false){
+                userQuery = userQuery.Where(u => u.UserName.Contains(query.UserName));
             }
 
-            List<IdentityUser> users = await query.ToListAsyncSafe(cancellationToken);
+            List<IdentityUser> users = await userQuery.ToListAsyncSafe(cancellationToken);
 
             foreach (IdentityUser identityUser in users){
                 Dictionary<String, String> claims = await this.ConvertUsersClaims(identityUser);
@@ -247,7 +246,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                                             });
             }
 
-            return response;
+            return  Result.Success(response);
         }
 
         public async Task<Result<ChangeUserPasswordResult>> Handle(SecurityServiceCommands.ChangeUserPasswordCommand command, CancellationToken cancellationToken){

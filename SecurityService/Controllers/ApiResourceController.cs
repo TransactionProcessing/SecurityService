@@ -80,12 +80,17 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetApiResource([FromRoute] String apiResourceName,
                                                            CancellationToken cancellationToken)
         {
-            GetApiResourceRequest request = GetApiResourceRequest.Create(apiResourceName);
+            SecurityServiceQueries.GetApiResourceQuery query = new(apiResourceName);
 
-            ApiResource apiResourceModel = await this.Mediator.Send(request, cancellationToken);
-
+            var result= await this.Mediator.Send(query, cancellationToken);
+            // TODO:: handle failure
             // return the result
-            return this.Ok(this.ModelFactory.ConvertFrom(apiResourceModel));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         /// <summary>
@@ -97,13 +102,17 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ApiResourceDetails>))]
         [SwaggerResponseExample(201, typeof(ApiResourceDetailsListResponseExample))]
-        public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken)
-        {
-            GetApiResourcesRequest request = GetApiResourcesRequest.Create();
+        public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken) {
+            SecurityServiceQueries.GetApiResourcesQuery query = new SecurityServiceQueries.GetApiResourcesQuery();
 
-            List<ApiResource> apiResourceList = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(apiResourceList));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         #region Others

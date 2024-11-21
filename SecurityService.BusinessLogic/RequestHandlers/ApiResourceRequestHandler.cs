@@ -17,8 +17,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
     using Shared.Exceptions;
 
     public class ApiResourceRequestHandler : IRequestHandler<SecurityServiceCommands.CreateApiResourceCommand, Result>,
-                                             IRequestHandler<GetApiResourceRequest, ApiResource>,
-                                             IRequestHandler<GetApiResourcesRequest, List<ApiResource>>{
+                                             IRequestHandler<SecurityServiceQueries.GetApiResourceQuery, Result<ApiResource>>,
+                                             IRequestHandler<SecurityServiceQueries.GetApiResourcesQuery, Result<List<ApiResource>>>{
         #region Fields
 
         private readonly ConfigurationDbContext ConfigurationDbContext;
@@ -64,24 +64,24 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return Result.Success();
         }
 
-        public async Task<ApiResource> Handle(GetApiResourceRequest request, CancellationToken cancellationToken){
+        public async Task<Result<ApiResource>> Handle(SecurityServiceQueries.GetApiResourceQuery query, CancellationToken cancellationToken){
             ApiResource apiResourceModel = null;
 
             Duende.IdentityServer.EntityFramework.Entities.ApiResource apiResourceEntity = await this.ConfigurationDbContext.ApiResources
-                                                                                                     .Where(a => a.Name == request.Name).Include(a => a.Scopes)
+                                                                                                     .Where(a => a.Name == query.Name).Include(a => a.Scopes)
                                                                                                      .Include(a => a.UserClaims)
                                                                                                      .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
             if (apiResourceEntity == null){
-                throw new NotFoundException($"No Api Resource found with Name [{request.Name}]");
+                return Result.NotFound($"No Api Resource found with Name [{query.Name}]");
             }
 
             apiResourceModel = apiResourceEntity.ToModel();
 
-            return apiResourceModel;
+            return Result.Success(apiResourceModel);
         }
 
-        public async Task<List<ApiResource>> Handle(GetApiResourcesRequest request, CancellationToken cancellationToken){
+        public async Task<Result<List<ApiResource>>> Handle(SecurityServiceQueries.GetApiResourcesQuery request, CancellationToken cancellationToken){
             List<ApiResource> apiResourceModels = new List<ApiResource>();
 
             List<Duende.IdentityServer.EntityFramework.Entities.ApiResource> apiResourceEntities = await this.ConfigurationDbContext.ApiResources.Include(a => a.Scopes)
@@ -94,7 +94,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 }
             }
 
-            return apiResourceModels;
+            return Result.Success(apiResourceModels);
         }
 
         #endregion

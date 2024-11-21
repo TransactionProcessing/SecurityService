@@ -19,8 +19,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using Shared.Exceptions;
 
     public class IdentityResourceRequestHandler : IRequestHandler<SecurityServiceCommands.CreateIdentityResourceCommand, Result>,
-                                                  IRequestHandler<GetIdentityResourceRequest, IdentityResource>,
-                                                  IRequestHandler<GetIdentityResourcesRequest, List<IdentityResource>>{
+                                                  IRequestHandler<SecurityServiceQueries.GetIdentityResourceQuery, Result<IdentityResource>>,
+                                                  IRequestHandler<SecurityServiceQueries.GetIdentityResourcesQuery, Result<List<IdentityResource>>>{
         private readonly ConfigurationDbContext ConfigurationDbContext;
 
         public IdentityResourceRequestHandler(ConfigurationDbContext configurationDbContext){
@@ -43,25 +43,25 @@ namespace SecurityService.BusinessLogic.RequestHandlers
             return Result.Success();
         }
 
-        public async Task<IdentityResource> Handle(GetIdentityResourceRequest request, CancellationToken cancellationToken){
+        public async Task<Result<IdentityResource>> Handle(SecurityServiceQueries.GetIdentityResourceQuery query, CancellationToken cancellationToken){
             IdentityResource identityResourceModel = null;
 
             Duende.IdentityServer.EntityFramework.Entities.IdentityResource identityResourceEntity = await this.ConfigurationDbContext.IdentityResources
-                                                                                                               .Where(a => a.Name == request.IdentityResourceName)
+                                                                                                               .Where(a => a.Name == query.IdentityResourceName)
                                                                                                                .Include(a => a.UserClaims)
                                                                                                                .SingleOrDefaultAsync(cancellationToken: cancellationToken);
 
             if (identityResourceEntity == null)
             {
-                throw new NotFoundException($"No Identity Resource found with Name [{request.IdentityResourceName}]");
+                return Result.NotFound($"No Identity Resource found with Name [{query.IdentityResourceName}]");
             }
 
             identityResourceModel = identityResourceEntity.ToModel();
 
-            return identityResourceModel;
+            return Result.Success(identityResourceModel);
         }
 
-        public async Task<List<IdentityResource>> Handle(GetIdentityResourcesRequest request, CancellationToken cancellationToken){
+        public async Task<Result<List<IdentityResource>>> Handle(SecurityServiceQueries.GetIdentityResourcesQuery query, CancellationToken cancellationToken){
             List<IdentityResource> identityResourceModels = new List<IdentityResource>();
 
             List<Duende.IdentityServer.EntityFramework.Entities.IdentityResource> identityResourceEntities =
@@ -75,7 +75,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
                 }
             }
 
-            return identityResourceModels;
+            return Result.Success(identityResourceModels);
         }
     }
 }

@@ -100,11 +100,16 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetUser([FromRoute] Guid userId,
                                                  CancellationToken cancellationToken)
         {
-            GetUserRequest request = GetUserRequest.Create(userId);
+            SecurityServiceQueries.GetUserQuery query = new(userId);
 
-            Models.UserDetails userDetailsModel = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(userDetailsModel));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         /// <summary>
@@ -121,11 +126,16 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetUsers([FromQuery] String userName,
                                                  CancellationToken cancellationToken)
         {
-            GetUsersRequest request = GetUsersRequest.Create(userName);
+            SecurityServiceQueries.GetUsersQuery query = new(userName);
             
-            List<Models.UserDetails> userModelList = await this.Mediator.Send(request, cancellationToken);
+            Result<List<Models.UserDetails>> result= await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(userModelList));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         #endregion

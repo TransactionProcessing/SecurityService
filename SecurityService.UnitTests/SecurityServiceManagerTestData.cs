@@ -254,8 +254,8 @@
                                      TestData.Claims,
                                      TestData.Roles);
 
-        public static GetUserRequest GetUserRequest => GetUserRequest.Create(Guid.Parse(TestData.UserId));
-        public static GetUsersRequest GetUsersRequest => GetUsersRequest.Create(null);
+        public static SecurityServiceQueries.GetUserQuery GetUserQuery => new(Guid.Parse(TestData.UserId));
+        public static SecurityServiceQueries.GetUsersQuery GetUsersQuery => new(null);
 
         public static SecurityServiceCommands.CreateApiResourceCommand CreateApiResourceCommand =>
             new(TestData.ApiResourceName,
@@ -265,8 +265,8 @@
                                             TestData.ApiResourceScopes,
                                             TestData.ApiResourceUserClaims);
 
-        public static GetApiResourceRequest GetApiResourceRequest => GetApiResourceRequest.Create(TestData.ApiResourceName);
-        public static GetApiResourcesRequest GetApiResourcesRequest => GetApiResourcesRequest.Create();
+        public static SecurityServiceQueries.GetApiResourceQuery GetApiResourceQuery => new(TestData.ApiResourceName);
+        public static SecurityServiceQueries.GetApiResourcesQuery GetApiResourcesQuery => new();
 
         public static SecurityServiceCommands.CreateClientCommand CreateClientCommand => new(TestData.ClientId,
                                                                                              TestData.ClientSecret,
@@ -293,9 +293,9 @@
                                        TestData.RequireConsentTrue,
                                        TestData.AllowOfflineAccessTrue);
 
-        public static GetClientRequest GetClientRequest => GetClientRequest.Create(TestData.ClientId);
+        public static SecurityServiceQueries.GetClientQuery GetClientQuery => new(TestData.ClientId);
 
-        public static GetClientsRequest GetClientsRequest => GetClientsRequest.Create();
+        public static SecurityServiceQueries.GetClientsQuery GetClientsQuery => new();
 
         public static SecurityServiceCommands.CreateApiScopeCommand CreateApiScopeCommand  => new(TestData.ApiScopeName,
                                                                                                   TestData.ApiScopeDisplayName,
@@ -311,15 +311,15 @@
         
         public static SecurityServiceCommands.CreateRoleCommand CreateRoleCommand => new(Guid.Parse(TestData.Role1Id), TestData.RoleName);
 
-        public static GetApiScopeRequest GetApiScopeRequest => GetApiScopeRequest.Create(TestData.ApiScopeName);
-        public static GetApiScopesRequest GetApiScopesRequest => GetApiScopesRequest.Create();
+        public static SecurityServiceQueries.GetApiScopeQuery GetApiScopeQuery => new(TestData.ApiScopeName);
+        public static SecurityServiceQueries.GetApiScopesQuery GetApiScopesQuery => new();
 
-        public static GetIdentityResourceRequest GetIdentityResourceRequest => GetIdentityResourceRequest.Create(TestData.IdentityResourceName);
+        public static SecurityServiceQueries.GetIdentityResourceQuery GetIdentityResourceQuery => new(TestData.IdentityResourceName);
 
-        public static GetIdentityResourcesRequest GetIdentityResourcesRequest => GetIdentityResourcesRequest.Create();
+        public static SecurityServiceQueries.GetIdentityResourcesQuery GetIdentityResourcesQuery => new();
 
-        public static GetRoleRequest GetRoleRequest => GetRoleRequest.Create(Guid.Parse(TestData.Role1Id));
-        public static GetRolesRequest GetRolesRequest => GetRolesRequest.Create();
+        public static SecurityServiceQueries.GetRoleQuery GetRoleQuery => new(Guid.Parse(TestData.Role1Id));
+        public static SecurityServiceQueries.GetRolesQuery GetRolesQuery => new();
 
         public static Boolean IdentityResourceRequired = true;
 

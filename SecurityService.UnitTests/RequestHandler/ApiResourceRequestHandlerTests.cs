@@ -1,4 +1,6 @@
-﻿namespace SecurityService.UnitTests.RequestHandler;
+﻿using SimpleResults;
+
+namespace SecurityService.UnitTests.RequestHandler;
 
 using System;
 using System.Collections.Generic;
@@ -65,54 +67,56 @@ public class ApiResourceRequestHandlerTests{
     [Fact]
     public async Task ApiResourceRequestHandler_GetApiResourceRequest_RequestIsHandled()
     {
-        GetApiResourceRequest request = TestData.GetApiResourceRequest;
+        SecurityServiceQueries.GetApiResourceQuery query = TestData.GetApiResourceQuery;
 
         await this.Context.ApiResources.AddAsync(new ApiResource{
                                                                     Id = 1,
-                                                                    Name = TestData.GetApiResourceRequest.Name
+                                                                    Name = TestData.GetApiResourceQuery.Name
                                                                 });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        Duende.IdentityServer.Models.ApiResource model = await this.RequestHandler.Handle(request, CancellationToken.None);
-
-        model.ShouldNotBeNull();
-        model.Name.ShouldBe(request.Name);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.Name.ShouldBe(query.Name);
     }
 
     [Fact]
     public async Task ApiResourceRequestHandler_GetApiResourceRequest_RecordNotFound_RequestIsHandled()
     {
-        GetApiResourceRequest request = TestData.GetApiResourceRequest;
-            
-        Should.Throw<NotFoundException>(async () => {
-                                            await this.RequestHandler.Handle(request, CancellationToken.None);
-                                        });
+        SecurityServiceQueries.GetApiResourceQuery query = TestData.GetApiResourceQuery;
+
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.NotFound);
     }
 
     [Fact]
     public async Task ApiResourceRequestHandler_GetApiResourcesRequest_RequestIsHandled()
     {
-        GetApiResourcesRequest request = TestData.GetApiResourcesRequest;
+        SecurityServiceQueries.GetApiResourcesQuery query = TestData.GetApiResourcesQuery;
 
         await this.Context.ApiResources.AddAsync(new ApiResource
                                                  {
                                                      Id = 1,
-                                                     Name = TestData.GetApiResourceRequest.Name
+                                                     Name = TestData.GetApiResourceQuery.Name
                                                  });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        List<Duende.IdentityServer.Models.ApiResource> models = await this.RequestHandler.Handle(request, CancellationToken.None);
-            
-        models.ShouldHaveSingleItem();
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldHaveSingleItem();
     }
 
     [Fact]
     public async Task ApiResourceRequestHandler_GetApiResourcesRequest_NoRecordsFound_RequestIsHandled()
     {
-        GetApiResourcesRequest request = TestData.GetApiResourcesRequest;
-            
-        List<Duende.IdentityServer.Models.ApiResource> models = await this.RequestHandler.Handle(request, CancellationToken.None);
+        SecurityServiceQueries.GetApiResourcesQuery query = TestData.GetApiResourcesQuery;
 
-        models.ShouldBeEmpty();
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldBeEmpty();
     }
 }
