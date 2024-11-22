@@ -1,4 +1,7 @@
-﻿namespace SecurityService.Controllers
+﻿using Shared.Results;
+using SimpleResults;
+
+namespace SecurityService.Controllers
 {
     using System;
     using System.Collections.Generic;
@@ -65,7 +68,7 @@
         {
             Guid userId = Guid.NewGuid();
 
-            BusinessLogic.Requests.CreateUserRequest request = BusinessLogic.Requests.CreateUserRequest.Create(userId,
+            SecurityServiceCommands.CreateUserCommand command =new(userId,
                                                                                                                createUserRequest.GivenName,
                                                                                                                createUserRequest.MiddleName,
                                                                                                                createUserRequest.FamilyName,
@@ -77,14 +80,11 @@
                                                                                                                createUserRequest.Roles);
 
             // Create the user
-            await this.Mediator.Send(request, cancellationToken);
+            Result result = await this.Mediator.Send(command, cancellationToken);
+            // TODO: Handle failed result
 
             // return the result
-            return this.Created($"{UserController.ControllerRoute}/{userId}",
-                                new CreateUserResponse
-                                {
-                                    UserId =  userId
-                                });
+            return result.ToActionResultX();
         }
 
         /// <summary>
@@ -100,11 +100,16 @@
         public async Task<IActionResult> GetUser([FromRoute] Guid userId,
                                                  CancellationToken cancellationToken)
         {
-            GetUserRequest request = GetUserRequest.Create(userId);
+            SecurityServiceQueries.GetUserQuery query = new(userId);
 
-            Models.UserDetails userDetailsModel = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(userDetailsModel));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         /// <summary>
@@ -121,11 +126,16 @@
         public async Task<IActionResult> GetUsers([FromQuery] String userName,
                                                  CancellationToken cancellationToken)
         {
-            GetUsersRequest request = GetUsersRequest.Create(userName);
+            SecurityServiceQueries.GetUsersQuery query = new(userName);
             
-            List<Models.UserDetails> userModelList = await this.Mediator.Send(request, cancellationToken);
+            Result<List<Models.UserDetails>> result= await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(userModelList));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         #endregion

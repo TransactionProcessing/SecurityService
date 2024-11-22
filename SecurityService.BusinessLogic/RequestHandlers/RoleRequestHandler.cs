@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SecurityService.DataTransferObjects.Requests;
+using SimpleResults;
 
 namespace SecurityService.BusinessLogic.RequestHandlers
 {
@@ -14,42 +16,44 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using Requests;
     using Shared.Exceptions;
 
-    public class RoleRequestHandler : IRequestHandler<CreateRoleRequest>,
-                                      IRequestHandler<GetRoleRequest, RoleDetails>,
-                                      IRequestHandler<GetRolesRequest, List<RoleDetails>>{
+    public class RoleRequestHandler : IRequestHandler<SecurityServiceCommands.CreateRoleCommand, Result>,
+                                      IRequestHandler<SecurityServiceQueries.GetRoleQuery, Result<RoleDetails>>,
+                                      IRequestHandler<SecurityServiceQueries.GetRolesQuery, Result<List<RoleDetails>>>{
         private readonly RoleManager<IdentityRole> RoleManager;
 
         public RoleRequestHandler(RoleManager<IdentityRole> roleManager){
             this.RoleManager = roleManager;
         }
-        public async Task Handle(CreateRoleRequest request, CancellationToken cancellationToken){
+        public async Task<Result> Handle(SecurityServiceCommands.CreateRoleCommand command, CancellationToken cancellationToken){
+
             IdentityRole newIdentityRole = new IdentityRole
-                                           {
-                                               Id = request.RoleId.ToString(),
-                                               Name = request.Name,
-                                               NormalizedName = request.Name.ToUpper()
-                                           };
+            {
+                Id = command.RoleId.ToString(),
+                Name = command.Name,
+                NormalizedName = command.Name.ToUpper()
+            };
 
             // Ensure role name is not a duplicate
             if (await this.RoleManager.RoleExistsAsync(newIdentityRole.Name))
             {
-                throw new IdentityResultException($"Role {newIdentityRole.Name} already exists", IdentityResult.Failed());
+                return Result.Conflict($"Role {newIdentityRole.Name} already exists");
             }
 
             IdentityResult createResult = await this.RoleManager.CreateAsync(newIdentityRole);
 
             if (!createResult.Succeeded)
             {
-                throw new IdentityResultException($"Error creating role {newIdentityRole.Name}", createResult);
+                return Result.Failure($"Error creating role {newIdentityRole.Name} {createResult}");
             }
+            return Result.Success();
         }
 
-        public async Task<RoleDetails> Handle(GetRoleRequest request, CancellationToken cancellationToken){
-            IdentityRole identityRole = await this.RoleManager.FindByIdAsync(request.RoleId.ToString());
+        public async Task<Result<RoleDetails>> Handle(SecurityServiceQueries.GetRoleQuery query, CancellationToken cancellationToken){
+            IdentityRole identityRole = await this.RoleManager.FindByIdAsync(query.RoleId.ToString());
 
             if (identityRole == null)
             {
-                throw new NotFoundException($"No role found with Id {request.RoleId}");
+                return Result.NotFound($"No role found with Id {query.RoleId}");
             }
 
             // Role has been found
@@ -59,15 +63,15 @@ namespace SecurityService.BusinessLogic.RequestHandlers
                                        RoleName = identityRole.Name
                                    };
 
-            return response;
+            return  Result.Success(response);
         }
 
-        public async Task<List<RoleDetails>> Handle(GetRolesRequest request, CancellationToken cancellationToken){
+        public async Task<Result<List<RoleDetails>>> Handle(SecurityServiceQueries.GetRolesQuery query, CancellationToken cancellationToken){
             List<RoleDetails> response = new List<RoleDetails>();
 
-            IQueryable<IdentityRole> query = this.RoleManager.Roles;
+            IQueryable<IdentityRole> roleQuery = this.RoleManager.Roles;
 
-            List<IdentityRole> roles = await query.ToListAsyncSafe(cancellationToken);
+            List<IdentityRole> roles = await roleQuery.ToListAsyncSafe(cancellationToken);
 
             foreach (IdentityRole identityRole in roles)
             {
@@ -78,7 +82,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers
                              });
             }
 
-            return response;
+            return Result.Success(response);
         }
     }
 }

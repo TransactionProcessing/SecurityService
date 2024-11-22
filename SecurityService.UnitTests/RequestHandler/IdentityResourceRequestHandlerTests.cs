@@ -1,4 +1,6 @@
-﻿namespace SecurityService.UnitTests.RequestHandler;
+﻿using SimpleResults;
+
+namespace SecurityService.UnitTests.RequestHandler;
 
 using System;
 using System.Collections.Generic;
@@ -29,9 +31,10 @@ public class IdentityResourceRequestHandlerTests
     [Fact]
     public async Task IdentityResourceRequestHandler_CreateIdentityResourceRequest_RequestIsHandled()
     {
-        CreateIdentityResourceRequest request = TestData.CreateIdentityResourceRequest;
+        SecurityServiceCommands.CreateIdentityResourceCommand command = TestData.CreateIdentityResourceCommand;
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 clientCount = await this.Context.IdentityResources.CountAsync();
         clientCount.ShouldBe(1);
@@ -40,56 +43,60 @@ public class IdentityResourceRequestHandlerTests
     [Fact]
     public async Task IdentityResourceRequestHandler_GetIdentityResourceRequest_RequestIsHandled()
     {
-        GetIdentityResourceRequest request = TestData.GetIdentityResourceRequest;
+        SecurityServiceQueries.GetIdentityResourceQuery query = TestData.GetIdentityResourceQuery;
 
         await this.Context.IdentityResources.AddAsync(new IdentityResource()
                                                       {
                                                           Id = 1,
-                                                          Name = request.IdentityResourceName
+                                                          Name = query.IdentityResourceName
                                                       });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        Duende.IdentityServer.Models.IdentityResource model = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result= await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        model.ShouldNotBeNull();
-        model.Name.ShouldBe(request.IdentityResourceName);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.Name.ShouldBe(query.IdentityResourceName);
     }
 
     [Fact]
     public async Task IdentityResourceRequestHandler_GetIdentityResourceRequest_RecordNotFound_RequestIsHandled()
     {
-        GetIdentityResourceRequest request = TestData.GetIdentityResourceRequest;
+        SecurityServiceQueries.GetIdentityResourceQuery query = TestData.GetIdentityResourceQuery;
 
-        Should.Throw<NotFoundException>(async () =>
-                                        {
-                                            await this.RequestHandler.Handle(request, CancellationToken.None);
-                                        });
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.NotFound);
     }
 
     [Fact]
     public async Task IdentityResourceRequestHandler_GetIdentityResourcesRequest_RequestIsHandled()
     {
-        GetIdentityResourcesRequest request = TestData.GetIdentityResourcesRequest;
+        SecurityServiceQueries.GetIdentityResourcesQuery query = TestData.GetIdentityResourcesQuery;
 
         await this.Context.IdentityResources.AddAsync(new IdentityResource()
                                                       {
                                                           Id = 1,
-                                                          Name = TestData.GetIdentityResourceRequest.IdentityResourceName
+                                                          Name = TestData.GetIdentityResourceQuery.IdentityResourceName
                                                       });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        List<Duende.IdentityServer.Models.IdentityResource> models = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        models.ShouldHaveSingleItem();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldHaveSingleItem();
     }
 
     [Fact]
     public async Task IdentityResourceRequestHandler_GetIdentityResourcesRequest_NoRecordsFound_RequestIsHandled()
     {
-        GetIdentityResourcesRequest request = TestData.GetIdentityResourcesRequest;
+        SecurityServiceQueries.GetIdentityResourcesQuery query = TestData.GetIdentityResourcesQuery;
 
-        List<Duende.IdentityServer.Models.IdentityResource> models = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        models.ShouldBeEmpty();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldBeEmpty();
     }
 }

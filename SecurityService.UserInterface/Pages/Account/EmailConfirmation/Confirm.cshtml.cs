@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SimpleResults;
 
 namespace IdentityServerHost.Pages.EmailConfirmation;
 
@@ -41,18 +42,19 @@ public class Confirm : PageModel
         await BuildModelAsync();
 
         // mark the email address as confirmed
-        ConfirmUserEmailAddressRequest request = ConfirmUserEmailAddressRequest.Create(Input.Username,
-                                                                                       Input.Token);
-        Boolean result = await this.Mediator.Send(request, cancellationToken);
+        SecurityServiceCommands.ConfirmUserEmailAddressCommand confirmUserEmailAddressCommand= new(Input.Username, Input.Token);
+        Result? confirmUserEmailAddressResult = await this.Mediator.Send(confirmUserEmailAddressCommand, cancellationToken);
 
-        if (result == false) {
+        if (confirmUserEmailAddressResult.IsFailed) {
             this.View.UserMessage = $"Failed confirming user email address for username {Input.Username}";
         }
         else {
             this.View.UserMessage = $"Thanks for confirming your email address, you should receive a welcome email soon.";
             // Send the welcome email 
-            SendWelcomeEmailRequest sendWelcomeEmailRequest = SendWelcomeEmailRequest.Create(Input.Username);
-            await this.Mediator.Send(sendWelcomeEmailRequest, cancellationToken);
+            SecurityServiceCommands.SendWelcomeEmailCommand command = new(Input.Username);
+            Result? sendWelcomeEmailResult = await this.Mediator.Send(command, cancellationToken);
+            // TODO: handle this result....
+
         }
         return Page();
     }

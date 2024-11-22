@@ -1,4 +1,6 @@
-﻿namespace SecurityService.UnitTests.RequestHandler;
+﻿using SimpleResults;
+
+namespace SecurityService.UnitTests.RequestHandler;
 
 using System;
 using System.Collections.Generic;
@@ -27,44 +29,41 @@ public class ClientRequestHandlerTests
     }
 
     [Fact]
-    public async Task ClientRequestHandler_CreateClientRequest_RequestIsHandled()
+    public async Task ClientRequestHandler_CreateClientCommand_RequestIsHandled()
     {
-        CreateClientRequest request = TestData.CreateClientRequest;
+        SecurityServiceCommands.CreateClientCommand command = TestData.CreateClientCommand;
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 clientCount = await this.Context.Clients.CountAsync();
         clientCount.ShouldBe(1);
     }
 
     [Fact]
-    public async Task ClientRequestHandler_CreateClientRequest_NullClientRedirectUris_RequestIsHandled()
+    public async Task ClientRequestHandler_CreateClientCommand_NullClientRedirectUris_RequestIsHandled()
     {
-        CreateClientRequest request = CreateClientRequest.Create(TestData.CreateClientRequest.ClientId,
-                                                                 TestData.CreateClientRequest.Secret,
-                                                                 TestData.CreateClientRequest.ClientName,
-                                                                 TestData.CreateClientRequest.ClientDescription,
-                                                                 TestData.CreateClientRequest.AllowedScopes,
-                                                                 TestData.CreateClientRequest.AllowedGrantTypes,
-                                                                 TestData.CreateClientRequest.ClientUri,
-                                                                 null,
-                                                                 TestData.CreateClientRequest.ClientPostLogoutRedirectUris,
-                                                                 TestData.CreateClientRequest.RequireConsent,
-                                                                 TestData.CreateClientRequest.AllowOfflineAccess);
-                
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        SecurityServiceCommands.CreateClientCommand command = TestData.CreateClientCommand;
+
+        command = command with { ClientRedirectUris = null };
+
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 clientCount = await this.Context.Clients.CountAsync();
         clientCount.ShouldBe(1);
     }
 
     [Fact]
-    public async Task ClientRequestHandler_CreateClientRequest_EmptyClientRedirectUris_RequestIsHandled()
+    public async Task ClientRequestHandler_CreateClientCommand_EmptyClientRedirectUris_RequestIsHandled()
     {
-        CreateClientRequest request = TestData.CreateClientRequest;
-        request.ClientRedirectUris.Clear();
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        SecurityServiceCommands.CreateClientCommand command = TestData.CreateClientCommand;
 
+        command = command with { ClientRedirectUris = new List<String>() };
+
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+        
         Int32 clientCount = await this.Context.Clients.CountAsync();
         clientCount.ShouldBe(1);
     }
@@ -72,51 +71,40 @@ public class ClientRequestHandlerTests
     [Fact]
     public async Task ClientRequestHandler_CreateClientRequest_EmptyClientPostLogoutRedirectUris_RequestIsHandled()
     {
-        CreateClientRequest request = TestData.CreateClientRequest;
-        request.ClientPostLogoutRedirectUris.Clear();
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        SecurityServiceCommands.CreateClientCommand command = TestData.CreateClientCommand;
+
+        command = command with { ClientPostLogoutRedirectUris = new List<String>() };
+
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 clientCount = await this.Context.Clients.CountAsync();
         clientCount.ShouldBe(1);
     }
 
+    
     [Fact]
     public async Task ClientRequestHandler_CreateClientRequest_InvalidGrant_RequestIsHandled(){
-        CreateClientRequest request = CreateClientRequest.Create(TestData.CreateClientRequest.ClientId,
-                                                                 TestData.CreateClientRequest.Secret,
-                                                                 TestData.CreateClientRequest.ClientName,
-                                                                 TestData.CreateClientRequest.ClientDescription,
-                                                                 TestData.CreateClientRequest.AllowedScopes,
-                                                                 new List<String>(),
-                                                                 TestData.CreateClientRequest.ClientUri,
-                                                                 TestData.CreateClientRequest.ClientRedirectUris,
-                                                                 TestData.CreateClientRequest.ClientPostLogoutRedirectUris,
-                                                                 TestData.CreateClientRequest.RequireConsent,
-                                                                 TestData.CreateClientRequest.AllowOfflineAccess);
-        request.AllowedGrantTypes.Add("invalid");
+        SecurityServiceCommands.CreateClientCommand command = TestData.CreateClientCommand;
 
-        Should.Throw<ArgumentException>(async () => {
-                                            await this.RequestHandler.Handle(request, CancellationToken.None);
-                                        });
+        command = command with { AllowedGrantTypes = new List<String>() {
+            "invalid"
+        } };
+
+        Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Invalid);
     }
-
+    
     [Fact]
     public async Task ClientRequestHandler_CreateClientRequest_NullClientPostLogoutRedirectUris_RequestIsHandled()
     {
-        CreateClientRequest request = CreateClientRequest.Create(TestData.CreateClientRequest.ClientId,
-                                                                 TestData.CreateClientRequest.Secret,
-                                                                 TestData.CreateClientRequest.ClientName,
-                                                                 TestData.CreateClientRequest.ClientDescription,
-                                                                 TestData.CreateClientRequest.AllowedScopes,
-                                                                 TestData.CreateClientRequest.AllowedGrantTypes,
-                                                                 TestData.CreateClientRequest.ClientUri,
-                                                                 TestData.CreateClientRequest.ClientRedirectUris,
-                                                                 null,
-                                                                 TestData.CreateClientRequest.RequireConsent,
-                                                                 TestData.CreateClientRequest.AllowOfflineAccess);
+        SecurityServiceCommands.CreateClientCommand command = TestData.CreateClientCommand;
+       
+       command = command with { ClientPostLogoutRedirectUris = null };
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
-
+       var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+       result.IsSuccess.ShouldBeTrue();
         Int32 clientCount = await this.Context.Clients.CountAsync();
         clientCount.ShouldBe(1);
     }
@@ -124,63 +112,69 @@ public class ClientRequestHandlerTests
     [Fact]
     public async Task ClientRequestHandler_CreateClientRequest_HybridClient_RequestIsHandled()
     {
-        CreateClientRequest request = TestData.CreateHybridClientRequest;
+        SecurityServiceCommands.CreateClientCommand command = TestData.CreateHybridClientCommand;
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 clientCount = await this.Context.Clients.CountAsync();
         clientCount.ShouldBe(1);
     }
-
     [Fact]
     public async Task ClientRequestHandler_GetClientRequest_RequestIsHandled()
     {
-        GetClientRequest request = TestData.GetClientRequest;
+        SecurityServiceQueries.GetClientQuery query  = TestData.GetClientQuery;
 
         await this.Context.Clients.AddAsync(new Duende.IdentityServer.EntityFramework.Entities.Client()
                                             {
-                                                ClientId = request.ClientId,
+                                                ClientId = query.ClientId,
                                             });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        Client model = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        model.ShouldNotBeNull();
-        model.ClientId.ShouldBe(request.ClientId);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ClientId.ShouldBe(query.ClientId);
     }
 
     [Fact]
     public async Task ClientRequestHandler_GetClientRequest_RecordNotFound_RequestIsHandled()
     {
-        GetClientRequest request = TestData.GetClientRequest;
+        SecurityServiceQueries.GetClientQuery query = TestData.GetClientQuery;
 
-        Should.Throw<NotFoundException>(async () => {
-                                            await this.RequestHandler.Handle(request, CancellationToken.None);
-                                        });
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.NotFound);
     }
 
     [Fact]
     public async Task ClientRequestHandler_GetClientsRequest_RequestIsHandled()
     {
-        GetClientsRequest request = TestData.GetClientsRequest;
+        SecurityServiceQueries.GetClientsQuery query = TestData.GetClientsQuery;
 
         await this.Context.Clients.AddAsync(new Duende.IdentityServer.EntityFramework.Entities.Client(){
-                                                                                                           ClientId = TestData.GetClientRequest.ClientId,
+                                                                                                           ClientId = TestData.GetClientQuery.ClientId,
                                                                                                        });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        List<Client> models = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        models.ShouldHaveSingleItem();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldHaveSingleItem();
     }
 
     [Fact]
     public async Task ClientRequestHandler_GetClientsRequest_NoRecordsFound_RequestIsHandled()
     {
-        GetClientsRequest request = TestData.GetClientsRequest;
+        SecurityServiceQueries.GetClientsQuery query = TestData.GetClientsQuery;
 
-        List<Client> models = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
 
-        models.ShouldBeEmpty();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldBeEmpty();
     }
 }

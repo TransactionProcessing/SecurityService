@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Shared.Results;
+using SimpleResults;
 
 namespace SecurityService.Controllers
 {
@@ -53,20 +55,16 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> CreateApiResource([FromBody] CreateApiResourceRequest createApiResourceRequest,
                                                      CancellationToken cancellationToken)
         {
-            BusinessLogic.Requests.CreateApiResourceRequest request = BusinessLogic.Requests.CreateApiResourceRequest.Create(createApiResourceRequest.Name,
+            SecurityServiceCommands.CreateApiResourceCommand command = new(createApiResourceRequest.Name,
                 createApiResourceRequest.DisplayName,
                 createApiResourceRequest.Description,
                 createApiResourceRequest.Secret,
                 createApiResourceRequest.Scopes,
                 createApiResourceRequest.UserClaims);
 
-            await this.Mediator.Send(request, cancellationToken);
-            
-            // return the result
-            return this.Created($"{ApiResourceController.ControllerRoute}/{createApiResourceRequest.Name}", new CreateApiResourceResponse
-                                                                                  {
-                                                                                      ApiResourceName = createApiResourceRequest.Name
-            });
+            Result result = await this.Mediator.Send(command, cancellationToken);
+            // TODO: Handle failed result
+            return result.ToActionResultX();
         }
 
         /// <summary>
@@ -82,12 +80,17 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetApiResource([FromRoute] String apiResourceName,
                                                            CancellationToken cancellationToken)
         {
-            GetApiResourceRequest request = GetApiResourceRequest.Create(apiResourceName);
+            SecurityServiceQueries.GetApiResourceQuery query = new(apiResourceName);
 
-            ApiResource apiResourceModel = await this.Mediator.Send(request, cancellationToken);
-
+            var result= await this.Mediator.Send(query, cancellationToken);
+            // TODO:: handle failure
             // return the result
-            return this.Ok(this.ModelFactory.ConvertFrom(apiResourceModel));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         /// <summary>
@@ -99,13 +102,17 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ApiResourceDetails>))]
         [SwaggerResponseExample(201, typeof(ApiResourceDetailsListResponseExample))]
-        public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken)
-        {
-            GetApiResourcesRequest request = GetApiResourcesRequest.Create();
+        public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken) {
+            SecurityServiceQueries.GetApiResourcesQuery query = new SecurityServiceQueries.GetApiResourcesQuery();
 
-            List<ApiResource> apiResourceList = await this.Mediator.Send(request, cancellationToken);
+            var result = await this.Mediator.Send(query, cancellationToken);
 
-            return this.Ok(this.ModelFactory.ConvertFrom(apiResourceList));
+            if (result.IsFailed)
+                return result.ToActionResultX();
+
+            var model = this.ModelFactory.ConvertFrom(result.Data);
+
+            return Result.Success(model).ToActionResultX();
         }
 
         #region Others

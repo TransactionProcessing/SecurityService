@@ -45,10 +45,10 @@ namespace SecurityService.IntegrationTests.IdentityResource
         [Given(@"I create the following identity resources")]
         public async Task GivenICreateTheFollowingIdentityResources(DataTable table){
             List<CreateIdentityResourceRequest> requests = table.Rows.ToCreateIdentityResourceRequest();
-            List<CreateIdentityResourceResponse> responses = await this.SecurityServiceSteps.GivenICreateTheFollowingIdentityResources(requests, CancellationToken.None);
+            await this.SecurityServiceSteps.GivenICreateTheFollowingIdentityResources(requests, CancellationToken.None);
 
-            foreach (CreateIdentityResourceResponse response in responses){
-                this.TestingContext.ApiResources.Add(response.IdentityResourceName);
+            foreach (var request in requests){
+                this.TestingContext.ApiResources.Add(request.Name);
             }
         }
         

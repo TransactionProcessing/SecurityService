@@ -1,4 +1,7 @@
-﻿namespace SecurityService.BusinessLogic.RequestHandlers{
+﻿using SecurityService.DataTransferObjects.Requests;
+using SimpleResults;
+
+namespace SecurityService.BusinessLogic.RequestHandlers{
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -13,9 +16,9 @@
     using Requests;
     using Shared.Exceptions;
 
-    public class ApiResourceRequestHandler : IRequestHandler<CreateApiResourceRequest>,
-                                             IRequestHandler<GetApiResourceRequest, ApiResource>,
-                                             IRequestHandler<GetApiResourcesRequest, List<ApiResource>>{
+    public class ApiResourceRequestHandler : IRequestHandler<SecurityServiceCommands.CreateApiResourceCommand, Result>,
+                                             IRequestHandler<SecurityServiceQueries.GetApiResourceQuery, Result<ApiResource>>,
+                                             IRequestHandler<SecurityServiceQueries.GetApiResourcesQuery, Result<List<ApiResource>>>{
         #region Fields
 
         private readonly ConfigurationDbContext ConfigurationDbContext;
@@ -32,19 +35,22 @@
 
         #region Methods
 
-        public async Task Handle(CreateApiResourceRequest request, CancellationToken cancellationToken){
-            ApiResource apiResource = new ApiResource{
-                                                         ApiSecrets = new List<Secret>{
-                                                                                          new Secret(request.Secret.ToSha256())
+        public async Task<Result> Handle(SecurityServiceCommands.CreateApiResourceCommand command, CancellationToken cancellationToken) {
+            ApiResource apiResource = new ApiResource
+            {
+                ApiSecrets = new List<Secret>{
+                                                                                          new Secret(command.Secret.ToSha256())
                                                                                       },
-                                                         Description = request.Description,
-                                                         DisplayName = request.DisplayName,
-                                                         Name = request.Name,
-                                                         UserClaims = request.UserClaims,
-                                                     };
+                Description = command.Description,
+                DisplayName = command.DisplayName,
+                Name = command.Name,
+                UserClaims = command.UserClaims,
+            };
 
-            if (request.Scopes != null && request.Scopes.Any()){
-                foreach (String scope in request.Scopes){
+            if (command.Scopes != null && command.Scopes.Any())
+            {
+                foreach (String scope in command.Scopes)
+                {
                     apiResource.Scopes.Add(scope);
                 }
             }
@@ -54,26 +60,28 @@
 
             // Save the changes
             await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
+
+            return Result.Success();
         }
 
-        public async Task<ApiResource> Handle(GetApiResourceRequest request, CancellationToken cancellationToken){
+        public async Task<Result<ApiResource>> Handle(SecurityServiceQueries.GetApiResourceQuery query, CancellationToken cancellationToken){
             ApiResource apiResourceModel = null;
 
             Duende.IdentityServer.EntityFramework.Entities.ApiResource apiResourceEntity = await this.ConfigurationDbContext.ApiResources
-                                                                                                     .Where(a => a.Name == request.Name).Include(a => a.Scopes)
+                                                                                                     .Where(a => a.Name == query.Name).Include(a => a.Scopes)
                                                                                                      .Include(a => a.UserClaims)
                                                                                                      .SingleOrDefaultAsync(cancellationToken:cancellationToken);
 
             if (apiResourceEntity == null){
-                throw new NotFoundException($"No Api Resource found with Name [{request.Name}]");
+                return Result.NotFound($"No Api Resource found with Name [{query.Name}]");
             }
 
             apiResourceModel = apiResourceEntity.ToModel();
 
-            return apiResourceModel;
+            return Result.Success(apiResourceModel);
         }
 
-        public async Task<List<ApiResource>> Handle(GetApiResourcesRequest request, CancellationToken cancellationToken){
+        public async Task<Result<List<ApiResource>>> Handle(SecurityServiceQueries.GetApiResourcesQuery request, CancellationToken cancellationToken){
             List<ApiResource> apiResourceModels = new List<ApiResource>();
 
             List<Duende.IdentityServer.EntityFramework.Entities.ApiResource> apiResourceEntities = await this.ConfigurationDbContext.ApiResources.Include(a => a.Scopes)
@@ -86,7 +94,7 @@
                 }
             }
 
-            return apiResourceModels;
+            return Result.Success(apiResourceModels);
         }
 
         #endregion

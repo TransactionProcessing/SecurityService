@@ -1,4 +1,7 @@
-﻿namespace SecurityService.Client
+﻿using Shared.Results;
+using SimpleResults;
+
+namespace SecurityService.Client
 {
     using System;
     using System.Collections.Generic;
@@ -11,11 +14,12 @@
     using DataTransferObjects.Requests;
     using DataTransferObjects.Responses;
     using Newtonsoft.Json;
+    using static Shared.Results.ResultHelpers;
 
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="ClientProxyBase.ClientProxyBase" />
+    /// <seealso cref="ClientProxyBase" />
     /// <seealso cref="SecurityService.Client.ISecurityServiceClient" />
     public class SecurityServiceClient : ClientProxyBase, ISecurityServiceClient
     {
@@ -54,16 +58,9 @@
 
         #region Methods
 
-        /// <summary>
-        /// Creates the API resource.
-        /// </summary>
-        /// <param name="createApiResourceRequest">The create API resource request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<CreateApiResourceResponse> CreateApiResource(CreateApiResourceRequest createApiResourceRequest,
-                                                                       CancellationToken cancellationToken)
+        public async Task<Result> CreateApiResource(CreateApiResourceRequest createApiResourceRequest,
+                                                    CancellationToken cancellationToken)
         {
-            CreateApiResourceResponse response = null;
             String requestUri = this.BuildRequestUrl("/api/apiresources");
 
             try
@@ -79,10 +76,12 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
 
-                // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<CreateApiResourceResponse>(content);
+                if(result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
+
+                return Result.Success();
             }
             catch(Exception ex)
             {
@@ -91,20 +90,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Creates the API scope.
-        /// </summary>
-        /// <param name="createApiScopeRequest">The create API scope request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<CreateApiScopeResponse> CreateApiScope(CreateApiScopeRequest createApiScopeRequest,
-                                                                 CancellationToken cancellationToken)
+        public async Task<Result> CreateApiScope(CreateApiScopeRequest createApiScopeRequest,
+                                                 CancellationToken cancellationToken)
         {
-            CreateApiScopeResponse response = null;
             String requestUri = this.BuildRequestUrl("/api/apiscopes");
 
             try
@@ -120,10 +110,12 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
 
-                // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<CreateApiScopeResponse>(content);
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
+
+                return Result.Success();
             }
             catch(Exception ex)
             {
@@ -132,20 +124,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Creates the client.
-        /// </summary>
-        /// <param name="createClientRequest">The create client request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<CreateClientResponse> CreateClient(CreateClientRequest createClientRequest,
-                                                             CancellationToken cancellationToken)
+        public async Task<Result> CreateClient(CreateClientRequest createClientRequest,
+                                               CancellationToken cancellationToken)
         {
-            CreateClientResponse response = null;
             String requestUri = this.BuildRequestUrl("/api/clients");
 
             try
@@ -161,10 +144,12 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
 
-                // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<CreateClientResponse>(content);
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
+
+                return Result.Success();
             }
             catch(Exception ex)
             {
@@ -173,20 +158,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Creates the identity resource.
-        /// </summary>
-        /// <param name="createIdentityResourceRequest">The create identity resource request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<CreateIdentityResourceResponse> CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
-                                                                                 CancellationToken cancellationToken)
+        public async Task<Result> CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
+                                                         CancellationToken cancellationToken)
         {
-            CreateIdentityResourceResponse response = null;
             String requestUri = this.BuildRequestUrl("/api/identityresources");
 
             try
@@ -202,10 +178,12 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
 
-                // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<CreateIdentityResourceResponse>(content);
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
+
+                return Result.Success();
             }
             catch(Exception ex)
             {
@@ -214,20 +192,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Creates the role.
-        /// </summary>
-        /// <param name="createRoleRequest">The create role request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<CreateRoleResponse> CreateRole(CreateRoleRequest createRoleRequest,
-                                                         CancellationToken cancellationToken)
+        public async Task<Result> CreateRole(CreateRoleRequest createRoleRequest,
+                                             CancellationToken cancellationToken)
         {
-            CreateRoleResponse response = null;
             String requestUri = this.BuildRequestUrl("/api/roles");
 
             try
@@ -243,10 +212,12 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
 
-                // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<CreateRoleResponse>(content);
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
+
+                return Result.Success();
             }
             catch(Exception ex)
             {
@@ -255,8 +226,6 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
         /// <summary>
@@ -265,10 +234,9 @@
         /// <param name="createUserRequest">The create user request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task<CreateUserResponse> CreateUser(CreateUserRequest createUserRequest,
-                                                         CancellationToken cancellationToken)
+        public async Task<Result> CreateUser(CreateUserRequest createUserRequest,
+                                                                 CancellationToken cancellationToken)
         {
-            CreateUserResponse response = null;
             String requestUri = this.BuildRequestUrl("/api/users");
 
             try
@@ -284,10 +252,12 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
 
-                // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<CreateUserResponse>(content);
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
+
+                return Result.Success();
             }
             catch(Exception ex)
             {
@@ -296,20 +266,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the API resource.
-        /// </summary>
-        /// <param name="apiResourceName">Name of the API resource.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<ApiResourceDetails> GetApiResource(String apiResourceName,
-                                                             CancellationToken cancellationToken)
+        public async Task<Result<ApiResourceDetails>> GetApiResource(String apiResourceName,
+                                                                     CancellationToken cancellationToken)
         {
-            ApiResourceDetails response = null;
             String requestUri = this.BuildRequestUrl($"/api/apiresources/{apiResourceName}");
 
             try
@@ -321,10 +282,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<ApiResourceDetails>(content);
+                ResponseData<ApiResourceDetails> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<ApiResourceDetails>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -333,18 +300,10 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the API resources.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<List<ApiResourceDetails>> GetApiResources(CancellationToken cancellationToken)
+        public async Task<Result<List<ApiResourceDetails>>> GetApiResources(CancellationToken cancellationToken)
         {
-            List<ApiResourceDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/apiresources");
 
             try
@@ -356,10 +315,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<List<ApiResourceDetails>>(content);
+                ResponseData<List<ApiResourceDetails>> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<List<ApiResourceDetails>>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -368,20 +333,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the API scope.
-        /// </summary>
-        /// <param name="apiScopeName">Name of the API scope.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<ApiScopeDetails> GetApiScope(String apiScopeName,
-                                                       CancellationToken cancellationToken)
+        public async Task<Result<ApiScopeDetails>> GetApiScope(String apiScopeName,
+                                                               CancellationToken cancellationToken)
         {
-            ApiScopeDetails response = null;
             String requestUri = this.BuildRequestUrl($"/api/apiscopes/{apiScopeName}");
 
             try
@@ -393,10 +349,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<ApiScopeDetails>(content);
+                ResponseData<ApiScopeDetails> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<ApiScopeDetails>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -405,16 +367,9 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the API scopes.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<List<ApiScopeDetails>> GetApiScopes(CancellationToken cancellationToken)
+        public async Task<Result<List<ApiScopeDetails>>> GetApiScopes(CancellationToken cancellationToken)
         {
             List<ApiScopeDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/apiscopes");
@@ -428,10 +383,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<List<ApiScopeDetails>>(content);
+                ResponseData<List<ApiScopeDetails>> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<List<ApiScopeDetails>>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -440,20 +401,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the client.
-        /// </summary>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<ClientDetails> GetClient(String clientId,
-                                                   CancellationToken cancellationToken)
+        public async Task<Result<ClientDetails>> GetClient(String clientId,
+                                                           CancellationToken cancellationToken)
         {
-            ClientDetails response = null;
             String requestUri = this.BuildRequestUrl($"/api/clients/{clientId}");
 
             try
@@ -465,10 +417,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<ClientDetails>(content);
+                ResponseData<ClientDetails> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<ClientDetails>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -477,16 +435,9 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the clients.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<List<ClientDetails>> GetClients(CancellationToken cancellationToken)
+        public async Task<Result<List<ClientDetails>>> GetClients(CancellationToken cancellationToken)
         {
             List<ClientDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/clients");
@@ -500,10 +451,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<List<ClientDetails>>(content);
+                ResponseData<List<ClientDetails>> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<List<ClientDetails>>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -512,20 +469,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the identity resource.
-        /// </summary>
-        /// <param name="identityResourceName">Name of the identity resource.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<IdentityResourceDetails> GetIdentityResource(String identityResourceName,
-                                                                       CancellationToken cancellationToken)
+        public async Task<Result<IdentityResourceDetails>> GetIdentityResource(String identityResourceName,
+                                                                               CancellationToken cancellationToken)
         {
-            IdentityResourceDetails response = null;
             String requestUri = this.BuildRequestUrl($"/api/identityresources/{identityResourceName}");
 
             try
@@ -537,10 +485,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<IdentityResourceDetails>(content);
+                ResponseData<IdentityResourceDetails> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<IdentityResourceDetails>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -549,18 +503,10 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the identity resources.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<List<IdentityResourceDetails>> GetIdentityResources(CancellationToken cancellationToken)
+        public async Task<Result<List<IdentityResourceDetails>>> GetIdentityResources(CancellationToken cancellationToken)
         {
-            List<IdentityResourceDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/identityresources");
 
             try
@@ -572,10 +518,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<List<IdentityResourceDetails>>(content);
+                ResponseData<List<IdentityResourceDetails>> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<List<IdentityResourceDetails>>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -584,20 +536,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the role.
-        /// </summary>
-        /// <param name="roleId">The role identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<RoleDetails> GetRole(Guid roleId,
-                                               CancellationToken cancellationToken)
+        public async Task<Result<RoleDetails>> GetRole(Guid roleId,
+                                                       CancellationToken cancellationToken)
         {
-            RoleDetails response = null;
             String requestUri = this.BuildRequestUrl($"/api/roles/{roleId}");
 
             try
@@ -609,10 +552,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<RoleDetails>(content);
+                ResponseData<RoleDetails> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<RoleDetails>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -621,16 +570,9 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the roles.
-        /// </summary>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<List<RoleDetails>> GetRoles(CancellationToken cancellationToken)
+        public async Task<Result<List<RoleDetails>>> GetRoles(CancellationToken cancellationToken)
         {
             List<RoleDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/roles");
@@ -644,10 +586,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<List<RoleDetails>>(content);
+                ResponseData<List<RoleDetails>> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<List<RoleDetails>>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -656,24 +604,13 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the token.
-        /// </summary>
-        /// <param name="username">The username.</param>
-        /// <param name="password">The password.</param>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="clientSecret">The client secret.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<TokenResponse> GetToken(String username,
-                                                  String password,
-                                                  String clientId,
-                                                  String clientSecret,
-                                                  CancellationToken cancellationToken)
+        public async Task<Result<TokenResponse>> GetToken(String username,
+                                                          String password,
+                                                          String clientId,
+                                                          String clientSecret,
+                                                          CancellationToken cancellationToken)
         {
             StringBuilder queryString = new StringBuilder();
 
@@ -683,19 +620,10 @@
             queryString.Append($"&username={username}");
             queryString.Append($"&password={password}");
 
-            String token = await this.GetToken(queryString.ToString(), cancellationToken);
-
-            return TokenResponse.Create(token);
+            return await this.GetToken(queryString.ToString(), cancellationToken);
         }
 
-        /// <summary>
-        /// Gets the token.
-        /// </summary>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="clientSecret">The client secret.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<TokenResponse> GetToken(String clientId,
+        public async Task<Result<TokenResponse>> GetToken(String clientId,
                                                   String clientSecret,
                                                   CancellationToken cancellationToken)
         {
@@ -705,20 +633,10 @@
             queryString.Append($"&client_id={clientId}");
             queryString.Append($"&client_secret={clientSecret}");
 
-            String token = await this.GetToken(queryString.ToString(), cancellationToken);
-
-            return TokenResponse.Create(token);
+            return await this.GetToken(queryString.ToString(), cancellationToken);
         }
 
-        /// <summary>
-        /// Gets the token.
-        /// </summary>
-        /// <param name="clientId">The client identifier.</param>
-        /// <param name="clientSecret">The client secret.</param>
-        /// <param name="refreshToken">The refresh token.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<TokenResponse> GetToken(String clientId,
+        public async Task<Result<TokenResponse>> GetToken(String clientId,
                                                   String clientSecret,
                                                   String refreshToken,
                                                   CancellationToken cancellationToken)
@@ -730,21 +648,12 @@
             queryString.Append($"&client_secret={clientSecret}");
             queryString.Append($"&refresh_token={refreshToken}");
 
-            String token = await this.GetToken(queryString.ToString(), cancellationToken);
-
-            return TokenResponse.Create(token);
+            return await this.GetToken(queryString.ToString(), cancellationToken);
         }
 
-        /// <summary>
-        /// Gets the user.
-        /// </summary>
-        /// <param name="userId">The user identifier.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<UserDetails> GetUser(Guid userId,
-                                               CancellationToken cancellationToken)
+        public async Task<Result<UserDetails>> GetUser(Guid userId,
+                                                       CancellationToken cancellationToken)
         {
-            UserDetails response = null;
             String requestUri = this.BuildRequestUrl($"/api/users/{userId}");
 
             try
@@ -756,10 +665,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<UserDetails>(content);
+                ResponseData<UserDetails> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<UserDetails>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -768,20 +683,11 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Gets the users.
-        /// </summary>
-        /// <param name="userName">Name of the user.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        public async Task<List<UserDetails>> GetUsers(String userName,
-                                                      CancellationToken cancellationToken)
+        public async Task<Result<List<UserDetails>>> GetUsers(String userName,
+                                                              CancellationToken cancellationToken)
         {
-            List<UserDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/users");
 
             try
@@ -798,10 +704,16 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
 
                 // Process the response
-                String content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                response = JsonConvert.DeserializeObject<List<UserDetails>>(content);
+                ResponseData<List<UserDetails>> responseData =
+                    JsonConvert.DeserializeObject<ResponseData<List<UserDetails>>>(result.Data);
+
+                return Result.Success(responseData.Data);
             }
             catch(Exception ex)
             {
@@ -810,15 +722,8 @@
 
                 throw exception;
             }
-
-            return response;
         }
 
-        /// <summary>
-        /// Builds the request URL.
-        /// </summary>
-        /// <param name="route">The route.</param>
-        /// <returns></returns>
         private String BuildRequestUrl(String route)
         {
             if (string.IsNullOrEmpty(this.BaseAddress))
@@ -830,13 +735,7 @@
             return requestUri;
         }
 
-        /// <summary>
-        /// Gets the token.
-        /// </summary>
-        /// <param name="tokenRequest">The token request.</param>
-        /// <param name="cancellationToken">The cancellation token.</param>
-        /// <returns></returns>
-        private async Task<String> GetToken(String tokenRequest,
+        private async Task<Result<TokenResponse>> GetToken(String tokenRequest,
                                             CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/connect/token");
@@ -850,7 +749,15 @@
                 HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
 
                 // Process the response
-                content = await this.HandleResponse(httpResponse, cancellationToken);
+                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+
+                if (result.IsFailed)
+                    return ResultHelpers.CreateFailure(result);
+
+                // call was successful so now deserialise the body to the response object
+                TokenResponse responseData = TokenResponse.Create(result.Data);
+
+                return Result.Success(responseData);
             }
             catch(Exception ex)
             {
@@ -859,10 +766,13 @@
 
                 throw exception;
             }
-
-            return content;
         }
 
         #endregion
+    }
+
+    internal class ResponseData<T>
+    {
+        public T Data { get; set; }
     }
 }

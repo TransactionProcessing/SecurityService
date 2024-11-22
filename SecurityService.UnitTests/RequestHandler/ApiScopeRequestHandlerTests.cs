@@ -1,4 +1,6 @@
-﻿namespace SecurityService.UnitTests.RequestHandler;
+﻿using SimpleResults;
+
+namespace SecurityService.UnitTests.RequestHandler;
 
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Shared.Exceptions;
 using Shouldly;
 using Xunit;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 public class ApiScopeRequestHandlerTests
 {
@@ -30,9 +33,10 @@ public class ApiScopeRequestHandlerTests
     [Fact]
     public async Task ApiScopeRequestHandler_CreateApiScopeRequest_RequestIsHandled()
     {
-        CreateApiScopeRequest request = TestData.CreateApiScopeRequest;
+        SecurityServiceCommands.CreateApiScopeCommand command = TestData.CreateApiScopeCommand;
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 scopeCount = await this.Context.ApiScopes.CountAsync();
         scopeCount.ShouldBe(1);
@@ -41,55 +45,59 @@ public class ApiScopeRequestHandlerTests
     [Fact]
     public async Task ApiScopeRequestHandler_GetApiScopeRequest_RequestIsHandled()
     {
-        GetApiScopeRequest request = TestData.GetApiScopeRequest;
+        SecurityServiceQueries.GetApiScopeQuery query = TestData.GetApiScopeQuery;
 
         await this.Context.ApiScopes.AddAsync(new ApiScope()
                                               {
                                                   Id = 1,
-                                                  Name = TestData.GetApiScopeRequest.Name
+                                                  Name = TestData.GetApiScopeQuery.Name
                                               });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        Duende.IdentityServer.Models.ApiScope model = await this.RequestHandler.Handle(request, CancellationToken.None);
-
-        model.ShouldNotBeNull();
-        model.Name.ShouldBe(request.Name);
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.Name.ShouldBe(query.Name);
     }
 
     [Fact]
     public async Task ApiScopeRequestHandler_GetApiScopeRequest_RecordNotFound_RequestIsHandled()
     {
-        GetApiScopeRequest request = TestData.GetApiScopeRequest;
+        SecurityServiceQueries.GetApiScopeQuery query = TestData.GetApiScopeQuery;
 
-        Should.Throw<NotFoundException>(async () => {
-                                            await this.RequestHandler.Handle(request, CancellationToken.None);
-                                        });
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.NotFound);
     }
 
     [Fact]
     public async Task ApiScopeRequestHandler_GetApiScopesRequest_RequestIsHandled()
     {
-        GetApiScopesRequest request = TestData.GetApiScopesRequest;
+        SecurityServiceQueries.GetApiScopesQuery query = TestData.GetApiScopesQuery;
 
         await this.Context.ApiScopes.AddAsync(new ApiScope()
                                               {
                                                   Id = 1,
-                                                  Name = TestData.GetApiResourceRequest.Name
+                                                  Name = TestData.GetApiResourceQuery.Name
                                               });
         await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        List<Duende.IdentityServer.Models.ApiScope> models = await this.RequestHandler.Handle(request, CancellationToken.None);
-
-        models.ShouldHaveSingleItem();
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldHaveSingleItem();
     }
 
     [Fact]
     public async Task ApiScopeRequestHandler_GetApiScopesRequest_NoRecordsFound_RequestIsHandled()
     {
-        GetApiScopesRequest request = TestData.GetApiScopesRequest;
+        SecurityServiceQueries.GetApiScopesQuery query = TestData.GetApiScopesQuery;
 
-        List<Duende.IdentityServer.Models.ApiScope> models = await this.RequestHandler.Handle(request, CancellationToken.None);
+        await this.Context.SaveChangesAsync(CancellationToken.None);
 
-        models.ShouldBeEmpty();
+        var result = await this.RequestHandler.Handle(query, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNull();
+        result.Data.ShouldBeEmpty();
     }
 }

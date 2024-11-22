@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SimpleResults;
 
 namespace IdentityServerHost.Pages.ForgotPassword;
 
@@ -56,9 +57,10 @@ public class Confirm : PageModel
 
         if (ModelState.IsValid) {
             // process the password change
-            ProcessPasswordResetConfirmationRequest request = ProcessPasswordResetConfirmationRequest.Create(Input.Username, Input.Token, Input.Password, Input.ClientId);
-            String redirect = await this.Mediator.Send(request, cancellationToken);
-            return this.Redirect(redirect);
+            SecurityServiceCommands.ProcessPasswordResetConfirmationCommand command = new(Input.Username, Input.Token, Input.Password, Input.ClientId);
+            Result<String>? result= await this.Mediator.Send(command, cancellationToken);
+            // TODO: Failure case
+            return this.Redirect(result.Data);
         }
 
         return Page();

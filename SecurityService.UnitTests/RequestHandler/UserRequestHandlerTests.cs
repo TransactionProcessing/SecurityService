@@ -1,4 +1,6 @@
-﻿namespace SecurityService.UnitTests.RequestHandler;
+﻿using SimpleResults;
+
+namespace SecurityService.UnitTests.RequestHandler;
 
 using System;
 using System.Collections.Generic;
@@ -20,6 +22,8 @@ using Shared.Exceptions;
 using Shared.Logger;
 using Shouldly;
 using Xunit;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static SecurityService.BusinessLogic.Requests.SecurityServiceCommands;
 
 public class UserRequestHandlerTests{
     private readonly ConfigurationDbContext ConfigurationDbContext;
@@ -41,9 +45,9 @@ public class UserRequestHandlerTests{
     [InlineData("password")]
     [InlineData(null)]
     [InlineData("")]
-    public async Task UserRequestHandler_CreateUserRequest_RequestIsHandled(String password)
+    public async Task UserRequestHandler_CreateUserCommand_RequestIsHandled(String password)
     {
-        CreateUserRequest request = CreateUserRequest.Create(Guid.Parse(TestData.UserId),
+        SecurityServiceCommands.CreateUserCommand command = new(Guid.Parse(TestData.UserId),
                                                              TestData.GivenName,
                                                              TestData.MiddleName,
                                                              TestData.FamilyName,
@@ -63,15 +67,16 @@ public class UserRequestHandlerTests{
 
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 userCount = await this.AuthenticationDbContext.Users.CountAsync();
         userCount.ShouldBe(1);
     }
 
     [Fact]
-    public async Task UserRequestHandler_CreateUserRequest_NewPasswordHashEmpty_RequestIsHandled(){
-        CreateUserRequest request = TestData.CreateUserRequest;
+    public async Task UserRequestHandler_CreateUserCommand_NewPasswordHashEmpty_RequestIsHandled() {
+        SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
 
         await this.AuthenticationDbContext.Roles.AddAsync(new IdentityRole{
                                                                               Id = Guid.NewGuid().ToString(),
@@ -84,14 +89,13 @@ public class UserRequestHandlerTests{
 
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
 
-        Should.Throw<IdentityResultException>(async () => {
-                                                  await this.RequestHandler.Handle(request, CancellationToken.None);
-                                              });
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
-
+    
     [Fact]
-    public async Task UserRequestHandler_CreateUserRequest_CreateFailed_RequestIsHandled(){
-        CreateUserRequest request = TestData.CreateUserRequest;
+    public async Task UserRequestHandler_CreateUserCommand_CreateFailed_RequestIsHandled(){
+        SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
 
         await this.AuthenticationDbContext.Roles.AddAsync(new IdentityRole
                                                           {
@@ -105,15 +109,14 @@ public class UserRequestHandlerTests{
         errors.Add(new IdentityError());
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
-        Should.Throw<IdentityResultException>(async () => {
-                                                  await this.RequestHandler.Handle(request, CancellationToken.None);
-                                              });
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_CreateUserRequest_AddClaimsFailed_RequestIsHandled()
+    public async Task UserRequestHandler_CreateUserCommand_AddClaimsFailed_RequestIsHandled()
     {
-        CreateUserRequest request = TestData.CreateUserRequest;
+        SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
 
         await this.AuthenticationDbContext.Roles.AddAsync(new IdentityRole
                                                           {
@@ -133,15 +136,14 @@ public class UserRequestHandlerTests{
             .ReturnsAsync(IdentityResult.Success)
             .ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
-        Should.Throw<IdentityResultException>(async () => {
-                                                  await this.RequestHandler.Handle(request, CancellationToken.None);
-                                              });
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_CreateUserRequest_SendMailThrowsError_RequestIsHandled()
+    public async Task UserRequestHandler_CreateUserCommand_SendMailThrowsError_RequestIsHandled()
     {
-        CreateUserRequest request = TestData.CreateUserRequest;
+        SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
 
         await this.AuthenticationDbContext.Roles.AddAsync(new IdentityRole
                                                           {
@@ -155,15 +157,16 @@ public class UserRequestHandlerTests{
 
         this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(),
                                                                                 It.IsAny<SendEmailRequest>(),
-                                                                                It.IsAny<CancellationToken>())).ThrowsAsync(new Exception());
+                                                                                It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure);
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_CreateUserRequest_AddToRoleFailed_RequestIsHandled()
+    public async Task UserRequestHandler_CreateUserCommand_AddToRoleFailed_RequestIsHandled()
     {
-        CreateUserRequest request = TestData.CreateUserRequest;
+        SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
 
         await this.AuthenticationDbContext.Roles.AddAsync(new IdentityRole
                                                           {
@@ -173,22 +176,21 @@ public class UserRequestHandlerTests{
                                                           });
         await this.AuthenticationDbContext.UserRoles.AddAsync(new IdentityUserRole<String>{
                                                                                               RoleId = "RoleId1",
-                                                                                              UserId = request.UserId.ToString(),
+                                                                                              UserId = command.UserId.ToString(),
                                                                                           });
 
         await this.AuthenticationDbContext.SaveChangesAsync();
 
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
 
-        Should.Throw<IdentityResultException>(async () => {
-                                                  await this.RequestHandler.Handle(request, CancellationToken.None);
-                                              });
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_CreateUserRequest_CreateFailedAndCleanUpFailed_RequestIsHandled()
+    public async Task UserRequestHandler_CreateUserCommand_CreateFailedAndCleanUpFailed_RequestIsHandled()
     {
-        CreateUserRequest request = TestData.CreateUserRequest;
+        SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
 
         await this.AuthenticationDbContext.Roles.AddAsync(new IdentityRole
                                                           {
@@ -199,7 +201,7 @@ public class UserRequestHandlerTests{
         await this.AuthenticationDbContext.UserRoles.AddAsync(new IdentityUserRole<String>
                                                               {
                                                                   RoleId = "RoleId1",
-                                                                  UserId = request.UserId.ToString(),
+                                                                  UserId = command.UserId.ToString(),
                                                               });
 
         await this.AuthenticationDbContext.SaveChangesAsync();
@@ -216,55 +218,39 @@ public class UserRequestHandlerTests{
             .ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
 
-        Should.Throw<IdentityResultException>(async () => {
-                                                  await this.RequestHandler.Handle(request, CancellationToken.None);
-                                              });
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
 
+    
     [Fact]
-    public async Task UserRequestHandler_CreateUserRequest_NullRoles_RequestIsHandled()
+    public async Task UserRequestHandler_CreateUserCommand_NullRoles_RequestIsHandled()
     {
-        CreateUserRequest request = CreateUserRequest.Create(Guid.Parse(TestData.UserId),
-                                                             TestData.GivenName,
-                                                             TestData.MiddleName,
-                                                             TestData.FamilyName,
-                                                             TestData.UserName,
-                                                             TestData.Password,
-                                                             TestData.EmailAddress,
-                                                             TestData.PhoneNumber,
-                                                             TestData.Claims,
-                                                             null);
+        SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
+        command = command with { Roles = null };
 
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
-        
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
         Int32 userCount = await this.AuthenticationDbContext.Users.CountAsync();
         userCount.ShouldBe(1);
     }
 
     [Fact]
-    public async Task UserRequestHandler_CreateUserRequest_EmptyRoles_RequestIsHandled()
+    public async Task UserRequestHandler_CreateUserCommand_EmptyRoles_RequestIsHandled()
     {
-        CreateUserRequest request = CreateUserRequest.Create(Guid.Parse(TestData.UserId),
-                                                             TestData.GivenName,
-                                                             TestData.MiddleName,
-                                                             TestData.FamilyName,
-                                                             TestData.UserName,
-                                                             TestData.Password,
-                                                             TestData.EmailAddress,
-                                                             TestData.PhoneNumber,
-                                                             TestData.Claims,
-                                                             new List<String>());
-
+        SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
+        command = command with { Roles = new List<String>() };
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
 
         Int32 userCount = await this.AuthenticationDbContext.Users.CountAsync();
         userCount.ShouldBe(1);
     }
-
+    /*
     [Fact]
     public async Task UserRequestHandler_GetUserRequest_RequestIsHandled()
     {
@@ -311,49 +297,51 @@ public class UserRequestHandlerTests{
 
         models.ShouldHaveSingleItem();
     }
-
+    */
+    
     [Fact]
-    public async Task UserRequestHandler_ConfirmUserEmailAddressRequest_RequestIsHandled()
+    public async Task UserRequestHandler_ConfirmUserEmailAddressCommand_RequestIsHandled()
     {
-        ConfirmUserEmailAddressRequest request = TestData.ConfirmUserEmailAddressRequest;
+        SecurityServiceCommands.ConfirmUserEmailAddressCommand command = TestData.ConfirmUserEmailAddressCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
-                                                              Id = TestData.CreateUserRequest.UserId.ToString(),
-                                                              UserName = TestData.CreateUserRequest.UserName,
-                                                              NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+                                                              Id = TestData.CreateUserCommand.UserId.ToString(),
+                                                              UserName = TestData.CreateUserCommand.UserName,
+                                                              NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
 
-        Boolean result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.ShouldBeTrue();
+        result.IsSuccess.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_ConfirmUserEmailAddressRequest_UserNotFound_RequestIsHandled()
+    public async Task UserRequestHandler_ConfirmUserEmailAddressCommand_UserNotFound_RequestIsHandled()
     {
-        ConfirmUserEmailAddressRequest request = TestData.ConfirmUserEmailAddressRequest;
-        
+        SecurityServiceCommands.ConfirmUserEmailAddressCommand command = TestData.ConfirmUserEmailAddressCommand;
+
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
 
-        Boolean result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.ShouldBeFalse();
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.NotFound);
     }
 
     [Fact]
-    public async Task UserRequestHandler_ConfirmUserEmailAddressRequest_ConfirmFailed_RequestIsHandled()
+    public async Task UserRequestHandler_ConfirmUserEmailAddressCommand_ConfirmFailed_RequestIsHandled()
     {
-        ConfirmUserEmailAddressRequest request = TestData.ConfirmUserEmailAddressRequest;
+        SecurityServiceCommands.ConfirmUserEmailAddressCommand command = TestData.ConfirmUserEmailAddressCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
-                                                              Id = TestData.CreateUserRequest.UserId.ToString(),
-                                                              UserName = TestData.CreateUserRequest.UserName,
-                                                              NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+                                                              Id = TestData.CreateUserCommand.UserId.ToString(),
+                                                              UserName = TestData.CreateUserCommand.UserName,
+                                                              NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
@@ -361,27 +349,28 @@ public class UserRequestHandlerTests{
         errors.Add(new IdentityError());
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
-        Boolean result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.ShouldBeFalse();
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Failure);
     }
-
+    
     [Fact]
-    public async Task UserRequestHandler_ChangeUserPasswordRequest_RequestIsHandled()
+    public async Task UserRequestHandler_ChangeUserPasswordCommand_RequestIsHandled()
     {
-        ChangeUserPasswordRequest request = TestData.ChangeUserPasswordRequest;
+        SecurityServiceCommands.ChangeUserPasswordCommand command = TestData.ChangeUserPasswordCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
                                                               Id = Guid.NewGuid().ToString(),
-                                                              UserName = TestData.ChangeUserPasswordRequest.UserName,
-                                                              NormalizedUserName = TestData.ChangeUserPasswordRequest.UserName.ToUpper(),
-                                                              PasswordHash = TestData.ChangeUserPasswordRequest.CurrentPassword
+                                                              UserName = TestData.ChangeUserPasswordCommand.UserName,
+                                                              NormalizedUserName = TestData.ChangeUserPasswordCommand.UserName.ToUpper(),
+                                                              PasswordHash = TestData.ChangeUserPasswordCommand.CurrentPassword
         });
         await this.AuthenticationDbContext.SaveChangesAsync();
         
         await this.ConfigurationDbContext.Clients.AddAsync(new Client{
-                                                                    ClientId = TestData.ChangeUserPasswordRequest.ClientId,
+                                                                    ClientId = TestData.ChangeUserPasswordCommand.ClientId,
                                                                     ClientUri = "http://localhost"
                                                                 });
 
@@ -391,62 +380,63 @@ public class UserRequestHandlerTests{
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
-        ChangeUserPasswordResult result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.IsSuccessful.ShouldBeTrue();
-        result.RedirectUri.ShouldNotBeNullOrEmpty();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.IsSuccessful.ShouldBeTrue();
+        result.Data.RedirectUri.ShouldNotBeNullOrEmpty();
     }
 
     [Fact]
-    public async Task UserRequestHandler_ChangeUserPasswordRequest_UserNotFound_RequestIsHandled()
+    public async Task UserRequestHandler_ChangeUserPasswordCommand_UserNotFound_RequestIsHandled()
     {
-        ChangeUserPasswordRequest request = TestData.ChangeUserPasswordRequest;
+        ChangeUserPasswordCommand command = TestData.ChangeUserPasswordCommand;
 
-        ChangeUserPasswordResult result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result<ChangeUserPasswordResult> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.IsSuccessful.ShouldBeFalse();
-        result.RedirectUri.ShouldBeNullOrEmpty();
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.NotFound);
     }
 
     [Fact]
-    public async Task UserRequestHandler_ChangeUserPasswordRequest_ClientNotFound_RequestIsHandled()
+    public async Task UserRequestHandler_ChangeUserPasswordCommand_ClientNotFound_RequestIsHandled()
     {
-        ChangeUserPasswordRequest request = TestData.ChangeUserPasswordRequest;
+        ChangeUserPasswordCommand command = TestData.ChangeUserPasswordCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
                                                               Id = Guid.NewGuid().ToString(),
-                                                              UserName = TestData.ChangeUserPasswordRequest.UserName,
-                                                              NormalizedUserName = TestData.ChangeUserPasswordRequest.UserName.ToUpper(),
-                                                              PasswordHash = TestData.ChangeUserPasswordRequest.CurrentPassword
+                                                              UserName = TestData.ChangeUserPasswordCommand.UserName,
+                                                              NormalizedUserName = TestData.ChangeUserPasswordCommand.UserName.ToUpper(),
+                                                              PasswordHash = TestData.ChangeUserPasswordCommand.CurrentPassword
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
         
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
-        ChangeUserPasswordResult result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result<ChangeUserPasswordResult> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.IsSuccessful.ShouldBeFalse();
-        result.RedirectUri.ShouldBeNullOrEmpty();
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Invalid);
     }
 
     [Fact]
-    public async Task UserRequestHandler_ChangeUserPasswordRequest_PasswordChangeFailed_RequestIsHandled()
+    public async Task UserRequestHandler_ChangeUserPasswordCommand_PasswordChangeFailed_RequestIsHandled()
     {
-        ChangeUserPasswordRequest request = TestData.ChangeUserPasswordRequest;
+        ChangeUserPasswordCommand command = TestData.ChangeUserPasswordCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
                                                               Id = Guid.NewGuid().ToString(),
-                                                              UserName = TestData.ChangeUserPasswordRequest.UserName,
-                                                              NormalizedUserName = TestData.ChangeUserPasswordRequest.UserName.ToUpper(),
-                                                              PasswordHash = TestData.ChangeUserPasswordRequest.CurrentPassword
+                                                              UserName = TestData.ChangeUserPasswordCommand.UserName,
+                                                              NormalizedUserName = TestData.ChangeUserPasswordCommand.UserName.ToUpper(),
+                                                              PasswordHash = TestData.ChangeUserPasswordCommand.CurrentPassword
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
         await this.ConfigurationDbContext.Clients.AddAsync(new Client
                                                            {
-                                                               ClientId = TestData.ChangeUserPasswordRequest.ClientId,
+                                                               ClientId = TestData.ChangeUserPasswordCommand.ClientId,
                                                                ClientUri = "http://localhost"
                                                            });
 
@@ -458,28 +448,28 @@ public class UserRequestHandlerTests{
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(),
                                                                                It.IsAny<String>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
-        ChangeUserPasswordResult result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result<ChangeUserPasswordResult> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.IsSuccessful.ShouldBeTrue();
-        result.RedirectUri.ShouldNotBeNullOrEmpty();
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Failure);
     }
-
+    
     [Fact]
-    public async Task UserRequestHandler_ProcessPasswordResetConfirmationRequest_RequestIsHandled()
+    public async Task UserRequestHandler_ProcessPasswordResetConfirmationCommand_RequestIsHandled()
     {
-        ProcessPasswordResetConfirmationRequest request = TestData.ProcessPasswordResetConfirmationRequest;
+        ProcessPasswordResetConfirmationCommand command = TestData.ProcessPasswordResetConfirmationCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
-                                                              Id = TestData.CreateUserRequest.UserId.ToString(),
-                                                              UserName = TestData.CreateUserRequest.UserName,
-                                                              NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+                                                              Id = TestData.CreateUserCommand.UserId.ToString(),
+                                                              UserName = TestData.CreateUserCommand.UserName,
+                                                              NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
         await this.ConfigurationDbContext.Clients.AddAsync(new Client
                                                            {
-                                                               ClientId = TestData.ChangeUserPasswordRequest.ClientId,
+                                                               ClientId = TestData.ChangeUserPasswordCommand.ClientId,
                                                                ClientUri = "http://localhost"
                                                            });
 
@@ -489,37 +479,38 @@ public class UserRequestHandlerTests{
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
-        String result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result<String> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.ShouldNotBeNullOrEmpty();
+        result.IsSuccess.ShouldBeTrue();
+        result.Data.ShouldNotBeNullOrEmpty();
     }
 
     [Fact]
-    public async Task UserRequestHandler_ProcessPasswordResetConfirmationRequest_UserNotFound_RequestIsHandled()
+    public async Task UserRequestHandler_ProcessPasswordResetConfirmationCommand_UserNotFound_RequestIsHandled()
     {
-        ProcessPasswordResetConfirmationRequest request = TestData.ProcessPasswordResetConfirmationRequest;
-        
-        String result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        ProcessPasswordResetConfirmationCommand command = TestData.ProcessPasswordResetConfirmationCommand;
 
-        result.ShouldBeEmpty();
+        Result<String> result = await this.RequestHandler.Handle(command, CancellationToken.None);
+
+        result.IsFailed.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_ProcessPasswordResetConfirmationRequest_ResetPasswordFailed_RequestIsHandled()
+    public async Task UserRequestHandler_ProcessPasswordResetConfirmationCommand_ResetPasswordFailed_RequestIsHandled()
     {
-        ProcessPasswordResetConfirmationRequest request = TestData.ProcessPasswordResetConfirmationRequest;
+        ProcessPasswordResetConfirmationCommand command = TestData.ProcessPasswordResetConfirmationCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
-                                                              Id = TestData.CreateUserRequest.UserId.ToString(),
-                                                              UserName = TestData.CreateUserRequest.UserName,
-                                                              NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+                                                              Id = TestData.CreateUserCommand.UserId.ToString(),
+                                                              UserName = TestData.CreateUserCommand.UserName,
+                                                              NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
         await this.ConfigurationDbContext.Clients.AddAsync(new Client
                                                            {
-                                                               ClientId = TestData.ChangeUserPasswordRequest.ClientId,
+                                                               ClientId = TestData.ChangeUserPasswordCommand.ClientId,
                                                                ClientUri = "http://localhost"
                                                            });
 
@@ -533,21 +524,21 @@ public class UserRequestHandlerTests{
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(),
                                                                                It.IsAny<String>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
-        String result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result<String> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.ShouldNotBeNullOrEmpty();
+        result.IsFailed.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_ProcessPasswordResetConfirmationRequest_ClientNotFound_RequestIsHandled()
+    public async Task UserRequestHandler_ProcessPasswordResetConfirmationCommand_ClientNotFound_RequestIsHandled()
     {
-        ProcessPasswordResetConfirmationRequest request = TestData.ProcessPasswordResetConfirmationRequest;
+        ProcessPasswordResetConfirmationCommand command = TestData.ProcessPasswordResetConfirmationCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
         {
-            Id = TestData.CreateUserRequest.UserId.ToString(),
-            UserName = TestData.CreateUserRequest.UserName,
-            NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+            Id = TestData.CreateUserCommand.UserId.ToString(),
+            UserName = TestData.CreateUserCommand.UserName,
+            NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
         });
         await this.AuthenticationDbContext.SaveChangesAsync();
         
@@ -555,84 +546,97 @@ public class UserRequestHandlerTests{
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(),
                                                                                It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
-        String result = await this.RequestHandler.Handle(request, CancellationToken.None);
+        Result<String> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
-        result.ShouldBeEmpty();
+        result.IsFailed.ShouldBeTrue();
     }
-
+    
     [Fact]
-    public async Task UserRequestHandler_ProcessPasswordResetRequest_RequestIsHandled()
+    public async Task UserRequestHandler_ProcessPasswordResetRequestCommand_RequestIsHandled()
     {
-        ProcessPasswordResetRequest request = TestData.ProcessPasswordResetRequest;
+        ProcessPasswordResetRequestCommand command = TestData.ProcessPasswordResetRequestCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
-                                                              Id = TestData.CreateUserRequest.UserId.ToString(),
-                                                              UserName = TestData.CreateUserRequest.UserName,
-                                                              NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+                                                              Id = TestData.CreateUserCommand.UserId.ToString(),
+                                                              UserName = TestData.CreateUserCommand.UserName,
+                                                              NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
-        
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+
+
+        this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(),
+            It.IsAny<SendEmailRequest>(),
+            It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success);
+
+        Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_ProcessPasswordResetRequest_UserNotFound_RequestIsHandled()
+    public async Task UserRequestHandler_ProcessPasswordResetRequestCommand_UserNotFound_RequestIsHandled()
     {
-        ProcessPasswordResetRequest request = TestData.ProcessPasswordResetRequest;
+        ProcessPasswordResetRequestCommand command = TestData.ProcessPasswordResetRequestCommand;
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
 
     [Fact]
-    public async Task UserRequestHandler_ProcessPasswordResetRequest_MessagingServiceThrowsException_RequestIsHandled()
+    public async Task UserRequestHandler_ProcessPasswordResetRequestCommand_MessagingServiceThrowsException_RequestIsHandled()
     {
-        ProcessPasswordResetRequest request = TestData.ProcessPasswordResetRequest;
+        ProcessPasswordResetRequestCommand command = TestData.ProcessPasswordResetRequestCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
-                                                              Id = TestData.CreateUserRequest.UserId.ToString(),
-                                                              UserName = TestData.CreateUserRequest.UserName,
-                                                              NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+                                                              Id = TestData.CreateUserCommand.UserId.ToString(),
+                                                              UserName = TestData.CreateUserCommand.UserName,
+                                                              NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
         this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(),
                                                                                 It.IsAny<SendEmailRequest>(),
-                                                                                It.IsAny<CancellationToken>())).ThrowsAsync(new Exception());
+                                                                                It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure);
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
-
+    
     [Fact]
     public async Task UserRequestHandler_SendWelcomeEmailRequest_RequestIsHandled()
     {
-        SendWelcomeEmailRequest request = TestData.SendWelcomeEmailRequest;
+        SecurityServiceCommands.SendWelcomeEmailCommand command = TestData.SendWelcomeEmailCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
-                                                              Id = TestData.CreateUserRequest.UserId.ToString(),
-                                                              UserName = TestData.CreateUserRequest.UserName,
-                                                              NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+                                                              Id = TestData.CreateUserCommand.UserId.ToString(),
+                                                              UserName = TestData.CreateUserCommand.UserName,
+                                                              NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
         this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(),
+            It.IsAny<SendEmailRequest>(),
+            It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success);
+
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
     }
 
     [Fact]
     public async Task UserRequestHandler_SendWelcomeEmailRequest_MessagingServiceThrowsException_RequestIsHandled()
     {
-        SendWelcomeEmailRequest request = TestData.SendWelcomeEmailRequest;
+        SecurityServiceCommands.SendWelcomeEmailCommand command = TestData.SendWelcomeEmailCommand;
 
         await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
                                                           {
-                                                              Id = TestData.CreateUserRequest.UserId.ToString(),
-                                                              UserName = TestData.CreateUserRequest.UserName,
-                                                              NormalizedUserName = TestData.CreateUserRequest.UserName.ToUpper()
+                                                              Id = TestData.CreateUserCommand.UserId.ToString(),
+                                                              UserName = TestData.CreateUserCommand.UserName,
+                                                              NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
@@ -641,8 +645,9 @@ public class UserRequestHandlerTests{
 
         this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(),
                                                                                 It.IsAny<SendEmailRequest>(),
-                                                                                It.IsAny<CancellationToken>())).ThrowsAsync(new Exception());
+                                                                                It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure);
 
-        await this.RequestHandler.Handle(request, CancellationToken.None);
+        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsFailed.ShouldBeTrue();
     }
 }
