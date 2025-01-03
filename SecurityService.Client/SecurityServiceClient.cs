@@ -288,8 +288,7 @@ namespace SecurityService.Client
                     return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                ResponseData<ApiResourceDetails> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<ApiResourceDetails>>(result.Data);
+                ResponseData<ApiResourceDetails> responseData = HandleResponseContent<ApiResourceDetails>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -321,9 +320,8 @@ namespace SecurityService.Client
                     return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                ResponseData<List<ApiResourceDetails>> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<List<ApiResourceDetails>>>(result.Data);
-
+                ResponseData<List<ApiResourceDetails>> responseData = HandleResponseContent<List<ApiResourceDetails>>(result.Data);
+                
                 return Result.Success(responseData.Data);
             }
             catch(Exception ex)
@@ -355,8 +353,7 @@ namespace SecurityService.Client
                     return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                ResponseData<ApiScopeDetails> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<ApiScopeDetails>>(result.Data);
+                ResponseData<ApiScopeDetails> responseData = HandleResponseContent<ApiScopeDetails>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -389,8 +386,7 @@ namespace SecurityService.Client
                     return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                ResponseData<List<ApiScopeDetails>> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<List<ApiScopeDetails>>>(result.Data);
+                ResponseData<List<ApiScopeDetails>> responseData = HandleResponseContent<List<ApiScopeDetails>>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -423,8 +419,7 @@ namespace SecurityService.Client
                     return ResultHelpers.CreateFailure(result);
 
                 // call was successful so now deserialise the body to the response object
-                ResponseData<ClientDetails> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<ClientDetails>>(result.Data);
+                ResponseData<ClientDetails> responseData = HandleResponseContent<ClientDetails>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -458,7 +453,7 @@ namespace SecurityService.Client
 
                 // call was successful so now deserialise the body to the response object
                 ResponseData<List<ClientDetails>> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<List<ClientDetails>>>(result.Data);
+                    HandleResponseContent<List<ClientDetails>>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -492,7 +487,7 @@ namespace SecurityService.Client
 
                 // call was successful so now deserialise the body to the response object
                 ResponseData<IdentityResourceDetails> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<IdentityResourceDetails>>(result.Data);
+                    HandleResponseContent<IdentityResourceDetails>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -525,7 +520,7 @@ namespace SecurityService.Client
 
                 // call was successful so now deserialise the body to the response object
                 ResponseData<List<IdentityResourceDetails>> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<List<IdentityResourceDetails>>>(result.Data);
+                    HandleResponseContent<List<IdentityResourceDetails>>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -559,7 +554,7 @@ namespace SecurityService.Client
 
                 // call was successful so now deserialise the body to the response object
                 ResponseData<RoleDetails> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<RoleDetails>>(result.Data);
+                    HandleResponseContent<RoleDetails>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -593,7 +588,7 @@ namespace SecurityService.Client
 
                 // call was successful so now deserialise the body to the response object
                 ResponseData<List<RoleDetails>> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<List<RoleDetails>>>(result.Data);
+                    HandleResponseContent<List<RoleDetails>>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -672,7 +667,7 @@ namespace SecurityService.Client
 
                 // call was successful so now deserialise the body to the response object
                 ResponseData<UserDetails> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<UserDetails>>(result.Data);
+                    HandleResponseContent<UserDetails>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -711,7 +706,7 @@ namespace SecurityService.Client
 
                 // call was successful so now deserialise the body to the response object
                 ResponseData<List<UserDetails>> responseData =
-                    JsonConvert.DeserializeObject<ResponseData<List<UserDetails>>>(result.Data);
+                    HandleResponseContent<List<UserDetails>>(result.Data);
 
                 return Result.Success(responseData.Data);
             }
@@ -769,10 +764,5 @@ namespace SecurityService.Client
         }
 
         #endregion
-    }
-
-    internal class ResponseData<T>
-    {
-        public T Data { get; set; }
     }
 }
