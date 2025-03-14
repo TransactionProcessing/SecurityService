@@ -12,7 +12,6 @@ namespace SecurityService.IntergrationTests.Common
     using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
-    using BoDi;
     using Client;
     using Ductus.FluentDocker;
     using Ductus.FluentDocker.Builders;
