@@ -1,8 +1,9 @@
-﻿namespace SecurityService.IntergrationTests.Common
+﻿using Reqnroll.BoDi;
+
+namespace SecurityService.IntergrationTests.Common
 {
     using System;
     using System.Threading.Tasks;
-    using BoDi;
     using OpenQA.Selenium;
     using OpenQA.Selenium.Chrome;
     using OpenQA.Selenium.Edge;
