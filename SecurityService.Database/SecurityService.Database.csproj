@@ -26,5 +26,8 @@
 	<ItemGroup>
     <Folder Include="DbContexts\" />
   </ItemGroup>
+	<ItemGroup>
+	  <ProjectReference Include="..\SecurityService.BusinessLogic\SecurityService.BusinessLogic.csproj" />
+	</ItemGroup>
 
 </Project>

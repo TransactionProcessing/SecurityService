@@ -450,7 +450,8 @@
                                                Roles = TestData.Roles,
                                                UserId = Guid.Parse(TestData.User1Id),
                                                Email = TestData.EmailAddress,
-                                               Claims = TestData.Claims
+                                               Claims = TestData.Claims,
+                                               RegistrationDateTime = new DateTime(2025,2,1)
                                            };
             List<UserDetails> userDetailsModelList = new List<UserDetails>();
             userDetailsModelList.Add(userDetailsModel);
@@ -466,6 +467,7 @@
             userDetailsDtoList.First().UserId.ShouldBe(Guid.Parse(TestData.User1Id));
             userDetailsDtoList.First().Claims.ShouldBe(TestData.Claims);
             userDetailsDtoList.First().Roles.ShouldBe(TestData.Roles);
+            userDetailsDtoList.First().RegistrationDateTime.ShouldBe(new DateTime(2025, 2, 1));
         }
 
         [Fact]

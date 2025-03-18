@@ -32,7 +32,8 @@
                        Roles = model.Roles,
                        Claims = model.Claims,
                        UserId = model.UserId,
-                       EmailAddress = model.Email
+                       EmailAddress = model.Email,
+                       RegistrationDateTime = model.RegistrationDateTime
                    };
         }
 

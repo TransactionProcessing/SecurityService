@@ -64,6 +64,9 @@
         [JsonProperty("user_name")]
         public String UserName { get; set; }
 
+        [JsonProperty("registration_date_time")]
+        public DateTime RegistrationDateTime { get; set; }
+
         #endregion
     }
 }

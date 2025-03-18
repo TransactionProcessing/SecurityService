@@ -2,10 +2,6 @@
 
 namespace SecurityService.UnitTests.RequestHandler;
 
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using BusinessLogic.RequestHandlers;
 using BusinessLogic.Requests;
 using Castle.Components.DictionaryAdapter;
@@ -17,10 +13,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Models;
 using Moq;
+using SecurityService.BusinessLogic;
 using SecurityService.BusinessLogic.Exceptions;
 using Shared.Exceptions;
 using Shared.Logger;
 using Shouldly;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xunit;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 using static SecurityService.BusinessLogic.Requests.SecurityServiceCommands;
@@ -65,7 +66,7 @@ public class UserRequestHandlerTests{
                                                                               NormalizedName = "TESTROLE1"});
         await this.AuthenticationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
@@ -85,9 +86,9 @@ public class UserRequestHandlerTests{
                                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.PasswordHasher.Setup(s => s.HashPassword(It.IsAny<IdentityUser>(), It.IsAny<String>())).Returns(String.Empty);
+        this.SetupRequestHandlers.PasswordHasher.Setup(s => s.HashPassword(It.IsAny<ApplicationUser>(), It.IsAny<String>())).Returns(String.Empty);
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         var result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsFailed.ShouldBeTrue();
@@ -107,7 +108,7 @@ public class UserRequestHandlerTests{
 
         List<IdentityError> errors = new List<IdentityError>();
         errors.Add(new IdentityError());
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
         var result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsFailed.ShouldBeTrue();
@@ -131,7 +132,7 @@ public class UserRequestHandlerTests{
         
         this.SetupRequestHandlers.UserValidator
             .SetupSequence(s =>
-                               s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>()))
+                               s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>()))
             .ReturnsAsync(IdentityResult.Success)
             .ReturnsAsync(IdentityResult.Success)
             .ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
@@ -153,7 +154,7 @@ public class UserRequestHandlerTests{
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(),
                                                                                 It.IsAny<SendEmailRequest>(),
@@ -181,7 +182,7 @@ public class UserRequestHandlerTests{
 
         await this.AuthenticationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         var result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsFailed.ShouldBeTrue();
@@ -211,7 +212,7 @@ public class UserRequestHandlerTests{
 
         this.SetupRequestHandlers.UserValidator
             .SetupSequence(s =>
-                               s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>()))
+                               s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>()))
             .ReturnsAsync(IdentityResult.Success)
             .ReturnsAsync(IdentityResult.Success)
             .ReturnsAsync(IdentityResult.Failed(errors.ToArray()))
@@ -229,7 +230,7 @@ public class UserRequestHandlerTests{
         SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
         command = command with { Roles = null };
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         var result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
@@ -242,7 +243,7 @@ public class UserRequestHandlerTests{
     {
         SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
         command = command with { Roles = new List<String>() };
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         var result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
@@ -304,15 +305,15 @@ public class UserRequestHandlerTests{
     {
         SecurityServiceCommands.ConfirmUserEmailAddressCommand command = TestData.ConfirmUserEmailAddressCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
-                                                          {
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
+        {
                                                               Id = TestData.CreateUserCommand.UserId.ToString(),
                                                               UserName = TestData.CreateUserCommand.UserName,
                                                               NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
@@ -324,7 +325,7 @@ public class UserRequestHandlerTests{
     {
         SecurityServiceCommands.ConfirmUserEmailAddressCommand command = TestData.ConfirmUserEmailAddressCommand;
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
 
         Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
@@ -337,8 +338,8 @@ public class UserRequestHandlerTests{
     {
         SecurityServiceCommands.ConfirmUserEmailAddressCommand command = TestData.ConfirmUserEmailAddressCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
-                                                          {
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
+        {
                                                               Id = TestData.CreateUserCommand.UserId.ToString(),
                                                               UserName = TestData.CreateUserCommand.UserName,
                                                               NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
@@ -347,7 +348,7 @@ public class UserRequestHandlerTests{
 
         List<IdentityError> errors = new List<IdentityError>();
         errors.Add(new IdentityError());
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
         Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
@@ -360,8 +361,8 @@ public class UserRequestHandlerTests{
     {
         SecurityServiceCommands.ChangeUserPasswordCommand command = TestData.ChangeUserPasswordCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
-                                                          {
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
+        {
                                                               Id = Guid.NewGuid().ToString(),
                                                               UserName = TestData.ChangeUserPasswordCommand.UserName,
                                                               NormalizedUserName = TestData.ChangeUserPasswordCommand.UserName.ToUpper(),
@@ -377,8 +378,8 @@ public class UserRequestHandlerTests{
         
         await this.ConfigurationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
-        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
         var result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
@@ -403,7 +404,7 @@ public class UserRequestHandlerTests{
     {
         ChangeUserPasswordCommand command = TestData.ChangeUserPasswordCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
                                                           {
                                                               Id = Guid.NewGuid().ToString(),
                                                               UserName = TestData.ChangeUserPasswordCommand.UserName,
@@ -412,8 +413,8 @@ public class UserRequestHandlerTests{
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
         
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
-        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
         Result<ChangeUserPasswordResult> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
         result.IsFailed.ShouldBeTrue();
@@ -425,7 +426,7 @@ public class UserRequestHandlerTests{
     {
         ChangeUserPasswordCommand command = TestData.ChangeUserPasswordCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
                                                           {
                                                               Id = Guid.NewGuid().ToString(),
                                                               UserName = TestData.ChangeUserPasswordCommand.UserName,
@@ -445,8 +446,8 @@ public class UserRequestHandlerTests{
         List<IdentityError> errors = new List<IdentityError>();
         errors.Add(new IdentityError());
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
-        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(),
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>(),
                                                                                It.IsAny<String>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
         Result<ChangeUserPasswordResult> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
@@ -459,7 +460,7 @@ public class UserRequestHandlerTests{
     {
         ProcessPasswordResetConfirmationCommand command = TestData.ProcessPasswordResetConfirmationCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
                                                           {
                                                               Id = TestData.CreateUserCommand.UserId.ToString(),
                                                               UserName = TestData.CreateUserCommand.UserName,
@@ -476,8 +477,8 @@ public class UserRequestHandlerTests{
 
         await this.ConfigurationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
-        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
         Result<String> result = await this.RequestHandler.Handle(command, CancellationToken.None);
 
@@ -500,7 +501,7 @@ public class UserRequestHandlerTests{
     {
         ProcessPasswordResetConfirmationCommand command = TestData.ProcessPasswordResetConfirmationCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
                                                           {
                                                               Id = TestData.CreateUserCommand.UserId.ToString(),
                                                               UserName = TestData.CreateUserCommand.UserName,
@@ -520,8 +521,8 @@ public class UserRequestHandlerTests{
         List<IdentityError> errors = new List<IdentityError>();
         errors.Add(new IdentityError());
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
-        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(),
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>(),
                                                                                It.IsAny<String>())).ReturnsAsync(IdentityResult.Failed(errors.ToArray()));
 
         Result<String> result = await this.RequestHandler.Handle(command, CancellationToken.None);
@@ -534,7 +535,7 @@ public class UserRequestHandlerTests{
     {
         ProcessPasswordResetConfirmationCommand command = TestData.ProcessPasswordResetConfirmationCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
         {
             Id = TestData.CreateUserCommand.UserId.ToString(),
             UserName = TestData.CreateUserCommand.UserName,
@@ -542,8 +543,8 @@ public class UserRequestHandlerTests{
         });
         await this.AuthenticationDbContext.SaveChangesAsync();
         
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
-        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(),
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>(),
                                                                                It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
         Result<String> result = await this.RequestHandler.Handle(command, CancellationToken.None);
@@ -556,7 +557,7 @@ public class UserRequestHandlerTests{
     {
         ProcessPasswordResetRequestCommand command = TestData.ProcessPasswordResetRequestCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
                                                           {
                                                               Id = TestData.CreateUserCommand.UserId.ToString(),
                                                               UserName = TestData.CreateUserCommand.UserName,
@@ -587,7 +588,7 @@ public class UserRequestHandlerTests{
     {
         ProcessPasswordResetRequestCommand command = TestData.ProcessPasswordResetRequestCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
                                                           {
                                                               Id = TestData.CreateUserCommand.UserId.ToString(),
                                                               UserName = TestData.CreateUserCommand.UserName,
@@ -608,16 +609,16 @@ public class UserRequestHandlerTests{
     {
         SecurityServiceCommands.SendWelcomeEmailCommand command = TestData.SendWelcomeEmailCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
-                                                          {
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
+        {
                                                               Id = TestData.CreateUserCommand.UserId.ToString(),
                                                               UserName = TestData.CreateUserCommand.UserName,
                                                               NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
-        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
         this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(),
             It.IsAny<SendEmailRequest>(),
@@ -632,16 +633,16 @@ public class UserRequestHandlerTests{
     {
         SecurityServiceCommands.SendWelcomeEmailCommand command = TestData.SendWelcomeEmailCommand;
 
-        await this.AuthenticationDbContext.Users.AddAsync(new IdentityUser
-                                                          {
+        await this.AuthenticationDbContext.Users.AddAsync(new ApplicationUser
+        {
                                                               Id = TestData.CreateUserCommand.UserId.ToString(),
                                                               UserName = TestData.CreateUserCommand.UserName,
                                                               NormalizedUserName = TestData.CreateUserCommand.UserName.ToUpper()
                                                           });
         await this.AuthenticationDbContext.SaveChangesAsync();
 
-        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>())).ReturnsAsync(IdentityResult.Success);
-        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<IdentityUser>>(), It.IsAny<IdentityUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.PasswordValidator.Setup(p => p.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>(), It.IsAny<String>())).ReturnsAsync(IdentityResult.Success);
 
         this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(),
                                                                                 It.IsAny<SendEmailRequest>(),

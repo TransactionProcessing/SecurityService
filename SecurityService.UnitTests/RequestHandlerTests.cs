@@ -78,42 +78,42 @@ namespace SecurityService.UnitTests {
 
     public class SetupRequestHandlers{
 
-        public Mock<IPasswordHasher<IdentityUser>> PasswordHasher;
-        public IUserStore<IdentityUser> UserStore;
+        public Mock<IPasswordHasher<ApplicationUser>> PasswordHasher;
+        public IUserStore<ApplicationUser> UserStore;
         public IRoleStore<IdentityRole> RoleStore;
-        public List<IUserValidator<IdentityUser>> UserValidators;
+        public List<IUserValidator<ApplicationUser>> UserValidators;
         public List<IRoleValidator<IdentityRole>> RoleValidators;
-        public List<IPasswordValidator<IdentityUser>> PasswordValidators;
+        public List<IPasswordValidator<ApplicationUser>> PasswordValidators;
         IdentityErrorDescriber ErrorDescriber = new IdentityErrorDescriber();
         public Mock<IServiceProvider> ServiceProvider;
         public Mock<IMessagingServiceClient> MessagingServiceClient;
         public ServiceOptions ServiceOptions;
-        public UserManager<IdentityUser> UserManager;
+        public UserManager<ApplicationUser> UserManager;
         public IdentityServerTools IdentityServerTools;
         public Mock<IOptions<IdentityOptions>> Options;
 
         public Mock<IRoleValidator<IdentityRole>> RoleValidator;
-        public Mock<IUserValidator<IdentityUser>> UserValidator;
-        public Mock<IPasswordValidator<IdentityUser>> PasswordValidator;
+        public Mock<IUserValidator<ApplicationUser>> UserValidator;
+        public Mock<IPasswordValidator<ApplicationUser>> PasswordValidator;
 
 
         ILookupNormalizer KeyNormalizer = new UpperInvariantLookupNormalizer();
         public SetupRequestHandlers(){
             IdentityOptions identityOptions = new IdentityOptions();
-            identityOptions.Tokens.ProviderMap.Add("Default", new TokenProviderDescriptor(typeof(IUserTwoFactorTokenProvider<IdentityUser>)));
+            identityOptions.Tokens.ProviderMap.Add("Default", new TokenProviderDescriptor(typeof(IUserTwoFactorTokenProvider<ApplicationUser>)));
             
             this.Options = new Mock<IOptions<IdentityOptions>>();
             this.Options.Setup(o => o.Value).Returns(identityOptions);
 
-            this.PasswordHasher = new Mock<IPasswordHasher<IdentityUser>>();
+            this.PasswordHasher = new Mock<IPasswordHasher<ApplicationUser>>();
             this.RoleValidator = new Mock<IRoleValidator<IdentityRole>>();
-            this.UserValidator = new Mock<IUserValidator<IdentityUser>>();
-            this.UserValidators = new List<IUserValidator<IdentityUser>>();
+            this.UserValidator = new Mock<IUserValidator<ApplicationUser>>();
+            this.UserValidators = new List<IUserValidator<ApplicationUser>>();
             this.UserValidators.Add(this.UserValidator.Object);
             this.RoleValidators = new List<IRoleValidator<IdentityRole>>();
             this.RoleValidators.Add(this.RoleValidator.Object);
-            this.PasswordValidator = new Mock<IPasswordValidator<IdentityUser>>();
-            this.PasswordValidators = new List<IPasswordValidator<IdentityUser>>();
+            this.PasswordValidator = new Mock<IPasswordValidator<ApplicationUser>>();
+            this.PasswordValidators = new List<IPasswordValidator<ApplicationUser>>();
             this.PasswordValidators.Add(this.PasswordValidator.Object);
 
             this.ServiceProvider = new Mock<IServiceProvider>();
@@ -127,14 +127,14 @@ namespace SecurityService.UnitTests {
 
         private void SetupServiceProvider()
         {
-            Mock<IUserTwoFactorTokenProvider<IdentityUser>> tokenProvider =
-                new Mock<IUserTwoFactorTokenProvider<IdentityUser>>();
-            tokenProvider.Setup(tp => tp.GenerateAsync(It.IsAny<String>(), It.IsAny<UserManager<IdentityUser>>(),
-                                                       It.IsAny<IdentityUser>())).ReturnsAsync("token");
+            Mock<IUserTwoFactorTokenProvider<ApplicationUser>> tokenProvider =
+                new Mock<IUserTwoFactorTokenProvider<ApplicationUser>>();
+            tokenProvider.Setup(tp => tp.GenerateAsync(It.IsAny<String>(), It.IsAny<UserManager<ApplicationUser>>(),
+                                                       It.IsAny<ApplicationUser>())).ReturnsAsync("token");
 
             tokenProvider.Setup(tp => tp.ValidateAsync(It.IsAny<String>(), It.IsAny<String>(),
-                                                       It.IsAny<UserManager<IdentityUser>>(),
-                                                       It.IsAny<IdentityUser>())).ReturnsAsync(true);
+                                                       It.IsAny<UserManager<ApplicationUser>>(),
+                                                       It.IsAny<ApplicationUser>())).ReturnsAsync(true);
             this.ServiceProvider.Setup(sp => sp.GetService(It.IsAny<Type>())).Returns(tokenProvider.Object);
         }
 
@@ -178,16 +178,16 @@ namespace SecurityService.UnitTests {
 
         public UserRequestHandler SetUserRequestHandler(ConfigurationDbContext configurationDbContext, AuthenticationDbContext authenticationDbContext)
         {
-            this.UserStore = new UserStore<IdentityUser>(authenticationDbContext,this.ErrorDescriber);
+            this.UserStore = new UserStore<ApplicationUser>(authenticationDbContext,this.ErrorDescriber);
             this.RoleStore = new RoleStore<IdentityRole>(authenticationDbContext, this.ErrorDescriber);
             this.UserManager =
-                new UserManager<IdentityUser>(this.UserStore, this.Options.Object, this.PasswordHasher.Object,
+                new UserManager<ApplicationUser>(this.UserStore, this.Options.Object, this.PasswordHasher.Object,
                                               this.UserValidators, this.PasswordValidators,
                                               this.KeyNormalizer, this.ErrorDescriber, this.ServiceProvider.Object, 
-                                              new NullLogger<UserManager<IdentityUser>>());
+                                              new NullLogger<UserManager<ApplicationUser>>());
 
-            this.PasswordHasher.Setup(p => p.HashPassword(It.IsAny<IdentityUser>(), It.IsAny<String>())).Returns("passwordhash");
-            this.PasswordHasher.Setup(p => p.VerifyHashedPassword(It.IsAny<IdentityUser>(), It.IsAny<String>(), It.IsAny<String>())).Returns(PasswordVerificationResult.Success);
+            this.PasswordHasher.Setup(p => p.HashPassword(It.IsAny<ApplicationUser>(), It.IsAny<String>())).Returns("passwordhash");
+            this.PasswordHasher.Setup(p => p.VerifyHashedPassword(It.IsAny<ApplicationUser>(), It.IsAny<String>(), It.IsAny<String>())).Returns(PasswordVerificationResult.Success);
 
             this.ServiceOptions.ClientId = "clientId";
 
