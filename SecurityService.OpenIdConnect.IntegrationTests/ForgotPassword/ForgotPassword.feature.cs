@@ -185,6 +185,18 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
 #line 24
  await testRunner.GivenAsync("I create the following users", ((string)(null)), table10, "Given ");
 #line hidden
+#line 27
+ await testRunner.ThenAsync("I get an email with a confirm email address link", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 28
+ await testRunner.WhenAsync("I navigate to the confirm email address", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 29
+ await testRunner.ThenAsync("I am presented with the confirm email address successful screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 30
+ await testRunner.AndAsync("I get a welcome email with my login details", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
         }
         
         [NUnit.Framework.TestAttribute()]
@@ -196,7 +208,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                     "PRTest"};
             System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new System.Collections.Specialized.OrderedDictionary();
             global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Forgot Password", null, tagsOfScenario, argumentsOfScenario, featureTags);
-#line 29
+#line 33
 this.ScenarioInitialize(scenarioInfo);
 #line hidden
             if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
@@ -209,49 +221,49 @@ this.ScenarioInitialize(scenarioInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-#line 30
+#line 34
  await testRunner.GivenAsync("I am on the application home page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
 #line hidden
-#line 31
+#line 35
  await testRunner.WhenAsync("I click the \'Privacy\' link", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 32
+#line 36
  await testRunner.ThenAsync("I am presented with a login screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 33
+#line 37
  await testRunner.WhenAsync("I click on the Forgot Password Button", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 34
+#line 38
  await testRunner.ThenAsync("I am presented with the forgot password screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 35
+#line 39
  await testRunner.WhenAsync("I enter my username \'estateuser@testestate1.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 36
+#line 40
  await testRunner.AndAsync("I enter my email address \'estateuser@testestate1.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 37
+#line 41
  await testRunner.AndAsync("I click on the Reset Password button", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 38
+#line 42
  await testRunner.ThenAsync("I get an email with a forgot password link", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 39
+#line 43
  await testRunner.WhenAsync("I navigate to the forgot password link", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 40
+#line 44
  await testRunner.ThenAsync("I am presented with the reset password screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 41
+#line 45
  await testRunner.WhenAsync("I enter my new password \'Pa55word!\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-#line 42
+#line 46
  await testRunner.AndAsync("I confirm my new password \'Pa55word!\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 43
+#line 47
  await testRunner.AndAsync("I click the reset password button", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
 #line hidden
-#line 44
+#line 48
  await testRunner.ThenAsync("my password is reset successfully", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

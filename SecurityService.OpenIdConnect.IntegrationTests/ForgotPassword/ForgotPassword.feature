@@ -24,6 +24,10 @@ Background:
 	Given I create the following users
 	| Email Address                    | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles      |
 	| estateuser@testestate1.co.uk | 123456   | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
+	Then I get an email with a confirm email address link
+	When I navigate to the confirm email address
+	Then I am presented with the confirm email address successful screen
+	And I get a welcome email with my login details
 
 @PRTest
 Scenario: Forgot Password
