@@ -31,7 +31,7 @@
             serviceOptionsSection.Bind(serviceOptions);
 
             this.AddSingleton<ServiceOptions>(serviceOptions);
-            this.AddIdentity<IdentityUser, IdentityRole>(opt => {
+            this.AddIdentity<ApplicationUser, IdentityRole>(opt => {
                                                              opt.Tokens.EmailConfirmationTokenProvider = "emailconfirmation";
                                                              opt.Password.RequireDigit = serviceOptions.PasswordOptions.RequireDigit;
                                                              opt.Password.RequireUppercase = serviceOptions.PasswordOptions.RequireUpperCase;
@@ -39,7 +39,7 @@
                                                              opt.SignIn.RequireConfirmedEmail = serviceOptions.SignInOptions.RequireConfirmedEmail;
                                                              opt.User.RequireUniqueEmail = serviceOptions.UserOptions.RequireUniqueEmail;
                                                          }).AddEntityFrameworkStores<AuthenticationDbContext>().AddDefaultTokenProviders()
-                .AddTokenProvider<EmailConfirmationTokenProvider<IdentityUser>>("emailconfirmation");
+                .AddTokenProvider<EmailConfirmationTokenProvider<ApplicationUser>>("emailconfirmation");
 
             this.Configure<DataProtectionTokenProviderOptions>(opt => opt.TokenLifespan =
                                                                    TimeSpan.FromHours(serviceOptions.TokenOptions.PasswordResetTokenExpiryInHours));
@@ -59,7 +59,7 @@
                                                                                       options.IssuerUri = serviceOptions.IssuerUrl;
                                                                                   });
 
-            identityServerBuilder.AddAspNetIdentity<IdentityUser>();
+            identityServerBuilder.AddAspNetIdentity<ApplicationUser>();
 
             if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") || Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase"))
             {

@@ -313,6 +313,7 @@ public class SecurityServiceSteps{
             String? claim = userDetails.Data.Claims[expectedRecordClaim.Key];
             claim.ShouldBe(expectedRecordClaim.Value);
         }
+        userDetails.Data.RegistrationDateTime.Date.ShouldBe(expectedRecord.RegistrationDateTime.Date);
     }
 
 }

@@ -1,13 +1,14 @@
 ﻿namespace SecurityService.UnitTests
 {
+    using BusinessLogic.Requests;
+    using DataTransferObjects;
+    using Microsoft.AspNetCore.Identity;
+    using SecurityService.BusinessLogic;
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Security.Claims;
     using System.Threading.Tasks;
-    using BusinessLogic.Requests;
-    using DataTransferObjects;
-    using Microsoft.AspNetCore.Identity;
 
     public class TestData{
         public static String UserName = "00000001";
@@ -57,22 +58,22 @@
 
         public static String User3Id = "da6ce793-1ed5-4116-af89-2878b075ec5a";
 
-        public static List<IdentityUser> UserList = new List<IdentityUser>{
-                                                                              new IdentityUser{
+        public static List<ApplicationUser> UserList = new List<ApplicationUser>{
+                                                                              new ApplicationUser{
                                                                                                   UserName = "00000001",
                                                                                                   NormalizedUserName = "00000001",
                                                                                                   Email = "00000001@testemail.com",
                                                                                                   NormalizedEmail = "00000001@testemail.com",
                                                                                                   Id = TestData.User1Id
                                                                                               },
-                                                                              new IdentityUser{
+                                                                              new ApplicationUser{
                                                                                                   UserName = "00000002",
                                                                                                   NormalizedUserName = "00000002",
                                                                                                   Email = "00000002@testemail.com",
                                                                                                   NormalizedEmail = "00000002@testemail.com",
                                                                                                   Id = TestData.User2Id
                                                                                               },
-                                                                              new IdentityUser{
+                                                                              new ApplicationUser{
                                                                                                   UserName = "00000003",
                                                                                                   NormalizedUserName = "00000003",
                                                                                                   Email = "00000003@testemail.com",

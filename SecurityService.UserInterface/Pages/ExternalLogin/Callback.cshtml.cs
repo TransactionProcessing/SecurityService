@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Services;
@@ -8,21 +7,23 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Security.Claims;
 
 namespace IdentityServerHost.Pages.ExternalLogin;
 
+using Microsoft.Extensions.Logging;
+using SecurityService.BusinessLogic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 [AllowAnonymous]
 [SecurityHeaders]
 public class Callback : PageModel
 {
-    private readonly UserManager<IdentityUser> _userManager;
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly ILogger<Callback> _logger;
     private readonly IEventService _events;
@@ -31,8 +32,8 @@ public class Callback : PageModel
         IIdentityServerInteractionService interaction,
         IEventService events,
         ILogger<Callback> logger,
-        UserManager<IdentityUser> userManager,
-        SignInManager<IdentityUser> signInManager)
+        UserManager<ApplicationUser> userManager,
+        SignInManager<ApplicationUser> signInManager)
     {
         _userManager = userManager;
         _signInManager = signInManager;
@@ -112,11 +113,11 @@ public class Callback : PageModel
         return Redirect(returnUrl);
     }
 
-    private async Task<IdentityUser> AutoProvisionUserAsync(string provider, string providerUserId, IEnumerable<Claim> claims)
+    private async Task<ApplicationUser> AutoProvisionUserAsync(string provider, string providerUserId, IEnumerable<Claim> claims)
     {
         var sub = Guid.NewGuid().ToString();
             
-        var user = new IdentityUser()
+        var user = new ApplicationUser()
         {
             Id = sub,
             UserName = sub, // don't need a username, since the user will be using an external provider to login

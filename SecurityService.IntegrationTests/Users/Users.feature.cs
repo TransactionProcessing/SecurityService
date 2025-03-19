@@ -169,7 +169,8 @@ await this.FeatureBackgroundAsync();
                             "Middle Name",
                             "Family Name",
                             "Claims",
-                            "Roles"});
+                            "Roles",
+                            "RegistrationDate"});
                 table31.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
@@ -177,7 +178,8 @@ await this.FeatureBackgroundAsync();
                             "",
                             "User 1",
                             "email:testuser1@testing.co.uk, given_name:Test, family_name:User 1",
-                            "TestRole1"});
+                            "TestRole1",
+                            "Today"});
 #line 18
  await testRunner.WhenAsync("I get the user with user name \'testuser1@testing.co.uk\' the user details are retu" +
                         "rned as follows", ((string)(null)), table31, "When ");
@@ -189,7 +191,8 @@ await this.FeatureBackgroundAsync();
                             "Middle Name",
                             "Family Name",
                             "Claims",
-                            "Roles"});
+                            "Roles",
+                            "RegistrationDate"});
                 table32.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456789",
@@ -197,7 +200,8 @@ await this.FeatureBackgroundAsync();
                             "",
                             "User 2",
                             "email:testuser2@testing.co.uk, given_name:Test, family_name:User 2",
-                            "TestRole2"});
+                            "TestRole2",
+                            "Today"});
 #line 21
  await testRunner.WhenAsync("I get the user with user name \'testuser2@testing.co.uk\' the user details are retu" +
                         "rned as follows", ((string)(null)), table32, "When ");
@@ -209,7 +213,8 @@ await this.FeatureBackgroundAsync();
                             "Middle Name",
                             "Family Name",
                             "Claims",
-                            "Roles"});
+                            "Roles",
+                            "RegistrationDate"});
                 table33.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456789",
@@ -217,7 +222,8 @@ await this.FeatureBackgroundAsync();
                             "",
                             "User 3",
                             "email:testuser3@testing.co.uk, given_name:Test, family_name:User 3",
-                            "TestRole3"});
+                            "TestRole3",
+                            "Today"});
 #line 24
  await testRunner.WhenAsync("I get the user with user name \'testuser3@testing.co.uk\' the user details are retu" +
                         "rned as follows", ((string)(null)), table33, "When ");
@@ -229,7 +235,8 @@ await this.FeatureBackgroundAsync();
                             "Middle Name",
                             "Family Name",
                             "Claims",
-                            "Roles"});
+                            "Roles",
+                            "RegistrationDate"});
                 table34.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
@@ -237,7 +244,8 @@ await this.FeatureBackgroundAsync();
                             "",
                             "User 1",
                             "email:testuser1@testing.co.uk, given_name:Test, family_name:User 1",
-                            "TestRole1"});
+                            "TestRole1",
+                            "Today"});
                 table34.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456789",
@@ -245,7 +253,8 @@ await this.FeatureBackgroundAsync();
                             "",
                             "User 2",
                             "email:testuser2@testing.co.uk, given_name:Test, family_name:User 2",
-                            "TestRole2"});
+                            "TestRole2",
+                            "Today"});
                 table34.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456789",
@@ -253,7 +262,8 @@ await this.FeatureBackgroundAsync();
                             "",
                             "User 3",
                             "email:testuser3@testing.co.uk, given_name:Test, family_name:User 3",
-                            "TestRole3"});
+                            "TestRole3",
+                            "Today"});
 #line 27
  await testRunner.WhenAsync("I get the users 3 users details are returned as follows", ((string)(null)), table34, "When ");
 #line hidden

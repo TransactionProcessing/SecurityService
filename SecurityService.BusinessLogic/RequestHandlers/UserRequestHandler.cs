@@ -46,20 +46,20 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
 
         private readonly IMessagingServiceClient MessagingServiceClient;
 
-        private readonly IPasswordHasher<IdentityUser> PasswordHasher;
+        private readonly IPasswordHasher<ApplicationUser> PasswordHasher;
 
         private readonly ServiceOptions ServiceOptions;
 
         private TokenResponse TokenResponse;
 
-        private readonly UserManager<IdentityUser> UserManager;
+        private readonly UserManager<ApplicationUser> UserManager;
 
         #endregion
 
         #region Constructors
 
-        public UserRequestHandler(IPasswordHasher<IdentityUser> passwordHasher,
-                                  UserManager<IdentityUser> userManager,
+        public UserRequestHandler(IPasswordHasher<ApplicationUser> passwordHasher,
+                                  UserManager<ApplicationUser> userManager,
                                   ServiceOptions serviceOptions,
                                   IMessagingServiceClient messagingServiceClient,
                                   IdentityServerTools identityServerTools,
@@ -79,7 +79,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
         public async Task<Result> Handle(SecurityServiceCommands.CreateUserCommand command,
                                          CancellationToken cancellationToken) {
             // request is valid now add the user
-            IdentityUser newIdentityUser = new IdentityUser {
+            ApplicationUser newIdentityUser = new() {
                 Id = command.UserId.ToString(),
                 Email = command.EmailAddress,
                 UserName = command.UserName,
@@ -87,6 +87,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 NormalizedUserName = command.UserName.ToUpper(),
                 SecurityStamp = Guid.NewGuid().ToString("D"),
                 PhoneNumber = command.PhoneNumber,
+                RegistrationDateTime = DateTime.Now
             };
 
             String passwordValue = String.IsNullOrEmpty(command.Password) ? UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password) : command.Password;
@@ -130,7 +131,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return Result.Success();
         }
 
-        private async Task<Result> CreateUser(IdentityUser newIdentityUser) {
+        private async Task<Result> CreateUser(ApplicationUser newIdentityUser) {
             var createResult = await this.UserManager.CreateAsync(newIdentityUser);
 
             if (!createResult.Succeeded)
@@ -140,7 +141,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return Result.Success();
         }
 
-        private async Task<Result> AddRolesToUser(IdentityUser newIdentityUser, List<String> roles) {
+        private async Task<Result> AddRolesToUser(ApplicationUser newIdentityUser, List<String> roles) {
             // Add the requested roles to the user
             if (roles != null && roles.Any())
             {
@@ -155,7 +156,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return Result.Success();
         }
 
-        private async Task<Result> AddClaimsToUser(IdentityUser newIdentityUser, SecurityServiceCommands.CreateUserCommand command) {
+        private async Task<Result> AddClaimsToUser(ApplicationUser newIdentityUser, SecurityServiceCommands.CreateUserCommand command) {
             // Add the requested claims
             List<Claim> claimsToAdd = new List<Claim>();
             if (command.Claims != null)
@@ -198,7 +199,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
 
         public async Task<Result<UserDetails>> Handle(SecurityServiceQueries.GetUserQuery query, CancellationToken cancellationToken){
 
-            IdentityUser user = await this.UserManager.FindByIdAsync(query.UserId.ToString());
+            ApplicationUser user = await this.UserManager.FindByIdAsync(query.UserId.ToString());
 
             if (user == null){
                 return Result.NotFound($"No user found with user Id {query.UserId}");
@@ -210,6 +211,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             response.UserId = query.UserId;
             response.SubjectId = query.UserId.ToString();
             response.Username = user.UserName;
+            response.RegistrationDateTime = user.RegistrationDateTime;
 
             // Get the users roles
             response.Roles = await this.ConvertUsersRoles(user);
@@ -223,15 +225,15 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
         public async Task<Result<List<UserDetails>>> Handle(SecurityServiceQueries.GetUsersQuery query, CancellationToken cancellationToken){
             List<UserDetails> response = new List<UserDetails>();
 
-            IQueryable<IdentityUser> userQuery = this.UserManager.Users;
+            IQueryable<ApplicationUser> userQuery = this.UserManager.Users;
 
             if (String.IsNullOrEmpty(query.UserName) == false){
                 userQuery = userQuery.Where(u => u.UserName.Contains(query.UserName));
             }
 
-            List<IdentityUser> users = await userQuery.ToListAsyncSafe(cancellationToken);
+            List<ApplicationUser> users = await userQuery.ToListAsyncSafe(cancellationToken);
 
-            foreach (IdentityUser identityUser in users){
+            foreach (ApplicationUser identityUser in users){
                 Dictionary<String, String> claims = await this.ConvertUsersClaims(identityUser);
                 List<String> roles = await this.ConvertUsersRoles(identityUser);
 
@@ -250,9 +252,9 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
         }
 
         public async Task<Result<ChangeUserPasswordResult>> Handle(SecurityServiceCommands.ChangeUserPasswordCommand command, CancellationToken cancellationToken){
-            
+
             // Find the user based on the user name passed in
-            IdentityUser user = await this.UserManager.FindByNameAsync(command.UserName);
+            ApplicationUser user = await this.UserManager.FindByNameAsync(command.UserName);
 
             if (user == null){
                 // this prevents giving away info to a potential hacker...
@@ -286,7 +288,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
         }
 
         public async Task<Result> Handle(SecurityServiceCommands.ConfirmUserEmailAddressCommand command, CancellationToken cancellationToken){
-            IdentityUser identityUser = await this.UserManager.FindByNameAsync(command.UserName);
+            ApplicationUser identityUser = await this.UserManager.FindByNameAsync(command.UserName);
 
             if (identityUser == null)
             {
@@ -311,7 +313,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
 
         public async Task<Result<String>> Handle(SecurityServiceCommands.ProcessPasswordResetConfirmationCommand command, CancellationToken cancellationToken){
             // Find the user based on the user name passed in
-            IdentityUser user = await this.UserManager.FindByNameAsync(command.Username);
+            ApplicationUser user = await this.UserManager.FindByNameAsync(command.Username);
 
             if (user == null)
             {
@@ -349,7 +351,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
 
         public async Task<Result> Handle(SecurityServiceCommands.ProcessPasswordResetRequestCommand command, CancellationToken cancellationToken){
             // Find the user based on the user name passed in
-            IdentityUser user = await this.UserManager.FindByNameAsync(command.Username);
+            ApplicationUser user = await this.UserManager.FindByNameAsync(command.Username);
 
             if (user == null)
             {
@@ -373,7 +375,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
         }
 
         public async Task<Result> Handle(SecurityServiceCommands.SendWelcomeEmailCommand command, CancellationToken cancellationToken){
-            IdentityUser i = await this.UserManager.FindByNameAsync(command.Username);
+            ApplicationUser i = await this.UserManager.FindByNameAsync(command.Username);
             await this.UserManager.RemovePasswordAsync(i);
             String generatedPassword = UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password);
             await this.UserManager.AddPasswordAsync(i, generatedPassword);
@@ -388,7 +390,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return Result.Success();
         }
 
-        private SendEmailRequest BuildEmailConfirmationRequest(IdentityUser user,
+        private SendEmailRequest BuildEmailConfirmationRequest(ApplicationUser user,
                                                                String emailConfirmationToken){
             StringBuilder mesasgeBuilder = new StringBuilder();
 
@@ -416,7 +418,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return request;
         }
 
-        private SendEmailRequest BuildPasswordResetEmailRequest(IdentityUser user,
+        private SendEmailRequest BuildPasswordResetEmailRequest(ApplicationUser user,
                                                                 String resetToken){
             StringBuilder mesasgeBuilder = new StringBuilder();
 
@@ -474,7 +476,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return request;
         }
 
-        private async Task<Dictionary<String, String>> ConvertUsersClaims(IdentityUser identityUser){
+        private async Task<Dictionary<String, String>> ConvertUsersClaims(ApplicationUser identityUser){
             Dictionary<String, String> response = new Dictionary<String, String>();
             IList<Claim> claims = await this.UserManager.GetClaimsAsync(identityUser);
             foreach (Claim claim in claims){
@@ -484,7 +486,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return response;
         }
 
-        private async Task<List<String>> ConvertUsersRoles(IdentityUser identityUser){
+        private async Task<List<String>> ConvertUsersRoles(ApplicationUser identityUser){
             IList<String> roles = await this.UserManager.GetRolesAsync(identityUser);
             return roles.ToList();
         }

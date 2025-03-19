@@ -1,4 +1,6 @@
-﻿namespace SecurityService.Database.DbContexts
+﻿using SecurityService.BusinessLogic;
+
+namespace SecurityService.Database.DbContexts
 {
     using System;
     using Duende.IdentityServer.EntityFramework.DbContexts;
@@ -8,7 +10,7 @@
     using Microsoft.EntityFrameworkCore;
     using Shared.General;
 
-    public class AuthenticationDbContext : IdentityDbContext<IdentityUser>
+    public class AuthenticationDbContext : IdentityDbContext<ApplicationUser>
     {
         public AuthenticationDbContext(DbContextOptions options)
             : base(options)

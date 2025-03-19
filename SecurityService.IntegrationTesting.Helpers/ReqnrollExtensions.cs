@@ -305,10 +305,12 @@
 
                 String roles = ReqnrollTableHelper.GetStringRowValue(tableRow, "Roles");
 
-
                 if (string.IsNullOrEmpty(roles) == false){
                     userDetails.Roles = roles.SplitString();
                 }
+
+                DateTime dateTime = ReqnrollTableHelper.GetDateForDateString(ReqnrollTableHelper.GetStringRowValue(tableRow, "RegistrationDate"), DateTime.Now);
+                userDetails.RegistrationDateTime = dateTime;
                 userDetailsList.Add(userDetails);
             }
             return userDetailsList;

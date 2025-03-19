@@ -56,5 +56,7 @@
         /// The name of the user.
         /// </value>
         public String Username { get; set; }
+
+        public DateTime RegistrationDateTime { get; set; }
     }
 }

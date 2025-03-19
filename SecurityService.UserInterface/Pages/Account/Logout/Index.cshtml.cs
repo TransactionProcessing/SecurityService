@@ -10,20 +10,21 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace IdentityServerHost.Pages.Logout;
 
+using SecurityService.BusinessLogic;
 using System.Threading.Tasks;
 
 [SecurityHeaders]
 [AllowAnonymous]
 public class Index : PageModel
 {
-    private readonly SignInManager<IdentityUser> _signInManager;
+    private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly IIdentityServerInteractionService _interaction;
     private readonly IEventService _events;
 
     [BindProperty] 
     public string LogoutId { get; set; }
 
-    public Index(SignInManager<IdentityUser> signInManager, IIdentityServerInteractionService interaction, IEventService events)
+    public Index(SignInManager<ApplicationUser> signInManager, IIdentityServerInteractionService interaction, IEventService events)
     {
         _signInManager = signInManager;
         _interaction = interaction;
