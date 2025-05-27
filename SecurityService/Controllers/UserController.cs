@@ -1,4 +1,5 @@
 ﻿using Shared.Results;
+using Shared.Results.Web;
 using SimpleResults;
 
 namespace SecurityService.Controllers
@@ -81,7 +82,8 @@ namespace SecurityService.Controllers
 
             // Create the user
             Result result = await this.Mediator.Send(command, cancellationToken);
-            // TODO: Handle failed result
+            if (result.IsFailed)
+                return result.ToActionResultX();
 
             // return the result
             return result.ToActionResultX();
@@ -102,12 +104,12 @@ namespace SecurityService.Controllers
         {
             SecurityServiceQueries.GetUserQuery query = new(userId);
 
-            var result = await this.Mediator.Send(query, cancellationToken);
+            Result<Models.UserDetails> result = await this.Mediator.Send(query, cancellationToken);
 
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            UserDetails model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }
@@ -133,7 +135,7 @@ namespace SecurityService.Controllers
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            List<UserDetails> model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }

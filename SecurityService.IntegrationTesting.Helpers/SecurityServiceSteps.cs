@@ -21,7 +21,7 @@ public class SecurityServiceSteps{
 
     private async Task CreateApiScope(CreateApiScopeRequest createApiScopeRequest,
                                                               CancellationToken cancellationToken){
-        var result = await this.SecurityServiceClient
+        Result? result = await this.SecurityServiceClient
                                                                   .CreateApiScope(createApiScopeRequest, cancellationToken).ConfigureAwait(false);
         result.IsSuccess.ShouldBeTrue();
     }
@@ -56,7 +56,7 @@ public class SecurityServiceSteps{
             splitScopes.ForEach(a => { createApiResourceRequest.Scopes.Add(a.Trim()); });
             splitUserClaims.ForEach(a => { createApiResourceRequest.UserClaims.Add(a.Trim()); });
 
-            var result = await this.SecurityServiceClient.CreateApiResource(createApiResourceRequest, CancellationToken.None).ConfigureAwait(false);
+            Result? result = await this.SecurityServiceClient.CreateApiResource(createApiResourceRequest, CancellationToken.None).ConfigureAwait(false);
             result.IsSuccess.ShouldBeTrue();
         }
     }
@@ -64,7 +64,7 @@ public class SecurityServiceSteps{
     public async Task<List<(String clientId, String secret, List<String> allowedGrantTypes)>> GivenTheFollowingClientsExist(List<CreateClientRequest> createClientRequests){
         List<(String clientId, String secret, List<String> allowedGrantTypes)> clients = new List<(String clientId, String secret, List<String> allowedGrantTypes)>();
         foreach (CreateClientRequest createClientRequest in createClientRequests){
-            var result = await this.SecurityServiceClient.CreateClient(createClientRequest, CancellationToken.None).ConfigureAwait(false);
+            Result? result = await this.SecurityServiceClient.CreateClient(createClientRequest, CancellationToken.None).ConfigureAwait(false);
             result.IsSuccess.ShouldBeTrue();
             
             // TODO: What do i do here....
@@ -76,25 +76,29 @@ public class SecurityServiceSteps{
 
     public async Task GivenTheFollowingApiResourcesExist(List<CreateApiResourceRequest> requests){
         foreach (CreateApiResourceRequest createApiResourceRequest in requests){
-            var result = await this.SecurityServiceClient.CreateApiResource(createApiResourceRequest, CancellationToken.None).ConfigureAwait(false);
+            Result? result = await this.SecurityServiceClient.CreateApiResource(createApiResourceRequest, CancellationToken.None).ConfigureAwait(false);
             result.IsSuccess.ShouldBeTrue();
         }
     }
 
     public async Task<String> GetClientToken(String clientId, String secret, CancellationToken cancellationToken){
-        TokenResponse tokenResponse = await this.SecurityServiceClient.GetToken(clientId, secret, cancellationToken).ConfigureAwait(false);
-        return tokenResponse.AccessToken;
+        Result<TokenResponse>? tokenResponseResult = await this.SecurityServiceClient.GetToken(clientId, secret, cancellationToken).ConfigureAwait(false);
+        tokenResponseResult.IsSuccess.ShouldBeTrue();
+
+        return tokenResponseResult.Data.AccessToken;
     }
 
     public async Task<String> GetPasswordToken(String clientId, String secret, String userName, String password, CancellationToken cancellationToken)
     {
-        TokenResponse tokenResponse = await this.SecurityServiceClient.GetToken(userName,password, clientId, secret, cancellationToken).ConfigureAwait(false);
-        return tokenResponse.AccessToken;
+        Result<TokenResponse>? tokenResponseResult = await this.SecurityServiceClient.GetToken(userName,password, clientId, secret, cancellationToken).ConfigureAwait(false);
+        tokenResponseResult.IsSuccess.ShouldBeTrue();
+        return tokenResponseResult.Data.AccessToken;
     }
 
     public async Task WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(List<ApiResourceDetails> expectedDetails, CancellationToken cancellationToken){
-        List<ApiResourceDetails> apiResourceDetailsList = await this.SecurityServiceClient.GetApiResources(cancellationToken).ConfigureAwait(false);
-
+        Result<List<ApiResourceDetails>>? apiResourceDetailsListResult = await this.SecurityServiceClient.GetApiResources(cancellationToken).ConfigureAwait(false);
+        apiResourceDetailsListResult.IsSuccess.ShouldBeTrue();
+        List<ApiResourceDetails> apiResourceDetailsList = apiResourceDetailsListResult.Data;
         foreach (ApiResourceDetails apiResourceDetails in expectedDetails){
             ApiResourceDetails? foundRecord = apiResourceDetailsList.SingleOrDefault(a => a.Name == apiResourceDetails.Name);
             foundRecord.ShouldNotBeNull();
@@ -111,7 +115,10 @@ public class SecurityServiceSteps{
     }
 
     public async Task WhenIGetTheApiResourceWithNameTheApiResourceDetailsAreReturnedAsFollows(List<ApiResourceDetails> expectedDetails, String apiResourceName, CancellationToken cancellationToken){
-        ApiResourceDetails apiResourceDetails = await this.SecurityServiceClient.GetApiResource(apiResourceName, cancellationToken).ConfigureAwait(false);
+        Result<ApiResourceDetails>? apiResourceDetailsResult = await this.SecurityServiceClient.GetApiResource(apiResourceName, cancellationToken).ConfigureAwait(false);
+        apiResourceDetailsResult.IsSuccess.ShouldBeTrue();
+
+        ApiResourceDetails? apiResourceDetails = apiResourceDetailsResult.Data;
         ApiResourceDetails expectedRecord = expectedDetails.Single();
 
         apiResourceDetails.ShouldNotBeNull();
@@ -127,8 +134,10 @@ public class SecurityServiceSteps{
     }
 
     public async Task WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(List<ApiScopeDetails> expectedDetails, CancellationToken cancellationToken){
-        List<ApiScopeDetails>? apiScopeDetailsList = await this.SecurityServiceClient.GetApiScopes(cancellationToken).ConfigureAwait(false);
+        Result<List<ApiScopeDetails>>? apiScopeDetailsListResult = await this.SecurityServiceClient.GetApiScopes(cancellationToken).ConfigureAwait(false);
+        apiScopeDetailsListResult.IsSuccess.ShouldBeTrue();
 
+        List<ApiScopeDetails>? apiScopeDetailsList = apiScopeDetailsListResult.Data;
         foreach (ApiScopeDetails apiScopeDetails in expectedDetails){
             ApiScopeDetails? foundRecord = apiScopeDetailsList.SingleOrDefault(a => a.Name == apiScopeDetails.Name);
             foundRecord.ShouldNotBeNull();
@@ -138,7 +147,10 @@ public class SecurityServiceSteps{
     }
 
     public async Task WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(List<ApiScopeDetails> expectedDetails, String apiScopeName, CancellationToken cancellationToken){
-        ApiScopeDetails? apiScopeDetails = await this.SecurityServiceClient.GetApiScope(apiScopeName, cancellationToken).ConfigureAwait(false);
+        Result<ApiScopeDetails>? apiScopeDetailsResult = await this.SecurityServiceClient.GetApiScope(apiScopeName, cancellationToken).ConfigureAwait(false);
+        apiScopeDetailsResult.IsSuccess.ShouldBeTrue();
+        ApiScopeDetails? apiScopeDetails = apiScopeDetailsResult.Data;
+
         ApiScopeDetails expectedRecord = expectedDetails.Single();
 
         apiScopeDetails.ShouldNotBeNull();
@@ -147,7 +159,9 @@ public class SecurityServiceSteps{
     }
 
     public async Task WhenIGetTheClientWithClientIdTheClientDetailsAreReturnedAsFollows(List<ClientDetails> expectedDetails, String clientId, CancellationToken cancellationToken){
-        ClientDetails clientDetails = await this.SecurityServiceClient.GetClient(clientId, CancellationToken.None).ConfigureAwait(false);
+        Result<ClientDetails>? clientDetailsResult = await this.SecurityServiceClient.GetClient(clientId, CancellationToken.None).ConfigureAwait(false);
+        clientDetailsResult.IsSuccess.ShouldBeTrue();
+        ClientDetails clientDetails = clientDetailsResult.Data;
         ClientDetails expectedRecord = expectedDetails.Single();
 
         clientDetails.ShouldNotBeNull();
@@ -164,8 +178,9 @@ public class SecurityServiceSteps{
     }
 
     public async Task WhenIGetTheClientsClientsDetailsAreReturnedAsFollows(List<ClientDetails> expectedDetails, CancellationToken cancellationToken){
-        List<ClientDetails>? clientDetailsList = await this.SecurityServiceClient.GetClients(CancellationToken.None).ConfigureAwait(false);
-
+        Result<List<ClientDetails>>? clientDetailsListResult = await this.SecurityServiceClient.GetClients(CancellationToken.None).ConfigureAwait(false);
+        clientDetailsListResult.IsSuccess.ShouldBeTrue();
+        List<ClientDetails>? clientDetailsList = clientDetailsListResult.Data;
         foreach (ClientDetails expectedRecord in expectedDetails){
             ClientDetails? foundRecord = clientDetailsList.SingleOrDefault(a => a.ClientId == expectedRecord.ClientId);
             foundRecord.ShouldNotBeNull();
@@ -185,14 +200,16 @@ public class SecurityServiceSteps{
 
     public async Task GivenICreateTheFollowingIdentityResources(List<CreateIdentityResourceRequest> requests, CancellationToken cancellationToken){
         foreach (CreateIdentityResourceRequest createIdentityResourceRequest in requests){
-            var result = await this.SecurityServiceClient.CreateIdentityResource(createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
+            Result? result = await this.SecurityServiceClient.CreateIdentityResource(createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
             result.IsSuccess.ShouldBeTrue();
         }
     }
 
     public async Task WhenIGetTheIdentityResourceWithNameTheIdentityResourceDetailsAreReturnedAsFollows(List<IdentityResourceDetails> expectedDetails, String identityResourceName, CancellationToken cancellationToken)
     {
-        IdentityResourceDetails identityResourceDetails = await this.SecurityServiceClient.GetIdentityResource(identityResourceName, cancellationToken).ConfigureAwait(false);
+        Result<IdentityResourceDetails>? identityResourceDetailsResult = await this.SecurityServiceClient.GetIdentityResource(identityResourceName, cancellationToken).ConfigureAwait(false);
+        identityResourceDetailsResult.IsSuccess.ShouldBeTrue();
+        IdentityResourceDetails identityResourceDetails = identityResourceDetailsResult.Data;
         IdentityResourceDetails expectedRecord = expectedDetails.Single();
 
         identityResourceDetails.Name.ShouldBe(expectedRecord.Name);
@@ -205,8 +222,9 @@ public class SecurityServiceSteps{
     }
 
     public async Task WhenIGetTheIdentityResourcesIdentityResourceDetailsAreReturnedAsFollows(List<IdentityResourceDetails> expectedDetails, CancellationToken cancellationToken){
-        List<IdentityResourceDetails>? identityResourceDetailsList = await this.SecurityServiceClient.GetIdentityResources(CancellationToken.None).ConfigureAwait(false);
-
+        Result<List<IdentityResourceDetails>>? getIdentityResourcesResult = await this.SecurityServiceClient.GetIdentityResources(CancellationToken.None).ConfigureAwait(false);
+        getIdentityResourcesResult.IsSuccess.ShouldBeTrue();
+        List<IdentityResourceDetails>? identityResourceDetailsList = getIdentityResourcesResult.Data;
         foreach (IdentityResourceDetails expectedRecord in expectedDetails){
             IdentityResourceDetails? foundRecord = identityResourceDetailsList.SingleOrDefault(a => a.Name == expectedRecord.Name);
             foundRecord.ShouldNotBeNull();
@@ -223,7 +241,7 @@ public class SecurityServiceSteps{
     }
 
     public async Task<List<(String, Guid)>> GivenICreateTheFollowingRoles(List<CreateRoleRequest> requests, CancellationToken cancellationToken) {
-        var roleList = new List<(String, Guid)>();
+        List<(String, Guid)> roleList = new List<(String, Guid)>();
         foreach (CreateRoleRequest request in requests){
             Result? result = await this.SecurityServiceClient.CreateRole(request, cancellationToken).ConfigureAwait(false);
             result.IsSuccess.ShouldBeTrue();
@@ -233,7 +251,7 @@ public class SecurityServiceSteps{
         roles.IsSuccess.ShouldBeTrue();
 
         foreach (CreateRoleRequest request in requests) {
-            var r = roles.Data.Single(r => r.RoleName == request.RoleName);
+            RoleDetails r = roles.Data.Single(r => r.RoleName == request.RoleName);
             roleList.Add((r.RoleName, r.RoleId));
         }
 
@@ -242,7 +260,9 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheRoleWithNameTheRoleDetailsAreReturnedAsFollows(List<RoleDetails> expectedDetails, Guid roleId, CancellationToken cancellationToken)
     {
-        RoleDetails roleDetails = await this.SecurityServiceClient.GetRole(roleId, cancellationToken).ConfigureAwait(false);
+        Result<RoleDetails>? getRoleResult = await this.SecurityServiceClient.GetRole(roleId, cancellationToken).ConfigureAwait(false);
+        getRoleResult.IsSuccess.ShouldBeTrue();
+        RoleDetails roleDetails =getRoleResult.Data;
         RoleDetails expectedRecord = expectedDetails.Single();
 
         roleDetails.RoleName.ShouldBe(expectedRecord.RoleName);
@@ -250,7 +270,9 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheRolesRolesDetailsAreReturnedAsFollows(List<RoleDetails> expectedDetails, CancellationToken cancellationToken)
     {
-        List<RoleDetails>? rolesList = await this.SecurityServiceClient.GetRoles(CancellationToken.None).ConfigureAwait(false);
+        Result<List<RoleDetails>>? getRolesResult = await this.SecurityServiceClient.GetRoles(CancellationToken.None).ConfigureAwait(false);
+        getRolesResult.IsSuccess.ShouldBeTrue();
+        List<RoleDetails>? rolesList = getRolesResult.Data;
         foreach (RoleDetails expectedRecord in expectedDetails)
         {
             RoleDetails? foundRecord = rolesList.SingleOrDefault(a => a.RoleName == expectedRecord.RoleName);
@@ -262,10 +284,10 @@ public class SecurityServiceSteps{
     public async Task<List<(String, Guid)>> GivenICreateTheFollowingUsers(List<CreateUserRequest> requests, CancellationToken cancellationToken){
         List<(String, Guid)> results = new List<(String, Guid)>();
         foreach (CreateUserRequest createUserRequest in requests){
-            var result = await this.SecurityServiceClient.CreateUser(createUserRequest, cancellationToken).ConfigureAwait(false);
+            Result? result = await this.SecurityServiceClient.CreateUser(createUserRequest, cancellationToken).ConfigureAwait(false);
             result.IsSuccess.ShouldBeTrue();
 
-            var user = await this.SecurityServiceClient.GetUsers(createUserRequest.EmailAddress, cancellationToken);
+            Result<List<UserDetails>>? user = await this.SecurityServiceClient.GetUsers(createUserRequest.EmailAddress, cancellationToken);
             user.IsSuccess.ShouldBeTrue();
 
             results.Add((createUserRequest.EmailAddress, user.Data.Single().UserId));
@@ -275,7 +297,9 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(List<UserDetails> expectedDetails, CancellationToken cancellationToken)
     {
-        List<UserDetails>? usersList = await this.SecurityServiceClient.GetUsers(String.Empty, CancellationToken.None).ConfigureAwait(false);
+        Result<List<UserDetails>>? getUsersResult = await this.SecurityServiceClient.GetUsers(String.Empty, CancellationToken.None).ConfigureAwait(false);
+        getUsersResult.IsSuccess.ShouldBeTrue();
+        List<UserDetails>? usersList = getUsersResult.Data;
         foreach (UserDetails expectedRecord in expectedDetails)
         {
             UserDetails? foundRecord = usersList.SingleOrDefault(a => a.UserName == expectedRecord.UserName);

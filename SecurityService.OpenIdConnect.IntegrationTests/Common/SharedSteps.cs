@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SimpleResults;
 
 namespace SecurityService.OpenIdConnect.IntegrationTests.Common
 {
@@ -76,10 +77,11 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         private async Task CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                              CancellationToken cancellationToken)
         {
-            List<IdentityResourceDetails> identityResourceList = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(cancellationToken);
-
+            Result<List<IdentityResourceDetails>> identityResourceListResult = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(cancellationToken);
+            identityResourceListResult.IsSuccess.ShouldBeTrue();
+            List<IdentityResourceDetails> identityResourceList = identityResourceListResult.Data;
             if (identityResourceList == null || identityResourceList.Any() == false) {
-                var result = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateIdentityResource(createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
+                Result result = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateIdentityResource(createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
                 result.IsSuccess.ShouldBeTrue();
 
                 this.TestingContext.IdentityResources.Add(createIdentityResourceRequest.Name);
@@ -91,7 +93,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                     return;
                 }
 
-                var result = await this
+                Result result = await this
                                                        .TestingContext.DockerHelper.SecurityServiceClient
                                                        .CreateIdentityResource(createIdentityResourceRequest, cancellationToken)
                                                        .ConfigureAwait(false);

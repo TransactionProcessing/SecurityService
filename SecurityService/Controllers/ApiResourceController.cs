@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Shared.Results;
+using Shared.Results.Web;
 using SimpleResults;
 
 namespace SecurityService.Controllers
@@ -82,13 +83,12 @@ namespace SecurityService.Controllers
         {
             SecurityServiceQueries.GetApiResourceQuery query = new(apiResourceName);
 
-            var result= await this.Mediator.Send(query, cancellationToken);
-            // TODO:: handle failure
+            Result<ApiResource> result= await this.Mediator.Send(query, cancellationToken);
             // return the result
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            ApiResourceDetails model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }
@@ -105,12 +105,12 @@ namespace SecurityService.Controllers
         public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken) {
             SecurityServiceQueries.GetApiResourcesQuery query = new SecurityServiceQueries.GetApiResourcesQuery();
 
-            var result = await this.Mediator.Send(query, cancellationToken);
+            Result<List<ApiResource>> result = await this.Mediator.Send(query, cancellationToken);
 
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            List<ApiResourceDetails> model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }

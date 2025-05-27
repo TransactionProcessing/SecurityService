@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Shared.Results;
+using Shared.Results.Web;
 using SimpleResults;
 
 namespace SecurityService.Controllers
@@ -61,8 +62,10 @@ namespace SecurityService.Controllers
             Guid roleId = Guid.NewGuid();
             SecurityServiceCommands.CreateRoleCommand command  = new(roleId, createRoleRequest.RoleName);
 
-            var result = await this.Mediator.Send(command, cancellationToken);
-            // TODO: Handle failed result
+            Result result = await this.Mediator.Send(command, cancellationToken);
+            if (result.IsFailed)
+                return result.ToActionResultX();
+            
             // return the result
             return result.ToActionResultX();
         }
@@ -82,12 +85,12 @@ namespace SecurityService.Controllers
         {
             SecurityServiceQueries.GetRoleQuery query = new(roleId);
 
-            var result = await this.Mediator.Send(query, cancellationToken);
+            Result<Models.RoleDetails> result = await this.Mediator.Send(query, cancellationToken);
 
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            RoleDetails model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }
@@ -106,12 +109,12 @@ namespace SecurityService.Controllers
         {
             SecurityServiceQueries.GetRolesQuery query = new();
 
-            var result = await this.Mediator.Send(query, cancellationToken);
+            Result<List<Models.RoleDetails>> result = await this.Mediator.Send(query, cancellationToken);
 
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            List<RoleDetails> model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }

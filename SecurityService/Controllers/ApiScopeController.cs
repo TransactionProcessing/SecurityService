@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SecurityService.BusinessLogic.RequestHandlers;
 using SecurityService.BusinessLogic.Requests;
+using Shared.Results.Web;
 using SimpleResults;
 
 namespace SecurityService.Controllers
@@ -50,8 +51,9 @@ namespace SecurityService.Controllers
                 createApiScopeRequest.DisplayName,
                 createApiScopeRequest.Description);
 
-            var result = await this.Mediator.Send(command, cancellationToken);
-            // TODO: Handle failed result
+            Result result = await this.Mediator.Send(command, cancellationToken);
+            if (result.IsFailed)
+                return result.ToActionResultX();
 
             // return the result
             return result.ToActionResultX();
@@ -94,12 +96,12 @@ namespace SecurityService.Controllers
         {
             SecurityServiceQueries.GetApiScopesQuery query = new();
 
-            var result = await this.Mediator.Send(query, cancellationToken);
+            Result<List<ApiScope>> result = await this.Mediator.Send(query, cancellationToken);
 
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            List<ApiScopeDetails> model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }

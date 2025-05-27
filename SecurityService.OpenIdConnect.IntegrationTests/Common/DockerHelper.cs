@@ -120,10 +120,11 @@
             await Retry.For(async () => {
                                 this.Trace($"About to do health check for Test UI");
 
-                                String healthCheck =
+                                SimpleResults.Result<String> healthCheck =
                                     await this.HealthCheckClient.PerformHealthCheck("https", "127.0.0.1", this.SecurityServiceTestUIPort, CancellationToken.None);
 
-                                HealthCheckResult result = JsonConvert.DeserializeObject<HealthCheckResult>(healthCheck);
+                                healthCheck.IsSuccess.ShouldBeTrue($"Health check for Test UI failed with [{healthCheck.Message}]");
+                                HealthCheckResult result = JsonConvert.DeserializeObject<HealthCheckResult>(healthCheck.Data);
 
                                 this.Trace($"health check complete for Test UI result is [{healthCheck}]");
 
