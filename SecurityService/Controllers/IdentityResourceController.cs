@@ -1,4 +1,5 @@
-﻿using SimpleResults;
+﻿using Shared.Results.Web;
+using SimpleResults;
 
 namespace SecurityService.Controllers
 {
@@ -80,8 +81,9 @@ namespace SecurityService.Controllers
                                                                                                                                        createIdentityResourceRequest.ShowInDiscoveryDocument,
                                                                                                                                        createIdentityResourceRequest.Claims);
 
-            var result = await this.Mediator.Send(command, cancellationToken);
-            // TODO: Handle failed result
+            Result result = await this.Mediator.Send(command, cancellationToken);
+            if (result.IsFailed)
+                return result.ToActionResultX();
 
             // return the result
             return this.Created($"{IdentityResourceController.ControllerRoute}/{createIdentityResourceRequest.Name}",
@@ -111,7 +113,7 @@ namespace SecurityService.Controllers
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            IdentityResourceDetails model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }
@@ -133,7 +135,7 @@ namespace SecurityService.Controllers
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            List<IdentityResourceDetails> model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }

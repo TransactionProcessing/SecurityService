@@ -1,4 +1,5 @@
-﻿using SimpleResults;
+﻿using Shared.Results.Web;
+using SimpleResults;
 
 namespace SecurityService.Controllers
 {
@@ -85,8 +86,10 @@ namespace SecurityService.Controllers
                                                                                                                    createClientRequest.AllowOfflineAccess);
             
             // Create the client
-            var result = await this.Mediator.Send(command, cancellationToken);
-            // TODO: handle failed result
+            Result result = await this.Mediator.Send(command, cancellationToken);
+
+            if (result.IsFailed)
+                return result.ToActionResultX();
 
             // return the result
             return this.Created($"{ClientController.ControllerRoute}/{createClientRequest.ClientId}",
@@ -111,12 +114,12 @@ namespace SecurityService.Controllers
         {
             SecurityServiceQueries.GetClientQuery query = new(clientId);
 
-            var result= await this.Mediator.Send(query, cancellationToken);
+            Result<Duende.IdentityServer.Models.Client> result= await this.Mediator.Send(query, cancellationToken);
 
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            ClientDetails model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }
@@ -134,12 +137,12 @@ namespace SecurityService.Controllers
         {
             SecurityServiceQueries.GetClientsQuery query = new();
 
-            var result = await this.Mediator.Send(query, cancellationToken);
+            Result<List<Duende.IdentityServer.Models.Client>> result = await this.Mediator.Send(query, cancellationToken);
 
             if (result.IsFailed)
                 return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
+            List<ClientDetails> model = this.ModelFactory.ConvertFrom(result.Data);
 
             return Result.Success(model).ToActionResultX();
         }
