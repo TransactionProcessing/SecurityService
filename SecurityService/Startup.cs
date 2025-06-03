@@ -68,37 +68,12 @@
         public static IConfigurationRoot Configuration { get; set; }
 
         /// <summary>
-        /// Gets a value indicating whether this instance is my SQL.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is my SQL; otherwise, <c>false</c>.
-        /// </value>
-        public static Boolean IsMySql => string.Compare(Startup.GetDatabaseEngine, "MySql", StringComparison.InvariantCultureIgnoreCase) == 0;
-
-        /// <summary>
-        /// Gets a value indicating whether this instance is SQL server.
-        /// </summary>
-        /// <value>
-        ///   <c>true</c> if this instance is SQL server; otherwise, <c>false</c>.
-        /// </value>
-        public static Boolean IsSqlServer =>
-            Startup.GetDatabaseEngine == null || string.Compare(Startup.GetDatabaseEngine, "SqlServer", StringComparison.InvariantCultureIgnoreCase) == 0;
-
-        /// <summary>
         /// Gets or sets the hosting environment.
         /// </summary>
         /// <value>
         /// The hosting environment.
         /// </value>
         public static IWebHostEnvironment WebHostEnvironment { get; set; }
-
-        /// <summary>
-        /// Gets the get database engine.
-        /// </summary>
-        /// <value>
-        /// The get database engine.
-        /// </value>
-        private static String GetDatabaseEngine => ConfigurationReader.GetValue("AppSettings", "DatabaseEngine");
 
         #endregion
 
