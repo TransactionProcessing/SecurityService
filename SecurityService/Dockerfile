@@ -1,4 +1,4 @@
-FROM stuartferguson/txnprocbase AS base
+FROM stuartferguson/txnprocbase:2024.8.1 AS base
 WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
