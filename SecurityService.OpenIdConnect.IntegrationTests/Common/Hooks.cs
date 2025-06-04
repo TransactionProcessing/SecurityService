@@ -71,7 +71,7 @@ namespace SecurityService.IntergrationTests.Common
             {
                 ChromeOptions options = new ChromeOptions();
                 options.AddArguments("--disable-gpu");
-                options.AddArguments("--headless");
+                //options.AddArguments("--headless");
                 options.AddArguments("--no-sandbox");
                 options.AddArguments("--disable-dev-shm-usage");
                 options.AddArguments("disable-infobars");

@@ -76,6 +76,7 @@ public class Index : PageModel
         
     private async Task BuildModelAsync(String returnUrl)
     {
+        //Logger.LogWarning($"return url is {returnUrl}");
         NameValueCollection queryString = HttpUtility.ParseQueryString(Request.QueryString.ToString());
 
         View = new ViewModel();
