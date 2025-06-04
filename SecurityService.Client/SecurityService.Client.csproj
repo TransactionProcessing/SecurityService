@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>net8.0</TargetFrameworks>
+	  <TargetFrameworks>net9.0</TargetFrameworks>
     <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);IncludeP2PAssets</TargetsForTfmSpecificBuildOutput>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="ClientProxyBase" Version="2025.5.4" />
-    <PackageReference Include="Shared.Results" Version="2025.5.4" />
+    <PackageReference Include="ClientProxyBase" Version="2025.6.1" />
+    <PackageReference Include="Shared.Results" Version="2025.6.1" />
   </ItemGroup>
 
   <ItemGroup>

@@ -130,6 +130,7 @@ namespace SecurityService.UnitTests
             configuration.Add("ServiceOptions:PublicOrigin", "https://127.0.0.1:5001");
             configuration.Add("ServiceOptions:ClientId", "ClientId");
             configuration.Add("ServiceOptions:IssuerUrl", "https://127.0.0.1:5001");
+            configuration.Add("ServiceOptions:UseInMemoryDatabase", "true");
 
             builder.AddInMemoryCollection(configuration);
 

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace SecurityService
 {
     using System;
@@ -19,11 +21,17 @@ namespace SecurityService
                                                                       String configurationConnectionString,
                                                                       String persistedGrantStoreConenctionString,
                                                                       String authenticationConenctionString) {
-            builder.AddConfigurationStore<ConfigurationDbContext>(options => { options.ConfigureDbContext = c => c.UseSqlServer(configurationConnectionString, sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations")); });
+            builder.AddConfigurationStore<ConfigurationDbContext>(options => { options.ConfigureDbContext = c => c.UseSqlServer(configurationConnectionString, sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations"))
+                .EnableSensitiveDataLogging()
+                .LogTo(Console.WriteLine, LogLevel.Information); });
 
-            builder.AddOperationalStore<PersistedGrantDbContext>(options => { options.ConfigureDbContext = c => c.UseSqlServer(persistedGrantStoreConenctionString, sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations")); });
+            builder.AddOperationalStore<PersistedGrantDbContext>(options => { options.ConfigureDbContext = c => c.UseSqlServer(persistedGrantStoreConenctionString, sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations"))
+                .EnableSensitiveDataLogging()
+                .LogTo(Console.WriteLine, LogLevel.Information); });
 
-            builder.Services.AddDbContext<AuthenticationDbContext>(builder => builder.UseSqlServer(authenticationConenctionString, sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations")));
+            builder.Services.AddDbContext<AuthenticationDbContext>(builder => builder.UseSqlServer(authenticationConenctionString, sqlOptions => sqlOptions.MigrationsAssembly("SecurityService.SqlServerMigrations")
+            ).EnableSensitiveDataLogging()
+            .LogTo(Console.WriteLine, LogLevel.Information));
             
             return builder;
         }

@@ -51,8 +51,7 @@ public class Index : PageModel
 
     public const String ErrorChangingPassword = "An error occurred changing password";
 
-    public async Task<IActionResult> OnPost(CancellationToken cancellationToken)
-    {
+    public async Task<IActionResult> OnPost(CancellationToken cancellationToken) {
         await BuildModelAsync(Input.ReturnUrl);
         //// the user clicked the "cancel" button
         //if (Input.Button == "cancel") {
@@ -64,18 +63,21 @@ public class Index : PageModel
             ModelState.AddModelError(String.Empty, PasswordsDontMatch);
             return this.Page();
         }
+
         SecurityServiceCommands.ChangeUserPasswordCommand command = new(Input.Username, Input.CurrentPassword, Input.NewPassword, Input.ClientId);
-        Result<ChangeUserPasswordResult>? result= await this.Mediator.Send(command, cancellationToken);
-        
+        Result<ChangeUserPasswordResult>? result = await this.Mediator.Send(command, cancellationToken);
+
         if (result.IsFailed) {
             ModelState.AddModelError(String.Empty, ErrorChangingPassword);
             return this.Page();
         }
+
         return this.Redirect(result.Data.RedirectUri);
     }
-        
+
     private async Task BuildModelAsync(String returnUrl)
     {
+        //Logger.LogWarning($"return url is {returnUrl}");
         NameValueCollection queryString = HttpUtility.ParseQueryString(Request.QueryString.ToString());
 
         View = new ViewModel();

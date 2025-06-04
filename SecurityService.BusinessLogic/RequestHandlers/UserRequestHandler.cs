@@ -253,14 +253,16 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
 
         public async Task<Result<ChangeUserPasswordResult>> Handle(SecurityServiceCommands.ChangeUserPasswordCommand command, CancellationToken cancellationToken){
 
+            //Logger.LogWarning("In Handle ChangeUserPasswordCommand");
             // Find the user based on the user name passed in
             ApplicationUser user = await this.UserManager.FindByNameAsync(command.UserName);
 
             if (user == null){
+                //Logger.LogWarning("In Handle ChangeUserPasswordCommand - user is null");
                 // this prevents giving away info to a potential hacker...
                 return Result.NotFound();
             }
-
+            //Logger.LogWarning("In Handle ChangeUserPasswordCommand - user is not null");
             IdentityResult result = await this.UserManager.ChangePasswordAsync(user,
                 command.CurrentPassword,
                 command.NewPassword);
@@ -275,10 +277,12 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 return Result.Failure($"Errors during password change for user [{command.UserName} and Client [{command.ClientId}]");
             }
 
+            //Logger.LogWarning("In Handle ChangeUserPasswordCommand - password changed");
             // build the redirect uri
             Client client = await this.ConfigurationDbContext.Clients.SingleOrDefaultAsync(c => c.ClientId == command.ClientId, cancellationToken:cancellationToken);
 
             if (client == null){
+                //Logger.LogWarning("In Handle ChangeUserPasswordCommand - client not found");
                 Logger.LogInformation($"Client not found for clientId {command.ClientId}");
                 return Result.Invalid($"Client not found for clientId {command.ClientId}");
             }

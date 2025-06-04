@@ -144,6 +144,8 @@ namespace SecurityService.IntegrationTests.UserLogin
 
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(x.Body);
+            
+            
             var emailNode = doc.DocumentNode.SelectNodes("//*[@id='username']");
             var passwordNode = doc.DocumentNode.SelectNodes("//*[@id='password']");
 
