@@ -61,7 +61,7 @@
 
             identityServerBuilder.AddAspNetIdentity<ApplicationUser>();
 
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") || Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase"))
+            if (serviceOptions.UseInMemoryDatabase)
             {
                 identityServerBuilder.AddIntegrationTestConfiguration();
             }
