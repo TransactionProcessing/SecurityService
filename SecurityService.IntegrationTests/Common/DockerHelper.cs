@@ -55,6 +55,10 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add("ServiceOptions:UserOptions:RequireUniqueEmail=false");
             environmentVariables.Add("ServiceOptions:SignInOptions:RequireConfirmedEmail=false");
 
+            environmentVariables.Add(this.SetConnectionString("ConnectionStrings:PersistedGrantDbContext", $"PersistedGrantStore-{this.TestId}", this.UseSecureSqlServerDatabase));
+            environmentVariables.Add(this.SetConnectionString("ConnectionStrings:ConfigurationDbContext", $"Configuration-{this.TestId}", this.UseSecureSqlServerDatabase));
+            environmentVariables.Add(this.SetConnectionString("ConnectionStrings:AuthenticationDbContext", $"Authentication-{this.TestId}", this.UseSecureSqlServerDatabase));
+
             List<String> additionalEnvironmentVariables = this.GetAdditionalVariables(ContainerType.SecurityService);
 
             if (additionalEnvironmentVariables != null)
