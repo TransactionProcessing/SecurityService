@@ -73,67 +73,123 @@ jobs:
         dotnet nuget push Nugets/SecurityService.IntegrationTesting.Helpers.${{ steps.get_version.outputs.VERSION }}.nupkg --api-key ${{ secrets.PRIVATEFEED_APIKEY }} --source ${{ secrets.PRIVATEFEED_URL }} --skip-duplicate         
         
   deploystaging:
-    runs-on: stagingserver
-    needs: buildlinux
-    environment: staging
-    name: "Deploy to Staging"
-    
-    steps:
-      - name: Download the artifact
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: securityservice
+      runs-on: [stagingserver, linux]
+      needs: buildlinux
+      environment: staging
+      name: "Deploy to Staging"
 
-      - name: Remove existing  Windows service
-        run: |
-          $serviceName = "Transaction Processing - Security Service"
-          # Check if the service exists
-          if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
-            Stop-Service -Name $serviceName
-            sc.exe delete $serviceName
-          }
+      steps:
+        - name: Download the artifact
+          uses: actions/download-artifact@v4.1.8
+          with:
+            name: securityservice
+            path: /tmp/securityservice # Download to a temporary directory
 
-      - name: Unzip the files
-        run: |
-          Expand-Archive -Path securityservice.zip -DestinationPath "C:\txnproc\transactionprocessing\securityservice" -Force
-      
-      - name: Install as a Windows service
-        run: |
-          $serviceName = "Transaction Processing - Security Service"
-          $servicePath = "C:\txnproc\transactionprocessing\securityservice\SecurityService.exe"
-                   
-          New-Service -Name $serviceName -BinaryPathName $servicePath -Description "Transaction Processing - Security Service" -DisplayName "Transaction Processing - Security Service" -StartupType Automatic
-          Start-Service -Name $serviceName    
+        - name: Remove existing service (if applicable)
+          run: |
+            SERVICE_NAME="securityservice" # Or whatever your service will be called
+            if systemctl is-active --quiet "$SERVICE_NAME"; then
+              echo "Stopping existing service..."
+              sudo systemctl stop "$SERVICE_NAME"
+            fi
+            if systemctl is-enabled --quiet "$SERVICE_NAME"; then
+              echo "Disabling existing service..."
+              sudo systemctl disable "$SERVICE_NAME"
+            fi
+            if [ -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+              echo "Removing existing service unit file..."
+              sudo rm "/etc/systemd/system/${SERVICE_NAME}.service"
+              sudo systemctl daemon-reload
+            fi
+
+        - name: Unzip the files
+          run: |
+            mkdir -p /opt/txnproc/transactionprocessing/securityservice
+            unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
+
+        - name: Install and Start as a Linux service
+          run: |
+            SERVICE_NAME="securityservice"
+            EXEC_PATH="/opt/txnproc/transactionprocessing/securityservice/SecurityService" # Assuming your executable is named SecurityService
+            SERVICE_DESCRIPTION="Transaction Processing - Security Service"
+
+            # Create a systemd service file
+            echo "[Unit]" | sudo tee /etc/systemd/system/${SERVICE_NAME}.service
+            echo "Description=${SERVICE_DESCRIPTION}" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "After=network.target" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "[Service]" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "ExecStart=${EXEC_PATH}" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "Restart=always" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "User=youruser" # Consider running as a less privileged user
+            echo "Group=yourgroup" # Consider running as a less privileged group
+            echo "" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "[Install]" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+
+            # Reload systemd, enable, and start the service
+            sudo systemctl daemon-reload
+            sudo systemctl enable "$SERVICE_NAME"
+            sudo systemctl start "$SERVICE_NAME"
+            sudo systemctl status "$SERVICE_NAME" --no-pager # For debugging/verification    
 
   deployproduction:
-    runs-on: productionserver
+    runs-on: [productionserver, linux]
     needs: [buildlinux, deploystaging]
     environment: production
     name: "Deploy to Production"
     
     steps:
-      - name: Download the artifact
-        uses: actions/download-artifact@v4.1.8
-        with:
-          name: securityservice
+        - name: Download the artifact
+          uses: actions/download-artifact@v4.1.8
+          with:
+            name: securityservice
+            path: /tmp/securityservice # Download to a temporary directory
 
-      - name: Remove existing  Windows service
-        run: |
-          $serviceName = "Transaction Processing - Security Service"
-          # Check if the service exists
-          if (Get-Service -Name $serviceName -ErrorAction SilentlyContinue) {
-            Stop-Service -Name $serviceName
-            sc.exe delete $serviceName
-          }
+        - name: Remove existing service (if applicable)
+          run: |
+            SERVICE_NAME="securityservice" # Or whatever your service will be called
+            if systemctl is-active --quiet "$SERVICE_NAME"; then
+              echo "Stopping existing service..."
+              sudo systemctl stop "$SERVICE_NAME"
+            fi
+            if systemctl is-enabled --quiet "$SERVICE_NAME"; then
+              echo "Disabling existing service..."
+              sudo systemctl disable "$SERVICE_NAME"
+            fi
+            if [ -f "/etc/systemd/system/${SERVICE_NAME}.service" ]; then
+              echo "Removing existing service unit file..."
+              sudo rm "/etc/systemd/system/${SERVICE_NAME}.service"
+              sudo systemctl daemon-reload
+            fi
 
-      - name: Unzip the files
-        run: |
-          Expand-Archive -Path securityservice.zip -DestinationPath "C:\txnproc\transactionprocessing\securityservice" -Force
-      
-      - name: Install as a Windows service
-        run: |
-          $serviceName = "Transaction Processing - Security Service"
-          $servicePath = "C:\txnproc\transactionprocessing\securityservice\SecurityService.exe"
-                   
-          New-Service -Name $serviceName -BinaryPathName $servicePath -Description "Transaction Processing - Security Service" -DisplayName "Transaction Processing - Security Service" -StartupType Automatic
-          Start-Service -Name $serviceName          
+        - name: Unzip the files
+          run: |
+            mkdir -p /opt/txnproc/transactionprocessing/securityservice
+            unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
+
+        - name: Install and Start as a Linux service
+          run: |
+            SERVICE_NAME="securityservice"
+            EXEC_PATH="/opt/txnproc/transactionprocessing/securityservice/SecurityService" # Assuming your executable is named SecurityService
+            SERVICE_DESCRIPTION="Transaction Processing - Security Service"
+
+            # Create a systemd service file
+            echo "[Unit]" | sudo tee /etc/systemd/system/${SERVICE_NAME}.service
+            echo "Description=${SERVICE_DESCRIPTION}" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "After=network.target" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "[Service]" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "ExecStart=${EXEC_PATH}" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "Restart=always" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "User=youruser" # Consider running as a less privileged user
+            echo "Group=yourgroup" # Consider running as a less privileged group
+            echo "" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "[Install]" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+            echo "WantedBy=multi-user.target" | sudo tee -a /etc/systemd/system/${SERVICE_NAME}.service
+
+            # Reload systemd, enable, and start the service
+            sudo systemctl daemon-reload
+            sudo systemctl enable "$SERVICE_NAME"
+            sudo systemctl start "$SERVICE_NAME"
+            sudo systemctl status "$SERVICE_NAME" --no-pager # For debugging/verification         
