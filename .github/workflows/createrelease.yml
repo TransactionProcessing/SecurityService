@@ -104,8 +104,8 @@ jobs:
   
       - name: Unzip the files
         run: |
-          mkdir -p /opt/txnproc/transactionprocessing/securityservice
-          unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
+          sudo mkdir -p /opt/txnproc/transactionprocessing/securityservice
+          sudo unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
   
       # IMPORTANT: Add a step to ensure the .NET runtime is installed on the server
       # This assumes it's not already there. If your base image already has it, you can skip this.
@@ -183,8 +183,8 @@ jobs:
   
       - name: Unzip the files
         run: |
-          mkdir -p /opt/txnproc/transactionprocessing/securityservice
-          unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
+          sudo mkdir -p /opt/txnproc/transactionprocessing/securityservice
+          sudo unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
   
       # IMPORTANT: Add a step to ensure the .NET runtime is installed on the server
       # This assumes it's not already there. If your base image already has it, you can skip this.
