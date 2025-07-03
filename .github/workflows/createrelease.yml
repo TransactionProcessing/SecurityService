@@ -104,8 +104,8 @@ jobs:
 
         - name: Unzip the files
           run: |
-            mkdir -p /opt/txnproc/transactionprocessing/securityservice
-            unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
+            sudo mkdir -p /opt/txnproc/transactionprocessing/securityservice
+            sudo unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
 
         - name: Install and Start as a Linux service
           run: |
@@ -165,8 +165,8 @@ jobs:
 
         - name: Unzip the files
           run: |
-            mkdir -p /opt/txnproc/transactionprocessing/securityservice
-            unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
+            sudo mkdir -p /opt/txnproc/transactionprocessing/securityservice
+            sudo unzip -o /tmp/securityservice/securityservice.zip -d /opt/txnproc/transactionprocessing/securityservice
 
         - name: Install and Start as a Linux service
           run: |
