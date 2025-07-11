@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Duende.IdentityModel;
 
 namespace SecurityService
 {
@@ -11,7 +12,6 @@ namespace SecurityService
     using Duende.IdentityServer;
     using Duende.IdentityServer.Models;
     using Duende.IdentityServer.Test;
-    using IdentityModel;
 
     [ExcludeFromCodeCoverage]
     public static class Config

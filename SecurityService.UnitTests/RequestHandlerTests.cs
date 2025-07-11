@@ -25,7 +25,6 @@ namespace SecurityService.UnitTests {
     using Microsoft.Extensions.Options;
     using Moq;
     using SecurityService.Database.DbContexts;
-    using static IdentityModel.ClaimComparer;
 
     //public class TestRoleValidator : IRoleValidator<IdentityRole>{
     //    public async Task<IdentityResult> ValidateAsync(RoleManager<IdentityRole> manager, IdentityRole role){

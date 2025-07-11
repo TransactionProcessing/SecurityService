@@ -7,8 +7,6 @@
     using System.Collections.Generic;
     using DataTransferObjects;
     using Reqnroll;
-    using static IdentityModel.OidcConstants;
-    using static System.Formats.Asn1.AsnWriter;
 
     public static class ReqnrollExtensions{
         public static List<CreateApiScopeRequest> ToCreateApiScopeRequests(this DataTableRows tableRows){

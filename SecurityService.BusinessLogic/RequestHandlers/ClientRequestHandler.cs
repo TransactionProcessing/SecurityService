@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Duende.IdentityModel;
 using SecurityService.DataTransferObjects.Requests;
 using SimpleResults;
 
@@ -13,7 +14,6 @@ namespace SecurityService.BusinessLogic.RequestHandlers
     using Duende.IdentityServer.EntityFramework.Entities;
     using Duende.IdentityServer.EntityFramework.Mappers;
     using Duende.IdentityServer.Models;
-    using IdentityModel;
     using MediatR;
     using Microsoft.EntityFrameworkCore;
     using Requests;

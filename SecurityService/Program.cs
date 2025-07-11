@@ -8,16 +8,12 @@ using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
 using System;
+using NLog.Extensions.Logging;
+using Shared.Logger;
+using Shared.Middleware;
 
 namespace SecurityService
 {
-    using System.Diagnostics.CodeAnalysis;
-    using System.IO;
-    using System.Linq;
-    using System.Net;
-    using System.Reflection;
-    using System.Security.Authentication;
-    using System.Security.Cryptography.X509Certificates;
     using Lamar.Microsoft.DependencyInjection;
     using Microsoft.AspNetCore.Server.Kestrel.Core;
     using Microsoft.AspNetCore.Server.Kestrel.Https;
@@ -26,6 +22,14 @@ namespace SecurityService
     using Microsoft.Extensions.Logging;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
+    using NLog;
+    using System.Diagnostics.CodeAnalysis;
+    using System.IO;
+    using System.Linq;
+    using System.Net;
+    using System.Reflection;
+    using System.Security.Authentication;
+    using System.Security.Cryptography.X509Certificates;
 
     [ExcludeFromCodeCoverage]
     public class Program
@@ -36,11 +40,30 @@ namespace SecurityService
             FileInfo fi = new FileInfo(System.Reflection.Assembly.GetExecutingAssembly().Location);
             IConfigurationRoot config = new ConfigurationBuilder().SetBasePath(fi.Directory.FullName).AddJsonFile("hosting.json", optional:false)
                                                                   .AddJsonFile("hosting.development.json", optional:true).AddEnvironmentVariables().Build();
-            
+
+            String contentRoot = Directory.GetCurrentDirectory();
+            String nlogConfigPath = Path.Combine(contentRoot, "nlog.config");
+
+            LogManager.Setup(b =>
+            {
+                b.SetupLogFactory(setup =>
+                {
+                    setup.AddCallSiteHiddenAssembly(typeof(NlogLogger).Assembly);
+                    setup.AddCallSiteHiddenAssembly(typeof(Shared.Logger.Logger).Assembly);
+                    setup.AddCallSiteHiddenAssembly(typeof(TenantMiddleware).Assembly);
+                });
+                b.LoadConfigurationFromFile(nlogConfigPath);
+            });
+
             IHostBuilder hostBuilder = Host.CreateDefaultBuilder(args);
             hostBuilder.UseWindowsService();
-            hostBuilder = hostBuilder.UseLamar();
-            hostBuilder = hostBuilder.ConfigureWebHostDefaults(webBuilder =>
+            hostBuilder.UseLamar();
+            hostBuilder.ConfigureLogging(logging => {
+                logging.AddConsole();
+                logging.AddNLog();
+
+            });
+            hostBuilder.ConfigureWebHostDefaults(webBuilder =>
                                                             {
                                                                 webBuilder.UseStartup<Startup>();
                                                                 webBuilder.ConfigureServices(services =>
