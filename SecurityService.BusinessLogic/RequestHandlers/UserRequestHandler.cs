@@ -1,4 +1,5 @@
-﻿using Shared.Results;
+﻿using Duende.IdentityModel;
+using Shared.Results;
 
 namespace SecurityService.BusinessLogic.RequestHandlers{
     using System;
@@ -9,13 +10,10 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
     using System.Text.Encodings.Web;
     using System.Threading;
     using System.Threading.Tasks;
-    using Azure.Core;
     using DataTransferObjects.Responses;
     using Duende.IdentityServer;
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.EntityFramework.Entities;
-    using Exceptions;
-    using IdentityModel;
     using MediatR;
     using MessagingService.Client;
     using MessagingService.DataTransferObjects;
@@ -23,11 +21,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
     using Microsoft.EntityFrameworkCore;
     using Requests;
     using SecurityService.Models;
-    using Shared.Exceptions;
-    using Shared.General;
     using Shared.Logger;
     using SimpleResults;
-    using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
     using UserDetails = Models.UserDetails;
 
     public class UserRequestHandler : IRequestHandler<SecurityServiceCommands.CreateUserCommand, Result>,

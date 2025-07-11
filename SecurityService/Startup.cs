@@ -1,8 +1,5 @@
 ﻿namespace SecurityService
 {
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using System.IO;
     using Bootstrapper;
     using Database.DbContexts;
     using Duende.IdentityServer.EntityFramework.DbContexts;
@@ -21,6 +18,10 @@
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
+    using Shared.Middleware;
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    using System.IO;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
     [ExcludeFromCodeCoverage]
@@ -89,26 +90,16 @@
                               IWebHostEnvironment env,
                               ILoggerFactory loggerFactory)
         {
-            String nlogConfigFilename = "nlog.config";
             if (env.IsDevelopment())
             {
-                var developmentNlogConfigFilename = "nlog.development.config";
-                if (File.Exists(Path.Combine(env.ContentRootPath, developmentNlogConfigFilename)))
-                {
-                    nlogConfigFilename = developmentNlogConfigFilename;
-                }
-
                 app.UseDeveloperExceptionPage();
             }
-
-            loggerFactory.ConfigureNLog(Path.Combine(Startup.WebHostEnvironment.ContentRootPath, nlogConfigFilename));
-            loggerFactory.AddNLog();
-
+            
             ILogger logger = loggerFactory.CreateLogger("Security Service");
 
             Logger.Initialise(logger);
             Startup.Configuration.LogConfiguration(Logger.LogWarning);
-
+            app.UseMiddleware<TenantMiddleware>();
             app.AddRequestLogging();
             app.AddResponseLogging();
             app.AddExceptionHandler();

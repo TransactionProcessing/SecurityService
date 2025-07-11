@@ -1,4 +1,5 @@
-﻿using SecurityService.DataTransferObjects.Requests;
+﻿using Duende.IdentityModel;
+using SecurityService.DataTransferObjects.Requests;
 using SimpleResults;
 
 namespace SecurityService.BusinessLogic.RequestHandlers{
@@ -10,7 +11,6 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.EntityFramework.Mappers;
     using Duende.IdentityServer.Models;
-    using IdentityModel;
     using MediatR;
     using Microsoft.EntityFrameworkCore;
     using Requests;

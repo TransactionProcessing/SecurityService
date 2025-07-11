@@ -6,6 +6,7 @@ namespace SecurityService.Bootstrapper
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using BusinessLogic;
+    using ClientProxyBase;
     using Factories;
     using Lamar;
     using MessagingService.Client;
@@ -24,13 +25,15 @@ namespace SecurityService.Bootstrapper
         /// </summary>
         public MiscRegistry()
         {
+            this.AddHttpContextAccessor();
+
             this.AddSingleton<IModelFactory, ModelFactory>();
 
             if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")) {
                 this.AddSingleton<IMessagingServiceClient, TestMessagingServiceClient>();
             }
             else {
-                this.AddSingleton<IMessagingServiceClient, MessagingServiceClient>();
+                this.RegisterHttpClient<IMessagingServiceClient, MessagingServiceClient>();
             }
 
             this.AddSingleton<Func<String, String>>(container => serviceName => { return ConfigurationReader.GetBaseServerUri(serviceName).OriginalString; });
