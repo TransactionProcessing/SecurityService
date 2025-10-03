@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using Duende.IdentityServer;
 using Duende.IdentityServer.Events;
 using Duende.IdentityServer.Services;
@@ -48,7 +49,7 @@ public class Callback : PageModel
         var result = await HttpContext.AuthenticateAsync(IdentityServerConstants.ExternalCookieAuthenticationScheme);
         if (result?.Succeeded != true)
         {
-            throw new Exception("External authentication error");
+            throw new AuthenticationException("External authentication error");
         }
 
         var externalUser = result.Principal;
@@ -65,7 +66,7 @@ public class Callback : PageModel
         // depending on the external provider, some other claim type might be used
         var userIdClaim = externalUser.FindFirst(JwtClaimTypes.Subject) ??
                           externalUser.FindFirst(ClaimTypes.NameIdentifier) ??
-                          throw new Exception("Unknown userid");
+                          throw new AuthenticationException("Unknown userid");
 
         var provider = result.Properties.Items["scheme"];
         var providerUserId = userIdClaim.Value;
@@ -162,16 +163,16 @@ public class Callback : PageModel
         }
 
         var identityResult = await _userManager.CreateAsync(user);
-        if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+        if (!identityResult.Succeeded) throw new AuthenticationException(identityResult.Errors.First().Description);
 
         if (filtered.Any())
         {
             identityResult = await _userManager.AddClaimsAsync(user, filtered);
-            if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+            if (!identityResult.Succeeded) throw new AuthenticationException(identityResult.Errors.First().Description);
         }
 
         identityResult = await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider));
-        if (!identityResult.Succeeded) throw new Exception(identityResult.Errors.First().Description);
+        if (!identityResult.Succeeded) throw new AuthenticationException(identityResult.Errors.First().Description);
 
         return user;
     }
