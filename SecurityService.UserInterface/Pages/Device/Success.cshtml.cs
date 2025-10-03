@@ -7,7 +7,4 @@ namespace IdentityServerHost.Pages.Device;
 [Authorize]
 public class SuccessModel : PageModel
 {
-    public void OnGet()
-    {
-    }
 }
