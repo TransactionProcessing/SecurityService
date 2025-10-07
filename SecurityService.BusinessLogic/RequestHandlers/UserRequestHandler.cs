@@ -526,12 +526,14 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
 
 public static class PasswordGenerator
     {
-        public static string GenerateRandomPassword(PasswordOptions? opts = null)
+        public static Result<string> GenerateRandomPassword(PasswordOptions? opts = null)
         {
             opts ??= DefaultOptions();
 
             var categories = BuildCategories(opts);
-            ValidateUniqueCharRequirement(opts, categories);
+            var result = ValidateUniqueCharRequirement(opts, categories);
+            if (result.IsFailed)
+                return ResultHelpers.CreateFailure(result);
 
             var chars = new List<char>();
 
@@ -539,7 +541,7 @@ public static class PasswordGenerator
             FillRemainingChars(chars, opts, categories);
             SecureShuffle(chars);
 
-            return new string(chars.ToArray());
+            return Result.Success<String>(new string(chars.ToArray()));
         }
 
         private static PasswordOptions DefaultOptions() => new()
@@ -563,11 +565,13 @@ public static class PasswordGenerator
             return list;
         }
 
-        private static void ValidateUniqueCharRequirement(PasswordOptions opts, List<string> categories)
+        private static Result ValidateUniqueCharRequirement(PasswordOptions opts, List<string> categories)
         {
             var all = string.Concat(categories).Distinct().Count();
             if (opts.RequiredUniqueChars > all)
-                throw new ArgumentException($"RequiredUniqueChars ({opts.RequiredUniqueChars}) exceeds available unique characters ({all}).");
+                return Result.Failure($"RequiredUniqueChars ({opts.RequiredUniqueChars}) exceeds available unique characters ({all}).");
+
+            return Result.Success();
         }
 
         private static void AddRequiredCategoryChars(List<char> chars, List<string> categories)

@@ -72,7 +72,7 @@ public class PasswordGeneratorTests
         result.IsFailed.ShouldBeTrue();
         result.Data.ShouldBeNull();
         result.Message.ShouldNotBeEmpty();
-        result.Message.ShouldContain("is greater than available unique characters");
+        result.Message.ShouldContain("exceeds available unique characters");
     }
 
     [Fact]
