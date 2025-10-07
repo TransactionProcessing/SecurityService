@@ -11,7 +11,7 @@
         /// <summary>
         /// The enable offline access
         /// </summary>
-        public static Boolean EnableOfflineAccess = true;
+        public static readonly Boolean EnableOfflineAccess = true;
 
         /// <summary>
         /// The invalid selection error message
@@ -26,12 +26,12 @@
         /// <summary>
         /// The offline access description
         /// </summary>
-        public static String OfflineAccessDescription = "Access to your applications and resources, even when you are offline";
+        public static readonly String OfflineAccessDescription = "Access to your applications and resources, even when you are offline";
 
         /// <summary>
         /// The offline access display name
         /// </summary>
-        public static String OfflineAccessDisplayName = "Offline Access";
+        public static readonly String OfflineAccessDisplayName = "Offline Access";
 
         #endregion
     }
