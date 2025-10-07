@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Shared.Logger;
 using SimpleResults;
 
 namespace IdentityServerHost.Pages.EmailConfirmation;
@@ -53,7 +54,8 @@ public class Confirm : PageModel
             // Send the welcome email 
             SecurityServiceCommands.SendWelcomeEmailCommand command = new(Input.Username);
             Result? sendWelcomeEmailResult = await this.Mediator.Send(command, cancellationToken);
-            // TODO: handle this result....
+            if (sendWelcomeEmailResult.IsFailed)
+                Logger.LogWarning($"Error sending welcome email to {this.Input.Username} [{sendWelcomeEmailResult.Message}]");
 
         }
         return Page();

@@ -64,7 +64,7 @@ namespace SecurityService.Controllers
                 createApiResourceRequest.UserClaims);
 
             Result result = await this.Mediator.Send(command, cancellationToken);
-            // TODO: Handle failed result
+            
             return result.ToActionResultX();
         }
 

@@ -51,7 +51,8 @@
                                         Object existingValue,
                                         JsonSerializer serializer)
         {
-            throw new NotImplementedException();
+            // Not used because CanRead returns false
+            return new Object();
         }
 
         /// <summary>
