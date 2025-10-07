@@ -54,7 +54,7 @@ namespace SecurityService.Controllers
         /// <summary>
         /// The controller name
         /// </summary>
-        public const String ControllerName = "developer";
+        private const String ControllerName = "developer";
 
         /// <summary>
         /// The controller route

@@ -147,7 +147,7 @@ namespace SecurityService.Controllers
         /// <summary>
         /// The controller name
         /// </summary>
-        public const String ControllerName = "identityresources";
+        private const String ControllerName = "identityresources";
 
         /// <summary>
         /// The controller route

@@ -120,7 +120,7 @@ namespace SecurityService.Controllers
         /// <summary>
         /// The controller name
         /// </summary>
-        public const String ControllerName = "apiresources";
+        private const String ControllerName = "apiresources";
 
         /// <summary>
         /// The controller route
