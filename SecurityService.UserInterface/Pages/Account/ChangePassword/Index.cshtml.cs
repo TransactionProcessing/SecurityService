@@ -47,9 +47,9 @@ public class Index : PageModel
         return Page();
     }
 
-    public const String PasswordsDontMatch = "New Password does not match Confirm Password";
+    private const String PasswordsDontMatch = "New Password does not match Confirm Password";
 
-    public const String ErrorChangingPassword = "An error occurred changing password";
+    private const String ErrorChangingPassword = "An error occurred changing password";
 
     public async Task<IActionResult> OnPost(CancellationToken cancellationToken) {
         await BuildModelAsync(Input.ReturnUrl);
