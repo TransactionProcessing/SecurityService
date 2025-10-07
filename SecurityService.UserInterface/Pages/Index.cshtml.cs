@@ -9,7 +9,7 @@ using System.Linq;
 [AllowAnonymous]
 public class Index : PageModel
 {
-    public string Version;
+    public string Version { get; private set; }
         
     public void OnGet()
     {

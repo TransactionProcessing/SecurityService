@@ -368,7 +368,6 @@ namespace SecurityService.Client
 
         public async Task<Result<List<ApiScopeDetails>>> GetApiScopes(CancellationToken cancellationToken)
         {
-            List<ApiScopeDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/apiscopes");
 
             try
@@ -434,7 +433,6 @@ namespace SecurityService.Client
 
         public async Task<Result<List<ClientDetails>>> GetClients(CancellationToken cancellationToken)
         {
-            List<ClientDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/clients");
 
             try
@@ -569,7 +567,6 @@ namespace SecurityService.Client
 
         public async Task<Result<List<RoleDetails>>> GetRoles(CancellationToken cancellationToken)
         {
-            List<RoleDetails> response = null;
             String requestUri = this.BuildRequestUrl("/api/roles");
 
             try
@@ -734,7 +731,6 @@ namespace SecurityService.Client
                                             CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/connect/token");
-            String content = null;
 
             try
             {
