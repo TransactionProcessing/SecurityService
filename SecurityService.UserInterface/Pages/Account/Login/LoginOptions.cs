@@ -2,7 +2,7 @@ namespace IdentityServerHost.Pages.Login;
 
 using System;
 
-public class LoginOptions
+public static class LoginOptions
 {
     public static readonly bool AllowLocalLogin = true;
     public static readonly bool AllowRememberLogin = true;
