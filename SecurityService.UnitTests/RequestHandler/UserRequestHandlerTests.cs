@@ -67,6 +67,40 @@ public class UserRequestHandlerTests{
         await this.AuthenticationDbContext.SaveChangesAsync();
 
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(), It.IsAny<SendEmailRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success);
+
+        Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        result.IsSuccess.ShouldBeTrue();
+
+        Int32 userCount = await this.AuthenticationDbContext.Users.CountAsync();
+        userCount.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task UserRequestHandler_CreateUserCommand_EmailSendFailed_RequestIsHandled()
+    {
+        SecurityServiceCommands.CreateUserCommand command = new(Guid.Parse(TestData.UserId),
+                                                             TestData.GivenName,
+                                                             TestData.MiddleName,
+                                                             TestData.FamilyName,
+                                                             TestData.UserName,
+                                                             "password",
+                                                             TestData.EmailAddress,
+                                                             TestData.PhoneNumber,
+                                                             TestData.Claims,
+                                                             TestData.Roles);
+
+
+        await this.AuthenticationDbContext.Roles.AddAsync(new IdentityRole
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "TESTROLE1",
+            NormalizedName = "TESTROLE1"
+        });
+        await this.AuthenticationDbContext.SaveChangesAsync();
+
+        this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(), It.IsAny<SendEmailRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Failure);
 
         Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
@@ -231,6 +265,7 @@ public class UserRequestHandlerTests{
         command = command with { Roles = null };
 
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
+        this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(), It.IsAny<SendEmailRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success);
 
         var result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
@@ -244,8 +279,9 @@ public class UserRequestHandlerTests{
         SecurityServiceCommands.CreateUserCommand command = TestData.CreateUserCommand;
         command = command with { Roles = new List<String>() };
         this.SetupRequestHandlers.UserValidator.Setup(s => s.ValidateAsync(It.IsAny<UserManager<ApplicationUser>>(), It.IsAny<ApplicationUser>())).ReturnsAsync(IdentityResult.Success);
-
-        var result = await this.RequestHandler.Handle(command, CancellationToken.None);
+        this.SetupRequestHandlers.MessagingServiceClient.Setup(m => m.SendEmail(It.IsAny<String>(), It.IsAny<SendEmailRequest>(), It.IsAny<CancellationToken>())).ReturnsAsync(Result.Success);
+        
+        Result result = await this.RequestHandler.Handle(command, CancellationToken.None);
         result.IsSuccess.ShouldBeTrue();
 
         Int32 userCount = await this.AuthenticationDbContext.Users.CountAsync();
