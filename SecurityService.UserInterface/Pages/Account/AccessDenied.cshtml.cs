@@ -6,5 +6,6 @@ public class AccessDeniedModel : PageModel
 {
     public void OnGet()
     {
+        // No special processing required
     }
 }

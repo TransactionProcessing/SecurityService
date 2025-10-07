@@ -65,7 +65,7 @@
         {
             if (model == null || model.Any() == false)
             {
-                return null;
+                return new List<UserDetails>();
             }
 
             List<UserDetails> userDetailsList = new List<UserDetails>();
