@@ -47,9 +47,9 @@ public class Index : PageModel
         return Page();
     }
 
-    private const String PasswordsDontMatch = "New Password does not match Confirm Password";
+    private const String DontMatchMessage = "New Password does not match Confirm Password";
 
-    private const String ErrorChangingPassword = "An error occurred changing password";
+    private const String ErrorChangingMessage = "An error occurred changing password";
 
     public async Task<IActionResult> OnPost(CancellationToken cancellationToken) {
         await BuildModelAsync(Input.ReturnUrl);
@@ -60,7 +60,7 @@ public class Index : PageModel
 
         if (String.CompareOrdinal(Input.NewPassword, Input.ConfirmPassword) != 0) {
             await BuildModelAsync(Input.ReturnUrl);
-            ModelState.AddModelError(String.Empty, PasswordsDontMatch);
+            ModelState.AddModelError(String.Empty, DontMatchMessage);
             return this.Page();
         }
 
@@ -68,7 +68,7 @@ public class Index : PageModel
         Result<ChangeUserPasswordResult>? result = await this.Mediator.Send(command, cancellationToken);
 
         if (result.IsFailed) {
-            ModelState.AddModelError(String.Empty, ErrorChangingPassword);
+            ModelState.AddModelError(String.Empty, ErrorChangingMessage);
             return this.Page();
         }
 
