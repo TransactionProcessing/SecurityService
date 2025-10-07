@@ -53,13 +53,21 @@ public class Confirm : PageModel
             return Redirect("Login/Index");
         }
 
-        // TODO: Check passwords match etc here
-
         if (ModelState.IsValid) {
             // process the password change
             SecurityServiceCommands.ProcessPasswordResetConfirmationCommand command = new(Input.Username, Input.Token, Input.Password, Input.ClientId);
             Result<String>? result= await this.Mediator.Send(command, cancellationToken);
-            // TODO: Failure case
+            
+            if (result.IsFailed) {
+                this.View = new ViewModel
+                {
+                    Username = Input.Username,
+                    Token = Input.Token,
+                    UserMessage = $"Failed processing password reset for username {Input.Username}: {result.Message}"
+                };
+                return Page();
+            }
+
             return this.Redirect(result.Data);
         }
 
