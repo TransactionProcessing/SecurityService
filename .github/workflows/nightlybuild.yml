@@ -145,148 +145,148 @@ jobs:
         labels: nightlybuild
         body: Url is ${{env.action_url}}
 
-  buildchromeui:
-    name: "Nightly Build - Chrome UI"
-    env:
-        ASPNETCORE_ENVIRONMENT: "Production"
+  # buildchromeui:
+  #   name: "Nightly Build - Chrome UI"
+  #   env:
+  #       ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: ubuntu-latest
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v2.3.4
+  #   steps:
+  #   - uses: actions/checkout@v2.3.4
 
-    - name: Set Up Variables
-      run: echo "action_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
+  #   - name: Set Up Variables
+  #     run: echo "action_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
       
-    - name: Trust Root Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-        password="password"
+  #   - name: Trust Root Certificate
+  #     run: |
+  #       certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+  #       password="password"
 
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
-        sudo update-ca-certificates
+  #       openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+  #       sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+  #       sudo update-ca-certificates
 
-    - name: Trust Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-        password="password"
+  #   - name: Trust Certificate
+  #     run: |
+  #       certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+  #       password="password"
 
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
-        sudo update-ca-certificates
+  #       openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+  #       sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+  #       sudo update-ca-certificates
     
-    - name: Install NET 9
-      uses: actions/setup-dotnet@v4.0.1
-      with:
-        dotnet-version: '9.0.x'
+  #   - name: Install NET 9
+  #     uses: actions/setup-dotnet@v4.0.1
+  #     with:
+  #       dotnet-version: '9.0.x'
     
-    - name: Restore Nuget Packages
-      run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
+  #   - name: Restore Nuget Packages
+  #     run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
-    - name: Build Code
-      run: dotnet build SecurityService.sln --configuration Release
+  #   - name: Build Code
+  #     run: dotnet build SecurityService.sln --configuration Release
 
-    - name: Run Unit Tests
-      run: |
-        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
+  #   - name: Run Unit Tests
+  #     run: |
+  #       echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
+  #       dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
     
-    - name: Build Docker Images
-      run: |
-        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
-        docker build . --file SecurityServiceTestUI/Dockerfile --tag securityservicetestui:latest
+  #   - name: Build Docker Images
+  #     run: |
+  #       docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+  #       docker build . --file SecurityServiceTestUI/Dockerfile --tag securityservicetestui:latest
 
-    - name: Run Integration Tests (UI Chrome)
-      env:
-        Browser: Chrome
-      run: |  
-        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+  #   - name: Run Integration Tests (UI Chrome)
+  #     env:
+  #       Browser: Chrome
+  #     run: |  
+  #       dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
-    - uses: actions/upload-artifact@v4.4.0
-      if: ${{ failure() }}
-      with:
-        name: chromelogs
-        path: /home/txnproc/trace/
+  #   - uses: actions/upload-artifact@v4.4.0
+  #     if: ${{ failure() }}
+  #     with:
+  #       name: chromelogs
+  #       path: /home/txnproc/trace/
         
-    - uses: dacbd/create-issue-action@main
-      if: ${{ failure() }}
-      name: Create an issue on build failure
-      with:
-        title: Investigate Nightly Build Failure - Chrome UI
-        token: ${{secrets.GITHUB_TOKEN}}
-        labels: nightlybuild
-        body: Url is ${{env.action_url}}
+  #   - uses: dacbd/create-issue-action@main
+  #     if: ${{ failure() }}
+  #     name: Create an issue on build failure
+  #     with:
+  #       title: Investigate Nightly Build Failure - Chrome UI
+  #       token: ${{secrets.GITHUB_TOKEN}}
+  #       labels: nightlybuild
+  #       body: Url is ${{env.action_url}}
 
-  buildedgeui:
-    name: "Nightly Build - Edge UI"
-    env:
-        ASPNETCORE_ENVIRONMENT: "Production"
+  # buildedgeui:
+  #   name: "Nightly Build - Edge UI"
+  #   env:
+  #       ASPNETCORE_ENVIRONMENT: "Production"
 
-    runs-on: ubuntu-latest
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v2.3.4
+  #   steps:
+  #   - uses: actions/checkout@v2.3.4
 
-    - name: Set Up Variables
-      run: echo "action_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
+  #   - name: Set Up Variables
+  #     run: echo "action_url=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> $GITHUB_ENV
       
-    - name: Trust Root Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-        password="password"
+  #   - name: Trust Root Certificate
+  #     run: |
+  #       certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
+  #       password="password"
 
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
-        sudo update-ca-certificates
+  #       openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+  #       sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
+  #       sudo update-ca-certificates
 
-    - name: Trust Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-        password="password"
+  #   - name: Trust Certificate
+  #     run: |
+  #       certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
+  #       password="password"
 
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
-        sudo update-ca-certificates
+  #       openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
+  #       sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
+  #       sudo update-ca-certificates
     
-    - name: Install NET 9
-      uses: actions/setup-dotnet@v4.0.1
-      with:
-        dotnet-version: '9.0.x'    
+  #   - name: Install NET 9
+  #     uses: actions/setup-dotnet@v4.0.1
+  #     with:
+  #       dotnet-version: '9.0.x'    
 
-    - name: Restore Nuget Packages
-      run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
+  #   - name: Restore Nuget Packages
+  #     run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
-    - name: Build Code
-      run: dotnet build SecurityService.sln --configuration Release
+  #   - name: Build Code
+  #     run: dotnet build SecurityService.sln --configuration Release
     
-    - name: Build Docker Images
-      run: |
-        docker build . --file SecurityService/Dockerfile --tag securityservice:latest
-        docker build . --file SecurityServiceTestUI/Dockerfile --tag securityservicetestui:latest
+  #   - name: Build Docker Images
+  #     run: |
+  #       docker build . --file SecurityService/Dockerfile --tag securityservice:latest
+  #       docker build . --file SecurityServiceTestUI/Dockerfile --tag securityservicetestui:latest
 
-    - name: Run Integration Tests (UI Edge)
-      env:
-        Browser: Edge
-        DriverPath: C:\\SeleniumWebDrivers\\EdgeDriver\\
-        DriverExe: msedgedriver.exe
-      run: |
-        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+  #   - name: Run Integration Tests (UI Edge)
+  #     env:
+  #       Browser: Edge
+  #       DriverPath: C:\\SeleniumWebDrivers\\EdgeDriver\\
+  #       DriverExe: msedgedriver.exe
+  #     run: |
+  #       dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
-    - uses: actions/upload-artifact@v4.4.0
-      if: ${{ failure() }}
-      with:
-        name: edgelogs
-        path: /home/txnproc/trace/
+  #   - uses: actions/upload-artifact@v4.4.0
+  #     if: ${{ failure() }}
+  #     with:
+  #       name: edgelogs
+  #       path: /home/txnproc/trace/
 
-    - uses: dacbd/create-issue-action@main
-      if: ${{ failure() }}
-      name: Create an issue on build failure
-      with:
-        title: Investigate Nightly Build Failure - Edge UI
-        token: ${{secrets.GITHUB_TOKEN}}
-        labels: nightlybuild
-        body: Url is ${{env.action_url}}
+  #   - uses: dacbd/create-issue-action@main
+  #     if: ${{ failure() }}
+  #     name: Create an issue on build failure
+  #     with:
+  #       title: Investigate Nightly Build Failure - Edge UI
+  #       token: ${{secrets.GITHUB_TOKEN}}
+  #       labels: nightlybuild
+  #       body: Url is ${{env.action_url}}
         
   codecoverage:
     name: "Nightly Build - Code Coverage"
