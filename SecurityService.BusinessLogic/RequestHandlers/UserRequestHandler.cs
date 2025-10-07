@@ -2,14 +2,6 @@
 using Shared.Results;
 
 namespace SecurityService.BusinessLogic.RequestHandlers{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Security.Claims;
-    using System.Text;
-    using System.Text.Encodings.Web;
-    using System.Threading;
-    using System.Threading.Tasks;
     using DataTransferObjects.Responses;
     using Duende.IdentityServer;
     using Duende.IdentityServer.EntityFramework.DbContexts;
@@ -23,6 +15,15 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
     using SecurityService.Models;
     using Shared.Logger;
     using SimpleResults;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Security.Claims;
+    using System.Security.Cryptography;
+    using System.Text;
+    using System.Text.Encodings.Web;
+    using System.Threading;
+    using System.Threading.Tasks;
     using UserDetails = Models.UserDetails;
 
     public class UserRequestHandler : IRequestHandler<SecurityServiceCommands.CreateUserCommand, Result>,
@@ -85,10 +86,13 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 RegistrationDateTime = DateTime.Now
             };
 
-            String passwordValue = String.IsNullOrEmpty(command.Password) ? UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password) : command.Password;
-            
+            Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password) ? UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password) : command.Password;
+
+            if (passwordValueResult.IsFailed)
+                return ResultHelpers.CreateFailure(passwordValueResult);
+
             // Hash the default password
-            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValue);
+            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValueResult.Data);
 
             if (String.IsNullOrEmpty(newIdentityUser.PasswordHash)) {
                 return Result.Failure("Error generating password hash value, hash was null or empty");
@@ -376,13 +380,15 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
         public async Task<Result> Handle(SecurityServiceCommands.SendWelcomeEmailCommand command, CancellationToken cancellationToken){
             ApplicationUser i = await this.UserManager.FindByNameAsync(command.Username);
             await this.UserManager.RemovePasswordAsync(i);
-            String generatedPassword = UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password);
-            await this.UserManager.AddPasswordAsync(i, generatedPassword);
+            Result<String> generatedPasswordResult = UserRequestHandler.GenerateRandomPassword(this.UserManager.Options.Password);
+            if (generatedPasswordResult.IsFailed)
+                return ResultHelpers.CreateFailure(generatedPasswordResult);
+            await this.UserManager.AddPasswordAsync(i, generatedPasswordResult.Data);
 
             // Send Email
             TokenResponse token = await this.GetToken(cancellationToken);
-            SendEmailRequest emailRequest = this.BuildWelcomeEmail(i.Email, generatedPassword);
-            var result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+            SendEmailRequest emailRequest = this.BuildWelcomeEmail(i.Email, generatedPasswordResult.Data);
+            Result result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
             if (result.IsFailed)
                 return ResultHelpers.CreateFailure(result);
 
@@ -490,45 +496,67 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return roles.ToList();
         }
 
-        private static String GenerateRandomPassword(PasswordOptions opts = null){
-            if (opts == null)
-                opts = new PasswordOptions{
-                                              RequiredLength = 8,
-                                              RequiredUniqueChars = 4,
-                                              RequireDigit = true,
-                                              RequireLowercase = true,
-                                              RequireNonAlphanumeric = true,
-                                              RequireUppercase = true
-                                          };
-
-            String[] randomChars ={
-                                      "ABCDEFGHJKLMNOPQRSTUVWXYZ", // uppercase 
-                                      "abcdefghijkmnopqrstuvwxyz", // lowercase
-                                      "0123456789", // digits
-                                      "!@$?_-" // non-alphanumeric
-                                  };
-
-            Random rand = new Random(Environment.TickCount);
-            List<Char> chars = new List<Char>();
-
-            if (opts.RequireUppercase)
-                chars.Insert(rand.Next(0, chars.Count), randomChars[0][rand.Next(0, randomChars[0].Length)]);
-
-            if (opts.RequireLowercase)
-                chars.Insert(rand.Next(0, chars.Count), randomChars[1][rand.Next(0, randomChars[1].Length)]);
-
-            if (opts.RequireDigit)
-                chars.Insert(rand.Next(0, chars.Count), randomChars[2][rand.Next(0, randomChars[2].Length)]);
-
-            if (opts.RequireNonAlphanumeric)
-                chars.Insert(rand.Next(0, chars.Count), randomChars[3][rand.Next(0, randomChars[3].Length)]);
-
-            for (Int32 i = chars.Count; i < opts.RequiredLength || chars.Distinct().Count() < opts.RequiredUniqueChars; i++){
-                String rcs = randomChars[rand.Next(0, randomChars.Length)];
-                chars.Insert(rand.Next(0, chars.Count), rcs[rand.Next(0, rcs.Length)]);
+        internal static Result<String> GenerateRandomPassword(PasswordOptions opts = null)
+        {
+            if (opts == null) {
+                opts = new PasswordOptions {
+                    RequiredLength = 8,
+                    RequiredUniqueChars = 4,
+                    RequireDigit = true,
+                    RequireLowercase = true,
+                    RequireNonAlphanumeric = true,
+                    RequireUppercase = true
+                };
             }
 
-            return new String(chars.ToArray());
+            // character sets
+            String upper = "ABCDEFGHJKLMNOPQRSTUVWXYZ";
+            String lower = "abcdefghijkmnopqrstuvwxyz";
+            String digits = "0123456789";
+            String nonAlpha = "!@$?_-";
+
+            List<String> categories = [];
+            if (opts.RequireUppercase) categories.Add(upper);
+            if (opts.RequireLowercase) categories.Add(lower);
+            if (opts.RequireDigit) categories.Add(digits);
+            if (opts.RequireNonAlphanumeric) categories.Add(nonAlpha);
+
+            // if user disabled all categories, provide a safe fallback (lower+digits)
+            if (!categories.Any())
+                categories.Add(lower + digits);
+
+            // quick capacity check for unique chars
+            Int32 maxUniqueAvailable = (upper + lower + digits + nonAlpha).Distinct().Count();
+            if (opts.RequiredUniqueChars > maxUniqueAvailable)
+                return Result.Failure($"RequiredUniqueChars ({opts.RequiredUniqueChars}) is greater than available unique characters ({maxUniqueAvailable}).");
+
+            List<Char> chars = new();
+
+            // ensure each required category contributes at least one char
+            foreach (String cat in categories) {
+                // pick one char from this category
+                int idx = RandomNumberGenerator.GetInt32(cat.Length);
+                chars.Add(cat[idx]);
+            }
+
+            // fill until length and unique count requirement satisfied
+            while (chars.Count < opts.RequiredLength || chars.Distinct().Count() < opts.RequiredUniqueChars) {
+                // pick a random character set (so distribution across sets)
+                String set = categories[RandomNumberGenerator.GetInt32(categories.Count)];
+                Char c = set[RandomNumberGenerator.GetInt32(set.Length)];
+                chars.Add(c);
+            }
+
+            // secure shuffle (Fisher–Yates)
+            for (int i = chars.Count - 1; i > 0; i--) {
+                int j = RandomNumberGenerator.GetInt32(i + 1);
+                // swap i and j
+                char tmp = chars[i];
+                chars[i] = chars[j];
+                chars[j] = tmp;
+            }
+
+            return Result.Success<String>(new String(chars.ToArray()));
         }
 
         private async Task<TokenResponse> GetToken(CancellationToken cancellationToken){
