@@ -113,7 +113,8 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 TokenResponse token = await this.GetToken(cancellationToken);
                 SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
                 sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-                // TODO: not so fussed if this fails, maybe just some logging that can be alerted on???
+                if (sendEmailResult.IsFailed)
+                    Logger.LogWarning($"Error sending email to {newIdentityUser.Email} as part of user creation {sendEmailResult}");
             }
 
             if (createResult.IsFailed || addRolesToUserResult.IsFailed || addClaimsToUserResult.IsFailed) {

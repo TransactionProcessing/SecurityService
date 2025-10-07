@@ -111,7 +111,7 @@ namespace SecurityService.Controllers
         /// <summary>
         /// The controller name
         /// </summary>
-        public const String ControllerName = "apiscopes";
+        private const String ControllerName = "apiscopes";
 
         /// <summary>
         /// The controller route
