@@ -8,13 +8,13 @@ using Xunit;
 
 namespace SecurityService.UnitTests;
 
-public class UserRequestHandlerTests
+public class PasswordGeneratorTests
 {
     [Fact]
     public void GenerateRandomPassword_WithDefaultOptions_ReturnsValidPassword()
     {
         // Act
-        Result<String> result = UserRequestHandler.GenerateRandomPassword();
+        Result<String> result = PasswordGenerator.GenerateRandomPassword();
 
         // Assert
         result.IsSuccess.ShouldBeTrue();
@@ -41,7 +41,7 @@ public class UserRequestHandlerTests
             RequireUppercase = true
         };
 
-        Result<String> result = UserRequestHandler.GenerateRandomPassword(options);
+        Result<String> result = PasswordGenerator.GenerateRandomPassword(options);
 
         result.IsSuccess.ShouldBeTrue();
         String password = result.Data;
@@ -67,7 +67,7 @@ public class UserRequestHandlerTests
             RequireUppercase = true
         };
 
-        Result<String> result = UserRequestHandler.GenerateRandomPassword(options);
+        Result<String> result = PasswordGenerator.GenerateRandomPassword(options);
 
         result.IsFailed.ShouldBeTrue();
         result.Data.ShouldBeNull();
@@ -88,7 +88,7 @@ public class UserRequestHandlerTests
             RequireUppercase = false
         };
 
-        Result<String> result = UserRequestHandler.GenerateRandomPassword(options);
+        Result<String> result = PasswordGenerator.GenerateRandomPassword(options);
 
         result.IsSuccess.ShouldBeTrue();
         String password = result.Data;
