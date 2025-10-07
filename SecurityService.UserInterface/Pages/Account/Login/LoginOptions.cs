@@ -4,8 +4,8 @@ using System;
 
 public class LoginOptions
 {
-    public static bool AllowLocalLogin = true;
-    public static bool AllowRememberLogin = true;
-    public static TimeSpan RememberMeLoginDuration = TimeSpan.FromDays(30);
-    public static string InvalidCredentialsErrorMessage = "Invalid username or password";
+    public readonly bool AllowLocalLogin = true;
+    public readonly bool AllowRememberLogin = true;
+    public readonly TimeSpan RememberMeLoginDuration = TimeSpan.FromDays(30);
+    public readonly string InvalidCredentialsErrorMessage = "Invalid username or password";
 }
