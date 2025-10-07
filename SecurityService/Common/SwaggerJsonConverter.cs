@@ -52,6 +52,7 @@
                                         JsonSerializer serializer)
         {
             // Not used because CanRead returns false
+            return new Object();
         }
 
         /// <summary>
