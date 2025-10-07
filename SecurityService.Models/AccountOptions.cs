@@ -4,7 +4,7 @@
     using System.Diagnostics.CodeAnalysis;
 
     [ExcludeFromCodeCoverage]
-    public class AccountOptions
+    public static class AccountOptions
     {
         #region Fields
 

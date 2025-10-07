@@ -4,7 +4,7 @@
 
 namespace IdentityServerHost.Pages.Consent;
 
-public class ConsentOptions
+public static class ConsentOptions
 {
     public static readonly bool EnableOfflineAccess = true;
     public static readonly string OfflineAccessDisplayName = "Offline Access";

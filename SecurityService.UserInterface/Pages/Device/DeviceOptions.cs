@@ -4,7 +4,7 @@
 
 namespace IdentityServerHost.Pages.Device;
 
-public class DeviceOptions
+public static class DeviceOptions
 {
     public static readonly bool EnableOfflineAccess = true;
     public static readonly string OfflineAccessDisplayName = "Offline Access";

@@ -4,7 +4,7 @@
     using System.Diagnostics.CodeAnalysis;
 
     [ExcludeFromCodeCoverage]
-    public class ConsentOptions
+    public static class ConsentOptions
     {
         #region Fields
 
