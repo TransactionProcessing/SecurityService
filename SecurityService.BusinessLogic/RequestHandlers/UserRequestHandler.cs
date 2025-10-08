@@ -110,7 +110,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
                 confirmationToken = UrlEncoder.Default.Encode(confirmationToken);
                 String uri = $"{this.ServiceOptions.PublicOrigin}/Account/EmailConfirmation/Confirm?userName={newIdentityUser.UserName}&confirmationToken={confirmationToken}";
 
-                TokenResponse token = await this.GetToken(cancellationToken);
+                TokenResponse token = await this.GetToken();
                 SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
                 sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
                 if (sendEmailResult.IsFailed)
@@ -368,7 +368,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             resetToken = UrlEncoder.Default.Encode(resetToken);
             String uri = $"{this.ServiceOptions.PublicOrigin}/Account/ForgotPassword/Confirm?userName={user.UserName}&resetToken={resetToken}&clientId={command.ClientId}";
 
-            TokenResponse token = await this.GetToken(cancellationToken);
+            TokenResponse token = await this.GetToken();
             SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
             
             Result result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
@@ -387,7 +387,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             await this.UserManager.AddPasswordAsync(i, generatedPasswordResult.Data);
 
             // Send Email
-            TokenResponse token = await this.GetToken(cancellationToken);
+            TokenResponse token = await this.GetToken();
             SendEmailRequest emailRequest = this.BuildWelcomeEmail(i.Email, generatedPasswordResult.Data);
             Result result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
             if (result.IsFailed)
@@ -497,7 +497,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             return roles.ToList();
         }
         
-        private async Task<TokenResponse> GetToken(CancellationToken cancellationToken){
+        private async Task<TokenResponse> GetToken(){
             // Get a token to talk to the estate service
             String clientId = this.ServiceOptions.ClientId;
             String clientSecret = this.ServiceOptions.ClientSecret;
