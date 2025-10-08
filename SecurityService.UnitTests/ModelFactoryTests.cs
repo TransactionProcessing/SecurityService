@@ -423,7 +423,8 @@
 
             List<DataTransferObjects.Responses.UserDetails> userDetailsDtoList = modelFactory.ConvertFrom(userDetailsModelList);
 
-            userDetailsDtoList.ShouldBeNull();
+            userDetailsDtoList.ShouldNotBeNull();
+            userDetailsDtoList.ShouldBeEmpty();
         }
 
         [Fact]
@@ -435,7 +436,8 @@
 
             List<DataTransferObjects.Responses.UserDetails> userDetailsDtoList = modelFactory.ConvertFrom(userDetailsModelList);
 
-            userDetailsDtoList.ShouldBeNull();
+            userDetailsDtoList.ShouldNotBeNull();
+            userDetailsDtoList.ShouldBeEmpty();
         }
 
         [Fact]
