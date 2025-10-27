@@ -66,9 +66,13 @@ namespace SecurityService.IntergrationTests.Common
                 environmentVariables.AddRange(additionalEnvironmentVariables);
             }
 
+            SimpleResults.Result<(String imageName, Boolean useLatest)> imageDetailsResult = this.GetImageDetails(ContainerType.SecurityService);
+            if (imageDetailsResult.IsFailed)
+                throw new Exception($"Image details not found for {ContainerType.SecurityService}");
+
             ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
                                                                      .WithEnvironment(environmentVariables.ToArray())
-                                                                     .UseImageDetails(this.GetImageDetails(ContainerType.SecurityService))
+                                                                     .UseImageDetails(imageDetailsResult.Data)
                                                                      .MountHostFolder(this.DockerPlatform, this.HostTraceFolder)
                                                                      .SetDockerCredentials(this.DockerCredentials);
 
