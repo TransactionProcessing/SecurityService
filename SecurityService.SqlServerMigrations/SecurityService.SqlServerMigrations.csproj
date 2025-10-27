@@ -5,12 +5,12 @@
 	  <DebugType>None</DebugType>
   </PropertyGroup>
 	<ItemGroup>
-		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.2.3" />
-		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.5" />
-		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.5" />
-		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.5" />
+		<PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.3.2" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.10" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.10" />
+		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
 	</ItemGroup>
 	<ItemGroup>
 	  <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />

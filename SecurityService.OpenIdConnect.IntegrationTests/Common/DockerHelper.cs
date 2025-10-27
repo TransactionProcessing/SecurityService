@@ -188,7 +188,7 @@
                     w.WriteLine($"{ipaddress} {hostname}");
                 }
             }
-            else if (BaseDockerHelper.GetDockerEnginePlatform() == DockerEnginePlatform.Linux)
+            else if (BaseDockerHelper.GetDockerEnginePlatform().Data == DockerEnginePlatform.Linux)
             {
                 DockerHelper.ExecuteBashCommand($"echo {ipaddress} {hostname} | sudo tee -a /etc/hosts");
             }
@@ -268,9 +268,13 @@
                 environmentVariables.AddRange(additionalEnvironmentVariables);
             }
 
+            var imageDetailsResult = this.GetImageDetails(ContainerType.SecurityService);
+            if (imageDetailsResult.IsFailed)
+                throw new Exception($"Image details not found for {ContainerType.SecurityService}");
+
             ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
                                                                      .WithEnvironment(environmentVariables.ToArray())
-                                                                     .UseImageDetails(this.GetImageDetails(ContainerType.SecurityService))
+                                                                     .UseImageDetails(imageDetailsResult.Data)
                                                                      .ExposePort(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
                                                                      .MountHostFolder(this.DockerPlatform, this.HostTraceFolder)
                                                                      .SetDockerCredentials(this.DockerCredentials);
