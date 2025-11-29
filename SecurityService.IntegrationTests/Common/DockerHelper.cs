@@ -23,7 +23,7 @@ namespace SecurityService.IntergrationTests.Common
     using Microsoft.EntityFrameworkCore;
     using Shared.IntegrationTesting;
     
-    public class DockerHelper : Shared.IntegrationTesting.DockerHelper
+    public class DockerHelper : Shared.IntegrationTesting.TestContainers.DockerHelper
     {
         public ISecurityServiceClient SecurityServiceClient;
                 
@@ -38,7 +38,7 @@ namespace SecurityService.IntergrationTests.Common
             ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
         }
 
-        public override ContainerBuilder SetupSecurityServiceContainer()
+        /*public override DotNet.Testcontainers.Builders.ContainerBuilder SetupSecurityServiceContainer()
         {
             
             this.Trace("About to Start Security Container");
@@ -88,7 +88,7 @@ namespace SecurityService.IntergrationTests.Common
 
             // Now build and return the container                
             return securityServiceContainer;
-        }
+        }*/
         
         public override async Task CreateSubscriptions(){
             // No subscriptions needed

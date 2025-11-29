@@ -1,4 +1,10 @@
-﻿namespace SecurityService.IntergrationTests.Common
+﻿using System.Runtime.InteropServices;
+using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Containers;
+using DotNet.Testcontainers.Networks;
+using Shared.IntegrationTesting.TestContainers;
+
+namespace SecurityService.IntergrationTests.Common
 {
     using System;
     using System.Collections.Generic;
@@ -10,14 +16,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Client;
-    using Ductus.FluentDocker;
-    using Ductus.FluentDocker.Builders;
-    using Ductus.FluentDocker.Commands;
-    using Ductus.FluentDocker.Common;
-    using Ductus.FluentDocker.Executors;
-    using Ductus.FluentDocker.Model.Builders;
-    using Ductus.FluentDocker.Services;
-    using Ductus.FluentDocker.Services.Extensions;
     using Newtonsoft.Json;
     using Shared.HealthChecks;
     using Shared.IntegrationTesting;
@@ -28,7 +26,7 @@
     /// 
     /// </summary>
     /// <seealso cref="Shared.IntegrationTesting.DockerHelper" />
-    public class DockerHelper : Shared.IntegrationTesting.DockerHelper
+    public class DockerHelper : Shared.IntegrationTesting.TestContainers.DockerHelper
     {
         #region Fields
 
@@ -94,16 +92,6 @@
 
             securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
-
-
-            //IContainerService securityServiceTestUIContainer = SetupSecurityServiceTestUIContainer(this.SecurityServiceTestUIContainerName,
-            //                                                                                                    this.SecurityServiceContainerName,
-            //                                                                                                    this.SecurityServicePort,
-            //                                                                                                    this.TestNetworks,
-            //                                                                                                    ("estateUIClient", "Secret1"));
-
-            //
-
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient);
 
             //this.Containers.AddRange(new List<IContainerService>
@@ -135,39 +123,25 @@
                             TimeSpan.FromSeconds(20));
         }
 
-        protected async Task<IContainerService> StartContainer(Func<ContainerBuilder> buildContainerFunc, List<INetworkService> networkServices)
+        protected async Task StartContainer(Func<ContainerBuilder> buildContainerFunc, List<INetwork> networkServices)
         {
-            ConsoleStream<String> consoleLogs = null;
-            try
+           try
             {
                 var containerBuilder = buildContainerFunc();
 
-                IContainerService builtContainer = containerBuilder.Build();
-                consoleLogs = builtContainer.Logs(true);
-                var startedContainer = builtContainer.Start();
-                foreach (INetworkService networkService in networkServices)
-                {
-                    networkService.Attach(startedContainer, false);
+                foreach (INetwork networkService in networkServices) {
+                    containerBuilder = containerBuilder.WithNetwork(networkService);
                 }
-
+                IContainer builtContainer = containerBuilder.Build();
+                await builtContainer.StartAsync();
                 this.Trace($"Test UI Container Started");
-                this.Containers.Add((DockerServices.SecurityService, startedContainer));
 
-                this.SecurityServiceTestUIPort = startedContainer.ToHostExposedEndpoint("5004/tcp").Port;
+                this.SecurityServiceTestUIPort = builtContainer.GetMappedPublicPort(5004);
 
                 await this.DoTestUIHealthCheck();
-                
-                return startedContainer;
             }
             catch (Exception ex)
             {
-                if (consoleLogs != null){
-                    while (consoleLogs.IsFinished == false){
-                        var s = consoleLogs.TryRead(10000);
-                        this.Trace(s);
-                    }
-                }
-
                 this.Error($"Error starting container [{buildContainerFunc.Method.Name}]", ex);
                 throw;
             }
@@ -181,14 +155,14 @@
         private static void AddEntryToHostsFile(String ipaddress,
                                                 String hostname)
         {
-            if (FdOs.IsWindows())
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 using(StreamWriter w = File.AppendText(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System), @"drivers\etc\hosts")))
                 {
                     w.WriteLine($"{ipaddress} {hostname}");
                 }
             }
-            else if (BaseDockerHelper.GetDockerEnginePlatform().Data == DockerEnginePlatform.Linux)
+            else if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
             {
                 DockerHelper.ExecuteBashCommand($"echo {ipaddress} {hostname} | sudo tee -a /etc/hosts");
             }
@@ -222,21 +196,22 @@
             proc.WaitForExit();
         }
         
-        private const String SetupSecurityServiceTestUIContainerName = "";
-
         private ContainerBuilder SetupSecurityServiceTestUIContainer(){
 
             var clientDetails = ("estateUIClient", "Secret1");
+            Dictionary<String, String> environmentVariables = new Dictionary<String, String>();
+            environmentVariables.Add($"AppSettings:Authority",$"https://identity-server:{this.SecurityServicePort}");
+            environmentVariables.Add($"AppSettings:ClientId",clientDetails.Item1);
+            environmentVariables.Add($"AppSettings:ClientSecret",clientDetails.Item2);
+            environmentVariables.Add("urls","https://*:5004");
+            environmentVariables.Add("Logging:LogLevel:Microsoft","Information");
+            environmentVariables.Add("Logging:LogLevel:Default","Information");
+            environmentVariables.Add("Logging:EventLog:LogLevel:Default","None");
 
-            ContainerBuilder securityServiceTestUIContainer = new Builder().UseContainer().WithName(this.SecurityServiceTestUIContainerName)
-                                                                           .WithEnvironment($"AppSettings:Authority=https://identity-server:{this.SecurityServicePort}",
-                                                                                            $"AppSettings:ClientId={clientDetails.Item1}",
-                                                                                            $"AppSettings:ClientSecret={clientDetails.Item2}",
-                                                                                            "urls=https://*:5004",
-                                                                                            "Logging:LogLevel:Microsoft=Information",
-                                                                                            "Logging:LogLevel:Default=Information",
-                                                                                            "Logging:EventLog:LogLevel:Default=None")
-                                                                           .UseImage("securityservicetestui").ExposePort(5004);
+
+
+            ContainerBuilder securityServiceTestUIContainer = new ContainerBuilder().WithName(this.SecurityServiceTestUIContainerName)
+                .WithEnvironment(environmentVariables).WithImage("securityservicetestui").WithPortBinding(5004);
 
             return securityServiceTestUIContainer;
         }
@@ -245,39 +220,36 @@
         {
             this.Trace("About to Start Security Container");
 
-            List<String> environmentVariables = this.GetCommonEnvironmentVariables();
-            environmentVariables.Add($"ServiceOptions:PublicOrigin=https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
-            environmentVariables.Add($"ServiceOptions:IssuerUrl=https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
-            environmentVariables.Add("ASPNETCORE_ENVIRONMENT=IntegrationTest");
-            environmentVariables.Add($"urls=https://*:{DockerPorts.SecurityServiceDockerPort}");
+            var environmentVariables = this.GetCommonEnvironmentVariables();
+            environmentVariables.Add($"ServiceOptions:PublicOrigin",$"https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
+            environmentVariables.Add($"ServiceOptions:IssuerUrl",$"https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
+            environmentVariables.Add("ASPNETCORE_ENVIRONMENT","IntegrationTest");
+            environmentVariables.Add($"urls",$"https://*:{DockerPorts.SecurityServiceDockerPort}");
 
-            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequiredLength=6");
-            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireDigit=false");
-            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireUpperCase=false");
-            environmentVariables.Add($"ServiceOptions:UserOptions:RequireUniqueEmail=false");
-            environmentVariables.Add($"ServiceOptions:SignInOptions:RequireConfirmedEmail=false");
+            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequiredLength","6");
+            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireDigit","false");
+            environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireUpperCase","false");
+            environmentVariables.Add($"ServiceOptions:UserOptions:RequireUniqueEmail","false");
+            environmentVariables.Add($"ServiceOptions:SignInOptions:RequireConfirmedEmail","false");
 
-            environmentVariables.Add(this.SetConnectionString("ConnectionStrings:PersistedGrantDbContext", $"PersistedGrantStore-{this.TestId}", this.UseSecureSqlServerDatabase));
-            environmentVariables.Add(this.SetConnectionString("ConnectionStrings:ConfigurationDbContext", $"Configuration-{this.TestId}", this.UseSecureSqlServerDatabase));
-            environmentVariables.Add(this.SetConnectionString("ConnectionStrings:AuthenticationDbContext", $"Authentication-{this.TestId}", this.UseSecureSqlServerDatabase));
+            environmentVariables.Add("ConnectionStrings:PersistedGrantDbContext",this.SetConnectionString($"PersistedGrantStore-{this.TestId}", this.UseSecureSqlServerDatabase));
+            environmentVariables.Add("ConnectionStrings:ConfigurationDbContext", this.SetConnectionString( $"Configuration-{this.TestId}", this.UseSecureSqlServerDatabase));
+            environmentVariables.Add("ConnectionStrings:AuthenticationDbContext", this.SetConnectionString($"Authentication-{this.TestId}", this.UseSecureSqlServerDatabase));
 
-            List<String> additionalEnvironmentVariables = this.GetAdditionalVariables(ContainerType.SecurityService);
+            Dictionary<String, String> additionalEnvironmentVariables = this.GetAdditionalVariables(ContainerType.SecurityService);
 
             if (additionalEnvironmentVariables != null)
             {
-                environmentVariables.AddRange(additionalEnvironmentVariables);
+                foreach (KeyValuePair<String, String> additionalEnvironmentVariable in additionalEnvironmentVariables) {
+                    environmentVariables.Add(additionalEnvironmentVariable.Key, additionalEnvironmentVariable.Value);
+                }
             }
 
             var imageDetailsResult = this.GetImageDetails(ContainerType.SecurityService);
             if (imageDetailsResult.IsFailed)
                 throw new Exception($"Image details not found for {ContainerType.SecurityService}");
 
-            ContainerBuilder securityServiceContainer = new Builder().UseContainer().WithName(this.SecurityServiceContainerName)
-                                                                     .WithEnvironment(environmentVariables.ToArray())
-                                                                     .UseImageDetails(imageDetailsResult.Data)
-                                                                     .ExposePort(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
-                                                                     .MountHostFolder(this.DockerPlatform, this.HostTraceFolder)
-                                                                     .SetDockerCredentials(this.DockerCredentials);
+            ContainerBuilder securityServiceContainer = new ContainerBuilder().WithName(this.SecurityServiceContainerName).WithEnvironment(environmentVariables).WithImage(imageDetailsResult.Data.imageName).WithPortBinding(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort).MountHostFolder(this.DockerPlatform, this.HostTraceFolder);
 
             return securityServiceContainer;
         }

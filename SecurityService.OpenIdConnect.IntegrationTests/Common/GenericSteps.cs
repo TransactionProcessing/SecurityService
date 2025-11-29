@@ -44,8 +44,6 @@ namespace SecurityService.IntergrationTests.Common
 
             await Setup.GlobalSetup(this.TestingContext.DockerHelper);
 
-            this.TestingContext.DockerHelper.SqlServerContainer = Setup.DatabaseServerContainer;
-            this.TestingContext.DockerHelper.SqlServerNetwork = Setup.DatabaseServerNetwork;
             this.TestingContext.DockerHelper.DockerCredentials = Setup.DockerCredentials;
             this.TestingContext.DockerHelper.SqlCredentials = Setup.SqlCredentials;
             this.TestingContext.DockerHelper.SqlServerContainerName = "sharedsqlserver";
