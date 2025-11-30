@@ -22,7 +22,7 @@
 		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
-		<PackageReference Include="Shared" Version="2025.10.2" />
+		<PackageReference Include="Shared" Version="2025.11.11" />
 	</ItemGroup>
 	<ItemGroup>
     <Folder Include="DbContexts\" />

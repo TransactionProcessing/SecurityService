@@ -160,8 +160,7 @@ namespace SecurityService.IntegrationTests.UserLogin
 
 
         [When(@"I navigate to the confirm email address")]
-        public void WhenINavigateToTheConfirmEmailAddress()
-        {
+        public void WhenINavigateToTheConfirmEmailAddress() {
             this.WebDriver.Navigate().GoToUrl(this.TestingContext.ConfirmEmailAddressLink);
         }
 
