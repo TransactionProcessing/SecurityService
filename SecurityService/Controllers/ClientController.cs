@@ -1,4 +1,5 @@
-﻿using Shared.Results.Web;
+﻿using Microsoft.AspNetCore.Http;
+using Shared.Results.Web;
 using SimpleResults;
 
 namespace SecurityService.Controllers
@@ -71,7 +72,7 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateClientResponse))]
         [SwaggerResponseExample(201, typeof(CreateClientResponseExample))]
-        public async Task<IActionResult> CreateClient([FromBody] CreateClientRequest createClientRequest, CancellationToken cancellationToken)
+        public async Task<IResult> CreateClient([FromBody] CreateClientRequest createClientRequest, CancellationToken cancellationToken)
         {
             SecurityServiceCommands.CreateClientCommand command = new(createClientRequest.ClientId,
                                                                                                                    createClientRequest.Secret,
@@ -88,15 +89,16 @@ namespace SecurityService.Controllers
             // Create the client
             Result result = await this.Mediator.Send(command, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
+            //if (result.IsFailed)
+            //    return result.ToActionResultX();
 
-            // return the result
-            return this.Created($"{ClientController.ControllerRoute}/{createClientRequest.ClientId}",
-                                new CreateClientResponse
-                                {
-                                    ClientId = createClientRequest.ClientId
-                                });
+            //// return the result
+            //return this.Created($"{ClientController.ControllerRoute}/{createClientRequest.ClientId}",
+            //                    new CreateClientResponse
+            //                    {
+            //                        ClientId = createClientRequest.ClientId
+            //                    });
+            return ResponseFactory.FromResult(result);
         }
 
         /// <summary>
@@ -109,19 +111,14 @@ namespace SecurityService.Controllers
         [Route("{clientId}")]
         [SwaggerResponse(200, type: typeof(ClientDetails))]
         [SwaggerResponseExample(200, typeof(ClientDetailsResponseExample))]
-        public async Task<IActionResult> GetClient([FromRoute] String clientId,
+        public async Task<IResult> GetClient([FromRoute] String clientId,
                                                  CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetClientQuery query = new(clientId);
 
             Result<Duende.IdentityServer.Models.Client> result= await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            ClientDetails model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         /// <summary>
@@ -133,18 +130,13 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ClientDetails>))]
         [SwaggerResponseExample(200, typeof(ClientDetailsListResponseExample))]
-        public async Task<IActionResult> GetClients(CancellationToken cancellationToken)
+        public async Task<IResult> GetClients(CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetClientsQuery query = new();
 
             Result<List<Duende.IdentityServer.Models.Client>> result = await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            List<ClientDetails> model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         #endregion

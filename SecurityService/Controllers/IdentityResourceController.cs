@@ -1,4 +1,5 @@
-﻿using Shared.Results.Web;
+﻿using Microsoft.AspNetCore.Http;
+using Shared.Results.Web;
 using SimpleResults;
 
 namespace SecurityService.Controllers
@@ -70,7 +71,7 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateIdentityResourceResponse))]
         [SwaggerResponseExample(201, typeof(CreateIdentityResourceResponseExample))]
-        public async Task<IActionResult> CreateIdentityResource([FromBody] CreateIdentityResourceRequest createIdentityResourceRequest,
+        public async Task<IResult> CreateIdentityResource([FromBody] CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                 CancellationToken cancellationToken)
         {
             SecurityServiceCommands.CreateIdentityResourceCommand command = new(createIdentityResourceRequest.Name,
@@ -82,15 +83,8 @@ namespace SecurityService.Controllers
                                                                                                                                        createIdentityResourceRequest.Claims);
 
             Result result = await this.Mediator.Send(command, cancellationToken);
-            if (result.IsFailed)
-                return result.ToActionResultX();
 
-            // return the result
-            return this.Created($"{IdentityResourceController.ControllerRoute}/{createIdentityResourceRequest.Name}",
-                                new CreateIdentityResourceResponse
-                                {
-                                    IdentityResourceName = createIdentityResourceRequest.Name
-                                });
+            return ResponseFactory.FromResult(result);
         }
 
         /// <summary>
@@ -103,19 +97,14 @@ namespace SecurityService.Controllers
         [Route("{identityResourceName}")]
         [SwaggerResponse(200, type: typeof(IdentityResourceDetails))]
         [SwaggerResponseExample(200, typeof(IdentityResourceDetailsResponseExample))]
-        public async Task<IActionResult> GetIdentityResource([FromRoute] String identityResourceName,
+        public async Task<IResult> GetIdentityResource([FromRoute] String identityResourceName,
                                                              CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetIdentityResourceQuery query = new(identityResourceName);
 
             Result<IdentityResource> result = await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            IdentityResourceDetails model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         /// <summary>
@@ -127,17 +116,12 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<IdentityResourceDetails>))]
         [SwaggerResponseExample(200, typeof(IdentityResourceDetailsListResponseExample))]
-        public async Task<IActionResult> GetIdentityResources(CancellationToken cancellationToken) {
+        public async Task<IResult> GetIdentityResources(CancellationToken cancellationToken) {
             SecurityServiceQueries.GetIdentityResourcesQuery query = new();
 
             Result<List<IdentityResource>> result = await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            List<IdentityResourceDetails> model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         #endregion

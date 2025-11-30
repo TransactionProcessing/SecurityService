@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Shared.Results;
 using Shared.Results.Web;
 using SimpleResults;
@@ -53,7 +54,7 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateApiResourceResponse))]
         [SwaggerResponseExample(201, typeof(CreateApiResourceResponseExample))]
-        public async Task<IActionResult> CreateApiResource([FromBody] CreateApiResourceRequest createApiResourceRequest,
+        public async Task<IResult> CreateApiResource([FromBody] CreateApiResourceRequest createApiResourceRequest,
                                                      CancellationToken cancellationToken)
         {
             SecurityServiceCommands.CreateApiResourceCommand command = new(createApiResourceRequest.Name,
@@ -64,8 +65,8 @@ namespace SecurityService.Controllers
                 createApiResourceRequest.UserClaims);
 
             Result result = await this.Mediator.Send(command, cancellationToken);
-            
-            return result.ToActionResultX();
+
+            return ResponseFactory.FromResult(result);
         }
 
         /// <summary>
@@ -78,19 +79,15 @@ namespace SecurityService.Controllers
         [Route("{apiResourceName}")]
         [SwaggerResponse(201, type: typeof(ApiResourceDetails))]
         [SwaggerResponseExample(201, typeof(ApiResourceDetailsResponseExample))]
-        public async Task<IActionResult> GetApiResource([FromRoute] String apiResourceName,
+        public async Task<IResult> GetApiResource([FromRoute] String apiResourceName,
                                                            CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetApiResourceQuery query = new(apiResourceName);
 
             Result<ApiResource> result= await this.Mediator.Send(query, cancellationToken);
-            // return the result
-            if (result.IsFailed)
-                return result.ToActionResultX();
+            
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
 
-            ApiResourceDetails model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
         }
 
         /// <summary>
@@ -102,17 +99,12 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ApiResourceDetails>))]
         [SwaggerResponseExample(201, typeof(ApiResourceDetailsListResponseExample))]
-        public async Task<IActionResult> GetApiResources(CancellationToken cancellationToken) {
+        public async Task<IResult> GetApiResources(CancellationToken cancellationToken) {
             SecurityServiceQueries.GetApiResourcesQuery query = new SecurityServiceQueries.GetApiResourcesQuery();
 
             Result<List<ApiResource>> result = await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            List<ApiResourceDetails> model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         #region Others

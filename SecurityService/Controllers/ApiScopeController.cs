@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using SecurityService.BusinessLogic.RequestHandlers;
 using SecurityService.BusinessLogic.Requests;
 using Shared.Results.Web;
@@ -44,7 +45,7 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateApiScopeResponse))]
         [SwaggerResponseExample(201, typeof(CreateApiScopeResponseExample))]
-        public async Task<IActionResult> CreateApiScope([FromBody] CreateApiScopeRequest createApiScopeRequest,
+        public async Task<IResult> CreateApiScope([FromBody] CreateApiScopeRequest createApiScopeRequest,
                                                            CancellationToken cancellationToken)
         {
             SecurityServiceCommands.CreateApiScopeCommand command = new(createApiScopeRequest.Name,
@@ -52,11 +53,8 @@ namespace SecurityService.Controllers
                 createApiScopeRequest.Description);
 
             Result result = await this.Mediator.Send(command, cancellationToken);
-            if (result.IsFailed)
-                return result.ToActionResultX();
 
-            // return the result
-            return result.ToActionResultX();
+            return ResponseFactory.FromResult(result);
         }
 
         /// <summary>
@@ -69,18 +67,14 @@ namespace SecurityService.Controllers
         [Route("{apiScopeName}")]
         [SwaggerResponse(200, type: typeof(ApiScopeDetails))]
         [SwaggerResponseExample(200, typeof(ApiScopeDetailsResponseExample))]
-        public async Task<IActionResult> GetApiScope([FromRoute] String apiScopeName,
+        public async Task<IResult> GetApiScope([FromRoute] String apiScopeName,
                                                      CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetApiScopeQuery query = new(apiScopeName);
 
             var result = await this.Mediator.Send(query, cancellationToken);
-            if (result.IsFailed)
-                return result.ToActionResultX();
 
-            var model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         /// <summary>
@@ -92,18 +86,13 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<ApiScopeDetails>))]
         [SwaggerResponseExample(200, typeof(ApiScopeDetailsListResponseExample))]
-        public async Task<IActionResult> GetApiScopes(CancellationToken cancellationToken)
+        public async Task<IResult> GetApiScopes(CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetApiScopesQuery query = new();
 
             Result<List<ApiScope>> result = await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            List<ApiScopeDetails> model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         #region Others

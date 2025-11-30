@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Shared.Results;
 using Shared.Results.Web;
 using SimpleResults;
@@ -57,17 +58,13 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateRoleResponse))]
         [SwaggerResponseExample(statusCode: 201, typeof(CreateRoleResponseExample))]
-        public async Task<IActionResult> CreateRole([FromBody] CreateRoleRequest createRoleRequest, CancellationToken cancellationToken)
+        public async Task<IResult> CreateRole([FromBody] CreateRoleRequest createRoleRequest, CancellationToken cancellationToken)
         {
             Guid roleId = Guid.NewGuid();
             SecurityServiceCommands.CreateRoleCommand command  = new(roleId, createRoleRequest.RoleName);
 
             Result result = await this.Mediator.Send(command, cancellationToken);
-            if (result.IsFailed)
-                return result.ToActionResultX();
-            
-            // return the result
-            return result.ToActionResultX();
+            return ResponseFactory.FromResult(result);
         }
 
         /// <summary>
@@ -80,19 +77,14 @@ namespace SecurityService.Controllers
         [Route("{roleId}")]
         [SwaggerResponse(200, type: typeof(RoleDetails))]
         [SwaggerResponseExample(statusCode: 200, typeof(RoleDetailsResponseExample))]
-        public async Task<IActionResult> GetRole([FromRoute] Guid roleId,
+        public async Task<IResult> GetRole([FromRoute] Guid roleId,
                                                  CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetRoleQuery query = new(roleId);
 
             Result<Models.RoleDetails> result = await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            RoleDetails model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         /// <summary>
@@ -105,18 +97,13 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(200, type: typeof(List<RoleDetails>))]
         [SwaggerResponseExample(statusCode: 200, typeof(RoleDetailsListResponseExample))]
-        public async Task<IActionResult> GetRoles(CancellationToken cancellationToken)
+        public async Task<IResult> GetRoles(CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetRolesQuery query = new();
 
             Result<List<Models.RoleDetails>> result = await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            List<RoleDetails> model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         #endregion
