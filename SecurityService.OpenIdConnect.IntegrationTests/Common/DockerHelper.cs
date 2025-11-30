@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using DotNet.Testcontainers.Builders;
+using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
 using Shared.IntegrationTesting.TestContainers;
@@ -84,7 +85,7 @@ namespace SecurityService.IntergrationTests.Common
         /// <param name="scenarioName">Name of the scenario.</param>
         public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
-            this.Trace($"Test Id is {this.TestId} and Scenrio {scenarioName}");
+            this.Trace($"Test Id is {this.TestId} and Scenario {scenarioName}");
 
             await base.StartContainersForScenarioRun(scenarioName,dockerServices);
 
@@ -93,11 +94,6 @@ namespace SecurityService.IntergrationTests.Common
             securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
             this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient);
-
-            //this.Containers.AddRange(new List<IContainerService>
-            //                         {
-            //                             securityServiceTestUIContainer
-            //                         });
 
             DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
             DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);
@@ -137,6 +133,10 @@ namespace SecurityService.IntergrationTests.Common
                 this.Trace($"Test UI Container Started");
 
                 this.SecurityServiceTestUIPort = builtContainer.GetMappedPublicPort(5004);
+
+                this.Containers.AddRange(new List<(DockerServices, IContainer)> {
+                    (DockerServices.None,builtContainer)
+                });
 
                 await this.DoTestUIHealthCheck();
             }
@@ -203,7 +203,7 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add($"AppSettings:Authority",$"https://identity-server:{this.SecurityServicePort}");
             environmentVariables.Add($"AppSettings:ClientId",clientDetails.Item1);
             environmentVariables.Add($"AppSettings:ClientSecret",clientDetails.Item2);
-            environmentVariables.Add("urls","https://*:5004");
+            //environmentVariables.Add("urls","https://*:5004");
             environmentVariables.Add("Logging:LogLevel:Microsoft","Information");
             environmentVariables.Add("Logging:LogLevel:Default","Information");
             environmentVariables.Add("Logging:EventLog:LogLevel:Default","None");
@@ -211,7 +211,7 @@ namespace SecurityService.IntergrationTests.Common
 
 
             ContainerBuilder securityServiceTestUIContainer = new ContainerBuilder().WithName(this.SecurityServiceTestUIContainerName)
-                .WithEnvironment(environmentVariables).WithImage("securityservicetestui").WithPortBinding(5004);
+                .WithEnvironment(environmentVariables).WithImage("securityservicetestui").WithPortBinding(5004, true);
 
             return securityServiceTestUIContainer;
         }

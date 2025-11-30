@@ -58,7 +58,7 @@ namespace SecurityService.IntergrationTests.Common
 
         [AfterScenario]
         public async Task StopSystem(){
-            DockerServices sharedDockerServices = DockerServices.SqlServer;
+            DockerServices sharedDockerServices = DockerServices.None;
             this.TestingContext.DockerHelper.Logger.LogInformation("About to Stop Containers for Scenario Run");
             await this.TestingContext.DockerHelper.StopContainersForScenarioRun(sharedDockerServices).ConfigureAwait(false);
             this.TestingContext.DockerHelper.Logger.LogInformation("Containers for Scenario Run Stopped");
