@@ -1,4 +1,5 @@
-﻿using Shared.Results;
+﻿using Microsoft.AspNetCore.Http;
+using Shared.Results;
 using Shared.Results.Web;
 using SimpleResults;
 
@@ -65,7 +66,7 @@ namespace SecurityService.Controllers
         [Route("")]
         [SwaggerResponse(201, type: typeof(CreateUserResponse))]
         [SwaggerResponseExample(statusCode: 201, typeof(CreateUserResponseExample))]
-        public async Task<IActionResult> CreateUser([FromBody] CreateUserRequest createUserRequest, CancellationToken cancellationToken)
+        public async Task<IResult> CreateUser([FromBody] CreateUserRequest createUserRequest, CancellationToken cancellationToken)
         {
             Guid userId = Guid.NewGuid();
 
@@ -82,11 +83,8 @@ namespace SecurityService.Controllers
 
             // Create the user
             Result result = await this.Mediator.Send(command, cancellationToken);
-            if (result.IsFailed)
-                return result.ToActionResultX();
 
-            // return the result
-            return result.ToActionResultX();
+            return ResponseFactory.FromResult(result);
         }
 
         /// <summary>
@@ -99,19 +97,14 @@ namespace SecurityService.Controllers
         [Route("{userId}")]
         [SwaggerResponse(200, type: typeof(UserDetails))]
         [SwaggerResponseExample(statusCode: 200, typeof(UserDetailsResponseExample))]
-        public async Task<IActionResult> GetUser([FromRoute] Guid userId,
+        public async Task<IResult> GetUser([FromRoute] Guid userId,
                                                  CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetUserQuery query = new(userId);
 
             Result<Models.UserDetails> result = await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            UserDetails model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         /// <summary>
@@ -125,19 +118,14 @@ namespace SecurityService.Controllers
         [SwaggerResponse(200, type: typeof(List<UserDetails>))]
         [SwaggerResponseExample(statusCode: 200, typeof(UserDetailsListResponseExample))]
 
-        public async Task<IActionResult> GetUsers([FromQuery] String userName,
+        public async Task<IResult> GetUsers([FromQuery] String userName,
                                                  CancellationToken cancellationToken)
         {
             SecurityServiceQueries.GetUsersQuery query = new(userName);
             
             Result<List<Models.UserDetails>> result= await this.Mediator.Send(query, cancellationToken);
 
-            if (result.IsFailed)
-                return result.ToActionResultX();
-
-            List<UserDetails> model = this.ModelFactory.ConvertFrom(result.Data);
-
-            return Result.Success(model).ToActionResultX();
+            return ResponseFactory.FromResult(result, this.ModelFactory.ConvertFrom);
         }
 
         #endregion

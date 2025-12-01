@@ -65,18 +65,7 @@ namespace SecurityService.Client
 
             try
             {
-                String requestSerialised = JsonConvert.SerializeObject(createApiResourceRequest);
-
-                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
-
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                Result<String> result = await this.SendHttpPostRequest<CreateApiResourceRequest, String>(requestUri, createApiResourceRequest, cancellationToken);
 
                 if(result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -99,18 +88,7 @@ namespace SecurityService.Client
 
             try
             {
-                String requestSerialised = JsonConvert.SerializeObject(createApiScopeRequest);
-
-                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
-
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                Result<String> result = await this.SendHttpPostRequest<CreateApiScopeRequest, String>(requestUri, createApiScopeRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -133,18 +111,7 @@ namespace SecurityService.Client
 
             try
             {
-                String requestSerialised = JsonConvert.SerializeObject(createClientRequest);
-
-                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
-
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                Result<String> result = await this.SendHttpPostRequest<CreateClientRequest, String>(requestUri, createClientRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -167,18 +134,7 @@ namespace SecurityService.Client
 
             try
             {
-                String requestSerialised = JsonConvert.SerializeObject(createIdentityResourceRequest);
-
-                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
-
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                Result<String> result = await this.SendHttpPostRequest<CreateIdentityResourceRequest, String>(requestUri, createIdentityResourceRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -201,18 +157,7 @@ namespace SecurityService.Client
 
             try
             {
-                String requestSerialised = JsonConvert.SerializeObject(createRoleRequest);
-
-                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
-
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                Result<String> result = await this.SendHttpPostRequest<CreateRoleRequest, String>(requestUri, createRoleRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -241,18 +186,7 @@ namespace SecurityService.Client
 
             try
             {
-                String requestSerialised = JsonConvert.SerializeObject(createUserRequest);
-
-                StringContent httpContent = new StringContent(requestSerialised, Encoding.UTF8, "application/json");
-
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                Result<String> result = await this.SendHttpPostRequest<CreateUserRequest, String>(requestUri, createUserRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -273,24 +207,13 @@ namespace SecurityService.Client
         {
             String requestUri = this.BuildRequestUrl($"/api/apiresources/{apiResourceName}");
 
-            try
-            {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+            try {
+                Result<ApiResourceDetails> result = await this.SendHttpGetRequest<ApiResourceDetails>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
-
-                // call was successful so now deserialise the body to the response object
-                ResponseData<ApiResourceDetails> responseData = HandleResponseContent<ApiResourceDetails>(result.Data);
-
-                return Result.Success(responseData.Data);
+                
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -307,22 +230,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                Result<List<ApiResourceDetails>> result = await this.SendHttpGetRequest<List<ApiResourceDetails>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<List<ApiResourceDetails>> responseData = HandleResponseContent<List<ApiResourceDetails>>(result.Data);
-                
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -340,22 +253,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<ApiScopeDetails>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<ApiScopeDetails> responseData = HandleResponseContent<ApiScopeDetails>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -372,22 +275,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<ApiScopeDetails>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<List<ApiScopeDetails>> responseData = HandleResponseContent<List<ApiScopeDetails>>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -405,22 +298,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<ClientDetails>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<ClientDetails> responseData = HandleResponseContent<ClientDetails>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -437,23 +320,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<ClientDetails>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<List<ClientDetails>> responseData =
-                    HandleResponseContent<List<ClientDetails>>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -471,23 +343,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<IdentityResourceDetails>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<IdentityResourceDetails> responseData =
-                    HandleResponseContent<IdentityResourceDetails>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -504,23 +365,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<IdentityResourceDetails>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<List<IdentityResourceDetails>> responseData =
-                    HandleResponseContent<List<IdentityResourceDetails>>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -538,23 +388,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<RoleDetails>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<RoleDetails> responseData =
-                    HandleResponseContent<RoleDetails>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -571,23 +410,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<RoleDetails>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<List<RoleDetails>> responseData =
-                    HandleResponseContent<List<RoleDetails>>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -650,23 +478,12 @@ namespace SecurityService.Client
 
             try
             {
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<UserDetails>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<UserDetails> responseData =
-                    HandleResponseContent<UserDetails>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
@@ -689,23 +506,12 @@ namespace SecurityService.Client
                     requestUri = $"{requestUri}?username={userName}";
                 }
 
-                // Add the access token to the client headers
-                //this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-
-                // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.GetAsync(requestUri, cancellationToken);
-
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<UserDetails>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
-                // call was successful so now deserialise the body to the response object
-                ResponseData<List<UserDetails>> responseData =
-                    HandleResponseContent<List<UserDetails>>(result.Data);
-
-                return Result.Success(responseData.Data);
+                return Result.Success(result.Data);
             }
             catch(Exception ex)
             {
