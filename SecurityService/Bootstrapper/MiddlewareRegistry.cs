@@ -80,6 +80,23 @@
                                });
 
             this.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
+
+            //this.AddRazorPages();
+            //this.AddControllers();
+            //    .AddNewtonsoftJson(options =>
+            //{
+            //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //    options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+            //    options.SerializerSettings.Formatting = Formatting.Indented;
+            //    options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+            //    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //});
+
+            this.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                options.SerializerOptions.PropertyNameCaseInsensitive = true; // optional, but safer
+            });
         }
     }
 

@@ -78,7 +78,8 @@ namespace SecurityService
 
                     // This is important, the call to AddControllers()
                     // cannot be made before the usage of ConfigureWebHostDefaults
-                    services.AddControllers().AddNewtonsoftJson(options =>
+                    services.AddControllers()
+                        .AddNewtonsoftJson(options =>
                     {
                         options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
                         options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
