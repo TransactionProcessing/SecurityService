@@ -115,6 +115,20 @@ jobs:
       run: |
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest    
 
+    - name: Run Integration Tests (UI Chrome)
+      env:
+         Browser: Chrome
+      run: |  
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
+
+    - name: Run Integration Tests (UI Edge)
+      env:
+         Browser: Edge
+         DriverPath: C:\\SeleniumWebDrivers\\EdgeDriver\\
+         DriverExe: msedgedriver.exe
+      run: |
+         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest 
+
     - uses: actions/upload-artifact@v4.4.0
       if: ${{ failure() }}
       with:
