@@ -1,4 +1,6 @@
-﻿namespace SecurityService
+﻿using SecurityService.Endpoints;
+
+namespace SecurityService
 {
     using Bootstrapper;
     using Database.DbContexts;
@@ -126,6 +128,15 @@
                              {
                                  endpoints.MapRazorPages();
                                  endpoints.MapDefaultControllerRoute();
+                                 
+                                 endpoints.MapApiResourceEndpoints();
+                                 endpoints.MapApiScopeEndpoints();
+                                 endpoints.MapIdentityResourceEndpoints();
+                                 endpoints.MapUserEndpoints();
+                                 endpoints.MapRoleEndpoints();
+                                 endpoints.MapClientEndpoints();
+                                 endpoints.MapDeveloperEndpoints();
+
                                  endpoints.MapHealthChecks("health",
                                                            new HealthCheckOptions
                                                            {

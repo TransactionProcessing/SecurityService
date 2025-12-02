@@ -75,7 +75,7 @@ namespace SecurityService
                 webBuilder.ConfigureServices(services =>
                 {
                     services.AddRazorPages();
-
+                    
                     // This is important, the call to AddControllers()
                     // cannot be made before the usage of ConfigureWebHostDefaults
                     services.AddControllers()
