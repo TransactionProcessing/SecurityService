@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿/*using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace SecurityService.Controllers
@@ -64,3 +64,4 @@ namespace SecurityService.Controllers
         #endregion
     }
 }
+*/

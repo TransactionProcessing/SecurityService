@@ -1,4 +1,4 @@
-﻿using MediatR;
+﻿/*using MediatR;
 using Microsoft.AspNetCore.Http;
 using SecurityService.BusinessLogic.RequestHandlers;
 using SecurityService.BusinessLogic.Requests;
@@ -109,4 +109,4 @@ namespace SecurityService.Controllers
 
         #endregion
     }
-}
+}*/
