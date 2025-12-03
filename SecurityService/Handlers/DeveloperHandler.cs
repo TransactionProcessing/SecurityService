@@ -22,7 +22,7 @@ namespace SecurityService.Handlers
                 return Task.FromResult(Results.Ok(lastEmailRequest) as IResult);
             }
 
-            return Task.FromResult(Results.NotFound() as IResult);
+            return Task.FromResult(Results.BadRequest() as IResult);
         }
 
         public static Task<IResult> GetLastSMSMessage(IMessagingServiceClient messagingServiceClient,
