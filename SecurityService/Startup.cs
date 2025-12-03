@@ -1,4 +1,6 @@
-﻿using SecurityService.Endpoints;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using SecurityService.Endpoints;
 
 namespace SecurityService
 {
@@ -156,7 +158,7 @@ namespace SecurityService
             app.UseSwaggerUI();
 
             // this will do the initial DB population
-            this.InitializeDatabase(app);
+            //this.InitializeDatabase(app);
         }
 
         /// <summary>
@@ -172,6 +174,9 @@ namespace SecurityService
             services.IncludeRegistry<MediatorRegistry>();
             services.IncludeRegistry<MiscRegistry>();
 
+            // Register the hosted service via the ServiceRegistry (Lamar)
+            services.AddHostedService<DatabaseInitializer>();
+
             Startup.Container = new Container(services);
         }
 
@@ -179,30 +184,31 @@ namespace SecurityService
         /// Initializes the database.
         /// </summary>
         /// <param name="app">The application.</param>
-        private void InitializeDatabase(IApplicationBuilder app)
-        {
-            using(IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-            {
-                PersistedGrantDbContext persistedGrantDbContext = serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
-                ConfigurationDbContext configurationDbContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-                AuthenticationDbContext authenticationContext = serviceScope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
+        //private void InitializeDatabase(IApplicationBuilder app)
+        //{
+        //    using(IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+        //    {
+        //        PersistedGrantDbContext persistedGrantDbContext = serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
+        //        ConfigurationDbContext configurationDbContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
+        //        AuthenticationDbContext authenticationContext = serviceScope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
 
-                if (persistedGrantDbContext != null && persistedGrantDbContext.Database.IsRelational())
-                {
-                    persistedGrantDbContext.Database.Migrate();
-                }
+        //        if (persistedGrantDbContext != null && persistedGrantDbContext.Database.IsRelational())
+        //        {
+        //            persistedGrantDbContext.Database.Migrate();
+        //            //_ = persistedGrantDbContext.SetDbInSimpleMode(CancellationToken.None);
+        //        }
 
-                if (configurationDbContext != null && configurationDbContext.Database.IsRelational())
-                {
-                    configurationDbContext.Database.Migrate();
-                }
+        //        if (configurationDbContext != null && configurationDbContext.Database.IsRelational())
+        //        {
+        //            configurationDbContext.Database.Migrate();
+        //        }
 
-                if (authenticationContext != null && authenticationContext.Database.IsRelational())
-                {
-                    authenticationContext.Database.Migrate();
-                }
-            }
-        }
+        //        if (authenticationContext != null && authenticationContext.Database.IsRelational())
+        //        {
+        //            authenticationContext.Database.Migrate();
+        //        }
+        //    }
+        //}
 
         #endregion
     }
