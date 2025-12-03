@@ -66,7 +66,7 @@ namespace SecurityService.IntergrationTests.Common
         public async Task BeforeScenario()
         {
             String? browser = Environment.GetEnvironmentVariable("Browser");
-            browser = "Edge";
+            //browser = "Edge";
             if (browser == null || browser == "Chrome")
             {
                 ChromeOptions options = new ChromeOptions();
