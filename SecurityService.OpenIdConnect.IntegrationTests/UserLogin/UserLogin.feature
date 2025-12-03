@@ -8,18 +8,18 @@ Background:
 	| Estate |
 
 	Given I create the following api resources
-	| Name                 | DisplayName            | Secret  | Scopes           | UserClaims               |
-	| estateManagement | Estate Managememt REST | Secret1 | estateManagement | MerchantId,EstateId,role |
+	| Name                 | DisplayName                | Secret  | Scopes               | UserClaims               |
+	| transactionProcessor | Transaction Processor REST | Secret1 | transactionProcessor | MerchantId,EstateId,role |
 
 	Given I create the following identity resources
-	| Name        | DisplayName          | Description                                                 | UserClaims                                                             |
+	| Name    | DisplayName          | Description                                                 | UserClaims                                                             |
 	| openid  | Your user identifier |                                                             | sub                                                                    |
 	| profile | User profile         | Your user profile information (first name, last name, etc.) | name,role,email,given_name,middle_name,family_name,EstateId,MerchantId |
 	| email   | Email                | Email and Email Verified Flags                              | email_verified,email                                                   |
 
 	Given I create the following clients
-	| ClientId       | Name            | Secret  | Scopes                                | GrantTypes | RedirectUris                     | PostLogoutRedirectUris            | RequireConsent | AllowOfflineAccess | ClientUri            |
-	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
+	| ClientId       | Name            | Secret  | Scopes                                    | GrantTypes | RedirectUris                     | PostLogoutRedirectUris            | RequireConsent | AllowOfflineAccess | ClientUri            |
+	| estateUIClient | Merchant Client | Secret1 | transactionProcessor,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
 
 @PRTest
 Scenario: Create User and Login
