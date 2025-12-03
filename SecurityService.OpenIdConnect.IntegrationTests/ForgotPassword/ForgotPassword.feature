@@ -8,8 +8,8 @@ Background:
 	| Estate |
 
 	Given I create the following api resources
-	| Name                 | DisplayName            | Secret  | Scopes           | UserClaims               |
-	| estateManagement | Estate Managememt REST | Secret1 | estateManagement | MerchantId,EstateId,role |
+	| Name                 | DisplayName            | Secret  | Scopes               | UserClaims               |
+	| transactionProcessor | Transaction Processor REST | Secret1 | transactionProcessor | MerchantId,EstateId,role |
 
 	Given I create the following identity resources
 	| Name        | DisplayName          | Description                                                 | UserClaims                                                             |
@@ -19,7 +19,7 @@ Background:
 
 	Given I create the following clients
 	| ClientId       | Name            | Secret  | Scopes                                | GrantTypes | RedirectUris                     | PostLogoutRedirectUris            | RequireConsent | AllowOfflineAccess | ClientUri            |
-	| estateUIClient | Merchant Client | Secret1 | estateManagement,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
+	| estateUIClient | Merchant Client | Secret1 | transactionProcessor,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
 
 	Given I create the following users
 	| Email Address                    | Password | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles      |
