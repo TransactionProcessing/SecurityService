@@ -27,8 +27,6 @@ namespace SecurityService.Bootstrapper
         {
             this.AddHttpContextAccessor();
 
-            this.AddSingleton<IModelFactory, ModelFactory>();
-
             if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")) {
                 this.AddSingleton<IMessagingServiceClient, TestMessagingServiceClient>();
             }

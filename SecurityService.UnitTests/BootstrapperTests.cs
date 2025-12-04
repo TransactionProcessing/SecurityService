@@ -37,7 +37,7 @@
 
             this.AddTestRegistrations(services, hostingEnvironment.Object);
             s.ConfigureContainer(services);
-            Startup.Container.AssertConfigurationIsValid();
+            Startup.GetContainer().AssertConfigurationIsValid();
         }
     
         private IConfigurationRoot SetupMemoryConfiguration()

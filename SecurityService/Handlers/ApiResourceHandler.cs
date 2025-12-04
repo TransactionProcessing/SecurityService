@@ -22,7 +22,7 @@ namespace SecurityService.Handlers
                                                             CreateApiResourceRequest createApiResourceRequest,
                                                             CancellationToken cancellationToken)
         {
-            var command = new SecurityServiceCommands.CreateApiResourceCommand(
+            SecurityServiceCommands.CreateApiResourceCommand command = new SecurityServiceCommands.CreateApiResourceCommand(
                 createApiResourceRequest.Name,
                 createApiResourceRequest.DisplayName,
                 createApiResourceRequest.Description,
@@ -36,26 +36,24 @@ namespace SecurityService.Handlers
         }
 
         public static async Task<IResult> GetApiResource(IMediator mediator,
-                                                         IModelFactory modelFactory,
                                                          string apiResourceName,
                                                          CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetApiResourceQuery(apiResourceName);
+            SecurityServiceQueries.GetApiResourceQuery query = new SecurityServiceQueries.GetApiResourceQuery(apiResourceName);
 
             Result<Duende.IdentityServer.Models.ApiResource> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> GetApiResources(IMediator mediator,
-                                                          IModelFactory modelFactory,
                                                           CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetApiResourcesQuery();
+            SecurityServiceQueries.GetApiResourcesQuery query = new SecurityServiceQueries.GetApiResourcesQuery();
 
             Result<List<Duende.IdentityServer.Models.ApiResource>> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
     }
 }

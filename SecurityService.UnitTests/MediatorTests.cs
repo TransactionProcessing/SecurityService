@@ -81,11 +81,11 @@ namespace SecurityService.UnitTests
 
             this.AddTestRegistrations(services, hostingEnvironment.Object);
             s.ConfigureContainer(services);
-
-            RoleManager<IdentityRole> authDb = Startup.Container.GetInstance<RoleManager<IdentityRole>>();
+            Container container = Startup.GetContainer();
+            RoleManager<IdentityRole> authDb = container.GetInstance<RoleManager<IdentityRole>>();
            
             List<String> errors = new List<String>();
-            IMediator mediator = Startup.Container.GetService<IMediator>();
+            IMediator mediator = container.GetService<IMediator>();
             foreach (IBaseRequest baseRequest in this.Requests)
             {
                 try

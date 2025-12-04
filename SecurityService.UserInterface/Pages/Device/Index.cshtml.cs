@@ -147,34 +147,68 @@ public class Index : PageModel
 
     private ViewModel CreateConsentViewModel(InputModel model, DeviceFlowAuthorizationRequest request)
     {
-        var vm = new ViewModel
+        return new ViewModel
         {
-            ClientName = request.Client.ClientName ?? request.Client.ClientId,
+            ClientName = GetClientName(request),
             ClientUrl = request.Client.ClientUri,
             ClientLogoUrl = request.Client.LogoUri,
-            AllowRememberConsent = request.Client.AllowRememberConsent
+            AllowRememberConsent = request.Client.AllowRememberConsent,
+            IdentityScopes = CreateIdentityScopes(model, request),
+            ApiScopes = CreateApiScopes(model, request)
         };
-
-        vm.IdentityScopes = request.ValidatedResources.Resources.IdentityResources.Select(x => CreateScopeViewModel(x, model == null || model.ScopesConsented?.Contains(x.Name) == true)).ToArray();
-
-        var apiScopes = new List<ScopeViewModel>();
-        foreach (var parsedScope in request.ValidatedResources.ParsedScopes)
-        {
-            var apiScope = request.ValidatedResources.Resources.FindApiScope(parsedScope.ParsedName);
-            if (apiScope != null)
-            {
-                var scopeVm = CreateScopeViewModel(parsedScope, apiScope, model == null || model.ScopesConsented?.Contains(parsedScope.RawValue) == true);
-                apiScopes.Add(scopeVm);
-            }
-        }
-        if (DeviceOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
-        {
-            apiScopes.Add(GetOfflineAccessScope(model == null || model.ScopesConsented?.Contains(Duende.IdentityServer.IdentityServerConstants.StandardScopes.OfflineAccess) == true));
-        }
-        vm.ApiScopes = apiScopes;
-
-        return vm;
     }
+
+    private string GetClientName(DeviceFlowAuthorizationRequest request) =>
+        request.Client.ClientName ?? request.Client.ClientId;
+
+    private bool IsConsented(InputModel model, string scope) =>
+        model == null || model.ScopesConsented?.Contains(scope) == true;
+
+    private ScopeViewModel[] CreateIdentityScopes(InputModel model, DeviceFlowAuthorizationRequest request)
+    {
+        return request.ValidatedResources.Resources.IdentityResources
+            .Select(x => CreateScopeViewModel(x, IsConsented(model, x.Name)))
+            .ToArray();
+    }
+
+    private List<ScopeViewModel> CreateApiScopes(InputModel model, DeviceFlowAuthorizationRequest request)
+    {
+        var apiScopes = request.ValidatedResources.ParsedScopes
+            .Select(parsed => BuildApiScopeViewModel(model, request, parsed))
+            .Where(vm => vm != null)
+            .ToList();
+
+        if (ShouldIncludeOfflineAccess(request))
+        {
+            apiScopes.Add(GetOfflineAccessScope(
+                IsConsented(model, Duende.IdentityServer.IdentityServerConstants.StandardScopes.OfflineAccess)
+            ));
+        }
+
+        return apiScopes;
+    }
+
+    private ScopeViewModel? BuildApiScopeViewModel(
+        InputModel model,
+        DeviceFlowAuthorizationRequest request,
+        ParsedScopeValue parsedScope)
+    {
+        var apiScope = request.ValidatedResources.Resources.FindApiScope(parsedScope.ParsedName);
+        if (apiScope == null) return null;
+
+        return CreateScopeViewModel(
+            parsedScope,
+            apiScope,
+            IsConsented(model, parsedScope.RawValue)
+        );
+    }
+
+    private bool ShouldIncludeOfflineAccess(DeviceFlowAuthorizationRequest request)
+    {
+        return DeviceOptions.EnableOfflineAccess &&
+               request.ValidatedResources.Resources.OfflineAccess;
+    }
+
 
     private ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
     {

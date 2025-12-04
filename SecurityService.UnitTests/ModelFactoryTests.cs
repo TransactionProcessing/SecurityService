@@ -18,8 +18,6 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ApiResource_ModelConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             ApiResource apiResourceModel = new ApiResource
                                            {
                                                Scopes = new List<String>
@@ -33,7 +31,7 @@
                                                Enabled = true
                                            };
 
-            ApiResourceDetails apiResourceDto = modelFactory.ConvertFrom(apiResourceModel);
+            ApiResourceDetails apiResourceDto = ModelFactory.ConvertFrom(apiResourceModel);
 
             apiResourceDto.Scopes.First().ShouldBe(TestData.AllowedScopes.First());
             apiResourceDto.Description.ShouldBe(TestData.ApiResourceDescription);
@@ -46,11 +44,9 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ApiResource_ModelIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             ApiResource apiResourceModel = null;
 
-            ApiResourceDetails apiResourceDto = modelFactory.ConvertFrom(apiResourceModel);
+            ApiResourceDetails apiResourceDto = ModelFactory.ConvertFrom(apiResourceModel);
 
             apiResourceDto.ShouldBeNull();
         }
@@ -58,8 +54,6 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ApiScope_ModelConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             ApiScope apiScopeModel = new ApiScope
             {
                 Description = TestData.ApiScopeDescription,
@@ -68,7 +62,7 @@
                 Enabled = true
             };
 
-            ApiScopeDetails apiScopeDto = modelFactory.ConvertFrom(apiScopeModel);
+            ApiScopeDetails apiScopeDto = ModelFactory.ConvertFrom(apiScopeModel);
 
             apiScopeDto.Description.ShouldBe(TestData.ApiScopeDescription);
             apiScopeDto.DisplayName.ShouldBe(TestData.ApiScopeDisplayName);
@@ -79,11 +73,9 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ApiScope_ModelIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             ApiScope apiScopeModel = null;
 
-            ApiScopeDetails apiScopeDto = modelFactory.ConvertFrom(apiScopeModel);
+            ApiScopeDetails apiScopeDto = ModelFactory.ConvertFrom(apiScopeModel);
 
             apiScopeDto.ShouldBeNull();
         }
@@ -91,32 +83,26 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ApiResourceList_ListIsEmpty_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             List<ApiResource> apiResourceList = new List<ApiResource>();
 
-            List<ApiResourceDetails> apiResourceDtoList = modelFactory.ConvertFrom(apiResourceList);
+            List<ApiResourceDetails> apiResourceDtoList = ModelFactory.ConvertFrom(apiResourceList);
 
-            apiResourceDtoList.ShouldBeNull();
+            apiResourceDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_ApiResourceList_ListIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             List<ApiResource> apiResourceList = null;
 
-            List<ApiResourceDetails> apiResourceDtoList = modelFactory.ConvertFrom(apiResourceList);
+            List<ApiResourceDetails> apiResourceDtoList = ModelFactory.ConvertFrom(apiResourceList);
 
-            apiResourceDtoList.ShouldBeNull();
+            apiResourceDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_ApiResourceList_ModelsConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             ApiResource apiResourceModel = new ApiResource
                                            {
                                                Scopes = new List<String>
@@ -130,10 +116,11 @@
                                                Enabled = true
                                            };
 
-            List<ApiResource> apiResourceModelList = new List<ApiResource>();
-            apiResourceModelList.Add(apiResourceModel);
+            List<ApiResource> apiResourceModelList = [
+                apiResourceModel
+            ];
 
-            List<ApiResourceDetails> apiResourceDtoList = modelFactory.ConvertFrom(apiResourceModelList);
+            List<ApiResourceDetails> apiResourceDtoList = ModelFactory.ConvertFrom(apiResourceModelList);
 
             apiResourceDtoList.ShouldNotBeNull();
             apiResourceDtoList.ShouldNotBeEmpty();
@@ -149,32 +136,26 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ApiScopeList_ListIsEmpty_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
+            List<ApiScope> apiScopeList = new();
 
-            List<ApiScope> apiScopeList = new List<ApiScope>();
+            List<ApiScopeDetails> apiScopeDtoList = ModelFactory.ConvertFrom(apiScopeList);
 
-            List<ApiScopeDetails> apiScopeDtoList = modelFactory.ConvertFrom(apiScopeList);
-
-            apiScopeDtoList.ShouldBeNull();
+            apiScopeDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_ApiScopeList_ListIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             List<ApiScope> apiScopeList = null;
 
-            List<ApiScopeDetails> apiScopeDtoList = modelFactory.ConvertFrom(apiScopeList);
+            List<ApiScopeDetails> apiScopeDtoList = ModelFactory.ConvertFrom(apiScopeList);
 
-            apiScopeDtoList.ShouldBeNull();
+            apiScopeDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_ApiScopeList_ModelsConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             ApiScope apiScopeModel = new ApiScope
             {
                 Description = TestData.ApiScopeDescription,
@@ -183,10 +164,11 @@
                 Enabled = true
             };
 
-            List<ApiScope> apiScopeModelList = new List<ApiScope>();
-            apiScopeModelList.Add(apiScopeModel);
+            List<ApiScope> apiScopeModelList = [
+                apiScopeModel
+            ];
 
-            List<ApiScopeDetails> apiScopeDtoList = modelFactory.ConvertFrom(apiScopeModelList);
+            List<ApiScopeDetails> apiScopeDtoList = ModelFactory.ConvertFrom(apiScopeModelList);
 
             apiScopeDtoList.ShouldNotBeNull();
             apiScopeDtoList.ShouldNotBeEmpty();
@@ -200,8 +182,6 @@
         [Fact]
         public void ModelFactory_ConvertFrom_Client_ModelConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             Client clientModel = new Client
                                  {
                                      ClientId = TestData.ClientId,
@@ -212,7 +192,7 @@
                                      Enabled = true
                                  };
 
-            ClientDetails clientDto = modelFactory.ConvertFrom(clientModel);
+            ClientDetails clientDto = ModelFactory.ConvertFrom(clientModel);
 
             clientDto.AllowedGrantTypes.ShouldBe(TestData.AllowedGrantTypes);
             clientDto.AllowedScopes.ShouldBe(TestData.AllowedScopes);
@@ -225,11 +205,9 @@
         [Fact]
         public void ModelFactory_ConvertFrom_Client_ModelIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             Client clientModel = null;
 
-            ClientDetails clientDto = modelFactory.ConvertFrom(clientModel);
+            ClientDetails clientDto = ModelFactory.ConvertFrom(clientModel);
 
             clientDto.ShouldBeNull();
         }
@@ -237,32 +215,26 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ClientList_ListIsEmpty_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
+            List<Client> clientModelList = new();
 
-            List<Client> clientModelList = new List<Client>();
+            List<ClientDetails> clientDtoList = ModelFactory.ConvertFrom(clientModelList);
 
-            List<ClientDetails> clientDtoList = modelFactory.ConvertFrom(clientModelList);
-
-            clientDtoList.ShouldBeNull();
+            clientDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_ClientList_ListIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             List<Client> clientModelList = null;
 
-            List<ClientDetails> clientDtoList = modelFactory.ConvertFrom(clientModelList);
+            List<ClientDetails> clientDtoList = ModelFactory.ConvertFrom(clientModelList);
 
-            clientDtoList.ShouldBeNull();
+            clientDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_ClientList_ModelsConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             Client clientModel = new Client
                                  {
                                      ClientId = TestData.ClientId,
@@ -272,10 +244,11 @@
                                      AllowedScopes = TestData.AllowedScopes,
                                      Enabled = true
                                  };
-            List<Client> clientModelList = new List<Client>();
-            clientModelList.Add(clientModel);
+            List<Client> clientModelList = [
+                clientModel
+            ];
 
-            List<ClientDetails> clientDtoList = modelFactory.ConvertFrom(clientModelList);
+            List<ClientDetails> clientDtoList = ModelFactory.ConvertFrom(clientModelList);
 
             clientDtoList.ShouldNotBeNull();
             clientDtoList.ShouldNotBeEmpty();
@@ -291,8 +264,6 @@
         [Fact]
         public void ModelFactory_ConvertFrom_IdentityResource_ModelConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             IdentityResource identityResourceModel = new IdentityResource
                                                      {
                                                          Description = TestData.IdentityResourceDescription,
@@ -303,7 +274,7 @@
                                                          Required = true
                                                      };
 
-            IdentityResourceDetails identityResourceDto = modelFactory.ConvertFrom(identityResourceModel);
+            IdentityResourceDetails identityResourceDto = ModelFactory.ConvertFrom(identityResourceModel);
 
             identityResourceDto.Description.ShouldBe(TestData.IdentityResourceDescription);
             identityResourceDto.DisplayName.ShouldBe(TestData.IdentityResourceDisplayName);
@@ -316,11 +287,9 @@
         [Fact]
         public void ModelFactory_ConvertFrom_IdentityResource_ModelIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             IdentityResource identityResourceModel = null;
 
-            IdentityResourceDetails identityResourceDto = modelFactory.ConvertFrom(identityResourceModel);
+            IdentityResourceDetails identityResourceDto = ModelFactory.ConvertFrom(identityResourceModel);
 
             identityResourceDto.ShouldBeNull();
         }
@@ -328,20 +297,16 @@
         [Fact]
         public void ModelFactory_ConvertFrom_IdentityResourceList_ListIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             List<IdentityResource> identityResourceList = null;
 
-            List<IdentityResourceDetails> identityResourceDtoList = modelFactory.ConvertFrom(identityResourceList);
+            List<IdentityResourceDetails> identityResourceDtoList = ModelFactory.ConvertFrom(identityResourceList);
 
-            identityResourceDtoList.ShouldBeNull();
+            identityResourceDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_IdentityResourceList_ModelConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             IdentityResource identityResourceModel = new IdentityResource
                                                      {
                                                          Description = TestData.IdentityResourceDescription,
@@ -352,10 +317,11 @@
                                                          Required = true
                                                      };
 
-            List<IdentityResource> identityResourceModelList = new List<IdentityResource>();
-            identityResourceModelList.Add(identityResourceModel);
+            List<IdentityResource> identityResourceModelList = [
+                identityResourceModel
+            ];
 
-            List<IdentityResourceDetails> identityResourceDtoList = modelFactory.ConvertFrom(identityResourceModelList);
+            List<IdentityResourceDetails> identityResourceDtoList = ModelFactory.ConvertFrom(identityResourceModelList);
 
             identityResourceDtoList.ShouldNotBeNull();
             identityResourceDtoList.ShouldNotBeEmpty();
@@ -371,41 +337,36 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ListRoleDetails_ListIsEmpty_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
+            List<RoleDetails> roleDetailsModelList = new();
 
-            List<RoleDetails> roleDetailsModelList = new List<RoleDetails>();
+            List<DataTransferObjects.Responses.RoleDetails> roleDetailsDtoList = ModelFactory.ConvertFrom(roleDetailsModelList);
 
-            List<DataTransferObjects.Responses.RoleDetails> roleDetailsDtoList = modelFactory.ConvertFrom(roleDetailsModelList);
-
-            roleDetailsDtoList.ShouldBeNull();
+            roleDetailsDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_ListRoleDetails_ListIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             List<RoleDetails> roleDetailsModelList = null;
 
-            List<DataTransferObjects.Responses.RoleDetails> roleDetailsDtoList = modelFactory.ConvertFrom(roleDetailsModelList);
+            List<DataTransferObjects.Responses.RoleDetails> roleDetailsDtoList = ModelFactory.ConvertFrom(roleDetailsModelList);
 
-            roleDetailsDtoList.ShouldBeNull();
+            roleDetailsDtoList.ShouldBeEmpty();
         }
 
         [Fact]
         public void ModelFactory_ConvertFrom_ListRoleDetails_ModelsConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             RoleDetails roleDetailsModel = new RoleDetails
                                            {
                                                RoleId = Guid.Parse(TestData.Role1Id),
                                                RoleName = TestData.RoleName
                                            };
-            List<RoleDetails> roleDetailsModelList = new List<RoleDetails>();
-            roleDetailsModelList.Add(roleDetailsModel);
+            List<RoleDetails> roleDetailsModelList = [
+                roleDetailsModel
+            ];
 
-            List<DataTransferObjects.Responses.RoleDetails> rolesDetailsDtoList = modelFactory.ConvertFrom(roleDetailsModelList);
+            List<DataTransferObjects.Responses.RoleDetails> rolesDetailsDtoList = ModelFactory.ConvertFrom(roleDetailsModelList);
 
             rolesDetailsDtoList.ShouldNotBeNull();
             rolesDetailsDtoList.ShouldNotBeEmpty();
@@ -417,11 +378,9 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ListUserDetails_ListIsEmpty_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
+            List<UserDetails> userDetailsModelList = new();
 
-            List<UserDetails> userDetailsModelList = new List<UserDetails>();
-
-            List<DataTransferObjects.Responses.UserDetails> userDetailsDtoList = modelFactory.ConvertFrom(userDetailsModelList);
+            List<DataTransferObjects.Responses.UserDetails> userDetailsDtoList = ModelFactory.ConvertFrom(userDetailsModelList);
 
             userDetailsDtoList.ShouldNotBeNull();
             userDetailsDtoList.ShouldBeEmpty();
@@ -430,11 +389,9 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ListUserDetails_ListIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             List<UserDetails> userDetailsModelList = null;
 
-            List<DataTransferObjects.Responses.UserDetails> userDetailsDtoList = modelFactory.ConvertFrom(userDetailsModelList);
+            List<DataTransferObjects.Responses.UserDetails> userDetailsDtoList = ModelFactory.ConvertFrom(userDetailsModelList);
 
             userDetailsDtoList.ShouldNotBeNull();
             userDetailsDtoList.ShouldBeEmpty();
@@ -443,8 +400,6 @@
         [Fact]
         public void ModelFactory_ConvertFrom_ListUserDetails_ModelsConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             UserDetails userDetailsModel = new UserDetails
                                            {
                                                PhoneNumber = TestData.PhoneNumber,
@@ -455,10 +410,11 @@
                                                Claims = TestData.Claims,
                                                RegistrationDateTime = new DateTime(2025,2,1)
                                            };
-            List<UserDetails> userDetailsModelList = new List<UserDetails>();
-            userDetailsModelList.Add(userDetailsModel);
+            List<UserDetails> userDetailsModelList = [
+                userDetailsModel
+            ];
 
-            List<DataTransferObjects.Responses.UserDetails> userDetailsDtoList = modelFactory.ConvertFrom(userDetailsModelList);
+            List<DataTransferObjects.Responses.UserDetails> userDetailsDtoList = ModelFactory.ConvertFrom(userDetailsModelList);
 
             userDetailsDtoList.ShouldNotBeNull();
             userDetailsDtoList.ShouldNotBeEmpty();
@@ -475,15 +431,13 @@
         [Fact]
         public void ModelFactory_ConvertFrom_RoleDetails_ModelConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             RoleDetails roleDetailsModel = new RoleDetails
                                            {
                                                RoleId = Guid.Parse(TestData.Role1Id),
                                                RoleName = TestData.RoleName
                                            };
 
-            DataTransferObjects.Responses.RoleDetails roleDetailsDto = modelFactory.ConvertFrom(roleDetailsModel);
+            DataTransferObjects.Responses.RoleDetails roleDetailsDto = ModelFactory.ConvertFrom(roleDetailsModel);
 
             roleDetailsDto.RoleId.ShouldBe(Guid.Parse(TestData.Role1Id));
             roleDetailsDto.RoleName.ShouldBe(TestData.RoleName);
@@ -492,11 +446,9 @@
         [Fact]
         public void ModelFactory_ConvertFrom_RoleDetails_ModelIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             RoleDetails roleDetailsModel = null;
 
-            DataTransferObjects.Responses.RoleDetails roleDetailsDto = modelFactory.ConvertFrom(roleDetailsModel);
+            DataTransferObjects.Responses.RoleDetails roleDetailsDto = ModelFactory.ConvertFrom(roleDetailsModel);
 
             roleDetailsDto.ShouldBeNull();
         }
@@ -504,8 +456,6 @@
         [Fact]
         public void ModelFactory_ConvertFrom_UserDetails_ModelConverted()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             UserDetails userDetailsModel = new UserDetails
                                            {
                                                PhoneNumber = TestData.PhoneNumber,
@@ -516,7 +466,7 @@
                                                Claims = TestData.Claims
                                            };
 
-            DataTransferObjects.Responses.UserDetails userDetailsDto = modelFactory.ConvertFrom(userDetailsModel);
+            DataTransferObjects.Responses.UserDetails userDetailsDto = ModelFactory.ConvertFrom(userDetailsModel);
 
             userDetailsDto.UserName.ShouldBe(TestData.UserName);
             userDetailsDto.EmailAddress.ShouldBe(TestData.EmailAddress);
@@ -529,11 +479,9 @@
         [Fact]
         public void ModelFactory_ConvertFrom_UserDetails_ModelIsNull_NullReturned()
         {
-            IModelFactory modelFactory = new ModelFactory();
-
             UserDetails userDetailsModel = null;
 
-            DataTransferObjects.Responses.UserDetails userDetailsDto = modelFactory.ConvertFrom(userDetailsModel);
+            DataTransferObjects.Responses.UserDetails userDetailsDto = ModelFactory.ConvertFrom(userDetailsModel);
 
             userDetailsDto.ShouldBeNull();
         }
