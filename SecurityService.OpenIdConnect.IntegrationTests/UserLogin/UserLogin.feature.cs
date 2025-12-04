@@ -127,10 +127,10 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "Scopes",
                         "UserClaims"});
             table12.AddRow(new string[] {
-                        "estateManagement",
-                        "Estate Managememt REST",
+                        "transactionProcessor",
+                        "Transaction Processor REST",
                         "Secret1",
-                        "estateManagement",
+                        "transactionProcessor",
                         "MerchantId,EstateId,role"});
 #line 10
  await testRunner.GivenAsync("I create the following api resources", ((string)(null)), table12, "Given ");
@@ -173,7 +173,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "estateUIClient",
                         "Merchant Client",
                         "Secret1",
-                        "estateManagement,openid,email,profile",
+                        "transactionProcessor,openid,email,profile",
                         "hybrid",
                         "https://[url]:[port]/signin-oidc",
                         "https://[url]:[port]/signout-oidc",

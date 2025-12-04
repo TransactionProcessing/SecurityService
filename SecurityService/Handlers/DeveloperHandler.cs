@@ -3,6 +3,7 @@ using SecurityService.BusinessLogic;
 using System.Threading;
 using System.Threading.Tasks;
 using MessagingService.Client;
+using MessagingService.DataTransferObjects;
 using Microsoft.AspNetCore.Http;
 
 namespace SecurityService.Handlers
@@ -18,7 +19,7 @@ namespace SecurityService.Handlers
             if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")
                 && messagingServiceClient.GetType() == typeof(TestMessagingServiceClient))
             {
-                var lastEmailRequest = ((TestMessagingServiceClient)messagingServiceClient).LastEmailRequest;
+                SendEmailRequest lastEmailRequest = ((TestMessagingServiceClient)messagingServiceClient).LastEmailRequest;
                 return Task.FromResult(Results.Ok(lastEmailRequest) as IResult);
             }
 
@@ -28,10 +29,8 @@ namespace SecurityService.Handlers
         public static Task<IResult> GetLastSMSMessage(IMessagingServiceClient messagingServiceClient,
                                                       CancellationToken cancellationToken)
         {
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")
-                && messagingServiceClient.GetType() == typeof(TestMessagingServiceClient))
-            {
-                var lastSmsRequest = ((TestMessagingServiceClient)messagingServiceClient).LastSMSRequest;
+            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") && messagingServiceClient.GetType() == typeof(TestMessagingServiceClient)) {
+                SendSMSRequest lastSmsRequest = ((TestMessagingServiceClient)messagingServiceClient).LastSMSRequest;
                 return Task.FromResult(Results.Ok(lastSmsRequest) as IResult);
             }
 

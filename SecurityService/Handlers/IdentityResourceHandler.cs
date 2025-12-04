@@ -21,7 +21,7 @@ namespace SecurityService.Handlers
                                                                  CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                  CancellationToken cancellationToken)
         {
-            var command = new SecurityServiceCommands.CreateIdentityResourceCommand(
+            SecurityServiceCommands.CreateIdentityResourceCommand command = new(
                 createIdentityResourceRequest.Name,
                 createIdentityResourceRequest.DisplayName,
                 createIdentityResourceRequest.Description,
@@ -36,26 +36,24 @@ namespace SecurityService.Handlers
         }
 
         public static async Task<IResult> GetIdentityResource(IMediator mediator,
-                                                         IModelFactory modelFactory,
                                                          string apiResourceName,
                                                          CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetIdentityResourceQuery(apiResourceName);
+            SecurityServiceQueries.GetIdentityResourceQuery query = new(apiResourceName);
 
             Result<Duende.IdentityServer.Models.IdentityResource> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> GetIdentityResources(IMediator mediator,
-                                                               IModelFactory modelFactory,
                                                                CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetIdentityResourcesQuery();
+            SecurityServiceQueries.GetIdentityResourcesQuery query = new();
 
             Result<List<Duende.IdentityServer.Models.IdentityResource>> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
     }
 }

@@ -37,9 +37,9 @@ public class Confirm : PageModel
         this.Mediator = mediator;
     }
         
-    public async Task<IActionResult> OnGet(string returnUrl) {
+    public async Task<IActionResult> OnGet() {
         // Process the query string and populate the view model with username (read only)
-        await BuildModelAsync(returnUrl, Request.QueryString);
+        await BuildModelAsync(Request.QueryString);
 
         return Page();
     }
@@ -74,7 +74,7 @@ public class Confirm : PageModel
         return Page();
     }
 
-    private async Task BuildModelAsync(string returnUrl, QueryString queryString)
+    private async Task BuildModelAsync(QueryString queryString)
     {
         NameValueCollection parsedQueryString = HttpUtility.ParseQueryString(Request.QueryString.ToString());
         String userName = parsedQueryString["userName"];

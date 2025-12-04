@@ -1,31 +1,24 @@
-﻿using System.Threading;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore.Routing;
 using SecurityService.Endpoints;
 
 namespace SecurityService
 {
     using Bootstrapper;
-    using Database.DbContexts;
-    using Duende.IdentityServer.EntityFramework.DbContexts;
     using HealthChecks.UI.Client;
     using Lamar;
     using Microsoft.AspNetCore.Builder;
     using Microsoft.AspNetCore.Diagnostics.HealthChecks;
     using Microsoft.AspNetCore.Hosting;
     using Microsoft.AspNetCore.HttpOverrides;
-    using Microsoft.EntityFrameworkCore;
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
     using Microsoft.Extensions.Logging;
-    using NLog.Extensions.Logging;
     using Shared.Extensions;
     using Shared.General;
     using Shared.Logger;
     using Shared.Middleware;
-    using System;
     using System.Diagnostics.CodeAnalysis;
-    using System.IO;
     using ILogger = Microsoft.Extensions.Logging.ILogger;
 
     [ExcludeFromCodeCoverage]
@@ -33,11 +26,10 @@ namespace SecurityService
     {
         #region Fields
 
-        /// <summary>
-        /// The container
-        /// </summary>
-        public static Container Container;
+        private static Container Container;
 
+        public static Container GetContainer() => Container;
+        
         #endregion
 
         #region Constructors
@@ -94,11 +86,10 @@ namespace SecurityService
                               IWebHostEnvironment env,
                               ILoggerFactory loggerFactory)
         {
-            if (env.IsDevelopment())
-            {
+            if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
             }
-            
+
             ILogger logger = loggerFactory.CreateLogger("Security Service");
 
             Logger.Initialise(logger);
@@ -126,39 +117,27 @@ namespace SecurityService
                                         ForwardedHeaders = ForwardedHeaders.XForwardedProto
                                     });
 
-            app.UseEndpoints(endpoints =>
-                             {
-                                 endpoints.MapRazorPages();
-                                 endpoints.MapDefaultControllerRoute();
-                                 
-                                 endpoints.MapApiResourceEndpoints();
-                                 endpoints.MapApiScopeEndpoints();
-                                 endpoints.MapIdentityResourceEndpoints();
-                                 endpoints.MapUserEndpoints();
-                                 endpoints.MapRoleEndpoints();
-                                 endpoints.MapClientEndpoints();
-                                 endpoints.MapDeveloperEndpoints();
-
-                                 endpoints.MapHealthChecks("health",
-                                                           new HealthCheckOptions
-                                                           {
-                                                               Predicate = _ => true,
-                                                               ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse
-                                                           });
-                                 endpoints.MapHealthChecks("healthui",
-                                                           new HealthCheckOptions
-                                                           {
-                                                               Predicate = _ => true,
-                                                               ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                                                           });
-                             });
+            app.UseEndpoints(this.MapEndpoints);
 
             app.UseSwagger();
 
             app.UseSwaggerUI();
+        }
 
-            // this will do the initial DB population
-            //this.InitializeDatabase(app);
+        private void MapEndpoints(IEndpointRouteBuilder endpoints) {
+            endpoints.MapRazorPages();
+            endpoints.MapDefaultControllerRoute();
+
+            endpoints.MapApiResourceEndpoints();
+            endpoints.MapApiScopeEndpoints();
+            endpoints.MapIdentityResourceEndpoints();
+            endpoints.MapUserEndpoints();
+            endpoints.MapRoleEndpoints();
+            endpoints.MapClientEndpoints();
+            endpoints.MapDeveloperEndpoints();
+
+            endpoints.MapHealthChecks("health", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse });
+            endpoints.MapHealthChecks("healthui", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });
         }
 
         /// <summary>
@@ -179,36 +158,6 @@ namespace SecurityService
 
             Startup.Container = new Container(services);
         }
-
-        /// <summary>
-        /// Initializes the database.
-        /// </summary>
-        /// <param name="app">The application.</param>
-        //private void InitializeDatabase(IApplicationBuilder app)
-        //{
-        //    using(IServiceScope serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
-        //    {
-        //        PersistedGrantDbContext persistedGrantDbContext = serviceScope.ServiceProvider.GetRequiredService<PersistedGrantDbContext>();
-        //        ConfigurationDbContext configurationDbContext = serviceScope.ServiceProvider.GetRequiredService<ConfigurationDbContext>();
-        //        AuthenticationDbContext authenticationContext = serviceScope.ServiceProvider.GetRequiredService<AuthenticationDbContext>();
-
-        //        if (persistedGrantDbContext != null && persistedGrantDbContext.Database.IsRelational())
-        //        {
-        //            persistedGrantDbContext.Database.Migrate();
-        //            //_ = persistedGrantDbContext.SetDbInSimpleMode(CancellationToken.None);
-        //        }
-
-        //        if (configurationDbContext != null && configurationDbContext.Database.IsRelational())
-        //        {
-        //            configurationDbContext.Database.Migrate();
-        //        }
-
-        //        if (authenticationContext != null && authenticationContext.Database.IsRelational())
-        //        {
-        //            authenticationContext.Database.Migrate();
-        //        }
-        //    }
-        //}
 
         #endregion
     }

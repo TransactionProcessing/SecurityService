@@ -24,7 +24,7 @@ namespace SecurityService.Handlers
         {
             Guid userId = Guid.NewGuid();
 
-            var command = new SecurityServiceCommands.CreateUserCommand(
+            SecurityServiceCommands.CreateUserCommand command = new(
                 userId,
                 createUserRequest.GivenName,
                 createUserRequest.MiddleName,
@@ -42,27 +42,25 @@ namespace SecurityService.Handlers
         }
 
         public static async Task<IResult> GetUser(IMediator mediator,
-                                                  IModelFactory modelFactory,
                                                   Guid userId,
                                                   CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetUserQuery(userId);
+            SecurityServiceQueries.GetUserQuery query = new(userId);
 
             Result<Models.UserDetails> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> GetUsers(IMediator mediator,
-                                                    IModelFactory modelFactory,
                                                     string? userName,
                                                     CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetUsersQuery(userName);
+            SecurityServiceQueries.GetUsersQuery query = new(userName);
 
             Result<List<Models.UserDetails>> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
     }
 }

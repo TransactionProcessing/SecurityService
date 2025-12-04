@@ -22,7 +22,7 @@ namespace SecurityService.Handlers
                                                          CreateApiScopeRequest createApiScopeRequest,
                                                          CancellationToken cancellationToken)
         {
-            var command = new SecurityServiceCommands.CreateApiScopeCommand(
+            SecurityServiceCommands.CreateApiScopeCommand command = new SecurityServiceCommands.CreateApiScopeCommand(
                 createApiScopeRequest.Name,
                 createApiScopeRequest.DisplayName,
                 createApiScopeRequest.Description);
@@ -33,26 +33,24 @@ namespace SecurityService.Handlers
         }
 
         public static async Task<IResult> GetApiScope(IMediator mediator,
-                                                      IModelFactory modelFactory,
                                                       string apiScopeName,
                                                       CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetApiScopeQuery(apiScopeName);
+            SecurityServiceQueries.GetApiScopeQuery query = new SecurityServiceQueries.GetApiScopeQuery(apiScopeName);
 
             Result<Duende.IdentityServer.Models.ApiScope> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> GetApiScopes(IMediator mediator,
-                                                       IModelFactory modelFactory,
                                                        CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetApiScopesQuery();
+            SecurityServiceQueries.GetApiScopesQuery query = new SecurityServiceQueries.GetApiScopesQuery();
 
             Result<List<Duende.IdentityServer.Models.ApiScope>> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
     }
 }

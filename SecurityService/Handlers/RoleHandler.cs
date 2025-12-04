@@ -24,7 +24,7 @@ namespace SecurityService.Handlers
         {
             Guid roleId = Guid.NewGuid();
 
-            var command = new SecurityServiceCommands.CreateRoleCommand(roleId, createRoleRequest.RoleName);
+            SecurityServiceCommands.CreateRoleCommand command = new(roleId, createRoleRequest.RoleName);
 
             Result result = await mediator.Send(command, cancellationToken);
 
@@ -32,26 +32,24 @@ namespace SecurityService.Handlers
         }
 
         public static async Task<IResult> GetRole(IMediator mediator,
-                                                  IModelFactory modelFactory,
                                                   Guid roleId,
                                                   CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetRoleQuery(roleId);
+            SecurityServiceQueries.GetRoleQuery query = new(roleId);
 
             Result<Models.RoleDetails> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
 
         public static async Task<IResult> GetRoles(IMediator mediator,
-                                                    IModelFactory modelFactory,
                                                     CancellationToken cancellationToken)
         {
-            var query = new SecurityServiceQueries.GetRolesQuery();
+            SecurityServiceQueries.GetRolesQuery query = new();
 
             Result<List<Models.RoleDetails>> result = await mediator.Send(query, cancellationToken);
 
-            return ResponseFactory.FromResult(result, modelFactory.ConvertFrom);
+            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
         }
     }
 }
