@@ -191,7 +191,7 @@ public class Callback : PageModel
         }
 
         await EnsureSucceededAsync(
-            _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider)));
+            await _userManager.AddLoginAsync(user, new UserLoginInfo(provider, providerUserId, provider)));
 
         return user;
     }
