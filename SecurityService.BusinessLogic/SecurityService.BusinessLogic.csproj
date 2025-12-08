@@ -1,23 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFramework>net9.0</TargetFramework>
+	  <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Duende.IdentityServer" Version="7.3.2" />
-    <PackageReference Include="Duende.IdentityServer.EntityFramework.Storage" Version="7.3.2" />
-    <PackageReference Include="Duende.IdentityServer.Storage" Version="7.3.2" />
-    <PackageReference Include="MediatR" Version="13.1.0" />
-    <PackageReference Include="MessagingService.Client" Version="2025.10.2-build106" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="9.0.10" />
+    <PackageReference Include="Duende.IdentityServer" Version="7.4.2" />
+    <PackageReference Include="Duende.IdentityServer.EntityFramework.Storage" Version="7.4.2" />
+    <PackageReference Include="Duende.IdentityServer.Storage" Version="7.4.2" />
+    <PackageReference Include="MediatR" Version="14.0.0" />
+    <PackageReference Include="MessagingService.Client" Version="2025.12.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.10" />
-    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.10" />
-    <PackageReference Include="Shared" Version="2025.11.11" />
-    <PackageReference Include="Shared.Results" Version="2025.11.11" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.0" />
+    <PackageReference Include="Shared" Version="2025.12.1" />
+    <PackageReference Include="Shared.Results" Version="2025.12.1" />
   </ItemGroup>
 
   <ItemGroup>

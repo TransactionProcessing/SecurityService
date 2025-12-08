@@ -1,4 +1,4 @@
-namespace SecurityService.Controllers
+namespace SecurityService.Common
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
