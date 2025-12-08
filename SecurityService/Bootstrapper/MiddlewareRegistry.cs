@@ -1,4 +1,6 @@
-﻿namespace SecurityService.Bootstrapper
+﻿using Microsoft.OpenApi;
+
+namespace SecurityService.Bootstrapper
 {
     using System;
     using System.Diagnostics.CodeAnalysis;
@@ -12,7 +14,6 @@
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Diagnostics.HealthChecks;
     using Microsoft.Extensions.Hosting;
-    using Microsoft.OpenApi.Models;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using Shared.Extensions;

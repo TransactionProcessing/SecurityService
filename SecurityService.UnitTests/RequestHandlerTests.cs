@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SecurityService.UnitTests {
     using BusinessLogic;
@@ -11,16 +9,11 @@ namespace SecurityService.UnitTests {
     using Duende.IdentityServer.EntityFramework.DbContexts;
     using Duende.IdentityServer.EntityFramework.Options;
     using Duende.IdentityServer.Services;
-    using Lamar;
     using MessagingService.Client;
-    using Microsoft.AspNetCore.Authentication;
-    using Microsoft.AspNetCore.Hosting;
-    using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Identity;
     using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore;
     using Microsoft.EntityFrameworkCore.Diagnostics;
-    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Logging.Abstractions;
     using Microsoft.Extensions.Options;
     using Moq;
@@ -134,7 +127,7 @@ namespace SecurityService.UnitTests {
             tokenProvider.Setup(tp => tp.ValidateAsync(It.IsAny<String>(), It.IsAny<String>(),
                                                        It.IsAny<UserManager<ApplicationUser>>(),
                                                        It.IsAny<ApplicationUser>())).ReturnsAsync(true);
-            this.ServiceProvider.Setup(sp => sp.GetService(It.IsAny<Type>())).Returns(tokenProvider.Object);
+            this.ServiceProvider.Setup(sp => sp.GetService(typeof(IUserTwoFactorTokenProvider<ApplicationUser>))).Returns(tokenProvider.Object);
         }
 
         private IdentityServerTools SetupIdentityServerTools()
