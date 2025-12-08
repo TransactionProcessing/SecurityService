@@ -78,8 +78,7 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: securityservice
-          path: /tmp/securityservice # Download to a temporary directory
-  
+          
       - name: Remove existing  Windows service
         run: |
           $serviceName = "Transaction Processing - Security Service"
@@ -112,7 +111,6 @@ jobs:
         uses: actions/download-artifact@v4.1.8
         with:
           name: securityservice
-          path: /tmp/securityservice # Download to a temporary directory
   
       - name: Remove existing  Windows service
         run: |
