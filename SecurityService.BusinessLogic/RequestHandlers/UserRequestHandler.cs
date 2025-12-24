@@ -10,6 +10,7 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
     using MessagingService.Client;
     using MessagingService.DataTransferObjects;
     using Microsoft.AspNetCore.Identity;
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.EntityFrameworkCore;
     using Requests;
     using SecurityService.Models;
@@ -103,33 +104,39 @@ namespace SecurityService.BusinessLogic.RequestHandlers{
             Result addRolesToUserResult = await this.AddRolesToUser(newIdentityUser, command.Roles);
             Result addClaimsToUserResult = await this.AddClaimsToUser(newIdentityUser, command);
 
-            Result sendEmailResult;
-            if (createResult.IsSuccess && addRolesToUserResult.IsSuccess && addClaimsToUserResult.IsSuccess) {
-                // If we are here we have created the user
-                String confirmationToken = await this.UserManager.GenerateEmailConfirmationTokenAsync(newIdentityUser);
-                confirmationToken = UrlEncoder.Default.Encode(confirmationToken);
-                String uri = $"{this.ServiceOptions.PublicOrigin}/Account/EmailConfirmation/Confirm?userName={newIdentityUser.UserName}&confirmationToken={confirmationToken}";
+            Result result = (createResult.IsSuccess, addRolesToUserResult.IsSuccess, addClaimsToUserResult.IsSuccess) switch
+            {
+                (true, true, true) => await SendConfirmationEmail(newIdentityUser, cancellationToken),
+                _ => await DeleteUser(createResult, addRolesToUserResult,addClaimsToUserResult, newIdentityUser)
+            };
+            return result;
+        }
 
-                TokenResponse token = await this.GetToken();
-                SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
-                sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-                if (sendEmailResult.IsFailed)
-                    Logger.LogWarning($"Error sending email to {newIdentityUser.Email} as part of user creation {sendEmailResult}");
-            }
+        private async Task<Result> SendConfirmationEmail(ApplicationUser newIdentityUser, CancellationToken cancellationToken) {
+            // If we are here we have created the user
+            String confirmationToken = await this.UserManager.GenerateEmailConfirmationTokenAsync(newIdentityUser);
+            confirmationToken = UrlEncoder.Default.Encode(confirmationToken);
+            String uri = $"{this.ServiceOptions.PublicOrigin}/Account/EmailConfirmation/Confirm?userName={newIdentityUser.UserName}&confirmationToken={confirmationToken}";
 
-            if (createResult.IsFailed || addRolesToUserResult.IsFailed || addClaimsToUserResult.IsFailed) {
-                // User has been created so need to remove this
-                IdentityResult deleteResult = await this.UserManager.DeleteAsync(newIdentityUser);
-
-                if (deleteResult.Succeeded == false) {
-                    return Result.Failure($"Error deleting user {newIdentityUser.UserName} as part of cleanup {deleteResult}");
-                }
-
-                return Result.Failure($"At least one part of the user creation failed - createResult: {createResult.IsSuccess} addRolesToUserResult: {addRolesToUserResult.IsSuccess} addClaimsToUserResult: {addClaimsToUserResult.IsSuccess}");
-            }
-
+            TokenResponse token = await this.GetToken();
+            SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
+            Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+            if (sendEmailResult.IsFailed)
+                Logger.LogWarning($"Error sending email to {newIdentityUser.Email} as part of user creation {sendEmailResult}");
             return Result.Success();
         }
+
+        private async Task<Result> DeleteUser(Result createResult, Result addRolesToUserResult, Result addClaimsToUserResult , ApplicationUser identityUserToDelete) {
+            // User has been created so need to remove this
+            IdentityResult deleteResult = await this.UserManager.DeleteAsync(identityUserToDelete);
+
+            if (deleteResult.Succeeded == false) {
+                return Result.Failure($"Error deleting user {identityUserToDelete.UserName} as part of cleanup {deleteResult}");
+            }
+
+            return Result.Failure($"At least one part of the user creation failed - createResult: {createResult.IsSuccess} addRolesToUserResult: {addRolesToUserResult.IsSuccess} addClaimsToUserResult: {addClaimsToUserResult.IsSuccess}");
+        }
+
 
         private async Task<Result> CreateUser(ApplicationUser newIdentityUser) {
             var createResult = await this.UserManager.CreateAsync(newIdentityUser);
