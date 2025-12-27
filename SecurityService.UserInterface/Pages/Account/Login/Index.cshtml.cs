@@ -146,70 +146,118 @@ public class Index : PageModel
 
     private async Task BuildModelAsync(string returnUrl)
     {
-        Input = new InputModel
+        Input = CreateInputModel(returnUrl);
+
+        var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
+
+        if (await TryBuildSingleIdpViewAsync(context))
+            return;
+
+        var providers = await GetExternalProvidersAsync(context?.Client);
+
+        View = CreateViewModel(context?.Client, providers);
+    }
+
+    private InputModel CreateInputModel(string returnUrl) =>
+        new()
         {
             ReturnUrl = returnUrl
         };
-            
-        var context = await _interaction.GetAuthorizationContextAsync(returnUrl);
-        if (context?.IdP != null && await _schemeProvider.GetSchemeAsync(context.IdP) != null)
-        {
-            var local = context.IdP == Duende.IdentityServer.IdentityServerConstants.LocalIdentityProvider;
 
-            // this is meant to short circuit the UI and only trigger the one external IdP
-            View = new ViewModel
-            {
-                EnableLocalLogin = local,
-            };
+    private async Task<bool> TryBuildSingleIdpViewAsync(AuthorizationRequest? context)
+    {
+        if (context?.IdP == null)
+            return false;
 
-            Input.Username = context?.LoginHint;
+        if (await _schemeProvider.GetSchemeAsync(context.IdP) == null)
+            return false;
 
-            if (!local)
-            {
-                View.ExternalProviders = new[] { new ViewModel.ExternalProvider { AuthenticationScheme = context.IdP } };
-            }
-
-            return;
-        }
-
-        var schemes = await _schemeProvider.GetAllSchemesAsync();
-
-        var providers = schemes
-            .Where(x => x.DisplayName != null)
-            .Select(x => new ViewModel.ExternalProvider
-            {
-                DisplayName = x.DisplayName ?? x.Name,
-                AuthenticationScheme = x.Name
-            }).ToList();
-
-        var dyanmicSchemes = (await _identityProviderStore.GetAllSchemeNamesAsync())
-            .Where(x => x.Enabled)
-            .Select(x => new ViewModel.ExternalProvider
-            {
-                AuthenticationScheme = x.Scheme,
-                DisplayName = x.DisplayName
-            });
-        providers.AddRange(dyanmicSchemes);
-
-
-        var allowLocal = true;
-        var client = context?.Client;
-        if (client != null)
-        {
-            allowLocal = client.EnableLocalLogin;
-            if (client.IdentityProviderRestrictions != null && client.IdentityProviderRestrictions.Any())
-            {
-                providers = providers.Where(provider => client.IdentityProviderRestrictions.Contains(provider.AuthenticationScheme)).ToList();
-            }
-
-            Input.ClientId = client.ClientId;
-        }
+        var isLocal = context.IdP == Duende.IdentityServer.IdentityServerConstants.LocalIdentityProvider;
 
         View = new ViewModel
         {
+            EnableLocalLogin = isLocal,
+            ExternalProviders = isLocal
+                ? Array.Empty<ViewModel.ExternalProvider>()
+                : new[]
+                {
+                    new ViewModel.ExternalProvider
+                    {
+                        AuthenticationScheme = context.IdP
+                    }
+                }
+        };
+
+        Input.Username = context.LoginHint;
+
+        return true;
+    }
+    private async Task<List<ViewModel.ExternalProvider>> GetExternalProvidersAsync(Client? client)
+    {
+        var providers = await GetStaticProvidersAsync();
+        providers.AddRange(await GetDynamicProvidersAsync());
+
+        return ApplyClientRestrictions(providers, client);
+    }
+
+    private async Task<List<ViewModel.ExternalProvider>> GetStaticProvidersAsync()
+    {
+        var schemes = await _schemeProvider.GetAllSchemesAsync();
+
+        return schemes
+            .Where(s => s.DisplayName != null)
+            .Select(s => new ViewModel.ExternalProvider
+            {
+                AuthenticationScheme = s.Name,
+                DisplayName = s.DisplayName!
+            })
+            .ToList();
+    }
+
+    private async Task<IEnumerable<ViewModel.ExternalProvider>> GetDynamicProvidersAsync()
+    {
+        var schemes = await _identityProviderStore.GetAllSchemeNamesAsync();
+
+        return schemes
+            .Where(s => s.Enabled)
+            .Select(s => new ViewModel.ExternalProvider
+            {
+                AuthenticationScheme = s.Scheme,
+                DisplayName = s.DisplayName
+            });
+    }
+
+    private List<ViewModel.ExternalProvider> ApplyClientRestrictions(
+        List<ViewModel.ExternalProvider> providers,
+        Client? client)
+    {
+        if (client == null)
+            return providers;
+
+        Input.ClientId = client.ClientId;
+
+        if (client.IdentityProviderRestrictions?.Any() == true)
+        {
+            providers = providers
+                .Where(p => client.IdentityProviderRestrictions.Contains(p.AuthenticationScheme))
+                .ToList();
+        }
+
+        return providers;
+    }
+
+    private ViewModel CreateViewModel(
+        Client? client,
+        IEnumerable<ViewModel.ExternalProvider> providers)
+    {
+        var allowLocal = client?.EnableLocalLogin ?? true;
+
+        return new ViewModel
+        {
             AllowRememberLogin = LoginOptions.AllowRememberLogin,
             EnableLocalLogin = allowLocal && LoginOptions.AllowLocalLogin,
-            ExternalProviders = providers.ToArray(),
+            ExternalProviders = providers.ToArray()
         };
     }
+
 }
