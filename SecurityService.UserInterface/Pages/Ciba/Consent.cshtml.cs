@@ -140,9 +140,19 @@ public class Consent : PageModel
     }
 
     private ViewModel CreateConsentViewModel(
-        InputModel model, BackchannelUserLoginRequest request)
+        InputModel model,
+        BackchannelUserLoginRequest request)
     {
-        var vm = new ViewModel
+        var vm = CreateBaseViewModel(request);
+
+        vm.IdentityScopes = CreateIdentityScopes(model, request);
+        vm.ApiScopes = CreateApiScopes(model, request);
+
+        return vm;
+    }
+
+    private ViewModel CreateBaseViewModel(BackchannelUserLoginRequest request) =>
+        new()
         {
             ClientName = request.Client.ClientName ?? request.Client.ClientId,
             ClientUrl = request.Client.ClientUri,
@@ -150,37 +160,82 @@ public class Consent : PageModel
             BindingMessage = request.BindingMessage
         };
 
-        vm.IdentityScopes = request.ValidatedResources.Resources.IdentityResources
-            .Select(x => CreateScopeViewModel(x, model?.ScopesConsented == null || model.ScopesConsented?.Contains(x.Name) == true))
+    private ScopeViewModel[] CreateIdentityScopes(InputModel model,
+                                                  BackchannelUserLoginRequest request)
+    {
+        return request.ValidatedResources.Resources.IdentityResources
+            .Select(resource =>
+                CreateScopeViewModel(
+                    resource,
+                    IsConsented(model, resource.Name)))
             .ToArray();
-
-        var resourceIndicators = request.RequestedResourceIndicators ?? Enumerable.Empty<string>();
-        var apiResources = request.ValidatedResources.Resources.ApiResources.Where(x => resourceIndicators.Contains(x.Name));
-
-        var apiScopes = new List<ScopeViewModel>();
-        foreach (var parsedScope in request.ValidatedResources.ParsedScopes)
-        {
-            var apiScope = request.ValidatedResources.Resources.FindApiScope(parsedScope.ParsedName);
-            if (apiScope != null)
-            {
-                var scopeVm = CreateScopeViewModel(parsedScope, apiScope, model == null || model.ScopesConsented?.Contains(parsedScope.RawValue) == true);
-                scopeVm.Resources = apiResources.Where(x => x.Scopes.Contains(parsedScope.ParsedName))
-                    .Select(x => new ResourceViewModel
-                    {
-                        Name = x.Name,
-                        DisplayName = x.DisplayName ?? x.Name,
-                    }).ToArray();
-                apiScopes.Add(scopeVm);
-            }
-        }
-        if (ConsentOptions.EnableOfflineAccess && request.ValidatedResources.Resources.OfflineAccess)
-        {
-            apiScopes.Add(GetOfflineAccessScope(model == null || model.ScopesConsented?.Contains(Duende.IdentityServer.IdentityServerConstants.StandardScopes.OfflineAccess) == true));
-        }
-        vm.ApiScopes = apiScopes;
-
-        return vm;
     }
+
+    private List<ScopeViewModel> CreateApiScopes(InputModel model,
+                                                 BackchannelUserLoginRequest request)
+    {
+        var apiScopes = request.ValidatedResources.ParsedScopes
+            .Select(parsed => CreateApiScope(parsed, model, request))
+            .Where(scope => scope != null)
+            .ToList()!;
+
+        AddOfflineAccessIfNeeded(apiScopes, model, request);
+
+        return apiScopes;
+    }
+
+    private ScopeViewModel? CreateApiScope(ParsedScopeValue parsedScope,
+                                           InputModel model,
+                                           BackchannelUserLoginRequest request)
+    {
+        var apiScope = request.ValidatedResources.Resources
+            .FindApiScope(parsedScope.ParsedName);
+
+        if (apiScope == null)
+            return null;
+
+        var scopeVm = CreateScopeViewModel(
+            parsedScope,
+            apiScope,
+            IsConsented(model, parsedScope.RawValue));
+
+        scopeVm.Resources = CreateApiResources(parsedScope, request);
+
+        return scopeVm;
+    }
+
+    private ResourceViewModel[] CreateApiResources(ParsedScopeValue parsedScope,
+                                                   BackchannelUserLoginRequest request)
+    {
+        var resourceIndicators = request.RequestedResourceIndicators ?? Enumerable.Empty<string>();
+
+        return request.ValidatedResources.Resources.ApiResources
+            .Where(r => resourceIndicators.Contains(r.Name))
+            .Where(r => r.Scopes.Contains(parsedScope.ParsedName))
+            .Select(r => new ResourceViewModel
+            {
+                Name = r.Name,
+                DisplayName = r.DisplayName ?? r.Name
+            })
+            .ToArray();
+    }
+
+    private void AddOfflineAccessIfNeeded(List<ScopeViewModel> apiScopes,
+                                          InputModel model,
+                                          BackchannelUserLoginRequest request)
+    {
+        if (!ConsentOptions.EnableOfflineAccess ||
+            !request.ValidatedResources.Resources.OfflineAccess)
+        {
+            return;
+        }
+
+        apiScopes.Add(GetOfflineAccessScope(IsConsented(model, Duende.IdentityServer.IdentityServerConstants.StandardScopes.OfflineAccess)));
+    }
+
+    private static bool IsConsented(InputModel model, string scopeName) =>
+        model?.ScopesConsented == null || model.ScopesConsented.Contains(scopeName);
+
 
     private ScopeViewModel CreateScopeViewModel(IdentityResource identity, bool check)
     {
