@@ -57,73 +57,94 @@ public class Index : PageModel
 
     public async Task<IActionResult> OnPost()
     {
-        // validate return url is still valid
         var request = await _interaction.GetAuthorizationContextAsync(Input.ReturnUrl);
-        if (request == null) return RedirectToPage("/Home/Error/Index");
+        if (request == null)
+            return RedirectToPage("/Home/Error/Index");
 
-        ConsentResponse grantedConsent = null;
-
-        // user clicked 'no' - send back the standard 'access_denied' response
-        if (Input?.Button == "no")
+        var consent = await HandleConsentAsync(request);
+        if (consent == null)
         {
-            grantedConsent = new ConsentResponse { Error = AuthorizationError.AccessDenied };
-
-            // emit event
-            await _events.RaiseAsync(new ConsentDeniedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues));
-        }
-        // user clicked 'yes' - validate the data
-        else if (Input?.Button == "yes")
-        {
-            // if the user consented to some scope, build the response model
-            if (Input.ScopesConsented != null && Input.ScopesConsented.Any())
-            {
-                var scopes = Input.ScopesConsented;
-                if (ConsentOptions.EnableOfflineAccess == false)
-                {
-                    scopes = scopes.Where(x => x != Duende.IdentityServer.IdentityServerConstants.StandardScopes.OfflineAccess);
-                }
-
-                grantedConsent = new ConsentResponse
-                {
-                    RememberConsent = Input.RememberConsent,
-                    ScopesValuesConsented = scopes.ToArray(),
-                    Description = Input.Description
-                };
-
-                // emit event
-                await _events.RaiseAsync(new ConsentGrantedEvent(User.GetSubjectId(), request.Client.ClientId, request.ValidatedResources.RawScopeValues, grantedConsent.ScopesValuesConsented, grantedConsent.RememberConsent));
-            }
-            else
-            {
-                ModelState.AddModelError("", ConsentOptions.MustChooseOneErrorMessage);
-            }
-        }
-        else
-        {
-            ModelState.AddModelError("", ConsentOptions.InvalidSelectionErrorMessage);
+            View = await BuildViewModelAsync(Input.ReturnUrl, Input);
+            return Page();
         }
 
-        if (grantedConsent != null)
-        {
-            // communicate outcome of consent back to identityserver
-            await _interaction.GrantConsentAsync(request, grantedConsent);
+        await _interaction.GrantConsentAsync(request, consent);
 
-            // redirect back to authorization endpoint
-            if (request.IsNativeClient() == true)
-            {
-                // The client is native, so this change in how to
-                // return the response is for better UX for the end user.
-                return this.LoadingPage(Input.ReturnUrl);
-            }
-
-            return Redirect(Input.ReturnUrl);
-        }
-
-        // we need to redisplay the consent UI
-        View = await BuildViewModelAsync(Input.ReturnUrl, Input);
-        return Page();
+        return request.IsNativeClient()
+            ? this.LoadingPage(Input.ReturnUrl)
+            : Redirect(Input.ReturnUrl);
     }
 
+    private async Task<ConsentResponse?> HandleConsentAsync(AuthorizationRequest request)
+    {
+        return Input?.Button switch
+        {
+            "no" => await DenyConsentAsync(request),
+            "yes" => await GrantConsentAsync(request),
+            _ => InvalidSelection()
+        };
+    }
+
+    private async Task<ConsentResponse> DenyConsentAsync(AuthorizationRequest request)
+    {
+        await _events.RaiseAsync(
+            new ConsentDeniedEvent(
+                User.GetSubjectId(),
+                request.Client.ClientId,
+                request.ValidatedResources.RawScopeValues));
+
+        return new ConsentResponse
+        {
+            Error = AuthorizationError.AccessDenied
+        };
+    }
+
+    private async Task<ConsentResponse?> GrantConsentAsync(AuthorizationRequest request)
+    {
+        if (Input.ScopesConsented == null || !Input.ScopesConsented.Any())
+        {
+            ModelState.AddModelError("", ConsentOptions.MustChooseOneErrorMessage);
+            return null;
+        }
+
+        var scopes = FilterScopes(Input.ScopesConsented);
+
+        var consent = new ConsentResponse
+        {
+            RememberConsent = Input.RememberConsent,
+            ScopesValuesConsented = scopes,
+            Description = Input.Description
+        };
+
+        await _events.RaiseAsync(
+            new ConsentGrantedEvent(
+                User.GetSubjectId(),
+                request.Client.ClientId,
+                request.ValidatedResources.RawScopeValues,
+                consent.ScopesValuesConsented,
+                consent.RememberConsent));
+
+        return consent;
+    }
+
+    private string[] FilterScopes(IEnumerable<string> scopes)
+    {
+        if (!ConsentOptions.EnableOfflineAccess)
+        {
+            scopes = scopes.Where(x =>
+                x != Duende.IdentityServer.IdentityServerConstants.StandardScopes.OfflineAccess);
+        }
+
+        return scopes.ToArray();
+    }
+
+    private ConsentResponse? InvalidSelection()
+    {
+        ModelState.AddModelError("", ConsentOptions.InvalidSelectionErrorMessage);
+        return null;
+    }
+
+    
     private async Task<ViewModel> BuildViewModelAsync(string returnUrl, InputModel model = null)
     {
         var request = await _interaction.GetAuthorizationContextAsync(returnUrl);
