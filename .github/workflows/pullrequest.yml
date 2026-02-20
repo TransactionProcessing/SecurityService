@@ -43,7 +43,8 @@ jobs:
     - name: Run Unit Tests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"
+        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj" --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=unit-test-results.trx"
+
     
     - name: Build Docker Images
       run: |
@@ -51,7 +52,7 @@ jobs:
 
     - name: Run Integration Tests (Non UI)
       run: |
-        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest
+        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=nonui-test-results.trx"
 
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -59,6 +60,22 @@ jobs:
         name: nonuilogs
         path: /home/txnproc/trace/
 
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+          name: Unit Test Results
+          path: '**/TestResults/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+          name: test-results
+          path: '**/TestResults/*.trx'
+          retention-days: 30
 
   buildfirefox:
     name: "Build and Unit Test Pull Requests - Firefox UI"
@@ -103,7 +120,7 @@ jobs:
       env:
         Browser: Firefox
       run: |
-        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest    
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=firefoxui-test-results.trx"    
 
     - uses: actions/upload-artifact@v4
       if: ${{ failure() }}
@@ -111,6 +128,22 @@ jobs:
         name: firefoxlogs
         path: /home/txnproc/trace/
 
+    - name: Publish test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+          name: Unit Test Results
+          path: '**/TestResults/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true
+    
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+          name: test-results
+          path: '**/TestResults/*.trx'
+          retention-days: 30
 
   # buildchromeui:
   #   name: "Build and Unit Test Pull Requests - Chrome UI"
