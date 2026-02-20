@@ -64,7 +64,7 @@ jobs:
       uses: dorny/test-reporter@v1
       if: always()
       with:
-          name: Unit Test Results
+          name: Unit and NonUI Test Results
           path: '**/TestResults/*.trx'
           reporter: dotnet-trx
           fail-on-error: true
@@ -73,7 +73,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-          name: test-results
+          name: ui-nonui-test-results
           path: '**/TestResults/*.trx'
           retention-days: 30
 
@@ -132,7 +132,7 @@ jobs:
       uses: dorny/test-reporter@v1
       if: always()
       with:
-          name: Unit Test Results
+          name: Integration Test Results
           path: '**/TestResults/*.trx'
           reporter: dotnet-trx
           fail-on-error: true
@@ -141,7 +141,7 @@ jobs:
       uses: actions/upload-artifact@v4
       if: always()
       with:
-          name: test-results
+          name: integration-test-results
           path: '**/TestResults/*.trx'
           retention-days: 30
 
