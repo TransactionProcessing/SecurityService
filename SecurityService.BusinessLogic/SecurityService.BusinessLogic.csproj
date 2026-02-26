@@ -9,15 +9,15 @@
     <PackageReference Include="Duende.IdentityServer.EntityFramework.Storage" Version="7.4.6" />
     <PackageReference Include="Duende.IdentityServer.Storage" Version="7.4.6" />
     <PackageReference Include="MediatR" Version="14.0.0" />
-    <PackageReference Include="MessagingService.Client" Version="2025.12.1" />
+    <PackageReference Include="MessagingService.Client" Version="2026.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.9" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="10.0.3" />
-    <PackageReference Include="Shared" Version="2026.2.1" />
-    <PackageReference Include="Shared.Results" Version="2026.2.1" />
+    <PackageReference Include="Shared" Version="2026.2.2" />
+    <PackageReference Include="Shared.Results" Version="2026.2.2" />
   </ItemGroup>
 
   <ItemGroup>

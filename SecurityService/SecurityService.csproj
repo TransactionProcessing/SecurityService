@@ -32,10 +32,10 @@
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3" />
-	  <PackageReference Include="ClientProxyBase" Version="2026.2.1" />
+	  <PackageReference Include="ClientProxyBase" Version="2026.2.2" />
     <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-	  <PackageReference Include="Shared" Version="2026.2.1" />
-    <PackageReference Include="Shared.Results.Web" Version="2026.2.1" />
+	  <PackageReference Include="Shared" Version="2026.2.2" />
+    <PackageReference Include="Shared.Results.Web" Version="2026.2.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.1.4" />
     <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="10.0.1" />
