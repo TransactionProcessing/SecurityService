@@ -286,44 +286,4 @@ jobs:
   #       title: Investigate Nightly Build Failure - Edge UI
   #       token: ${{secrets.GITHUB_TOKEN}}
   #       labels: nightlybuild
-  #       body: Url is ${{env.action_url}}
-        
-  codecoverage:
-    name: "Nightly Build - Code Coverage"
-    env:
-        ASPNETCORE_ENVIRONMENT: "Production"
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v2.3.4
-
-    - name: Install NET 9
-      uses: actions/setup-dotnet@v4.0.1
-      with:
-        dotnet-version: '9.0.x'
-
-    - name: Restore Nuget Packages
-      run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
-        
-    - name: Build Code
-      run: dotnet build SecurityService.sln --configuration Release
-
-    - name: Run Unit Tests
-      run: |
-        echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
-
-    - name: Install LCOV merger
-      run: npm install -g lcov-result-merger
-
-    - name: Merge LCOV reports
-      run: |
-        mkdir -p coverage
-        lcov-result-merger "*.info" > lcov.info
-
-    - name: Upload merged coverage to Codacy
-      uses: codacy/codacy-coverage-reporter-action@v1
-      with:
-        project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: ./lcov.info
+  #       body: Url is ${{env.action_url}}    
