@@ -95,8 +95,7 @@ namespace SecurityService
             Logger.Initialise(logger);
             Startup.Configuration.LogConfiguration(Logger.LogWarning);
             app.UseMiddleware<TenantMiddleware>();
-            app.AddRequestLogging();
-            app.AddResponseLogging();
+            app.AddRequestResponseLogging();
             app.AddExceptionHandler();
 
             if (env.IsDevelopment())
