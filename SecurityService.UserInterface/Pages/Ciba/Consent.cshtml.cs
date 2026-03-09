@@ -100,19 +100,7 @@ public class Consent : PageModel
             return RedirectToPage("/Home/Error/Index");
         }
 
-        CompleteBackchannelLoginRequest result = null;
-
-        // user clicked 'no' - send back the standard 'access_denied' response
-        if (Input?.Button == "no") {
-            result = await HandleNoButtonClicked(request);
-        }
-        // user clicked 'yes' - validate the data
-        else if (Input?.Button == "yes") {
-            result = await HandleYesButtonClicked(request);
-        }
-        else {
-            ModelState.AddModelError("", ConsentOptions.InvalidSelectionErrorMessage);
-        }
+        CompleteBackchannelLoginRequest result = await HandleButtonClickAsync(request);
 
         if (result != null) {
             // communicate outcome of consent back to identityserver
@@ -123,6 +111,20 @@ public class Consent : PageModel
         // we need to redisplay the consent UI
         View = await BuildViewModelAsync(Input.Id, Input);
         return Page();
+    }
+
+    private async Task<CompleteBackchannelLoginRequest> HandleButtonClickAsync(BackchannelUserLoginRequest request)
+    {
+        switch (Input?.Button)
+        {
+            case "no":
+                return await HandleNoButtonClicked(request);
+            case "yes":
+                return await HandleYesButtonClicked(request);
+            default:
+                ModelState.AddModelError("", ConsentOptions.InvalidSelectionErrorMessage);
+                return null;
+        }
     }
 
     private async Task<ViewModel> BuildViewModelAsync(string id, InputModel model = null)
