@@ -1,35 +1,29 @@
 @page
 @model IdentityServerHost.Pages.Error.Index
 
-<div class="error-page">
-    <div class="lead">
-        <h1>Error</h1>
-    </div>
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Error</h1>
+</div>
 
-    <div class="row">
-        <div class="col-sm-6">
-            <div class="alert alert-danger">
-                Sorry, there was an error
+<div class="max-w-lg">
+    <div class="p-4 rounded-lg bg-red-100 border border-red-200 text-red-800">
+        <p>Sorry, there was an error</p>
 
-                @if (Model.View.Error != null)
-                {
-                    <strong>
-                        <em>
-                            : @Model.View.Error.Error
-                        </em>
-                    </strong>
+        @if (Model.View.Error != null)
+        {
+            <strong>
+                <em>: @Model.View.Error.Error</em>
+            </strong>
 
-                    if (Model.View.Error.ErrorDescription != null)
-                    {
-                        <div>@Model.View.Error.ErrorDescription</div>
-                    }
-                }
-            </div>
-
-            @if (Model?.View?.Error?.RequestId != null)
+            if (Model.View.Error.ErrorDescription != null)
             {
-                <div class="request-id">Request Id: @Model.View.Error.RequestId</div>
+                <div class="mt-1 text-sm">@Model.View.Error.ErrorDescription</div>
             }
-        </div>
+        }
     </div>
+
+    @if (Model?.View?.Error?.RequestId != null)
+    {
+        <p class="mt-3 text-sm text-gray-500">Request Id: @Model.View.Error.RequestId</p>
+    }
 </div>

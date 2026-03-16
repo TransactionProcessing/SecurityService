@@ -1,8 +1,8 @@
-﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@using Microsoft.AspNetCore.Mvc.TagHelpers
 @if (ViewContext.ModelState.IsValid == false)
 {
-    <div class="alert alert-danger">
-        <strong>Error</strong>
-        <div asp-validation-summary="All" class="danger"></div>
+    <div class="p-4 rounded-lg bg-red-100 border border-red-200 text-red-800 mb-4">
+        <strong class="font-semibold">Error</strong>
+        <div asp-validation-summary="All" class="mt-1 text-sm"></div>
     </div>
 }

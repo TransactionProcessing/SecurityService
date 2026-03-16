@@ -2,17 +2,12 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model IdentityServerHost.Pages.Logout.Index
 
-<div class="logout-page">
-    <div class="lead">
-        <h1>Logout</h1>
-        <p>Would you like to logout of IdentityServer?</p>
-    </div>
-
-    <form asp-page="/Account/Logout/Index">
-        <input type="hidden" name="logoutId" value="@Model.LogoutId"  />
-        
-        <div class="form-group">
-            <button class="btn btn-primary">Yes</button>
-        </div>
-    </form>
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Logout</h1>
+    <p class="text-gray-500 mt-1">Would you like to logout of IdentityServer?</p>
 </div>
+
+<form asp-page="/Account/Logout/Index">
+    <input type="hidden" name="logoutId" value="@Model.LogoutId"  />
+    <button class="btn btn-primary">Yes, Logout</button>
+</form>

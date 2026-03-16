@@ -1,25 +1,32 @@
 @page
 @model IdentityServerHost.Pages.Logout.LoggedOut
 
-<div class="logged-out-page">
-    <h1>
-        Logout
-        <small>You are now logged out</small>
-    </h1>
+<div class="max-w-lg">
+    <div class="card">
+        <div class="card-body text-center py-8">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+            </div>
+            <h1 class="text-xl font-semibold text-gray-900 mb-1">Logged Out</h1>
+            <p class="text-gray-500">You are now logged out</p>
 
-    @if (Model.View.PostLogoutRedirectUri != null)
-    {
-        <div>
-            Click <a class="PostLogoutRedirectUri" href="@Model.View.PostLogoutRedirectUri">here</a> to return to the
-            <span>@Model.View.ClientName</span> application.
+            @if (Model.View.PostLogoutRedirectUri != null)
+            {
+                <p class="mt-4 text-sm text-gray-600">
+                    Click <a class="text-admin-primary hover:underline" href="@Model.View.PostLogoutRedirectUri">here</a> to return to the
+                    <span class="font-medium">@Model.View.ClientName</span> application.
+                </p>
+            }
         </div>
-    }
-
-    @if (Model.View.SignOutIframeUrl != null)
-    {
-        <iframe width="0" height="0" class="signout" src="@Model.View.SignOutIframeUrl"></iframe>
-    }
+    </div>
 </div>
+
+@if (Model.View.SignOutIframeUrl != null)
+{
+    <iframe width="0" height="0" class="signout" src="@Model.View.SignOutIframeUrl" style="display:none;"></iframe>
+}
 
 @section scripts
 {
