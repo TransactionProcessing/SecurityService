@@ -25,10 +25,34 @@ namespace SecurityService.Bootstrapper
     {
         public MiddlewareRegistry()
         {
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")){
+            this.ConfigureHealthChecks();
+            this.ConfigureSwagger();
+            this.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
+
+            //this.AddRazorPages();
+            //this.AddControllers();
+            //    .AddNewtonsoftJson(options =>
+            //{
+            //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+            //    options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
+            //    options.SerializerSettings.Formatting = Formatting.Indented;
+            //    options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+            //    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            //});
+
+            this.ConfigureHttpJsonOptions(options =>
+            {
+                options.SerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
+                options.SerializerOptions.PropertyNameCaseInsensitive = true; // optional, but safer
+            });
+        }
+
+        private void ConfigureHealthChecks()
+        {
+            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")) {
                 this.AddHealthChecks();
             }
-            else if (Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase")){
+            else if (Startup.Configuration.GetValue<Boolean>("ServiceOptions:UseInMemoryDatabase")) {
                 this.AddHealthChecks().AddMessagingService();
             }
             else
@@ -37,8 +61,8 @@ namespace SecurityService.Bootstrapper
                     .AddMessagingService()
                     .AddSqlServer(ConfigurationReader.GetConnectionString("PersistedGrantDbContext"),
                                   "SELECT 1;",
-                                  name:"Persisted Grant DB",
-                                  failureStatus:HealthStatus.Unhealthy,
+                                  name: "Persisted Grant DB",
+                                  failureStatus: HealthStatus.Unhealthy,
                                   tags: new string[] { "db", "sql", "sqlserver", "persistedgrant" })
                     .AddSqlServer(ConfigurationReader.GetConnectionString("ConfigurationDbContext"),
                                   "SELECT 1;",
@@ -51,7 +75,10 @@ namespace SecurityService.Bootstrapper
                                   failureStatus: HealthStatus.Unhealthy,
                                   tags: new string[] { "db", "sql", "sqlserver", "authentication" });
             }
+        }
 
+        private void ConfigureSwagger()
+        {
             this.AddSwaggerGen(c =>
                                {
                                    c.SwaggerDoc("v1", new OpenApiInfo
@@ -79,25 +106,6 @@ namespace SecurityService.Bootstrapper
                                        c.IncludeXmlComments(fileInfo.FullName);
                                    }
                                });
-
-            this.AddSwaggerExamplesFromAssemblyOf<SwaggerJsonConverter>();
-
-            //this.AddRazorPages();
-            //this.AddControllers();
-            //    .AddNewtonsoftJson(options =>
-            //{
-            //    options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-            //    options.SerializerSettings.TypeNameHandling = TypeNameHandling.Auto;
-            //    options.SerializerSettings.Formatting = Formatting.Indented;
-            //    options.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
-            //    options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-            //});
-
-            this.ConfigureHttpJsonOptions(options =>
-            {
-                options.SerializerOptions.PropertyNamingPolicy = new SnakeCaseNamingPolicy();
-                options.SerializerOptions.PropertyNameCaseInsensitive = true; // optional, but safer
-            });
         }
     }
 
