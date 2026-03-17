@@ -2,40 +2,46 @@
 @using Microsoft.AspNetCore.Mvc.TagHelpers
 @model IdentityServerHost.Pages.ForgotPassword.Index
 
-<div class="login-page">
+<div class="max-w-md mx-auto">
+
+<div class="mb-6 text-center">
+    <h1 class="text-2xl font-bold text-gray-900">Forgot Password</h1>
+</div>
 
 <partial name="_ValidationSummary"/>
 
-<div class="row">
-    <div class="col-sm-6">
-        <div class="card">
-            <div class="card-header">
-                <h2>Forgot Password</h2>
-            </div>
-            
-            @if (String.IsNullOrEmpty(Model.View.UserMessage)) {
-                <div class="card-body">
-                    <form asp-page="/Account/ForgotPassword/Index">
-                        <input type="hidden" asp-for="Input.ReturnUrl"/>
-                        <input type="hidden" asp-for="Input.ClientId"/>
-
-                        <div class="form-group">
-                            <label asp-for="Input.Username"></label>
-                            <input class="form-control" placeholder="Username" asp-for="Input.Username" autofocus>
-                        </div>
-                        <div class="form-group">
-                            <label asp-for="Input.EmailAddress"></label>
-                            <input class="form-control" placeholder="Email Address" asp-for="Input.EmailAddress" autocomplete="off">
-                        </div>
-
-                        <button class="btn btn-primary" name="Input.Button" value="login">Reset Password</button>
-                        <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
-                    </form>
-                </div>
-            }
-            else {
-                <p id="forgotPasswordMessage">@Model.View.UserMessage</p>
-            }
-        </div>
+<div class="card">
+    <div class="card-header">
+        <h2 class="card-title">Forgot Password</h2>
     </div>
+
+    @if (String.IsNullOrEmpty(Model.View.UserMessage)) {
+        <div class="card-body">
+            <form asp-page="/Account/ForgotPassword/Index">
+                <input type="hidden" asp-for="Input.ReturnUrl"/>
+                <input type="hidden" asp-for="Input.ClientId"/>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.Username"></label>
+                    <input class="form-control" placeholder="Username" asp-for="Input.Username" autofocus>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.EmailAddress"></label>
+                    <input class="form-control" placeholder="Email Address" asp-for="Input.EmailAddress" autocomplete="off">
+                </div>
+
+                <div class="flex gap-2 mt-4">
+                    <button class="btn btn-primary" name="Input.Button" value="login">Reset Password</button>
+                    <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    }
+    else {
+        <div class="card-body">
+            <p id="forgotPasswordMessage" class="text-gray-700">@Model.View.UserMessage</p>
+        </div>
+    }
+</div>
+
 </div>

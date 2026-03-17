@@ -1,32 +1,55 @@
 @page
 @model IdentityServerHost.Pages.Home.Index
 
-<div class="welcome-page">
-    <h1>
-        <img src="~/duende-logo.svg" class="logo">
-        Welcome to Duende IdentityServer
-        <small class="text-muted">(version @Model.Version)</small>
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900 flex items-center gap-3">
+        <div class="w-10 h-10 bg-admin-primary rounded-lg flex items-center justify-center flex-shrink-0">
+            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/>
+            </svg>
+        </div>
+        Welcome to Security Service
+        <span class="text-base font-normal text-gray-500">(version @Model.Version)</span>
     </h1>
+</div>
 
-    <ul>
-        <li>
-            IdentityServer publishes a
-            <a href="~/.well-known/openid-configuration">discovery document</a>
-            where you can find metadata and links to all the endpoints, key material, etc.
-        </li>
-        <li>
-            Click <a href="~/diagnostics">here</a> to see the claims for your current session.
-        </li>
-        <li>
-            Click <a href="~/grants">here</a> to manage your stored grants.
-        </li>
-        <li>
-            Click <a href="~/ciba/all">here</a> to view your pending CIBA login requests.
-        </li>
-        <li>
-            Here are links to the
-            <a href="https://github.com/duendesoftware/IdentityServer">source code repository</a>,
-            and <a href="https://github.com/duendesoftware/samples">ready to use samples</a>.
-        </li>
-    </ul>
+<div class="card max-w-2xl">
+    <div class="card-body">
+        <ul class="space-y-3 text-sm text-gray-700">
+            <li class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-admin-primary mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                IdentityServer publishes a
+                <a href="~/.well-known/openid-configuration" class="text-admin-primary hover:underline">discovery document</a>
+                where you can find metadata and links to all the endpoints, key material, etc.
+            </li>
+            <li class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-admin-primary mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Click <a href="~/diagnostics" class="text-admin-primary hover:underline">here</a> to see the claims for your current session.
+            </li>
+            <li class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-admin-primary mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Click <a href="~/grants" class="text-admin-primary hover:underline">here</a> to manage your stored grants.
+            </li>
+            <li class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-admin-primary mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Click <a href="~/ciba/all" class="text-admin-primary hover:underline">here</a> to view your pending CIBA login requests.
+            </li>
+            <li class="flex items-start gap-2">
+                <svg class="w-4 h-4 text-admin-primary mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                Here are links to the
+                <a href="https://github.com/duendesoftware/IdentityServer" class="text-admin-primary hover:underline">source code repository</a>,
+                and <a href="https://github.com/duendesoftware/samples" class="text-admin-primary hover:underline">ready to use samples</a>.
+            </li>
+        </ul>
+    </div>
 </div>
