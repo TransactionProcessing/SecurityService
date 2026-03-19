@@ -4,13 +4,14 @@
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using NLog.Extensions.Logging;
 using Serilog;
 using Serilog.Events;
 using Serilog.Sinks.SystemConsole.Themes;
-using System;
-using NLog.Extensions.Logging;
 using Shared.Logger;
 using Shared.Middleware;
+using System;
+using Sentry.Extensibility;
 
 namespace SecurityService
 {
@@ -23,6 +24,7 @@ namespace SecurityService
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
     using NLog;
+    using Shared.General;
     using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
@@ -71,6 +73,45 @@ namespace SecurityService
 
             hostBuilder.ConfigureWebHostDefaults(webBuilder =>
             {
+                webBuilder.ConfigureAppConfiguration((context, configBuilder) =>
+                {
+                    var env = context.HostingEnvironment;
+
+                    configBuilder.SetBasePath(fi.Directory.FullName)
+                        .AddJsonFile("hosting.json", optional: true)
+                        .AddJsonFile($"hosting.{env.EnvironmentName}.json", optional: true)
+                        .AddJsonFile("/home/txnproc/config/appsettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"/home/txnproc/config/appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                        .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                        .AddEnvironmentVariables();
+
+                    // Build a snapshot of configuration so we can use it immediately (e.g. for Sentry)
+                    var builtConfig = configBuilder.Build();
+
+                    // Keep existing static usage (if you must), and initialise the ConfigurationReader now.
+                    Startup.Configuration = builtConfig;
+                    ConfigurationReader.Initialise(Startup.Configuration);
+
+                    // Configure Sentry on the webBuilder using the config snapshot.
+                    var sentrySection = builtConfig.GetSection("SentryConfiguration");
+                    if (sentrySection.Exists())
+                    {
+                        // Replace the condition below if you intended to only enable Sentry in certain environments.
+                        if (env.IsDevelopment() == false)
+                        {
+                            webBuilder.UseSentry(o =>
+                            {
+                                o.Dsn = builtConfig["SentryConfiguration:Dsn"];
+                                o.SendDefaultPii = true;
+                                o.MaxRequestBodySize = RequestSize.Always;
+                                o.CaptureBlockingCalls = true;
+                                o.Release = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "unknown";
+                            });
+                        }
+                    }
+                });
+
                 webBuilder.UseStartup<Startup>();
                 webBuilder.ConfigureServices(services =>
                 {
