@@ -34,7 +34,8 @@ namespace SecurityService.Handlers
                 createUserRequest.EmailAddress,
                 createUserRequest.PhoneNumber,
                 createUserRequest.Claims,
-                createUserRequest.Roles);
+                createUserRequest.Roles,
+                createUserRequest.ProviderSettings);
 
             Result result = await mediator.Send(command, cancellationToken);
 

@@ -27,7 +27,8 @@ public record SecurityServiceCommands {
                                       List<String> ClientRedirectUris,
                                       List<String> ClientPostLogoutRedirectUris,
                                       Boolean RequireConsent,
-                                      Boolean AllowOfflineAccess) : IRequest<Result>;
+                                      Boolean AllowOfflineAccess,
+                                      Dictionary<String, Object> ProviderSettings = null) : IRequest<Result>;
 
     public record CreateIdentityResourceCommand(String Name,
                                                 String DisplayName,
@@ -48,7 +49,8 @@ public record SecurityServiceCommands {
                                     String EmailAddress,
                                     String PhoneNumber,
                                     Dictionary<String, String> Claims,
-                                    List<String> Roles) : IRequest<Result>;
+                                    List<String> Roles,
+                                    Dictionary<String, Object> ProviderSettings = null) : IRequest<Result>;
 
     public record ProcessPasswordResetConfirmationCommand(String Username,
                                                           String Token,

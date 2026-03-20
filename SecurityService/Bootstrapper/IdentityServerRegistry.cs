@@ -62,7 +62,14 @@
 
             identityServerBuilder.AddAspNetIdentity<ApplicationUser>();
 
-            this.AddScoped<IIdentityManagementService, IdentityServerIdentityManagementService>();
+            if (UseKeycloakIdentityManagement(serviceOptions))
+            {
+                this.AddScoped<IIdentityManagementService, KeycloakIdentityManagementService>();
+            }
+            else
+            {
+                this.AddScoped<IIdentityManagementService, IdentityServerIdentityManagementService>();
+            }
 
             if (serviceOptions.UseInMemoryDatabase)
             {
@@ -75,5 +82,8 @@
         }
 
         #endregion
+
+        internal static Boolean UseKeycloakIdentityManagement(ServiceOptions serviceOptions) =>
+            String.Equals(serviceOptions?.IdentityProvider, "Keycloak", StringComparison.OrdinalIgnoreCase);
     }
 }
