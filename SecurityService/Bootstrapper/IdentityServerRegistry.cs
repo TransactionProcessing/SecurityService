@@ -10,6 +10,7 @@
     using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Hosting;
+    using SecurityService.BusinessLogic.IdentityManagement;
 
     [ExcludeFromCodeCoverage]
     public class IdentityServerRegistry : ServiceRegistry
@@ -60,6 +61,8 @@
                                                                                   });
 
             identityServerBuilder.AddAspNetIdentity<ApplicationUser>();
+
+            this.AddScoped<IIdentityManagementService, IdentityServerIdentityManagementService>();
 
             if (serviceOptions.UseInMemoryDatabase)
             {

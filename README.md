@@ -61,4 +61,6 @@ The current implementation is still IdentityServer-specific in the business logi
 3. Replace the internal management implementation so that `/api/clients`, `/api/users`, `/api/roles`, and the resource/scope endpoints call the Keycloak Admin API.
 4. Treat Keycloak as the source of truth for clients, users and claims during the migration.
 
-In short: **yes, the API can be maintained as the wrapper layer**, but the current repository still needs the internal IdentityServer-backed handlers to be swapped for Keycloak-backed management logic.
+In short: **yes, the API can be maintained as the wrapper layer**.
+
+This repository now separates the request handlers from the current IdentityServer/ASP.NET Identity implementation by routing administrative operations through an internal identity management abstraction. The default implementation is still IdentityServer-backed, but a future Keycloak-backed implementation can be added behind the same abstraction without changing the public `/api/...` endpoints.
