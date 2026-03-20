@@ -706,19 +706,19 @@ public class IdentityServerIdentityManagementService : IIdentityManagementServic
 
     private SendEmailRequest BuildEmailConfirmationRequest(ApplicationUser user, String emailConfirmationToken)
     {
-        StringBuilder mesasgeBuilder = new StringBuilder();
-        mesasgeBuilder.Append("<html>");
-        mesasgeBuilder.Append("<body>");
-        mesasgeBuilder.Append("<p><strong>Thank you for registering</strong></p>");
-        mesasgeBuilder.Append("<p></p>");
-        mesasgeBuilder.Append($"<p>Please <a href=\"{emailConfirmationToken}\">click here</a> to confirm your email address.</p>");
-        mesasgeBuilder.Append("<p>Thanks for your registration.</p>");
-        mesasgeBuilder.Append("</body>");
-        mesasgeBuilder.Append("</html>");
+        StringBuilder messageBuilder = new StringBuilder();
+        messageBuilder.Append("<html>");
+        messageBuilder.Append("<body>");
+        messageBuilder.Append("<p><strong>Thank you for registering</strong></p>");
+        messageBuilder.Append("<p></p>");
+        messageBuilder.Append($"<p>Please <a href=\"{emailConfirmationToken}\">click here</a> to confirm your email address.</p>");
+        messageBuilder.Append("<p>Thanks for your registration.</p>");
+        messageBuilder.Append("</body>");
+        messageBuilder.Append("</html>");
 
         return new SendEmailRequest
         {
-            Body = mesasgeBuilder.ToString(),
+            Body = messageBuilder.ToString(),
             ConnectionIdentifier = Guid.NewGuid(),
             FromAddress = "golfhandicapping@btinternet.com",
             IsHtml = true,
@@ -729,19 +729,19 @@ public class IdentityServerIdentityManagementService : IIdentityManagementServic
 
     private SendEmailRequest BuildPasswordResetEmailRequest(ApplicationUser user, String resetToken)
     {
-        StringBuilder mesasgeBuilder = new StringBuilder();
-        mesasgeBuilder.Append("<html>");
-        mesasgeBuilder.Append("<body>");
-        mesasgeBuilder.Append("<p><strong>Thanks for your password reset request</strong></p>");
-        mesasgeBuilder.Append("<p></p>");
-        mesasgeBuilder.Append($"<p>Please <a href=\"{resetToken}\">click here</a> to confirm this password reset was from you.</p>");
-        mesasgeBuilder.Append("<p>Thanks for your password reset request.</p>");
-        mesasgeBuilder.Append("</body>");
-        mesasgeBuilder.Append("</html>");
+        StringBuilder messageBuilder = new StringBuilder();
+        messageBuilder.Append("<html>");
+        messageBuilder.Append("<body>");
+        messageBuilder.Append("<p><strong>Thanks for your password reset request</strong></p>");
+        messageBuilder.Append("<p></p>");
+        messageBuilder.Append($"<p>Please <a href=\"{resetToken}\">click here</a> to confirm this password reset was from you.</p>");
+        messageBuilder.Append("<p>Thanks for your password reset request.</p>");
+        messageBuilder.Append("</body>");
+        messageBuilder.Append("</html>");
 
         return new SendEmailRequest
         {
-            Body = mesasgeBuilder.ToString(),
+            Body = messageBuilder.ToString(),
             ConnectionIdentifier = Guid.NewGuid(),
             FromAddress = "golfhandicapping@btinternet.com",
             IsHtml = true,
@@ -752,22 +752,22 @@ public class IdentityServerIdentityManagementService : IIdentityManagementServic
 
     private SendEmailRequest BuildWelcomeEmail(String emailAddress, String password)
     {
-        StringBuilder mesasgeBuilder = new StringBuilder();
-        mesasgeBuilder.AppendLine("<html><body>");
-        mesasgeBuilder.AppendLine("<p>Welcome to Transaction Processing System</p>");
-        mesasgeBuilder.AppendLine("<p></p>");
-        mesasgeBuilder.AppendLine("<p>Please find below your user details:</p>");
-        mesasgeBuilder.AppendLine("<table>");
-        mesasgeBuilder.AppendLine("<tr><td><strong>User Name</strong></td></tr>");
-        mesasgeBuilder.AppendLine($"<tr><td id=\"username\">{emailAddress}</td></tr>");
-        mesasgeBuilder.AppendLine("<tr><td><strong>Password</strong></td></tr>");
-        mesasgeBuilder.AppendLine($"<tr><td id=\"password\">{password}</td></tr>");
-        mesasgeBuilder.AppendLine("</table>");
-        mesasgeBuilder.AppendLine("</body></html>");
+        StringBuilder messageBuilder = new StringBuilder();
+        messageBuilder.AppendLine("<html><body>");
+        messageBuilder.AppendLine("<p>Welcome to Transaction Processing System</p>");
+        messageBuilder.AppendLine("<p></p>");
+        messageBuilder.AppendLine("<p>Please find below your user details:</p>");
+        messageBuilder.AppendLine("<table>");
+        messageBuilder.AppendLine("<tr><td><strong>User Name</strong></td></tr>");
+        messageBuilder.AppendLine($"<tr><td id=\"username\">{emailAddress}</td></tr>");
+        messageBuilder.AppendLine("<tr><td><strong>Password</strong></td></tr>");
+        messageBuilder.AppendLine($"<tr><td id=\"password\">{password}</td></tr>");
+        messageBuilder.AppendLine("</table>");
+        messageBuilder.AppendLine("</body></html>");
 
         return new SendEmailRequest
         {
-            Body = mesasgeBuilder.ToString(),
+            Body = messageBuilder.ToString(),
             ConnectionIdentifier = Guid.NewGuid(),
             FromAddress = "golfhandicapping@btinternet.com",
             IsHtml = true,
