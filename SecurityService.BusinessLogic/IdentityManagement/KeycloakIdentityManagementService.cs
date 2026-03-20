@@ -19,22 +19,29 @@ using Shared.Logger;
 using Shared.Results;
 using SimpleResults;
 
-public class KeycloakIdentityManagementService : IIdentityManagementService
+public class KeycloakIdentityManagementService : IIdentityManagementService, IDisposable
 {
     private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions(JsonSerializerDefaults.Web);
 
     private readonly HttpClient HttpClient;
     private readonly ServiceOptions ServiceOptions;
+    private readonly SemaphoreSlim TokenSemaphore = new SemaphoreSlim(1, 1);
+    private readonly Boolean DisposeHttpClient;
     private KeycloakTokenResponse TokenResponse;
 
-    public KeycloakIdentityManagementService(ServiceOptions serviceOptions) : this(serviceOptions, new HttpClient())
+    public KeycloakIdentityManagementService(ServiceOptions serviceOptions) : this(serviceOptions, new HttpClient(), true)
     {
     }
 
-    public KeycloakIdentityManagementService(ServiceOptions serviceOptions, HttpClient httpClient)
+    public KeycloakIdentityManagementService(ServiceOptions serviceOptions, HttpClient httpClient) : this(serviceOptions, httpClient, false)
+    {
+    }
+
+    private KeycloakIdentityManagementService(ServiceOptions serviceOptions, HttpClient httpClient, Boolean disposeHttpClient)
     {
         this.ServiceOptions = serviceOptions;
         this.HttpClient = httpClient;
+        this.DisposeHttpClient = disposeHttpClient;
     }
 
     public Task<Result> CreateApiResource(SecurityServiceCommands.CreateApiResourceCommand command, CancellationToken cancellationToken) =>
@@ -67,7 +74,7 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
         String realm = this.GetRealm(providerSettings.Realm);
         if (String.IsNullOrWhiteSpace(realm))
         {
-            return Result.Invalid("No Keycloak realm is configured for client management");
+            return Result.Invalid("No Keycloak realm is configured for client management. Set ServiceOptions.Keycloak.Realm (JSON: ServiceOptions:Keycloak:Realm) or request provider_settings.keycloak.realm.");
         }
 
         KeycloakClientRepresentation request = new KeycloakClientRepresentation
@@ -168,7 +175,7 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
         String realm = this.GetRealm(providerSettings.Realm);
         if (String.IsNullOrWhiteSpace(realm))
         {
-            return Result.Invalid("No Keycloak realm is configured for user management");
+            return Result.Invalid("No Keycloak realm is configured for user management. Set ServiceOptions.Keycloak.Realm (JSON: ServiceOptions:Keycloak:Realm) or request provider_settings.keycloak.realm.");
         }
 
         KeycloakUserRepresentation request = new KeycloakUserRepresentation
@@ -244,7 +251,7 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
         List<UserDetails> users = new List<UserDetails>();
         foreach (KeycloakUserRepresentation user in result.Data)
         {
-            Guid.TryParse(user.Id, out Guid userId);
+            Guid userId = ParseKeycloakGuid(user.Id);
             List<String> roles = await this.GetUserRoles(this.GetRealm(null), user.Id, cancellationToken);
             users.Add(MapUser(userId, user, roles));
         }
@@ -450,7 +457,16 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
 
     private async Task<Result<T>> SendForResponse<T>(HttpMethod method, String relativeUri, Object body, CancellationToken cancellationToken)
     {
-        HttpRequestMessage request = await this.CreateRequest(method, relativeUri, body, cancellationToken);
+        HttpRequestMessage request;
+        try
+        {
+            request = await this.CreateRequest(method, relativeUri, body, cancellationToken);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Result.Failure(exception.Message);
+        }
+
         using HttpResponseMessage response = await this.HttpClient.SendAsync(request, cancellationToken);
 
         if (response.IsSuccessStatusCode == false)
@@ -494,7 +510,16 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
             ? validStatusCodes
             : new[] { HttpStatusCode.Created, HttpStatusCode.NoContent, HttpStatusCode.OK };
 
-        HttpRequestMessage request = await this.CreateRequest(method, relativeUri, body, cancellationToken);
+        HttpRequestMessage request;
+        try
+        {
+            request = await this.CreateRequest(method, relativeUri, body, cancellationToken);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Result.Failure(exception.Message);
+        }
+
         using HttpResponseMessage response = await this.HttpClient.SendAsync(request, cancellationToken);
 
         if (expectedStatusCodes.Contains(response.StatusCode))
@@ -534,39 +559,52 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
             return this.TokenResponse.AccessToken;
         }
 
-        String serverUrl = this.ServiceOptions.Keycloak?.ServerUrl?.TrimEnd('/');
-        if (String.IsNullOrWhiteSpace(serverUrl))
+        await this.TokenSemaphore.WaitAsync(cancellationToken);
+        try
         {
-            throw new InvalidOperationException("Keycloak server URL has not been configured");
+            if (this.TokenResponse != null && this.TokenResponse.ExpiresAt > DateTimeOffset.UtcNow.AddMinutes(1))
+            {
+                return this.TokenResponse.AccessToken;
+            }
+
+            String serverUrl = this.ServiceOptions.Keycloak?.ServerUrl?.TrimEnd('/');
+            if (String.IsNullOrWhiteSpace(serverUrl))
+            {
+                throw new InvalidOperationException("Keycloak server URL (ServiceOptions.Keycloak.ServerUrl) has not been configured.");
+            }
+
+            Dictionary<String, String> formValues = new Dictionary<String, String>
+                                                    {
+                                                        { "grant_type", "client_credentials" },
+                                                        { "client_id", this.ServiceOptions.Keycloak.AdminClientId },
+                                                        { "client_secret", this.ServiceOptions.Keycloak.AdminClientSecret }
+                                                    };
+
+            using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post,
+                $"{serverUrl}/realms/{this.ServiceOptions.Keycloak.AdminRealm}/protocol/openid-connect/token")
+                                              {
+                                                  Content = new FormUrlEncodedContent(formValues)
+                                              };
+            using HttpResponseMessage response = await this.HttpClient.SendAsync(request, cancellationToken);
+            String content = await response.Content.ReadAsStringAsync(cancellationToken);
+            if (response.IsSuccessStatusCode == false)
+            {
+                throw new InvalidOperationException($"Failed to acquire Keycloak admin token. Response was [{response.StatusCode}] {response.ReasonPhrase}. Response body omitted for security.");
+            }
+
+            KeycloakTokenEndpointResponse tokenEndpointResponse = JsonSerializer.Deserialize<KeycloakTokenEndpointResponse>(content, JsonSerializerOptions);
+            this.TokenResponse = new KeycloakTokenResponse
+                                 {
+                                     AccessToken = tokenEndpointResponse.AccessToken,
+                                     ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(tokenEndpointResponse.ExpiresIn)
+                                 };
+            Logger.LogInformation($"Acquired Keycloak admin token that expires at {this.TokenResponse.ExpiresAt:O}");
+            return this.TokenResponse.AccessToken;
         }
-
-        Dictionary<String, String> formValues = new Dictionary<String, String>
-                                                {
-                                                    { "grant_type", "client_credentials" },
-                                                    { "client_id", this.ServiceOptions.Keycloak.AdminClientId },
-                                                    { "client_secret", this.ServiceOptions.Keycloak.AdminClientSecret }
-                                                };
-
-        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post,
-            $"{serverUrl}/realms/{this.ServiceOptions.Keycloak.AdminRealm}/protocol/openid-connect/token")
-                                          {
-                                              Content = new FormUrlEncodedContent(formValues)
-                                          };
-        using HttpResponseMessage response = await this.HttpClient.SendAsync(request, cancellationToken);
-        String content = await response.Content.ReadAsStringAsync(cancellationToken);
-        if (response.IsSuccessStatusCode == false)
+        finally
         {
-            throw new InvalidOperationException($"Failed to acquire Keycloak admin token. Response was [{response.StatusCode}] {content}");
+            this.TokenSemaphore.Release();
         }
-
-        KeycloakTokenEndpointResponse tokenEndpointResponse = JsonSerializer.Deserialize<KeycloakTokenEndpointResponse>(content, JsonSerializerOptions);
-        this.TokenResponse = new KeycloakTokenResponse
-                             {
-                                 AccessToken = tokenEndpointResponse.AccessToken,
-                                 ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(tokenEndpointResponse.ExpiresIn)
-                             };
-        Logger.LogInformation($"Acquired Keycloak admin token that expires at {this.TokenResponse.ExpiresAt:O}");
-        return this.TokenResponse.AccessToken;
     }
 
     private static Client MapClient(KeycloakClientRepresentation client)
@@ -616,10 +654,9 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
 
     private static RoleDetails MapRole(KeycloakRoleRepresentation role)
     {
-        Guid.TryParse(role.Id, out Guid roleId);
         return new RoleDetails
                {
-                   RoleId = roleId,
+                   RoleId = ParseKeycloakGuid(role.Id),
                    RoleName = role.Name
                };
     }
@@ -686,6 +723,9 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
         return JsonSerializer.Deserialize<T>(keycloakSettings.GetRawText(), JsonSerializerOptions) ?? new T();
     }
 
+    private static Guid ParseKeycloakGuid(String keycloakId) =>
+        Guid.TryParse(keycloakId, out Guid parsedGuid) ? parsedGuid : Guid.Empty;
+
     private static async Task<String> BuildFailureMessage(HttpResponseMessage response)
     {
         String responseBody = response.Content == null ? String.Empty : await response.Content.ReadAsStringAsync();
@@ -693,10 +733,10 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
     }
 
     private static Result Unsupported(String entityName) =>
-        Result.Invalid($"Keycloak identity management service does not support {entityName} management through this endpoint");
+        Result.Invalid($"Keycloak identity management service does not support {entityName} management through this endpoint. Manage this directly in Keycloak or keep using the IdentityServer-backed route for these resources.");
 
     private static Result<T> Unsupported<T>(String entityName) =>
-        Result.Invalid($"Keycloak identity management service does not support {entityName} management through this endpoint");
+        Result.Invalid($"Keycloak identity management service does not support {entityName} management through this endpoint. Manage this directly in Keycloak or keep using the IdentityServer-backed route for these resources.");
 
     private static Result ValidateGrantTypes(List<String> allowedGrantTypes)
     {
@@ -897,5 +937,15 @@ public class KeycloakIdentityManagementService : IIdentityManagementService
 
         [JsonPropertyName("required_actions")]
         public List<String> RequiredActions { get; set; }
+    }
+
+    public void Dispose()
+    {
+        this.TokenSemaphore.Dispose();
+
+        if (this.DisposeHttpClient)
+        {
+            this.HttpClient.Dispose();
+        }
     }
 }

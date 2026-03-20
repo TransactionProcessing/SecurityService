@@ -72,6 +72,73 @@ public class KeycloakIdentityManagementServiceTests
     }
 
     [Fact]
+    public async Task CreateClient_WhenTokenRequestFails_ReturnsFailureWithoutLeakingResponseBody()
+    {
+        RecordingHttpMessageHandler handler = new RecordingHttpMessageHandler(_ =>
+            new HttpResponseMessage(HttpStatusCode.Unauthorized)
+            {
+                Content = new StringContent("{\"error\":\"invalid_client\"}", Encoding.UTF8, "application/json")
+            });
+        KeycloakIdentityManagementService service = new KeycloakIdentityManagementService(BuildServiceOptions(), new HttpClient(handler));
+
+        Result result = await service.CreateClient(
+            new SecurityServiceCommands.CreateClientCommand(
+                "test-client",
+                "super-secret",
+                "Test Client",
+                "Description",
+                new List<String> { "openid" },
+                new List<String> { "client_credentials" },
+                "https://portal.example.com",
+                new List<String>(),
+                new List<String>(),
+                false,
+                false),
+            CancellationToken.None);
+
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Failure);
+        result.Message.ShouldContain("Response body omitted for security");
+        result.Message.ShouldNotContain("invalid_client");
+    }
+
+    [Fact]
+    public async Task CreateClient_WithoutRealmConfiguration_ReturnsInvalidWithGuidance()
+    {
+        KeycloakIdentityManagementService service = new KeycloakIdentityManagementService(
+            new ServiceOptions
+            {
+                IdentityProvider = "Keycloak",
+                Keycloak = new KeycloakOptions
+                           {
+                               AdminClientId = "admin-cli",
+                               AdminClientSecret = "secret",
+                               AdminRealm = "master",
+                               ServerUrl = "https://keycloak.example.com"
+                           }
+            },
+            new HttpClient(new RecordingHttpMessageHandler(_ => JsonResponse("{}"))));
+
+        Result result = await service.CreateClient(
+            new SecurityServiceCommands.CreateClientCommand(
+                "test-client",
+                "super-secret",
+                "Test Client",
+                "Description",
+                new List<String> { "openid" },
+                new List<String> { "client_credentials" },
+                "https://portal.example.com",
+                new List<String>(),
+                new List<String>(),
+                false,
+                false),
+            CancellationToken.None);
+
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Message.ShouldContain("ServiceOptions.Keycloak.Realm");
+    }
+
+    [Fact]
     public async Task CreateUser_UsesProviderSettingsWhenBuildingKeycloakRequest()
     {
         RecordingHttpMessageHandler handler = new RecordingHttpMessageHandler(request =>
