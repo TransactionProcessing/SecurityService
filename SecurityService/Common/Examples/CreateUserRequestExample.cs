@@ -29,6 +29,18 @@
                        GivenName = ExampleData.UserGivenName,
                        MiddleName = ExampleData.UserMiddleName,
                        PhoneNumber = ExampleData.UserPhoneNumber,
+                       ProviderSettings = new Dictionary<String, Object>
+                                          {
+                                              {
+                                                  "keycloak", new Dictionary<String, Object>
+                                                               {
+                                                                   { "enabled", true },
+                                                                   { "email_verified", false },
+                                                                   { "required_actions", new List<String> { "VERIFY_EMAIL", "UPDATE_PASSWORD" } },
+                                                                   { "groups", new List<String> { "finance", "approvers" } }
+                                                               }
+                                              }
+                                          },
                        Roles = new List<String>
                                {
                                    ExampleData.RoleName

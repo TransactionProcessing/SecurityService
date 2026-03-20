@@ -29,7 +29,8 @@ namespace SecurityService.Handlers
                 createClientRequest.ClientRedirectUris,
                 createClientRequest.ClientPostLogoutRedirectUris,
                 createClientRequest.RequireConsent,
-                createClientRequest.AllowOfflineAccess);
+                createClientRequest.AllowOfflineAccess,
+                createClientRequest.ProviderSettings);
 
             Result result = await mediator.Send(command, cancellationToken);
 

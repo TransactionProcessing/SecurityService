@@ -85,7 +85,7 @@ namespace SecurityService.Bootstrapper
                                                       {
                                                           Title = "Authentication API",
                                                           Version = "1.0",
-                                                          Description = "A REST Api to provide authentication services including management of user/client and api details.",
+                                                          Description = "A REST API for identity administration. Use this service to manage clients, users, roles and resource metadata, while OAuth2/OIDC runtime endpoints can be consumed directly from the active identity provider such as IdentityServer or Keycloak.",
                                                           Contact = new OpenApiContact
                                                                     {
                                                                         Name = "Stuart Ferguson",

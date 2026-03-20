@@ -18,6 +18,7 @@ namespace SecurityService.UnitTests {
     using Microsoft.Extensions.Options;
     using Moq;
     using SecurityService.Database.DbContexts;
+    using SecurityService.BusinessLogic.IdentityManagement;
 
     //public class TestRoleValidator : IRoleValidator<IdentityRole>{
     //    public async Task<IdentityResult> ValidateAsync(RoleManager<IdentityRole> manager, IdentityRole role){
@@ -168,57 +169,68 @@ namespace SecurityService.UnitTests {
             return context;
         }
 
-        public UserRequestHandler SetUserRequestHandler(ConfigurationDbContext configurationDbContext, AuthenticationDbContext authenticationDbContext)
+        private IIdentityManagementService CreateIdentityManagementService(ConfigurationDbContext configurationDbContext,
+                                                                           AuthenticationDbContext authenticationDbContext)
         {
-            this.UserStore = new UserStore<ApplicationUser>(authenticationDbContext,this.ErrorDescriber);
+            this.UserStore = new UserStore<ApplicationUser>(authenticationDbContext, this.ErrorDescriber);
             this.RoleStore = new RoleStore<IdentityRole>(authenticationDbContext, this.ErrorDescriber);
-            this.UserManager =
-                new UserManager<ApplicationUser>(this.UserStore, this.Options.Object, this.PasswordHasher.Object,
-                                              this.UserValidators, this.PasswordValidators,
-                                              this.KeyNormalizer, this.ErrorDescriber, this.ServiceProvider.Object, 
-                                              new NullLogger<UserManager<ApplicationUser>>());
-
-            this.PasswordHasher.Setup(p => p.HashPassword(It.IsAny<ApplicationUser>(), It.IsAny<String>())).Returns("passwordhash");
-            this.PasswordHasher.Setup(p => p.VerifyHashedPassword(It.IsAny<ApplicationUser>(), It.IsAny<String>(), It.IsAny<String>())).Returns(PasswordVerificationResult.Success);
-
-            this.ServiceOptions.ClientId = "clientId";
-
-            return new UserRequestHandler(this.PasswordHasher.Object,
-                                          this.UserManager,
-                                          this.ServiceOptions,
-                                          this.MessagingServiceClient.Object,
-                                          this.IdentityServerTools,
-                                          configurationDbContext);
-        }
-
-        public ApiResourceRequestHandler SetupApiResourceRequestHandler(ConfigurationDbContext configurationDbContext)
-        {
-            return new ApiResourceRequestHandler(configurationDbContext);
-        }
-
-        public ApiScopeRequestHandler SetupApiScopeRequestHandler(ConfigurationDbContext configurationDbContext)
-        {
-            return new ApiScopeRequestHandler(configurationDbContext);
-        }
-
-        public ClientRequestHandler SetupClientRequestHandler(ConfigurationDbContext configurationDbContext)
-        {
-            return new ClientRequestHandler(configurationDbContext);
-        }
-
-        public IdentityResourceRequestHandler SetupIdentityResourceRequestHandler(ConfigurationDbContext configurationDbContext)
-        {
-            return new IdentityResourceRequestHandler(configurationDbContext);
-        }
-
-        public RoleRequestHandler SetupRoleRequestHandler(ConfigurationDbContext configurationDbContext, AuthenticationDbContext authenticationDbContext){
-            this.RoleStore = new RoleStore<IdentityRole>(authenticationDbContext, this.ErrorDescriber);
+            this.UserManager = new UserManager<ApplicationUser>(this.UserStore,
+                                                                this.Options.Object,
+                                                                this.PasswordHasher.Object,
+                                                                this.UserValidators,
+                                                                this.PasswordValidators,
+                                                                this.KeyNormalizer,
+                                                                this.ErrorDescriber,
+                                                                this.ServiceProvider.Object,
+                                                                new NullLogger<UserManager<ApplicationUser>>());
             RoleManager<IdentityRole> roleManager = new RoleManager<IdentityRole>(this.RoleStore,
                                                                                   this.RoleValidators,
                                                                                   this.KeyNormalizer,
                                                                                   this.ErrorDescriber,
                                                                                   new NullLogger<RoleManager<IdentityRole>>());
-            return new RoleRequestHandler(roleManager);
+
+            this.PasswordHasher.Setup(p => p.HashPassword(It.IsAny<ApplicationUser>(), It.IsAny<String>())).Returns("passwordhash");
+            this.PasswordHasher.Setup(p => p.VerifyHashedPassword(It.IsAny<ApplicationUser>(), It.IsAny<String>(), It.IsAny<String>()))
+                .Returns(PasswordVerificationResult.Success);
+
+            this.ServiceOptions.ClientId = "clientId";
+
+            return new IdentityServerIdentityManagementService(this.PasswordHasher.Object,
+                                                               this.UserManager,
+                                                               roleManager,
+                                                               this.ServiceOptions,
+                                                               this.MessagingServiceClient.Object,
+                                                               this.IdentityServerTools,
+                                                               configurationDbContext);
+        }
+
+        public UserRequestHandler SetUserRequestHandler(ConfigurationDbContext configurationDbContext, AuthenticationDbContext authenticationDbContext)
+        {
+            return new UserRequestHandler(this.CreateIdentityManagementService(configurationDbContext, authenticationDbContext));
+        }
+
+        public ApiResourceRequestHandler SetupApiResourceRequestHandler(ConfigurationDbContext configurationDbContext)
+        {
+            return new ApiResourceRequestHandler(this.CreateIdentityManagementService(configurationDbContext, GetAuthenticationDbContext()));
+        }
+
+        public ApiScopeRequestHandler SetupApiScopeRequestHandler(ConfigurationDbContext configurationDbContext)
+        {
+            return new ApiScopeRequestHandler(this.CreateIdentityManagementService(configurationDbContext, GetAuthenticationDbContext()));
+        }
+
+        public ClientRequestHandler SetupClientRequestHandler(ConfigurationDbContext configurationDbContext)
+        {
+            return new ClientRequestHandler(this.CreateIdentityManagementService(configurationDbContext, GetAuthenticationDbContext()));
+        }
+
+        public IdentityResourceRequestHandler SetupIdentityResourceRequestHandler(ConfigurationDbContext configurationDbContext)
+        {
+            return new IdentityResourceRequestHandler(this.CreateIdentityManagementService(configurationDbContext, GetAuthenticationDbContext()));
+        }
+
+        public RoleRequestHandler SetupRoleRequestHandler(ConfigurationDbContext configurationDbContext, AuthenticationDbContext authenticationDbContext){
+            return new RoleRequestHandler(this.CreateIdentityManagementService(configurationDbContext, authenticationDbContext));
         }
     }
 }
