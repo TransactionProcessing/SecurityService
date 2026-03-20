@@ -12,5 +12,7 @@ public class KeycloakOptions
 
     public String Realm { get; set; }
 
+    public String IssuerUrl { get; set; }
+
     public String ServerUrl { get; set; }
 }

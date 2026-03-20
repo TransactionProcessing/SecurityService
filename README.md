@@ -64,3 +64,25 @@ The current implementation is still IdentityServer-specific in the business logi
 In short: **yes, the API can be maintained as the wrapper layer**.
 
 This repository now separates the request handlers from the current IdentityServer/ASP.NET Identity implementation by routing administrative operations through an internal identity management abstraction. The default implementation is still IdentityServer-backed, but a future Keycloak-backed implementation can be added behind the same abstraction without changing the public `/api/...` endpoints.
+
+## Keycloak issuer URL overrides in integration environments
+
+Yes — Keycloak can be used in the same kind of integration-test setup where the URL used to **reach** the provider is different from the issuer that appears inside tokens, but you need to treat those as two separate settings:
+
+- `Keycloak.ServerUrl`: where SecurityService can call the Keycloak admin/token endpoints
+- `Keycloak.IssuerUrl`: the issuer base URL that downstream OIDC clients should accept in the `iss` claim
+
+For the test UI / OIDC client side, the same split is supported through:
+
+- `AppSettings:Authority`
+- `AppSettings:IssuerUrl`
+- `AppSettings:MetadataAddress` (optional override)
+- `AppSettings:AuthorizationEndpoint` (optional override)
+- `AppSettings:RequireHttpsMetadata` (set this to `false` for a local HTTP Keycloak testcontainer)
+
+This is useful when:
+
+- Keycloak is reachable on an internal Docker hostname for backchannel traffic
+- but tokens are issued with a frontend hostname, reverse-proxy URL, or a different externally configured realm issuer
+
+If you do not set `IssuerUrl`, the UI falls back to `Authority`, which matches the previous IdentityServer behavior.

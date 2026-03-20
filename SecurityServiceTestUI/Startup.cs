@@ -38,7 +38,13 @@ namespace SecurityServiceTestUI
 
             JwtSecurityTokenHandler.DefaultMapInboundClaims = false;
 
-            Console.WriteLine($"Authority is {Configuration.GetValue<String>("AppSettings:Authority")}");
+            String authority = OpenIdConnectConfiguration.GetAuthority(Configuration);
+            String issuerUrl = OpenIdConnectConfiguration.GetIssuerUrl(Configuration);
+            String metadataAddress = OpenIdConnectConfiguration.GetMetadataAddress(Configuration);
+            String authorizationEndpointOverride = OpenIdConnectConfiguration.GetAuthorizationEndpointOverride(Configuration);
+
+            Console.WriteLine($"Authority is {authority}");
+            Console.WriteLine($"Issuer Url is {issuerUrl}");
             
             services.AddHealthChecks();
 
@@ -54,17 +60,19 @@ namespace SecurityServiceTestUI
                                                   handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
                                                   options.BackchannelHttpHandler = handler;
 
-                                                  options.Authority = Configuration.GetValue<String>("AppSettings:Authority");
+                                                  options.Authority = authority;
                                                   options.TokenValidationParameters = new TokenValidationParameters
                                                                                       {
                                                                                           ValidateAudience = false,
+                                                                                          ValidIssuer = issuerUrl
                                                                                       };
-                                                  
+                                                  options.RequireHttpsMetadata = Configuration.GetValue<Boolean>("AppSettings:RequireHttpsMetadata", true);
+                                                   
                                                   options.ClientSecret =
                                                       Configuration.GetValue<String>("AppSettings:ClientSecret");
                                                   options.ClientId = Configuration.GetValue<String>("AppSettings:ClientId");
 
-                                                  options.MetadataAddress = $"{Configuration.GetValue<String>("AppSettings:Authority")}/.well-known/openid-configuration";
+                                                  options.MetadataAddress = metadataAddress;
 
                                                   options.ResponseType = "code id_token";
 
@@ -87,8 +95,12 @@ namespace SecurityServiceTestUI
                                                   
                                                   options.Events.OnRedirectToIdentityProvider = context =>
                                                   {
-                                                      // Intercept the redirection so the browser navigates to the right URL in your host
-                                                      context.ProtocolMessage.IssuerAddress = $"{Configuration.GetValue<String>("AppSettings:Authority")}/connect/authorize";
+                                                      if (String.IsNullOrWhiteSpace(authorizationEndpointOverride) == false)
+                                                      {
+                                                          // Intercept the redirection so the browser navigates to the right URL in your host
+                                                          context.ProtocolMessage.IssuerAddress = authorizationEndpointOverride;
+                                                      }
+
                                                       return Task.CompletedTask;
                                                   };
                                               });

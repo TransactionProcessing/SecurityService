@@ -46,6 +46,16 @@ namespace SecurityService.IntergrationTests.Common
         /// </summary>
         public Int32 SecurityServiceTestUIPort;
 
+        /// <summary>
+        /// The Keycloak container name.
+        /// </summary>
+        public String KeycloakContainerName;
+
+        /// <summary>
+        /// The Keycloak port.
+        /// </summary>
+        public Int32 KeycloakPort;
+
         #endregion
 
         #region Constructors
@@ -73,6 +83,7 @@ namespace SecurityService.IntergrationTests.Common
             // Setup the container names
             this.SecurityServiceContainerName = $"identity-server";
             this.SecurityServiceTestUIContainerName = $"securityservicetestui{this.TestId:N}";
+            this.KeycloakContainerName = $"keycloak{this.TestId:N}";
         }
 
         public override async Task CreateSubscriptions(){
@@ -89,6 +100,7 @@ namespace SecurityService.IntergrationTests.Common
 
             await base.StartContainersForScenarioRun(scenarioName,dockerServices);
 
+            await StartKeycloakContainer(this.TestNetworks);
             await StartContainer(SetupSecurityServiceTestUIContainer, this.TestNetworks);
 
             securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
@@ -97,6 +109,8 @@ namespace SecurityService.IntergrationTests.Common
 
             DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
             DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);
+            DockerHelper.AddEntryToHostsFile("127.0.0.1", this.KeycloakContainerName);
+            DockerHelper.AddEntryToHostsFile("localhost", this.KeycloakContainerName);
         }
 
         protected async Task DoTestUIHealthCheck()
@@ -143,6 +157,53 @@ namespace SecurityService.IntergrationTests.Common
             catch (Exception ex)
             {
                 this.Error($"Error starting container [{buildContainerFunc.Method.Name}]", ex);
+                throw;
+            }
+        }
+
+        protected async Task DoKeycloakHealthCheck()
+        {
+            await Retry.For(async () =>
+                            {
+                                this.Trace("About to do health check for Keycloak");
+                                using HttpClient client = new HttpClient();
+                                HttpResponseMessage response = await client.GetAsync($"http://127.0.0.1:{this.KeycloakPort}/health/ready");
+                                response.EnsureSuccessStatusCode();
+                                String responseBody = await response.Content.ReadAsStringAsync();
+                                responseBody.ShouldContain("UP");
+                                this.Trace("health check complete for Keycloak");
+                            },
+                            TimeSpan.FromMinutes(3),
+                            TimeSpan.FromSeconds(10));
+        }
+
+        protected async Task StartKeycloakContainer(List<INetwork> networkServices)
+        {
+            try
+            {
+                ContainerBuilder containerBuilder = this.SetupKeycloakContainer();
+
+                foreach (INetwork networkService in networkServices)
+                {
+                    containerBuilder = containerBuilder.WithNetwork(networkService);
+                }
+
+                IContainer builtContainer = containerBuilder.Build();
+                await builtContainer.StartAsync();
+                this.Trace("Keycloak Container Started");
+
+                this.KeycloakPort = builtContainer.GetMappedPublicPort(8080);
+
+                this.Containers.AddRange(new List<(DockerServices, IContainer)>
+                                         {
+                                             (DockerServices.None, builtContainer)
+                                         });
+
+                await this.DoKeycloakHealthCheck();
+            }
+            catch (Exception ex)
+            {
+                this.Error("Error starting Keycloak container", ex);
                 throw;
             }
         }
@@ -200,7 +261,10 @@ namespace SecurityService.IntergrationTests.Common
 
             var clientDetails = ("estateUIClient", "Secret1");
             Dictionary<String, String> environmentVariables = new Dictionary<String, String>();
-            environmentVariables.Add($"AppSettings:Authority",$"https://identity-server:{this.SecurityServicePort}");
+            String authority = $"https://identity-server:{this.SecurityServicePort}";
+            environmentVariables.Add($"AppSettings:Authority", authority);
+            environmentVariables.Add($"AppSettings:IssuerUrl", authority);
+            environmentVariables.Add($"AppSettings:AuthorizationEndpoint", $"{authority}/connect/authorize");
             environmentVariables.Add($"AppSettings:ClientId",clientDetails.Item1);
             environmentVariables.Add($"AppSettings:ClientSecret",clientDetails.Item2);
             //environmentVariables.Add("urls","https://*:5004");
@@ -214,6 +278,25 @@ namespace SecurityService.IntergrationTests.Common
                 .WithEnvironment(environmentVariables).WithImage("securityservicetestui").WithPortBinding(5004, true);
 
             return securityServiceTestUIContainer;
+        }
+
+        private ContainerBuilder SetupKeycloakContainer()
+        {
+            Dictionary<String, String> environmentVariables = new Dictionary<String, String>
+                                                              {
+                                                                  { "KEYCLOAK_ADMIN", "admin" },
+                                                                  { "KEYCLOAK_ADMIN_PASSWORD", "admin" },
+                                                                  { "KC_HEALTH_ENABLED", "true" },
+                                                                  { "KC_HTTP_ENABLED", "true" },
+                                                                  { "KC_HOSTNAME_STRICT", "false" }
+                                                              };
+
+            return new ContainerBuilder()
+                .WithName(this.KeycloakContainerName)
+                .WithEnvironment(environmentVariables)
+                .WithImage("quay.io/keycloak/keycloak:26.1")
+                .WithCommand("start-dev", "--http-port=8080", "--hostname-strict=false")
+                .WithPortBinding(8080, true);
         }
         
         public override ContainerBuilder SetupSecurityServiceContainer()
