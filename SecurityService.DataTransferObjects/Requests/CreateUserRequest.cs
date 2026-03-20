@@ -32,5 +32,8 @@
 
         [JsonProperty("password")]
         public String Password { get; set; }
+
+        [JsonProperty("provider_settings")]
+        public Dictionary<String, Object> ProviderSettings { get; set; }
     }
 }

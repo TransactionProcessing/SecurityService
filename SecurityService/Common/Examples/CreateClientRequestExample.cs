@@ -38,11 +38,24 @@
                                                       {
                                                           ExampleData.ClientPostLogoutRedirectUri
                                                       },
-                       ClientRedirectUris = new List<String>
-                                            {
-                                                ExampleData.ClientRedirectUri
-                                            },
-                       RequireConsent = ExampleData.ClientRequireConsent
+                        ProviderSettings = new Dictionary<String, Object>
+                                           {
+                                               {
+                                                   "keycloak", new Dictionary<String, Object>
+                                                                {
+                                                                    { "realm", "transaction-processing" },
+                                                                    { "client_type", "confidential" },
+                                                                    { "standard_flow_enabled", true },
+                                                                    { "service_accounts_enabled", true },
+                                                                    { "web_origins", new List<String> { "https://portal.example.com" } }
+                                                                }
+                                               }
+                                           },
+                        ClientRedirectUris = new List<String>
+                                             {
+                                                 ExampleData.ClientRedirectUri
+                                             },
+                        RequireConsent = ExampleData.ClientRequireConsent
                    };
         }
 

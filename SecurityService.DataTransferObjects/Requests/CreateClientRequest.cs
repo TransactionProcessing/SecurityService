@@ -89,6 +89,15 @@
         public String ClientUri { get; set; }
 
         /// <summary>
+        /// Gets or sets the provider specific settings.
+        /// </summary>
+        /// <value>
+        /// The provider specific settings.
+        /// </value>
+        [JsonProperty("provider_settings")]
+        public Dictionary<String, Object> ProviderSettings { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating whether [require consent].
         /// </summary>
         /// <value>
