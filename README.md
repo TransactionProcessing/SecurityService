@@ -1,3 +1,64 @@
 # SecurityService
 
-![Alt](https://repobeats.axiom.co/api/embed/da37d4d35818e149f5221a018d8f10d89e8ae4a4.svg "Repobeats analytics image")
+SecurityService exposes a stable REST management API for identity administration:
+
+- clients
+- users
+- roles
+- API resources
+- API scopes
+- identity resources
+
+The service currently stores and manages those objects by using Duende IdentityServer and ASP.NET Identity internally.
+
+## IdentityServer to Keycloak migration
+
+If you want to migrate from IdentityServer to Keycloak, the safest split is:
+
+- use **Keycloak directly** for OAuth2 / OpenID Connect runtime traffic such as discovery, authorization, token, user-info and logout endpoints
+- keep **SecurityService** as the management API façade for your existing administrative workflows
+
+That means your existing `/api/...` endpoints can remain the contract used by your operational tooling, while the underlying implementation is changed to talk to the Keycloak Admin API instead of the IdentityServer stores.
+
+### What can stay the same
+
+The current management routes are already separate from the OIDC endpoints:
+
+- `POST /api/clients`
+- `GET /api/clients`
+- `GET /api/clients/{clientId}`
+- `POST /api/users`
+- `GET /api/users`
+- `GET /api/users/{userId}`
+- `POST /api/roles`
+- `GET /api/roles`
+- `GET /api/roles/{roleId}`
+- `POST /api/apiresources`
+- `GET /api/apiresources`
+- `GET /api/apiresources/{name}`
+- `POST /api/apiscopes`
+- `GET /api/apiscopes`
+- `GET /api/apiscopes/{name}`
+- `POST /api/identityresources`
+- `GET /api/identityresources`
+- `GET /api/identityresources/{name}`
+
+These endpoints are the right layer to preserve when you want SecurityService to act as a wrapper over Keycloak.
+
+### What changes underneath
+
+The current implementation is still IdentityServer-specific in the business logic layer. A Keycloak migration therefore means replacing the storage and admin operations behind the existing API surface:
+
+- clients map to Keycloak clients
+- users map to Keycloak users
+- roles map to Keycloak realm or client roles
+- API scopes / identity resources usually map to Keycloak client scopes and protocol mapper configuration
+
+### Recommended migration approach
+
+1. Keep the REST management API contract unchanged for callers.
+2. Move all OIDC and token consumers to Keycloak endpoints directly.
+3. Replace the internal management implementation so that `/api/clients`, `/api/users`, `/api/roles`, and the resource/scope endpoints call the Keycloak Admin API.
+4. Treat Keycloak as the source of truth for clients, users and claims during the migration.
+
+In short: **yes, the API can be maintained as the wrapper layer**, but the current repository still needs the internal IdentityServer-backed handlers to be swapped for Keycloak-backed management logic.
