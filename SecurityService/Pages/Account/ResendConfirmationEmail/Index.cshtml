@@ -1,0 +1,38 @@
+@page
+@model SecurityService.Pages.Account.ResendConfirmationEmail.IndexModel
+@{
+    ViewData["Title"] = "Resend confirmation email";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Resend confirmation email</h1>
+        <p class="hero__subtitle">Request another account confirmation email.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    @if (Model.EmailQueued)
+    {
+        <div class="alert alert--success">
+            <strong>Email queued</strong>
+            <div class="alert__content">If an eligible account was found, a confirmation email has been queued.</div>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card__body">
+            <form method="post">
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.EmailOrUserName">Email or username</label>
+                    <input class="form-control" asp-for="Input.EmailOrUserName" autofocus />
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit">Send confirmation email</button>
+                    <a class="btn btn-secondary" href="/Account/Login">Back to login</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

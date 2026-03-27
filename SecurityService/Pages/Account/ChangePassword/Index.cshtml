@@ -1,0 +1,46 @@
+@page
+@model SecurityService.Pages.Account.ChangePassword.IndexModel
+@{
+    ViewData["Title"] = "Change password";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Change password</h1>
+        <p class="hero__subtitle">Update the password for your signed-in account.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    <div class="card">
+        <div class="card__body">
+            <form method="post">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <input type="hidden" asp-for="Input.ClientId" />
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.EmailAddress"></label>
+                    <input class="form-control" placeholder="Username" asp-for="Input.EmailAddress" autofocus readonly="true">
+                    </div>
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.CurrentPassword"></label>
+                    <input class="form-control" asp-for="Input.CurrentPassword" type="password" autocomplete="current-password"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.NewPassword"></label>
+                    <input class="form-control" asp-for="Input.NewPassword" type="password" autocomplete="new-password"/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.ConfirmPassword"></label>
+                    <input class="form-control" asp-for="Input.ConfirmPassword" type="password" autocomplete="new-password"/>
+                </div>
+
+                <div class="actions">
+                     <button class="btn btn-primary" name="Input.Button" value="change">Change Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

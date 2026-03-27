@@ -1,7 +1,5 @@
 ﻿namespace SecurityService.IntegrationTesting.Helpers{
-    using DataTransferObjects.Requests;
     using Microsoft.EntityFrameworkCore.Metadata.Internal;
-    using SecurityService.DataTransferObjects.Responses;
     using Shared.IntegrationTesting;
     using Shouldly;
     using System.Collections.Generic;
@@ -108,10 +106,10 @@
             return requests;
         }
 
-        public static List<ApiResourceDetails> ToApiResourceDetails(this DataTableRows tableRows){
-            List<ApiResourceDetails> result = new List<ApiResourceDetails>();
+        public static List<ApiResourceResponse> ToApiResourceResponses(this DataTableRows tableRows){
+            List<ApiResourceResponse> result = new List<ApiResourceResponse>();
             foreach (DataTableRow tableRow in tableRows){
-                ApiResourceDetails details = new ApiResourceDetails();
+                ApiResourceResponse details = new ApiResourceResponse();
                 details.Description = ReqnrollTableHelper.GetStringRowValue(tableRow, "Description");
                 details.Name = ReqnrollTableHelper.GetStringRowValue(tableRow, "Name");
                 details.DisplayName = ReqnrollTableHelper.GetStringRowValue(tableRow, "DisplayName");
@@ -139,11 +137,11 @@
             return result;
         }
 
-        public static List<ApiScopeDetails> ToApiScopeDetails(this DataTableRows tableRows){
-            List<ApiScopeDetails> result = new List<ApiScopeDetails>();
+        public static List<ApiScopeResponse> ToApiScopeResponses(this DataTableRows tableRows){
+            List<ApiScopeResponse> result = new List<ApiScopeResponse>();
 
             foreach (DataTableRow tableRow in tableRows){
-                ApiScopeDetails scopeDetails = new ApiScopeDetails();
+                ApiScopeResponse scopeDetails = new ApiScopeResponse();
                 scopeDetails.Description = ReqnrollTableHelper.GetStringRowValue(tableRow, "Description");
                 scopeDetails.Name = ReqnrollTableHelper.GetStringRowValue(tableRow, "Name");
                 scopeDetails.DisplayName = ReqnrollTableHelper.GetStringRowValue(tableRow, "DisplayName");
@@ -153,17 +151,17 @@
             return result;
         }
 
-        public static List<ClientDetails> ToClientDetails(this DataTableRows tableRows){
-            List<ClientDetails> result = new List<ClientDetails>();
+        public static List<ClientResponse> ToClientResponses(this DataTableRows tableRows){
+            List<ClientResponse> result = new List<ClientResponse>();
 
             foreach (DataTableRow tableRow in tableRows){
-                ClientDetails clientDetails = new ClientDetails();
+                ClientResponse clientDetails = new ClientResponse();
 
                 String scopes = ReqnrollTableHelper.GetStringRowValue(tableRow, "Scopes");
                 String grantTypes = ReqnrollTableHelper.GetStringRowValue(tableRow, "GrantTypes");
 
                 clientDetails.ClientId = ReqnrollTableHelper.GetStringRowValue(tableRow, "ClientId");
-                clientDetails.ClientDescription = ReqnrollTableHelper.GetStringRowValue(tableRow, "Description");
+                clientDetails.Description = ReqnrollTableHelper.GetStringRowValue(tableRow, "Description");
                 clientDetails.ClientName = ReqnrollTableHelper.GetStringRowValue(tableRow, "Name");
                 if (string.IsNullOrEmpty(scopes) == false){
                     clientDetails.AllowedScopes = scopes.SplitString();
@@ -194,13 +192,13 @@
             return result;
         }
 
-        public static List<IdentityResourceDetails> ToIdentityResourceDetails(this DataTableRows tableRows){
-            List<IdentityResourceDetails> result = new List<IdentityResourceDetails>();
+        public static List<IdentityResourceResponse> ToIdentityResourceResponses(this DataTableRows tableRows){
+            List<IdentityResourceResponse> result = new List<IdentityResourceResponse>();
 
             foreach (DataTableRow tableRow in tableRows){
                 String userClaims = ReqnrollTableHelper.GetStringRowValue(tableRow, "UserClaims");
 
-                IdentityResourceDetails identityResourceDetails = new IdentityResourceDetails();
+                IdentityResourceResponse identityResourceDetails = new IdentityResourceResponse();
 
                 identityResourceDetails.Description = ReqnrollTableHelper.GetStringRowValue(tableRow, "Description");
                 identityResourceDetails.Name = ReqnrollTableHelper.GetStringRowValue(tableRow, "Name");
@@ -221,7 +219,7 @@
 
             foreach (DataTableRow tableRow in tableRows){
                 CreateRoleRequest request = new CreateRoleRequest{
-                                                                     RoleName = ReqnrollTableHelper.GetStringRowValue(tableRow, "Role Name")
+                                                                     Name = ReqnrollTableHelper.GetStringRowValue(tableRow, "Role Name")
                                                                  };
                 requests.Add(request);
             }
@@ -229,12 +227,12 @@
             return requests;
         }
 
-        public static List<RoleDetails> ToRoleDetails(this DataTableRows tableRows){
-            List<RoleDetails> requests = new List<RoleDetails>();
+        public static List<RoleResponse> ToRoleResponses(this DataTableRows tableRows){
+            List<RoleResponse> requests = new List<RoleResponse>();
 
             foreach (DataTableRow tableRow in tableRows){
-                RoleDetails roleDetails = new RoleDetails(){
-                                                               RoleName = ReqnrollTableHelper.GetStringRowValue(tableRow, "Role Name")
+                RoleResponse roleDetails = new RoleResponse(){
+                                                               Name = ReqnrollTableHelper.GetStringRowValue(tableRow, "Role Name")
                                                            };
                 requests.Add(roleDetails);
             }
@@ -277,12 +275,12 @@
             return requests;
         }
 
-        public static List<UserDetails> ToUserDetails(this DataTableRows tableRows){
+        public static List<UserResponse> ToUserResponses(this DataTableRows tableRows){
 
-            List<UserDetails> userDetailsList = new List<UserDetails>();
+            List<UserResponse> userDetailsList = new List<UserResponse>();
 
             foreach (DataTableRow tableRow in tableRows){
-                UserDetails userDetails = new UserDetails();
+                UserResponse userDetails = new UserResponse();
 
                 userDetails.EmailAddress = ReqnrollTableHelper.GetStringRowValue(tableRow, "Email Address");
                 userDetails.PhoneNumber =
@@ -308,7 +306,7 @@
                 }
 
                 DateTime dateTime = ReqnrollTableHelper.GetDateForDateString(ReqnrollTableHelper.GetStringRowValue(tableRow, "RegistrationDate"), DateTime.Now);
-                userDetails.RegistrationDateTime = dateTime;
+                //userDetails.RegistrationDateTime = dateTime;
                 userDetailsList.Add(userDetails);
             }
             return userDetailsList;

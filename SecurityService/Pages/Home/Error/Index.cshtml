@@ -1,0 +1,47 @@
+@page
+@model SecurityService.Pages.Home.Error.IndexModel
+@{
+    ViewData["Title"] = "Error";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Error</h1>
+    </div>
+
+    <div class="alert alert--error">
+        <strong>@Model.Error</strong>
+        @if (string.IsNullOrWhiteSpace(Model.ErrorDescription) == false)
+        {
+            <div class="alert__content">@Model.ErrorDescription</div>
+        }
+    </div>
+
+    @if (Model.ResponseStatusCode.HasValue || string.IsNullOrWhiteSpace(Model.OriginalPath) == false)
+    {
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">Request details</h2>
+            </div>
+            <div class="card__body">
+                <dl class="definition-list">
+                    @if (Model.ResponseStatusCode.HasValue)
+                    {
+                        <dt>Status code</dt>
+                        <dd>@Model.ResponseStatusCode</dd>
+                    }
+                    @if (string.IsNullOrWhiteSpace(Model.OriginalPath) == false)
+                    {
+                        <dt>Original path</dt>
+                        <dd>@Model.OriginalPath</dd>
+                    }
+                    @if (string.IsNullOrWhiteSpace(Model.OriginalQueryString) == false)
+                    {
+                        <dt>Original query</dt>
+                        <dd>@Model.OriginalQueryString</dd>
+                    }
+                </dl>
+            </div>
+        </div>
+    }
+</div>

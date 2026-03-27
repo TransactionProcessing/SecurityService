@@ -8,8 +8,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using DataTransferObjects;
-    using DataTransferObjects.Requests;
-    using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Reqnroll;
@@ -71,7 +69,7 @@
         [When(@"I get the clients (.*) clients details are returned as follows")]
         public async Task WhenIGetTheClientsClientsDetailsAreReturnedAsFollows(Int32 numberOfClients,
                                                                                DataTable table){
-            List<ClientDetails> expectedClientDetails = table.Rows.ToClientDetails();
+            List<ClientResponse> expectedClientDetails = table.Rows.ToClientResponses();
             await this.SecurityServiceSteps.WhenIGetTheClientsClientsDetailsAreReturnedAsFollows(expectedClientDetails, CancellationToken.None);
         }
 
@@ -83,7 +81,7 @@
         [When(@"I get the client with client id '(.*)' the client details are returned as follows")]
         public async Task WhenIGetTheClientWithClientIdTheClientDetailsAreReturnedAsFollows(String clientId,
                                                                                             DataTable table){
-            List<ClientDetails> expectedClientDetails = table.Rows.ToClientDetails();
+            List<ClientResponse> expectedClientDetails = table.Rows.ToClientResponses();
             await this.SecurityServiceSteps.WhenIGetTheClientWithClientIdTheClientDetailsAreReturnedAsFollows(expectedClientDetails, clientId, CancellationToken.None);
         }
         #endregion

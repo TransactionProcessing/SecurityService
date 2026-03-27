@@ -1,92 +1,76 @@
-﻿using SecurityService.DataTransferObjects.Requests;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using OpenIddict.Abstractions;
+using SecurityService.BusinessLogic.Requests;
+using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
+using SecurityService.Models;
 using SimpleResults;
+using ResourceType = SecurityService.Database.Entities.ResourceType;
 
-namespace SecurityService.BusinessLogic.RequestHandlers{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Duende.IdentityServer.EntityFramework.DbContexts;
-    using Duende.IdentityServer.EntityFramework.Mappers;
-    using Duende.IdentityServer.Models;
-    using MediatR;
-    using Microsoft.EntityFrameworkCore;
-    using Requests;
-    using Shared.Exceptions;
+namespace SecurityService.BusinessLogic.RequestHandlers;
 
-    public class ApiScopeRequestHandler : IRequestHandler<SecurityServiceCommands.CreateApiScopeCommand, Result>,
-                                          IRequestHandler<SecurityServiceQueries.GetApiScopeQuery, Result<ApiScope>>,
-                                          IRequestHandler<SecurityServiceQueries.GetApiScopesQuery, Result<List<ApiScope>>>{
-        #region Fields
+public sealed class ApiScopeRequestHandler :
+    IRequestHandler<SecurityServiceCommands.CreateApiScopeCommand, Result>,
+    IRequestHandler<SecurityServiceQueries.GetApiScopeQuery, Result<ApiScopeDetails>>,
+    IRequestHandler<SecurityServiceQueries.GetApiScopesQuery, Result<List<ApiScopeDetails>>>
+{
+    private readonly SecurityServiceDbContext _dbContext;
+    private readonly IOpenIddictScopeManager _scopeManager;
 
-        private readonly ConfigurationDbContext ConfigurationDbContext;
+    public ApiScopeRequestHandler(SecurityServiceDbContext dbContext, IOpenIddictScopeManager scopeManager)
+    {
+        this._dbContext = dbContext;
+        this._scopeManager = scopeManager;
+    }
 
-        #endregion
-
-        #region Constructors
-
-        public ApiScopeRequestHandler(ConfigurationDbContext configurationDbContext){
-            this.ConfigurationDbContext = configurationDbContext;
+    public async Task<Result> Handle(SecurityServiceCommands.CreateApiScopeCommand command, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(command.Name))
+        {
+            return Result.Invalid("Scope name is required.");
         }
 
-        #endregion
-
-        #region Methods
-
-        public async Task<Result> Handle(SecurityServiceCommands.CreateApiScopeCommand command, CancellationToken cancellationToken){
-            ApiScope apiScope = new ApiScope
-            {
-                Description = command.Description,
-                DisplayName = command.DisplayName,
-                Name = command.Name,
-                Emphasize = false,
-                Enabled = true,
-                Required = false,
-                ShowInDiscoveryDocument = true
-            };
-
-            // Now translate the model to the entity
-            await this.ConfigurationDbContext.ApiScopes.AddAsync(apiScope.ToEntity(), cancellationToken);
-
-            // Save the changes
-            await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
+        if (await this._dbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.ApiScope, cancellationToken))
+        {
+            return Result.Conflict($"An API scope named '{command.Name}' already exists.");
         }
 
-        public async Task<Result<ApiScope>> Handle(SecurityServiceQueries.GetApiScopeQuery query, CancellationToken cancellationToken){
-            ApiScope apiScopeModel = null;
+        var descriptor = new OpenIddictScopeDescriptor
+        {
+            Name = command.Name,
+            DisplayName = command.DisplayName,
+            Description = command.Description
+        };
 
-            Duende.IdentityServer.EntityFramework.Entities.ApiScope apiScopeEntity = await this.ConfigurationDbContext.ApiScopes.Where(a => a.Name == query.Name)
-                                                                                               .Include(a => a.Properties).Include(a => a.UserClaims)
-                                                                                               .SingleOrDefaultAsync(cancellationToken:cancellationToken);
+        await this._scopeManager.CreateAsync(descriptor, cancellationToken);
 
-            if (apiScopeEntity == null){
-                return Result.NotFound($"No Api Scope found with Name [{query.Name}]");
-            }
+        var resource = new ResourceDefinition
+        {
+            Id = Guid.NewGuid(),
+            Name = command.Name,
+            DisplayName = command.DisplayName,
+            Description = command.Description,
+            Type = ResourceType.ApiScope
+        };
 
-            apiScopeModel = apiScopeEntity.ToModel();
+        this._dbContext.ResourceDefinitions.Add(resource);
+        await this._dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(apiScopeModel);
-        }
+        return Result.Success();
+    }
 
-        public async Task<Result<List<ApiScope>>> Handle(SecurityServiceQueries.GetApiScopesQuery query, CancellationToken cancellationToken){
-            List<ApiScope> apiScopeModels = new List<ApiScope>();
+    public async Task<Result<ApiScopeDetails>> Handle(SecurityServiceQueries.GetApiScopeQuery query, CancellationToken cancellationToken)
+    {
+        var resource = await this._dbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.ApiScope, cancellationToken);
+        return resource is null
+            ? Result.NotFound($"No API scope named '{query.Name}' was found.")
+            : Result.Success(new ApiScopeDetails(resource.Name, resource.DisplayName, resource.Description));
+    }
 
-            List<Duende.IdentityServer.EntityFramework.Entities.ApiScope> apiScopeEntities = await this.ConfigurationDbContext.ApiScopes.Include(a => a.Properties)
-                                                                                                       .Include(a => a.UserClaims)
-                                                                                                       .ToListAsync(cancellationToken:cancellationToken);
-
-            if (apiScopeEntities.Any()){
-                foreach (Duende.IdentityServer.EntityFramework.Entities.ApiScope apiScopeEntity in apiScopeEntities){
-                    apiScopeModels.Add(apiScopeEntity.ToModel());
-                }
-            }
-
-            return Result.Success(apiScopeModels);
-        }
-
-        #endregion
+    public async Task<Result<List<ApiScopeDetails>>> Handle(SecurityServiceQueries.GetApiScopesQuery query, CancellationToken cancellationToken)
+    {
+        var scopes = await this._dbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.ApiScope).OrderBy(definition => definition.Name).Select(definition => new ApiScopeDetails(definition.Name, definition.DisplayName, definition.Description)).ToArrayAsync(cancellationToken);
+        return Result.Success(scopes.ToList());
     }
 }

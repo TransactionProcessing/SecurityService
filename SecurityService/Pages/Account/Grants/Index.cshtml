@@ -1,0 +1,57 @@
+@page
+@model SecurityService.Pages.Account.Grants.IndexModel
+@{
+    ViewData["Title"] = "Grants";
+}
+
+<div class="hero">
+    <h1 class="hero__title">Client application permissions</h1>
+    <p class="hero__subtitle">Review the applications you have granted access to and revoke them when needed.</p>
+</div>
+
+@if (string.IsNullOrWhiteSpace(Model.StatusMessage) == false)
+{
+    <div class="alert alert--error">
+        <strong>Unable to revoke grant</strong>
+        <div class="alert__content">@Model.StatusMessage</div>
+    </div>
+}
+
+@if (Model.Grants.Count == 0)
+{
+    <div class="alert alert--info">
+        <strong>No active grants</strong>
+        <div class="alert__content">You have not given access to any applications.</div>
+    </div>
+}
+else
+{
+    <div class="grant-list">
+        @foreach (var grant in Model.Grants)
+        {
+            <div class="card">
+                <div class="card__body">
+                    <div class="grant-list__row">
+                        <div>
+                            <h2 class="card__title">@grant.DisplayName</h2>
+                            <p class="card__subtitle">@grant.ClientId</p>
+                        </div>
+
+                        <form method="post" asp-page-handler="Revoke">
+                            <input type="hidden" name="authorizationId" value="@grant.AuthorizationId" />
+                            <button class="btn btn-danger" type="submit">Revoke access</button>
+                        </form>
+                    </div>
+
+                    <dl class="definition-list section-spacer">
+                        <dt>Created</dt>
+                        <dd>@(grant.CreatedAt.HasValue ? grant.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm") : "Unknown")</dd>
+
+                        <dt>Scopes</dt>
+                        <dd>@string.Join(", ", grant.Scopes)</dd>
+                    </dl>
+                </div>
+            </div>
+        }
+    </div>
+}

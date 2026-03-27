@@ -1,102 +1,96 @@
-﻿using Duende.IdentityModel;
-using SecurityService.DataTransferObjects.Requests;
+using System.Security.Cryptography;
+using System.Text;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using OpenIddict.Abstractions;
+using SecurityService.BusinessLogic.Requests;
+using SecurityService.Database;
+using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
+using SecurityService.Models;
 using SimpleResults;
+using ResourceType = SecurityService.Database.Entities.ResourceType;
 
-namespace SecurityService.BusinessLogic.RequestHandlers{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Duende.IdentityServer.EntityFramework.DbContexts;
-    using Duende.IdentityServer.EntityFramework.Mappers;
-    using Duende.IdentityServer.Models;
-    using MediatR;
-    using Microsoft.EntityFrameworkCore;
-    using Requests;
-    using Shared.Exceptions;
+namespace SecurityService.BusinessLogic.RequestHandlers;
 
-    public class ApiResourceRequestHandler : IRequestHandler<SecurityServiceCommands.CreateApiResourceCommand, Result>,
-                                             IRequestHandler<SecurityServiceQueries.GetApiResourceQuery, Result<ApiResource>>,
-                                             IRequestHandler<SecurityServiceQueries.GetApiResourcesQuery, Result<List<ApiResource>>>{
-        #region Fields
+public sealed class ApiResourceRequestHandler :
+    IRequestHandler<SecurityServiceCommands.CreateApiResourceCommand, Result>,
+    IRequestHandler<SecurityServiceQueries.GetApiResourceQuery, Result<ApiResourceDetails>>,
+    IRequestHandler<SecurityServiceQueries.GetApiResourcesQuery, Result<List<ApiResourceDetails>>>
+{
+    private readonly SecurityServiceDbContext _dbContext;
+    private readonly IOpenIddictScopeManager _scopeManager;
 
-        private readonly ConfigurationDbContext ConfigurationDbContext;
+    public ApiResourceRequestHandler(SecurityServiceDbContext dbContext, IOpenIddictScopeManager scopeManager)
+    {
+        this._dbContext = dbContext;
+        this._scopeManager = scopeManager;
+    }
 
-        #endregion
-
-        #region Constructors
-
-        public ApiResourceRequestHandler(ConfigurationDbContext configurationDbContext){
-            this.ConfigurationDbContext = configurationDbContext;
+    public async Task<Result> Handle(SecurityServiceCommands.CreateApiResourceCommand command, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(command.Name))
+        {
+            return Result.Invalid("API resource name is required.");
         }
 
-        #endregion
+        if (await this._dbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.ApiResource, cancellationToken))
+        {
+            return Result.Conflict($"An API resource named '{command.Name}' already exists.");
+        }
 
-        #region Methods
-
-        public async Task<Result> Handle(SecurityServiceCommands.CreateApiResourceCommand command, CancellationToken cancellationToken) {
-            ApiResource apiResource = new ApiResource
+        foreach (var scopeName in command.Scopes.Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            var scope = await this._scopeManager.FindByNameAsync(scopeName, cancellationToken);
+            if (scope is null)
             {
-                ApiSecrets = new List<Secret>{
-                                                                                          new Secret(command.Secret.ToSha256())
-                                                                                      },
-                Description = command.Description,
-                DisplayName = command.DisplayName,
-                Name = command.Name,
-                UserClaims = command.UserClaims,
-            };
-
-            if (command.Scopes != null && command.Scopes.Any())
-            {
-                foreach (String scope in command.Scopes)
+                this._scopeManager.CreateAsync(new OpenIddictScopeDescriptor
                 {
-                    apiResource.Scopes.Add(scope);
-                }
+                    Name = scopeName,
+                    DisplayName = scopeName,
+                    Description = $"Auto-created scope for API resource '{command.Name}'."
+                }, cancellationToken).GetAwaiter().GetResult();
+                scope = await this._scopeManager.FindByNameAsync(scopeName, cancellationToken);
             }
 
-            // Now translate the model to the entity
-            await this.ConfigurationDbContext.ApiResources.AddAsync(apiResource.ToEntity(), cancellationToken);
-
-            // Save the changes
-            await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
-        }
-
-        public async Task<Result<ApiResource>> Handle(SecurityServiceQueries.GetApiResourceQuery query, CancellationToken cancellationToken){
-            ApiResource apiResourceModel = null;
-
-            Duende.IdentityServer.EntityFramework.Entities.ApiResource apiResourceEntity = await this.ConfigurationDbContext.ApiResources
-                                                                                                     .Where(a => a.Name == query.Name).Include(a => a.Scopes)
-                                                                                                     .Include(a => a.UserClaims)
-                                                                                                     .SingleOrDefaultAsync(cancellationToken:cancellationToken);
-
-            if (apiResourceEntity == null){
-                return Result.NotFound($"No Api Resource found with Name [{query.Name}]");
+            var descriptor = new OpenIddictScopeDescriptor();
+            await this._scopeManager.PopulateAsync(descriptor, scope, cancellationToken);
+            if (descriptor.Resources.Contains(command.Name, StringComparer.OrdinalIgnoreCase) == false)
+            {
+                descriptor.Resources.Add(command.Name);
+                await this._scopeManager.UpdateAsync(scope, descriptor, cancellationToken);
             }
-
-            apiResourceModel = apiResourceEntity.ToModel();
-
-            return Result.Success(apiResourceModel);
         }
 
-        public async Task<Result<List<ApiResource>>> Handle(SecurityServiceQueries.GetApiResourcesQuery request, CancellationToken cancellationToken){
-            List<ApiResource> apiResourceModels = new List<ApiResource>();
+        var resource = new ResourceDefinition
+        {
+            Id = Guid.NewGuid(),
+            Name = command.Name,
+            DisplayName = command.DisplayName,
+            Description = command.Description,
+            Type = ResourceType.ApiResource,
+            SecretHash = string.IsNullOrWhiteSpace(command.Secret) ? null : Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(command.Secret))),
+            ClaimsJson = JsonListSerializer.Serialize(command.UserClaims),
+            ScopesJson = JsonListSerializer.Serialize(command.Scopes)
+        };
 
-            List<Duende.IdentityServer.EntityFramework.Entities.ApiResource> apiResourceEntities = await this.ConfigurationDbContext.ApiResources.Include(a => a.Scopes)
-                                                                                                             .Include(a => a.UserClaims)
-                                                                                                             .ToListAsync(cancellationToken:cancellationToken);
+        this._dbContext.ResourceDefinitions.Add(resource);
+        await this._dbContext.SaveChangesAsync(cancellationToken);
 
-            if (apiResourceEntities.Any()){
-                foreach (Duende.IdentityServer.EntityFramework.Entities.ApiResource apiResourceEntity in apiResourceEntities){
-                    apiResourceModels.Add(apiResourceEntity.ToModel());
-                }
-            }
+        return Result.Success();
+    }
 
-            return Result.Success(apiResourceModels);
-        }
+    public async Task<Result<ApiResourceDetails>> Handle(SecurityServiceQueries.GetApiResourceQuery query, CancellationToken cancellationToken)
+    {
+        var resource = await this._dbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.ApiResource, cancellationToken);
+        return resource is null
+            ? Result.NotFound($"No API resource named '{query.Name}' was found.")
+            : Result.Success(new ApiResourceDetails(resource.Name, resource.DisplayName, resource.Description, JsonListSerializer.Deserialize(resource.ScopesJson), JsonListSerializer.Deserialize(resource.ClaimsJson)));
+    }
 
-        #endregion
+    public async Task<Result<List<ApiResourceDetails>>> Handle(SecurityServiceQueries.GetApiResourcesQuery query, CancellationToken cancellationToken)
+    {
+        var resources = await this._dbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.ApiResource).OrderBy(definition => definition.Name).ToListAsync(cancellationToken);
+        return Result.Success(resources.Select(resource => new ApiResourceDetails(resource.Name, resource.DisplayName, resource.Description, JsonListSerializer.Deserialize(resource.ScopesJson), JsonListSerializer.Deserialize(resource.ClaimsJson))).ToList());
     }
 }

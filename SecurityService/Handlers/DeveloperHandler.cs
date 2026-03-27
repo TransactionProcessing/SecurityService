@@ -1,40 +1,27 @@
-using Microsoft.Extensions.Hosting;
-using SecurityService.BusinessLogic;
-using System.Threading;
-using System.Threading.Tasks;
 using MessagingService.Client;
 using MessagingService.DataTransferObjects;
-using Microsoft.AspNetCore.Http;
+using SecurityService.BusinessLogic;
+using SecurityService.Services;
 
-namespace SecurityService.Handlers
+namespace SecurityService.Handlers;
+
+public static class DeveloperHandler
 {
-    using Bootstrapper;
-    using Microsoft.AspNetCore.Mvc;
-
-    public static class DeveloperHandler
-    {
-        public static Task<IResult> GetLastEmailMessage(IMessagingServiceClient messagingServiceClient,
-                                                        CancellationToken cancellationToken)
+    public static IResult GetLastEmail(IMessagingServiceClient messagingServiceClient) {
+        if (messagingServiceClient.GetType() == typeof(TestMessagingServiceClient))
         {
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest")
-                && messagingServiceClient.GetType() == typeof(TestMessagingServiceClient))
-            {
-                SendEmailRequest lastEmailRequest = ((TestMessagingServiceClient)messagingServiceClient).LastEmailRequest;
-                return Task.FromResult(Results.Ok(lastEmailRequest) as IResult);
-            }
+            SendEmailRequest lastEmailRequest = ((TestMessagingServiceClient)messagingServiceClient).LastEmailRequest;
+            return Results.Ok(lastEmailRequest);
+        }
+        return Results.NotFound();
+    }
 
-            return Task.FromResult(Results.NotFound() as IResult);
+    public static IResult GetLastSms(IMessagingServiceClient messagingServiceClient) {
+        if (messagingServiceClient.GetType() == typeof(TestMessagingServiceClient)) {
+            SendSMSRequest lastSMSRequest = ((TestMessagingServiceClient)messagingServiceClient).LastSMSRequest;
+            return Results.Ok(lastSMSRequest);
         }
 
-        public static Task<IResult> GetLastSMSMessage(IMessagingServiceClient messagingServiceClient,
-                                                      CancellationToken cancellationToken)
-        {
-            if (Startup.WebHostEnvironment.IsEnvironment("IntegrationTest") && messagingServiceClient.GetType() == typeof(TestMessagingServiceClient)) {
-                SendSMSRequest lastSmsRequest = ((TestMessagingServiceClient)messagingServiceClient).LastSMSRequest;
-                return Task.FromResult(Results.Ok(lastSmsRequest) as IResult);
-            }
-
-            return Task.FromResult(Results.NotFound() as IResult);
-        }
+        return Results.NotFound();
     }
 }

@@ -1,0 +1,18 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="SecurityService.BusinessLogic/SecurityService.BusinessLogic.csproj" />
+    <Project Path="SecurityService.Database/SecurityService.Database.csproj" />
+    <Project Path="SecurityService.DataTransferObjects/SecurityService.DataTransferObjects.csproj" />
+    <Project Path="SecurityService.Models/SecurityService.Models.csproj" />
+    <Project Path="SecurityService.SqlServerMigrations/SecurityService.SqlServerMigrations.csproj" />
+    <Project Path="SecurityService/SecurityService.csproj" />
+    <Project Path="SecurityService.Client/SecurityService.Client.csproj" />
+  </Folder>
+  <Folder Name="/test/">
+    <Project Path="SecurityService.OpenIdConnect.IntegrationTests/SecurityService.OpenIdConnect.IntegrationTests.csproj" />
+    <Project Path="SecurityService.UnitTests/SecurityService.UnitTests.csproj" />
+    <Project Path="SecurityService.IntegrationTesting.Helpers/SecurityService.IntegrationTesting.Helpers.csproj" />
+    <Project Path="SecurityService.IntegrationTests/SecurityService.IntegrationTests.csproj" />
+    <Project Path="SecurityServiceTestUI/SecurityServiceTestUI.csproj" />
+  </Folder>
+</Solution>

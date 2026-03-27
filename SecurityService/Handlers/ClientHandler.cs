@@ -1,60 +1,33 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
 using SecurityService.BusinessLogic.Requests;
+using SecurityService.DataTransferObjects;
+using SecurityService.Factories;
 using Shared.Results.Web;
-using SimpleResults;
 
-namespace SecurityService.Handlers
+namespace SecurityService.Handlers;
+
+public static class ClientHandler
 {
-    using DataTransferObjects.Requests;
-    using Factories;
-    using Microsoft.AspNetCore.Http;
-
-    public static class ClientHandler
+    public static async Task<IResult> CreateClient(IMediator mediator, CreateClientRequest request, CancellationToken cancellationToken)
     {
-        public static async Task<IResult> CreateClient(IMediator mediator,
-                                                       CreateClientRequest createClientRequest,
-                                                       CancellationToken cancellationToken)
-        {
-            SecurityServiceCommands.CreateClientCommand command = new SecurityServiceCommands.CreateClientCommand(
-                createClientRequest.ClientId,
-                createClientRequest.Secret,
-                createClientRequest.ClientName,
-                createClientRequest.ClientDescription,
-                createClientRequest.AllowedScopes,
-                createClientRequest.AllowedGrantTypes,
-                createClientRequest.ClientUri,
-                createClientRequest.ClientRedirectUris,
-                createClientRequest.ClientPostLogoutRedirectUris,
-                createClientRequest.RequireConsent,
-                createClientRequest.AllowOfflineAccess);
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            request.ClientId,
+            request.Secret,
+            request.ClientName,
+            request.ClientDescription,
+            request.AllowedScopes,
+            request.AllowedGrantTypes,
+            request.ClientUri,
+            request.ClientRedirectUris,
+            request.ClientPostLogoutRedirectUris,
+            request.RequireConsent,
+            request.AllowOfflineAccess), cancellationToken);
 
-            Result result = await mediator.Send(command, cancellationToken);
-
-            return ResponseFactory.FromResult(result);
-        }
-
-        public static async Task<IResult> GetClient(IMediator mediator,
-                                                    string clientId,
-                                                    CancellationToken cancellationToken)
-        {
-            SecurityServiceQueries.GetClientQuery query = new SecurityServiceQueries.GetClientQuery(clientId);
-
-            Result<Duende.IdentityServer.Models.Client> result = await mediator.Send(query, cancellationToken);
-
-            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
-        }
-
-        public static async Task<IResult> GetClients(IMediator mediator,
-                                                     CancellationToken cancellationToken)
-        {
-            SecurityServiceQueries.GetClientsQuery query = new SecurityServiceQueries.GetClientsQuery();
-
-            Result<List<Duende.IdentityServer.Models.Client>> result = await mediator.Send(query, cancellationToken);
-
-            return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
-        }
+        return ResponseFactory.FromResult(result);
     }
+
+    public static async Task<IResult> GetClient(IMediator mediator, string clientId, CancellationToken cancellationToken)
+        => ResponseFactory.FromResult(await mediator.Send(new SecurityServiceQueries.GetClientQuery(clientId), cancellationToken), ModelFactory.ConvertFrom);
+    public static async Task<IResult> GetClients(IMediator mediator, CancellationToken cancellationToken)
+        => ResponseFactory.FromResult(await mediator.Send(new SecurityServiceQueries.GetClientsQuery(), cancellationToken), ModelFactory.ConvertFrom);
 }

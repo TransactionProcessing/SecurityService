@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" PrivateAssets="All" />
+    <ProjectReference Include="..\SecurityService.Models\SecurityService.Models.csproj" />
   </ItemGroup>
 
   <Target Name="IncludeP2PAssets">

@@ -1,4 +1,6 @@
 ﻿using System;
+using SecurityService.DataTransferObjects;
+using SecurityService.Models;
 
 namespace SecurityService.IntegrationTests.ApiScopes
 {
@@ -7,8 +9,6 @@ namespace SecurityService.IntegrationTests.ApiScopes
     using System.Threading;
     using System.Threading.Tasks;
     using Clients;
-    using DataTransferObjects.Requests;
-    using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Reqnroll;
@@ -64,7 +64,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
         [When(@"I get the api scope with name '(.*)' the api scope details are returned as follows")]
         public async Task WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(String apiScopeName, DataTable table)
         {
-            List<ApiScopeDetails> expectedDetails = table.Rows.ToApiScopeDetails();
+            List<ApiScopeResponse> expectedDetails = table.Rows.ToApiScopeResponses();
             await this.SecurityServiceSteps.WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(expectedDetails,apiScopeName, CancellationToken.None);
             
         }
@@ -77,7 +77,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
         [When(@"I get the api scopes (.*) api scope details are returned as follows")]
         public async Task WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(Int32 numberOfApiScopes, DataTable table)
         {
-            List<ApiScopeDetails> expectedDetails = table.Rows.ToApiScopeDetails();
+            List<ApiScopeResponse> expectedDetails = table.Rows.ToApiScopeResponses();
             await this.SecurityServiceSteps.WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(expectedDetails, CancellationToken.None);
         }
     }

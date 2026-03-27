@@ -1,0 +1,30 @@
+@{
+    var isAuthenticated = Context.User?.Identity?.IsAuthenticated == true;
+    var displayName = Context.User?.Identity?.Name;
+}
+
+<header class="topbar">
+    <div class="topbar__content">
+        <a href="~/" class="brand">
+            <span class="brand__mark">S</span>
+            <span>
+                <span class="brand__title">Security</span>
+                <span class="brand__subtitle">Service</span>
+            </span>
+        </a>
+
+        @if (isAuthenticated)
+        {
+            <nav class="topbar__nav">
+                <a class="topbar__link" href="/Account/Grants">Grants</a>
+                <a class="topbar__link" href="/Account/ChangePassword">Password</a>
+                <a class="topbar__link" href="/Diagnostics">Diagnostics</a>
+                <a class="topbar__link topbar__link--accent" href="/Account/Logout">Logout</a>
+                @if (string.IsNullOrWhiteSpace(displayName) == false)
+                {
+                    <span class="topbar__user">@displayName</span>
+                }
+            </nav>
+        }
+    </div>
+</header>

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using SecurityService.Models;
 using SimpleResults;
 
 namespace SecurityService.OpenIdConnect.IntegrationTests.Common
@@ -9,8 +10,6 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
     using System.Threading;
     using System.Threading.Tasks;
     using DataTransferObjects;
-    using DataTransferObjects.Requests;
-    using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Reqnroll;
@@ -35,8 +34,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         public async Task GivenICreateTheFollowingRoles(DataTable table)
         {
             List<CreateRoleRequest> requests = table.Rows.ToCreateRoleRequests();
-            List<(String, Guid)> responses = await this.SecurityServiceSteps.GivenICreateTheFollowingRoles(requests, CancellationToken.None);
-            foreach ((String, Guid) response in responses)
+            List<(String, String)> responses = await this.SecurityServiceSteps.GivenICreateTheFollowingRoles(requests, CancellationToken.None);
+            foreach ((String, String) response in responses)
             {
                 this.TestingContext.Roles.Add(response.Item1, response.Item2);
             }
@@ -77,9 +76,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         private async Task CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                              CancellationToken cancellationToken)
         {
-            Result<List<IdentityResourceDetails>> identityResourceListResult = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(cancellationToken);
+            Result<List<IdentityResourceResponse>> identityResourceListResult = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(cancellationToken);
             identityResourceListResult.IsSuccess.ShouldBeTrue();
-            List<IdentityResourceDetails> identityResourceList = identityResourceListResult.Data;
+            List<IdentityResourceResponse> identityResourceList = identityResourceListResult.Data;
             if (identityResourceList == null || identityResourceList.Any() == false) {
                 Result result = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateIdentityResource(createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
                 result.IsSuccess.ShouldBeTrue();
@@ -121,9 +120,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         {
             List<CreateUserRequest> requests = table.Rows.ToCreateUserRequests();
 
-            List<(String, Guid)> results = await this.SecurityServiceSteps.GivenICreateTheFollowingUsers(requests, CancellationToken.None);
+            List<(String, String)> results = await this.SecurityServiceSteps.GivenICreateTheFollowingUsers(requests, CancellationToken.None);
 
-            foreach ((String, Guid) response in results)
+            foreach ((String, String) response in results)
             {
                 this.TestingContext.Users.Add(response.Item1, response.Item2);
             }

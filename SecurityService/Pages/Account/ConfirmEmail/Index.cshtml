@@ -1,0 +1,20 @@
+@page
+@model SecurityService.Pages.Account.ConfirmEmail.IndexModel
+@{
+    ViewData["Title"] = "Confirm email";
+}
+
+<div class="centered-card">
+    <div class="card">
+        <div class="card__body">
+            <div class="hero">
+                <h1 class="hero__title">Confirm email</h1>
+                <p class="hero__subtitle" id="userMessage">@Model.View.UserMessage</p>
+            </div>
+
+            <div class="actions">
+                <a class="btn btn-primary" href="/Account/Login">Return to login</a>
+            </div>
+        </div>
+    </div>
+</div>

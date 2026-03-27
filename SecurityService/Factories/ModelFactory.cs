@@ -1,142 +1,175 @@
-﻿namespace SecurityService.Factories
+﻿using SecurityService.DataTransferObjects;
+using SecurityService.Models;
+
+namespace SecurityService.Factories
 {
     using System.Collections.Generic;
     using System.Linq;
-    using DataTransferObjects.Responses;
-    using Duende.IdentityServer.Models;
 
     public static class ModelFactory {
         #region Methods
 
-        public static UserDetails ConvertFrom(Models.UserDetails model) {
+       public static UserResponse ConvertFrom(UserDetails model) {
             if (model == null) {
                 return null;
             }
 
-            return new UserDetails {
-                UserName = model.Username,
+            return new UserResponse
+            {
+                UserName = model.UserName,
                 PhoneNumber = model.PhoneNumber,
                 Roles = model.Roles,
                 Claims = model.Claims,
                 UserId = model.UserId,
-                EmailAddress = model.Email,
-                RegistrationDateTime = model.RegistrationDateTime
+                EmailAddress = model.EmailAddress,
+                //RegistrationDateTime = model.RegistrationDateTime
+                FamilyName = model.FamilyName,
+                GivenName = model.GivenName,
+                MiddleName = model.MiddleName
             };
         }
 
-        public static RoleDetails ConvertFrom(Models.RoleDetails model) {
+        public static RoleResponse ConvertFrom(RoleDetails model) {
             if (model == null) {
                 return null;
             }
 
-            return new RoleDetails { RoleId = model.RoleId, RoleName = model.RoleName };
+            return new RoleResponse { RoleId = model.RoleId, Name = model.Name };
         }
 
-        public static List<UserDetails> ConvertFrom(List<Models.UserDetails> model) {
+        public static List<UserResponse> ConvertFrom(List<UserDetails> model) {
             if (model == null || model.Any() == false) {
-                return new List<UserDetails>();
+                return new List<UserResponse>();
             }
 
-            List<UserDetails> userDetailsList = new List<UserDetails>();
+            List<UserResponse> userDetailsList = new List<UserResponse>();
 
-            foreach (Models.UserDetails userDetails in model) {
+            foreach (UserDetails userDetails in model) {
                 userDetailsList.Add(ConvertFrom(userDetails));
             }
 
             return userDetailsList;
         }
 
-        public static List<RoleDetails> ConvertFrom(List<Models.RoleDetails> model) {
+        public static List<RoleResponse> ConvertFrom(List<RoleDetails> model) {
             if (model == null || model.Any() == false) {
-                return new List<RoleDetails>();
+                return new List<RoleResponse>();
             }
 
-            List<RoleDetails> roleDetailsList = new List<RoleDetails>();
+            List<RoleResponse> roleDetailsList = new List<RoleResponse>();
 
-            foreach (Models.RoleDetails roleDetails in model) {
+            foreach (RoleDetails roleDetails in model) {
                 roleDetailsList.Add(ConvertFrom(roleDetails));
             }
 
             return roleDetailsList;
         }
 
-        public static ClientDetails ConvertFrom(Client model) {
+
+       public static ClientResponse ConvertFrom(ClientDetails model) {
             if (model == null) {
                 return null;
             }
 
-            return new ClientDetails {
+            return new ClientResponse
+            {
                 ClientId = model.ClientId,
                 AllowedScopes = model.AllowedScopes.ToList(),
                 AllowedGrantTypes = model.AllowedGrantTypes.ToList(),
                 ClientName = model.ClientName,
-                ClientDescription = model.Description,
-                Enabled = model.Enabled,
-                ClientPostLogoutRedirectUris = model.PostLogoutRedirectUris.ToList(),
+                Description = model.Description,
+                PostLogoutRedirectUris = model.PostLogoutRedirectUris.ToList(),
                 RequireConsent = model.RequireConsent,
-                ClientRedirectUris = model.RedirectUris.ToList(),
-                AllowOfflineAccess = model.AllowOfflineAccess
+                RedirectUris = model.RedirectUris.ToList(),
+                AllowOfflineAccess = model.AllowOfflineAccess,
+                ClientType = model.ClientType,
+                ClientUri = model.ClientUri
             };
         }
 
-        public static List<ClientDetails> ConvertFrom(List<Client> model) {
+        public static List<ClientResponse> ConvertFrom(List<ClientDetails> model) {
             if (model == null || model.Any() == false) {
-                return new List<ClientDetails>();
+                return new List<ClientResponse>();
             }
 
-            List<ClientDetails> clientDetailsList = new List<ClientDetails>();
+            List<ClientResponse> clientDetailsList = new List<ClientResponse>();
 
-            foreach (Client client in model) {
+            foreach (ClientDetails client in model) {
                 clientDetailsList.Add(ConvertFrom(client));
             }
 
             return clientDetailsList;
         }
 
-        public static ApiResourceDetails ConvertFrom(ApiResource model) {
+        public static ApiResourceResponse ConvertFrom(ApiResourceDetails model) {
             if (model == null) {
                 return null;
             }
 
-            return new ApiResourceDetails {
+            return new ApiResourceResponse
+            {
                 Description = model.Description,
                 Scopes = model.Scopes.ToList(),
                 Name = model.Name,
                 DisplayName = model.DisplayName,
                 UserClaims = model.UserClaims.ToList(),
-                Enabled = model.Enabled
             };
         }
 
-        public static ApiScopeDetails ConvertFrom(ApiScope model) {
-            if (model == null) {
+        public static List<ApiResourceResponse> ConvertFrom(List<ApiResourceDetails> model)
+        {
+            if (model == null || model.Any() == false)
+            {
+                return new List<ApiResourceResponse>();
+            }
+
+            List<ApiResourceResponse> apiResourceResponseList = new List<ApiResourceResponse>();
+
+            foreach (ApiResourceDetails apiResource in model)
+            {
+                apiResourceResponseList.Add(ConvertFrom(apiResource));
+            }
+
+            return apiResourceResponseList;
+        }
+
+        public static ApiScopeResponse ConvertFrom(ApiScopeDetails model)
+        {
+            if (model == null)
+            {
                 return null;
             }
 
-            return new ApiScopeDetails { Enabled = model.Enabled, DisplayName = model.DisplayName, Name = model.Name, Description = model.Description };
+            return new ApiScopeResponse { DisplayName = model.DisplayName, Name = model.Name, Description = model.Description };
         }
 
-        public static List<ApiScopeDetails> ConvertFrom(List<ApiScope> model) {
-            if (model == null || model.Any() == false) {
-                return new List<ApiScopeDetails>();
+        public static List<ApiScopeResponse> ConvertFrom(List<ApiScopeDetails> model)
+        {
+            if (model == null || model.Any() == false)
+            {
+                return new List<ApiScopeResponse>();
             }
 
-            List<ApiScopeDetails> apiScopeDetailsList = new List<ApiScopeDetails>();
+            List<ApiScopeResponse> apiScopeDetailsList = new List<ApiScopeResponse>();
 
-            foreach (ApiScope apiScope in model) {
+            foreach (ApiScopeDetails apiScope in model)
+            {
                 apiScopeDetailsList.Add(ConvertFrom(apiScope));
             }
 
             return apiScopeDetailsList;
         }
 
-        public static IdentityResourceDetails ConvertFrom(IdentityResource model) {
-            if (model == null) {
+        public static IdentityResourceResponse ConvertFrom(IdentityResourceDetails model)
+        {
+            if (model == null)
+            {
                 return null;
             }
 
-            return new IdentityResourceDetails {
-                Claims = model.UserClaims.ToList(),
+            return new IdentityResourceResponse
+            {
+                Claims = model.Claims.ToList(),
                 DisplayName = model.DisplayName,
                 Emphasize = model.Emphasize,
                 Required = model.Required,
@@ -146,28 +179,19 @@
             };
         }
 
-        public static List<ApiResourceDetails> ConvertFrom(List<ApiResource> model) {
-            if (model == null || model.Any() == false) {
-                return new List<ApiResourceDetails>();
+
+
+        public static List<IdentityResourceResponse> ConvertFrom(List<SecurityService.Models.IdentityResourceDetails> model)
+        {
+            if (model == null || model.Any() == false)
+            {
+                return new List<IdentityResourceResponse>();
             }
 
-            List<ApiResourceDetails> apiResourceDetailsList = new List<ApiResourceDetails>();
+            List<IdentityResourceResponse> identityResourceDetailsList = new List<IdentityResourceResponse>();
 
-            foreach (ApiResource apiResource in model) {
-                apiResourceDetailsList.Add(ConvertFrom(apiResource));
-            }
-
-            return apiResourceDetailsList;
-        }
-
-        public static List<IdentityResourceDetails> ConvertFrom(List<IdentityResource> model) {
-            if (model == null || model.Any() == false) {
-                return new List<IdentityResourceDetails>();
-            }
-
-            List<IdentityResourceDetails> identityResourceDetailsList = new List<IdentityResourceDetails>();
-
-            foreach (IdentityResource identityResource in model) {
+            foreach (IdentityResourceDetails identityResource in model)
+            {
                 identityResourceDetailsList.Add(ConvertFrom(identityResource));
             }
 

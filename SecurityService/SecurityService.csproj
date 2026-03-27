@@ -1,90 +1,72 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
-
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <UserSecretsId>5e9b93dd-258d-47d7-a6d3-42e86a745857</UserSecretsId>
-    <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+	  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
   </PropertyGroup>
-  
   <ItemGroup>
-	  <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
-	  <PackageReference Include="Lamar" Version="15.0.1" />
-	  <PackageReference Include="Lamar.Microsoft.DependencyInjection" Version="15.0.1" />
-	  <PackageReference Include="MediatR" Version="14.1.0" />
-	  <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.Extensions.Hosting.WindowsServices" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.3" />
-	  <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="9.0.0" />
-	  <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
-	  <PackageReference Include="AspNetCore.HealthChecks.Uris" Version="9.0.0" />
-	  <PackageReference Include="Duende.IdentityServer" Version="7.4.6" />
-	  <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.Extensions" Version="6.0.36" />
-	  <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.23.0" />
-	  <PackageReference Include="NLog.Web.AspNetCore" Version="6.1.2" />
-    <PackageReference Include="Duende.IdentityServer.AspNetIdentity" Version="7.4.6" />
-    <PackageReference Include="Duende.IdentityServer.EntityFramework" Version="7.4.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.3" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.3">
+    <Compile Remove="Pages\Account\ExternalLogin\Index.cshtml.cs" />
+    <Compile Remove="Pages\Account\Grants\Index.cshtml.cs" />
+    <Compile Remove="Pages\Account\ResendConfirmationEmail\Index.cshtml.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Remove="Pages\Account\ExternalLogin\Index.cshtml" />
+    <Content Remove="Pages\Account\Grants\Index.cshtml" />
+    <Content Remove="Pages\Account\ResendConfirmationEmail\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
+    <PackageReference Include="MediatR" Version="14.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="10.0.5" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.3" />
-	  <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.3" />
-	  <PackageReference Include="ClientProxyBase" Version="2026.3.1" />
-    <PackageReference Include="Serilog.AspNetCore" Version="10.0.0" />
-	  <PackageReference Include="Shared" Version="2026.3.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.5" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
+    <PackageReference Include="OpenIddict.AspNetCore" Version="7.3.0" />
+    <PackageReference Include="OpenIddict.EntityFrameworkCore" Version="7.3.0" />
+    <PackageReference Include="OpenIddict.Server.AspNetCore" Version="7.3.0" />
+    <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="7.3.0" />
+    <PackageReference Include="Shared" Version="2026.3.1" />
     <PackageReference Include="Shared.Results.Web" Version="2026.3.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="10.1.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="10.0.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="10.1.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.4" />
-    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="10.1.4" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.3" />
-	  <PackageReference Include="Sentry.AspNetCore" Version="6.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.0.1" />
+    <PackageReference Include="Sentry.AspNetCore" Version="6.2.0" />
+    <PackageReference Include="NLog.Web.AspNetCore" Version="6.1.2" />
   </ItemGroup>
-  
   <ItemGroup>
+    <ProjectReference Include="..\SecurityService.SqlServerMigrations\SecurityService.SqlServerMigrations.csproj" />
     <ProjectReference Include="..\SecurityService.BusinessLogic\SecurityService.BusinessLogic.csproj" />
     <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />
     <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
-    <ProjectReference Include="..\SecurityService.SqlServerMigrations\SecurityService.SqlServerMigrations.csproj" />
-    <ProjectReference Include="..\SecurityService.UserInterface\SecurityService.UserInterface.csproj" />
+    <ProjectReference Include="..\SecurityService.Models\SecurityService.Models.csproj" />
   </ItemGroup>
-  
   <ItemGroup>
-    <None Update="aspnetapp-identity-server.pfx">
+    <Content Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    </Content>
+    <Content Update="hosting.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Update="nlog.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <None Update="aspnetapp-root-cert.cer">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="aspnetapp-web-api.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="aspnetapp.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="localhost+2-key.pem">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="localhost+2.pem">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="localhost.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="server.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="server.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
-  
   <ItemGroup>
-    <Folder Include="wwwroot\" />
+    <Folder Include="Pages\Account\ExternalLogin\" />
+    <Folder Include="Pages\Account\Grants\" />
+    <Folder Include="Pages\Account\ResendConfirmationEmail\" />
   </ItemGroup>
 </Project>

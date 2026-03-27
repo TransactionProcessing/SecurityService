@@ -1,0 +1,42 @@
+@page
+@model SecurityService.Pages.Diagnostics.IndexModel
+@{
+    ViewData["Title"] = "Diagnostics";
+}
+
+<div class="hero">
+    <h1 class="hero__title">Authentication cookie diagnostics</h1>
+    <p class="hero__subtitle">Inspect the current authenticated principal and cookie properties.</p>
+</div>
+
+<div class="grid grid--split">
+    <div class="card">
+        <div class="card__header">
+            <h2 class="card__title">Claims</h2>
+        </div>
+        <div class="card__body">
+            <dl class="definition-list">
+                @foreach (var claim in Model.Claims)
+                {
+                    <dt>@claim.Type</dt>
+                    <dd>@claim.Value</dd>
+                }
+            </dl>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card__header">
+            <h2 class="card__title">Properties</h2>
+        </div>
+        <div class="card__body">
+            <dl class="definition-list">
+                @foreach (var item in Model.Properties)
+                {
+                    <dt>@item.Type</dt>
+                    <dd>@item.Value</dd>
+                }
+            </dl>
+        </div>
+    </div>
+</div>

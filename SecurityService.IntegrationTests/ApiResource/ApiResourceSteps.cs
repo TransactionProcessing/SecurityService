@@ -1,4 +1,7 @@
-﻿namespace SecurityService.IntegrationTests.ApiResource
+﻿using SecurityService.DataTransferObjects;
+using SecurityService.Models;
+
+namespace SecurityService.IntegrationTests.ApiResource
 {
     using System;
     using System.Collections.Generic;
@@ -8,8 +11,6 @@
     using System.Threading;
     using System.Threading.Tasks;
     using Clients;
-    using DataTransferObjects.Requests;
-    using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Newtonsoft.Json;
@@ -69,7 +70,7 @@
         [When(@"I get the api resources (.*) api resource details are returned as follows")]
         public async Task WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(Int32 numberOfApiResources,
                                                                                         Table table){
-            List<ApiResourceDetails> expectedDetails = table.Rows.ToApiResourceDetails();
+            List<ApiResourceResponse> expectedDetails = table.Rows.ToApiResourceResponses();
             await this.SecurityServiceSteps.WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(expectedDetails, CancellationToken.None);
         }
 
@@ -82,7 +83,7 @@
         public async Task WhenIGetTheApiResourceWithNameTheApiResourceDetailsAreReturnedAsFollows(String apiResourceName,
                                                                                                   Table table)
         {
-            List<ApiResourceDetails> expectedDetails = table.Rows.ToApiResourceDetails();
+            List<ApiResourceResponse> expectedDetails = table.Rows.ToApiResourceResponses();
             await this.SecurityServiceSteps.WhenIGetTheApiResourceWithNameTheApiResourceDetailsAreReturnedAsFollows(expectedDetails, apiResourceName, CancellationToken.None);
         }
         

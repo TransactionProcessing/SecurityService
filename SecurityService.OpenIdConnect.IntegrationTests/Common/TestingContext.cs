@@ -1,16 +1,17 @@
-﻿namespace SecurityService.IntergrationTests.Common
+﻿using SecurityService.DataTransferObjects;
+
+namespace SecurityService.IntergrationTests.Common
 {
     using System;
     using System.Collections.Generic;
-    using DataTransferObjects.Responses;
     using Shared.Logger;
 
     public class TestingContext
     {
         public DockerHelper DockerHelper { get; set; }
 
-        public Dictionary<String, Guid> Users;
-        public Dictionary<String, Guid> Roles;
+        public Dictionary<String, String> Users;
+        public Dictionary<String, String> Roles;
 
         public List<String> Clients;
 
@@ -29,8 +30,8 @@
 
         public TestingContext()
         {
-            this.Users = new Dictionary<String, Guid>();
-            this.Roles= new Dictionary<String, Guid>();
+            this.Users = new Dictionary<String, String>();
+            this.Roles= new Dictionary<String, String>();
             this.Clients=new List<String>();
             this.ApiResources=new List<String>();
             this.IdentityResources= new List<String>();
