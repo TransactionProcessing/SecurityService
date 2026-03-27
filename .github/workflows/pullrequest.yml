@@ -35,10 +35,10 @@ jobs:
         sudo update-ca-certificates
 
     - name: Restore Nuget Packages
-      run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
+      run: dotnet restore SecurityService.slnx --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: Build Code
-      run: dotnet build SecurityService.sln --configuration Release
+      run: dotnet build SecurityService.slnx --configuration Release
 
     - name: Run Unit Tests
       run: |
@@ -106,10 +106,10 @@ jobs:
         sudo update-ca-certificates
 
     - name: Restore Nuget Packages
-      run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
+      run: dotnet restore SecurityService.slnx --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: Build Code
-      run: dotnet build SecurityService.sln --configuration Release    
+      run: dotnet build SecurityService.slnx --configuration Release    
     
     - name: Build Docker Images
       run: |
