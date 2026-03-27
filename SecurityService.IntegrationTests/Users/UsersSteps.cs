@@ -9,7 +9,6 @@
     using System.Threading.Tasks;
     using Common;
     using DataTransferObjects;
-    using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using Newtonsoft.Json;
     using Reqnroll;
@@ -57,9 +56,9 @@
         public async Task GivenICreateTheFollowingUsers(DataTable table){
             List<CreateUserRequest> requests = table.Rows.ToCreateUserRequests();
 
-            List<(String, Guid)> results = await this.SecurityServiceSteps.GivenICreateTheFollowingUsers(requests, CancellationToken.None);
+            List<(String, String)> results = await this.SecurityServiceSteps.GivenICreateTheFollowingUsers(requests, CancellationToken.None);
 
-            foreach ((String, Guid) response in results){
+            foreach ((String, String) response in results){
                 this.TestingContext.Users.Add(response.Item1, response.Item2);
             }
         }
@@ -67,7 +66,7 @@
         [When(@"I get the users (.*) users details are returned as follows")]
         public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(Int32 numberOfUsers,
                                                                            DataTable table){
-            List<UserDetails> userDetailsList = table.Rows.ToUserDetails();
+            List<UserResponse> userDetailsList = table.Rows.ToUserResponses();
             await this.SecurityServiceSteps.WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(userDetailsList, CancellationToken.None);
         }
 
@@ -81,9 +80,9 @@
                                                                                         DataTable table)
         {
             // Get the user id
-            Guid userId = this.TestingContext.Users.Single(u => u.Key == userName).Value;
+            String userId = this.TestingContext.Users.Single(u => u.Key == userName).Value;
 
-            List<UserDetails> userDetailsList = table.Rows.ToUserDetails();
+            List<UserResponse> userDetailsList = table.Rows.ToUserResponses();
             await this.SecurityServiceSteps.WhenIGetTheUserWithUserNameTheUserDetailsAreReturnedAsFollows(userDetailsList, userId, CancellationToken.None);
         }
         

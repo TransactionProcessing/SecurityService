@@ -1,81 +1,81 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using SecurityService.DataTransferObjects.Requests;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using OpenIddict.Abstractions;
+using SecurityService.BusinessLogic.Requests;
+using SecurityService.Database;
+using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
+using SecurityService.Models;
 using SimpleResults;
+using ResourceType = SecurityService.Database.Entities.ResourceType;
 
-namespace SecurityService.BusinessLogic.RequestHandlers
+namespace SecurityService.BusinessLogic.RequestHandlers;
+
+public sealed class IdentityResourceRequestHandler :
+    IRequestHandler<SecurityServiceCommands.CreateIdentityResourceCommand, Result>,
+    IRequestHandler<SecurityServiceQueries.GetIdentityResourceQuery, Result<IdentityResourceDetails>>,
+    IRequestHandler<SecurityServiceQueries.GetIdentityResourcesQuery, Result<List<IdentityResourceDetails>>>
 {
-    using System.Security.Claims;
-    using System.Threading;
-    using Duende.IdentityServer.EntityFramework.DbContexts;
-    using Duende.IdentityServer.EntityFramework.Mappers;
-    using Duende.IdentityServer.Models;
-    using MediatR;
-    using Microsoft.EntityFrameworkCore;
-    using Requests;
-    using Shared.Exceptions;
+    private readonly SecurityServiceDbContext _dbContext;
+    private readonly IOpenIddictScopeManager _scopeManager;
 
-    public class IdentityResourceRequestHandler : IRequestHandler<SecurityServiceCommands.CreateIdentityResourceCommand, Result>,
-                                                  IRequestHandler<SecurityServiceQueries.GetIdentityResourceQuery, Result<IdentityResource>>,
-                                                  IRequestHandler<SecurityServiceQueries.GetIdentityResourcesQuery, Result<List<IdentityResource>>>{
-        private readonly ConfigurationDbContext ConfigurationDbContext;
+    public IdentityResourceRequestHandler(SecurityServiceDbContext dbContext, IOpenIddictScopeManager scopeManager)
+    {
+        this._dbContext = dbContext;
+        this._scopeManager = scopeManager;
+    }
 
-        public IdentityResourceRequestHandler(ConfigurationDbContext configurationDbContext){
-            this.ConfigurationDbContext = configurationDbContext;
+    public async Task<Result> Handle(SecurityServiceCommands.CreateIdentityResourceCommand command, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(command.Name))
+        {
+            return Result.Failure("Identity resource name is required.");
         }
 
-        public async Task<Result> Handle(SecurityServiceCommands.CreateIdentityResourceCommand command, CancellationToken cancellationToken){
-            IdentityResource identityResource = new IdentityResource(command.Name, command.DisplayName, command.Claims);
-            identityResource.Emphasize = command.Emphasize;
-            identityResource.Required = command.Required;
-            identityResource.ShowInDiscoveryDocument = command.ShowInDiscoveryDocument;
-            identityResource.Description = command.Description;
-
-            // Now translate the model to the entity
-            await this.ConfigurationDbContext.IdentityResources.AddAsync(identityResource.ToEntity(), cancellationToken);
-
-            // Save the changes
-            await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
+        if (await this._dbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.IdentityResource, cancellationToken))
+        {
+            return Result.Conflict($"An identity resource named '{command.Name}' already exists.");
         }
 
-        public async Task<Result<IdentityResource>> Handle(SecurityServiceQueries.GetIdentityResourceQuery query, CancellationToken cancellationToken){
-            IdentityResource identityResourceModel = null;
+        var descriptor = new OpenIddictScopeDescriptor
+        {
+            Name = command.Name,
+            DisplayName = command.DisplayName,
+            Description = command.Description
+        };
 
-            Duende.IdentityServer.EntityFramework.Entities.IdentityResource identityResourceEntity = await this.ConfigurationDbContext.IdentityResources
-                                                                                                               .Where(a => a.Name == query.IdentityResourceName)
-                                                                                                               .Include(a => a.UserClaims)
-                                                                                                               .SingleOrDefaultAsync(cancellationToken: cancellationToken);
+        await this._scopeManager.CreateAsync(descriptor, cancellationToken);
 
-            if (identityResourceEntity == null)
-            {
-                return Result.NotFound($"No Identity Resource found with Name [{query.IdentityResourceName}]");
-            }
+        var resource = new ResourceDefinition
+        {
+            Id = Guid.NewGuid(),
+            Name = command.Name,
+            DisplayName = command.DisplayName,
+            Description = command.Description,
+            Type = ResourceType.IdentityResource,
+            Required = command.Required,
+            Emphasize = command.Emphasize,
+            ShowInDiscoveryDocument = command.ShowInDiscoveryDocument,
+            ClaimsJson = JsonListSerializer.Serialize(command.Claims)
+        };
 
-            identityResourceModel = identityResourceEntity.ToModel();
+        this._dbContext.ResourceDefinitions.Add(resource);
+        await this._dbContext.SaveChangesAsync(cancellationToken);
 
-            return Result.Success(identityResourceModel);
-        }
+        return Result.Success();
+    }
 
-        public async Task<Result<List<IdentityResource>>> Handle(SecurityServiceQueries.GetIdentityResourcesQuery query, CancellationToken cancellationToken){
-            List<IdentityResource> identityResourceModels = new List<IdentityResource>();
+    public async Task<Result<IdentityResourceDetails>> Handle(SecurityServiceQueries.GetIdentityResourceQuery query, CancellationToken cancellationToken)
+    {
+        var resource = await this._dbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.IdentityResource, cancellationToken);
+        return resource is null
+            ? Result.NotFound($"No identity resource named '{query.Name}' was found.")
+            : Result.Success(new IdentityResourceDetails(resource.Name, resource.DisplayName, resource.Description, resource.Required, resource.Emphasize, resource.ShowInDiscoveryDocument, JsonListSerializer.Deserialize(resource.ClaimsJson)));
+    }
 
-            List<Duende.IdentityServer.EntityFramework.Entities.IdentityResource> identityResourceEntities =
-                await this.ConfigurationDbContext.IdentityResources.Include(a => a.UserClaims).ToListAsync(cancellationToken: cancellationToken);
-
-            if (identityResourceEntities.Any())
-            {
-                foreach (Duende.IdentityServer.EntityFramework.Entities.IdentityResource identityResourceEntity in identityResourceEntities)
-                {
-                    identityResourceModels.Add(identityResourceEntity.ToModel());
-                }
-            }
-
-            return Result.Success(identityResourceModels);
-        }
+    public async Task<Result<List<IdentityResourceDetails>>> Handle(SecurityServiceQueries.GetIdentityResourcesQuery query, CancellationToken cancellationToken)
+    {
+        var resources = await this._dbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.IdentityResource).OrderBy(definition => definition.Name).ToListAsync(cancellationToken);
+        return Result.Success(resources.Select(resource => new IdentityResourceDetails(resource.Name, resource.DisplayName, resource.Description, resource.Required, resource.Emphasize, resource.ShowInDiscoveryDocument, JsonListSerializer.Deserialize(resource.ClaimsJson))).ToList());
     }
 }

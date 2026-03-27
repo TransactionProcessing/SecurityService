@@ -1,0 +1,38 @@
+@page
+@model SecurityService.Pages.Account.ExternalLogin.IndexModel
+@{
+    ViewData["Title"] = "External login";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">External login</h1>
+        <p class="hero__subtitle">Choose an external identity provider to sign in.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    <div class="card">
+        <div class="card__body">
+            @if (Model.Providers.Count == 0)
+            {
+                <div class="alert alert--info">
+                    <strong>No providers configured</strong>
+                    <div class="alert__content">No external identity providers are currently available for this environment.</div>
+                </div>
+            }
+            else
+            {
+                <form method="post" class="stack">
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    @foreach (var provider in Model.Providers)
+                    {
+                        <button class="btn btn-secondary btn-block" type="submit" name="provider" value="@provider.Name">
+                            Sign in with @provider.DisplayName
+                        </button>
+                    }
+                </form>
+            }
+        </div>
+    </div>
+</div>

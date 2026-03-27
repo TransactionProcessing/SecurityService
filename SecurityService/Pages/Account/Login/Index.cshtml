@@ -1,0 +1,78 @@
+@page
+@model SecurityService.Pages.Account.Login.IndexModel
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Login</h1>
+        <p class="hero__subtitle">Choose how to sign in to continue to the Security Service.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    <div class="grid grid--split">
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">Local account</h2>
+                <p class="card__subtitle">Use your username and password to continue.</p>
+            </div>
+            <div class="card__body">
+                <form method="post">
+                    <input type="hidden" asp-for="Input.ReturnUrl" />
+                    <input type="hidden" asp-for="Input.ClientId" />
+
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Input.Username">Username or email</label>
+                        <input class="form-control" asp-for="Input.Username" autocomplete="username" autofocus />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Input.Password"></label>
+                        <input class="form-control" asp-for="Input.Password" type="password" autocomplete="current-password" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-check">
+                            <input asp-for="Input.RememberLogin" type="checkbox" />
+                            <span>Remember my login</span>
+                        </label>
+                    </div>
+
+                    <div class="actions">
+                        <button class="btn btn-primary" type="submit" name="Input.Button" value="login">Login</button>
+                        <button class="btn btn-secondary" type="submit" name="Input.Button" value="cancel">Cancel</button>
+                        <button class="btn btn-secondary" name="Input.Button" value="forgotpassword">Forgot Password</button>
+                    </div>
+                </form>
+
+                @* <div class="inline-links">
+                    <a href="/Account/ForgotPassword">Forgot your password?</a>
+                    <a href="/Account/ResendConfirmationEmail">Resend confirmation email</a>
+                </div> *@
+            </div>
+        </div>
+
+        @if (Model.Providers.Count > 0)
+        {
+            <div class="card">
+                <div class="card__header">
+                    <h2 class="card__title">External account</h2>
+                    <p class="card__subtitle">Use a configured identity provider instead of a local password.</p>
+                </div>
+                <div class="card__body">
+                    <form method="post" asp-page="/Account/ExternalLogin/Index" class="stack">
+                        <input type="hidden" name="returnUrl" value="@Model.Input.ReturnUrl" />
+                        @foreach (var provider in Model.Providers)
+                        {
+                            <button class="btn btn-secondary btn-block" type="submit" name="provider" value="@provider.Name">
+                                @provider.DisplayName
+                            </button>
+                        }
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

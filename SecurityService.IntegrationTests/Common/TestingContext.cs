@@ -1,8 +1,9 @@
-﻿namespace SecurityService.IntergrationTests.Common
+﻿using SecurityService.DataTransferObjects;
+
+namespace SecurityService.IntergrationTests.Common
 {
     using System;
     using System.Collections.Generic;
-    using DataTransferObjects.Responses;
     using Microsoft.EntityFrameworkCore.Query.Internal;
     using Shared.Logger;
 
@@ -22,11 +23,11 @@
         /// <summary>
         /// The users
         /// </summary>
-        public Dictionary<String, Guid> Users;
+        public Dictionary<String, String> Users;
         /// <summary>
         /// The roles
         /// </summary>
-        public Dictionary<String, Guid> Roles;
+        public Dictionary<String, String> Roles;
 
         /// <summary>
         /// The clients
@@ -61,8 +62,8 @@
         /// </summary>
         public TestingContext()
         {
-            this.Users = new Dictionary<String, Guid>();
-            this.Roles= new Dictionary<String, Guid>();
+            this.Users = new Dictionary<String, String>();
+            this.Roles= new Dictionary<String, String>();
             this.Clients=new List<String>();
             this.ApiScopes = new List<String>();
             this.ApiResources=new List<String>();

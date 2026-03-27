@@ -1,18 +1,10 @@
-using Microsoft.AspNetCore.Routing;
+namespace SecurityService.Endpoints;
 
-namespace SecurityService.Endpoints
+public static class DeveloperEndpoints
 {
-    using Microsoft.AspNetCore.Builder;
-
-    public static class DeveloperEndpoints
+    public static void MapDeveloperEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        public static void MapDeveloperEndpoints(this IEndpointRouteBuilder endpoints)
-        {
-            endpoints.MapGet("api/developer/lastemail", Handlers.DeveloperHandler.GetLastEmailMessage)
-                     .WithName("GetLastEmailMessage");
-
-            endpoints.MapGet("api/developer/lastsms", Handlers.DeveloperHandler.GetLastSMSMessage)
-                     .WithName("GetLastSMSMessage");
-        }
+        endpoints.MapGet("/api/developer/lastemail", Handlers.DeveloperHandler.GetLastEmail).WithName("GetLastEmail");
+        endpoints.MapGet("/api/developer/lastsms", Handlers.DeveloperHandler.GetLastSms).WithName("GetLastSms");
     }
 }

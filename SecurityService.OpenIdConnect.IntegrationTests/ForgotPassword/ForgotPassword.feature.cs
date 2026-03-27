@@ -115,52 +115,52 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
         {
 #line 4
 #line hidden
-            global::Reqnroll.Table table6 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
                         "Role Name"});
-            table6.AddRow(new string[] {
+            table1.AddRow(new string[] {
                         "Estate"});
 #line 6
- await testRunner.GivenAsync("I create the following roles", ((string)(null)), table6, "Given ");
+ await testRunner.GivenAsync("I create the following roles", ((string)(null)), table1, "Given ");
 #line hidden
-            global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table2 = new global::Reqnroll.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table7.AddRow(new string[] {
+            table2.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
                         "MerchantId,EstateId,role"});
 #line 10
- await testRunner.GivenAsync("I create the following api resources", ((string)(null)), table7, "Given ");
+ await testRunner.GivenAsync("I create the following api resources", ((string)(null)), table2, "Given ");
 #line hidden
-            global::Reqnroll.Table table8 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table3 = new global::Reqnroll.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Description",
                         "UserClaims"});
-            table8.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "openid",
                         "Your user identifier",
                         "",
                         "sub"});
-            table8.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "profile",
                         "User profile",
                         "Your user profile information (first name, last name, etc.)",
                         "name,role,email,given_name,middle_name,family_name,EstateId,MerchantId"});
-            table8.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "email",
                         "Email",
                         "Email and Email Verified Flags",
                         "email_verified,email"});
 #line 14
- await testRunner.GivenAsync("I create the following identity resources", ((string)(null)), table8, "Given ");
+ await testRunner.GivenAsync("I create the following identity resources", ((string)(null)), table3, "Given ");
 #line hidden
-            global::Reqnroll.Table table9 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
@@ -171,7 +171,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "RequireConsent",
                         "AllowOfflineAccess",
                         "ClientUri"});
-            table9.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "estateUIClient",
                         "Merchant Client",
                         "Secret1",
@@ -183,9 +183,9 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "true",
                         "https://[url]:[port]"});
 #line 20
- await testRunner.GivenAsync("I create the following clients", ((string)(null)), table9, "Given ");
+ await testRunner.GivenAsync("I create the following clients", ((string)(null)), table4, "Given ");
 #line hidden
-            global::Reqnroll.Table table10 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
                         "Email Address",
                         "Password",
                         "Phone Number",
@@ -194,7 +194,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "Family Name",
                         "Claims",
                         "Roles"});
-            table10.AddRow(new string[] {
+            table5.AddRow(new string[] {
                         "estateuser@testestate1.co.uk",
                         "123456",
                         "123456789",
@@ -204,7 +204,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "EstateId:1",
                         "Estate"});
 #line 24
- await testRunner.GivenAsync("I create the following users", ((string)(null)), table10, "Given ");
+ await testRunner.GivenAsync("I create the following users", ((string)(null)), table5, "Given ");
 #line hidden
 #line 27
  await testRunner.ThenAsync("I get an email with a confirm email address link", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -265,11 +265,8 @@ await this.FeatureBackgroundAsync();
 #line 38
  await testRunner.ThenAsync("I am presented with the forgot password screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-#line 39
- await testRunner.WhenAsync("I enter my username \'estateuser@testestate1.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
 #line 40
- await testRunner.AndAsync("I enter my email address \'estateuser@testestate1.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+ await testRunner.WhenAsync("I enter my email address \'estateuser@testestate1.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 41
  await testRunner.AndAsync("I click on the Reset Password button", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");

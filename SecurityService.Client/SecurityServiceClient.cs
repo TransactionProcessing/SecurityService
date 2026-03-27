@@ -11,10 +11,6 @@ namespace SecurityService.Client
     using System.Threading.Tasks;
     using ClientProxyBase;
     using DataTransferObjects;
-    using DataTransferObjects.Requests;
-    using DataTransferObjects.Responses;
-    using Newtonsoft.Json;
-    using static Shared.Results.ResultHelpers;
 
     /// <summary>
     /// 
@@ -167,7 +163,7 @@ namespace SecurityService.Client
             catch(Exception ex)
             {
                 // An exception has occurred, add some additional information to the message
-                Exception exception = new Exception($"Error creating role {createRoleRequest.RoleName}.", ex);
+                Exception exception = new Exception($"Error creating role {createRoleRequest.Name}.", ex);
 
                 throw exception;
             }
@@ -202,13 +198,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<ApiResourceDetails>> GetApiResource(String apiResourceName,
+        public async Task<Result<ApiResourceResponse>> GetApiResource(String apiResourceName,
                                                                      CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/apiresources/{apiResourceName}");
 
             try {
-                Result<ApiResourceDetails> result = await this.SendHttpGetRequest<ApiResourceDetails>(requestUri, cancellationToken);
+                Result<ApiResourceResponse> result = await this.SendHttpGetRequest<ApiResourceResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -224,13 +220,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<ApiResourceDetails>>> GetApiResources(CancellationToken cancellationToken)
+        public async Task<Result<List<ApiResourceResponse>>> GetApiResources(CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/apiresources");
 
             try
             {
-                Result<List<ApiResourceDetails>> result = await this.SendHttpGetRequest<List<ApiResourceDetails>>(requestUri, cancellationToken);
+                Result<List<ApiResourceResponse>> result = await this.SendHttpGetRequest<List<ApiResourceResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -246,14 +242,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<ApiScopeDetails>> GetApiScope(String apiScopeName,
+        public async Task<Result<ApiScopeResponse>> GetApiScope(String apiScopeName,
                                                                CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/apiscopes/{apiScopeName}");
 
             try
             {
-                var result = await this.SendHttpGetRequest<ApiScopeDetails>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<ApiScopeResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -269,13 +265,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<ApiScopeDetails>>> GetApiScopes(CancellationToken cancellationToken)
+        public async Task<Result<List<ApiScopeResponse>>> GetApiScopes(CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/apiscopes");
 
             try
             {
-                var result = await this.SendHttpGetRequest<List<ApiScopeDetails>>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<ApiScopeResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -291,14 +287,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<ClientDetails>> GetClient(String clientId,
+        public async Task<Result<ClientResponse>> GetClient(String clientId,
                                                            CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/clients/{clientId}");
 
             try
             {
-                var result = await this.SendHttpGetRequest<ClientDetails>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<ClientResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -314,13 +310,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<ClientDetails>>> GetClients(CancellationToken cancellationToken)
+        public async Task<Result<List<ClientResponse>>> GetClients(CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/clients");
 
             try
             {
-                var result = await this.SendHttpGetRequest<List<ClientDetails>>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<ClientResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -336,14 +332,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<IdentityResourceDetails>> GetIdentityResource(String identityResourceName,
+        public async Task<Result<IdentityResourceResponse>> GetIdentityResource(String identityResourceName,
                                                                                CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/identityresources/{identityResourceName}");
 
             try
             {
-                var result = await this.SendHttpGetRequest<IdentityResourceDetails>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<IdentityResourceResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -359,13 +355,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<IdentityResourceDetails>>> GetIdentityResources(CancellationToken cancellationToken)
+        public async Task<Result<List<IdentityResourceResponse>>> GetIdentityResources(CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/identityresources");
 
             try
             {
-                var result = await this.SendHttpGetRequest<List<IdentityResourceDetails>>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<IdentityResourceResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -381,14 +377,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<RoleDetails>> GetRole(Guid roleId,
-                                                       CancellationToken cancellationToken)
+        public async Task<Result<RoleResponse>> GetRole(String roleId,
+                                                        CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/roles/{roleId}");
 
             try
             {
-                var result = await this.SendHttpGetRequest<RoleDetails>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<RoleResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -404,13 +400,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<RoleDetails>>> GetRoles(CancellationToken cancellationToken)
+        public async Task<Result<List<RoleResponse>>> GetRoles(CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/roles");
 
             try
             {
-                var result = await this.SendHttpGetRequest<List<RoleDetails>>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<RoleResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -471,14 +467,14 @@ namespace SecurityService.Client
             return await this.GetToken(queryString.ToString(), cancellationToken);
         }
 
-        public async Task<Result<UserDetails>> GetUser(Guid userId,
-                                                       CancellationToken cancellationToken)
+        public async Task<Result<UserResponse>> GetUser(String userId,
+                                                        CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/users/{userId}");
 
             try
             {
-                var result = await this.SendHttpGetRequest<UserDetails>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<UserResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -494,7 +490,7 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<UserDetails>>> GetUsers(String userName,
+        public async Task<Result<List<UserResponse>>> GetUsers(String userName,
                                                               CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/users");
@@ -506,7 +502,7 @@ namespace SecurityService.Client
                     requestUri = $"{requestUri}?username={userName}";
                 }
 
-                var result = await this.SendHttpGetRequest<List<UserDetails>>(requestUri, cancellationToken);
+                var result = await this.SendHttpGetRequest<List<UserResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);

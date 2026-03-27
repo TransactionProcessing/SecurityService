@@ -1,4 +1,6 @@
 ﻿using System;
+using SecurityService.DataTransferObjects;
+using SecurityService.Models;
 
 namespace SecurityService.IntegrationTests.Roles
 {
@@ -6,8 +8,6 @@ namespace SecurityService.IntegrationTests.Roles
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
-    using DataTransferObjects.Requests;
-    using DataTransferObjects.Responses;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Reqnroll;
@@ -45,8 +45,8 @@ namespace SecurityService.IntegrationTests.Roles
         [Given(@"I create the following roles")]
         public async Task GivenICreateTheFollowingRoles(DataTable table){
             List<CreateRoleRequest> requests = table.Rows.ToCreateRoleRequests();
-            List<(String, Guid)> responses = await this.SecurityServiceSteps.GivenICreateTheFollowingRoles(requests, CancellationToken.None);
-            foreach ((String, Guid) response in responses){
+            List<(String, String)> responses = await this.SecurityServiceSteps.GivenICreateTheFollowingRoles(requests, CancellationToken.None);
+            foreach ((String, String) response in responses){
                 this.TestingContext.Roles.Add(response.Item1, response.Item2);
             }
         }
@@ -54,16 +54,16 @@ namespace SecurityService.IntegrationTests.Roles
         [When(@"I get the role with name '(.*)' the role details are returned as follows")]
         public async Task WhenIGetTheRoleWithNameTheRoleDetailsAreReturnedAsFollows(String roleName, DataTable table)
         {
-            List<RoleDetails> requests = table.Rows.ToRoleDetails();
+            List<RoleResponse> requests = table.Rows.ToRoleResponses();
             // Get the role id
-            Guid roleId = this.TestingContext.Roles.Single(u => u.Key == roleName).Value;
+            String roleId = this.TestingContext.Roles.Single(u => u.Key == roleName).Value;
             await this.SecurityServiceSteps.WhenIGetTheRoleWithNameTheRoleDetailsAreReturnedAsFollows(requests, roleId, CancellationToken.None);
         }
         
         [When(@"I get the roles (.*) roles details are returned as follows")]
         public async Task WhenIGetTheRolesRolesDetailsAreReturnedAsFollows(Int32 numberOfRoles, Table table)
         {
-            List<RoleDetails> requests = table.Rows.ToRoleDetails();
+            List<RoleResponse> requests = table.Rows.ToRoleResponses();
             await this.SecurityServiceSteps.WhenIGetTheRolesRolesDetailsAreReturnedAsFollows(requests, CancellationToken.None);
         }
 

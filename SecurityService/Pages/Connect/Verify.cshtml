@@ -1,0 +1,97 @@
+@page "/connect/verify"
+@model SecurityService.Pages.Connect.VerifyModel
+@{
+    ViewData["Title"] = "Verify device";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        @if (string.IsNullOrWhiteSpace(Model.ClientName))
+        {
+            <h1 class="hero__title">User code</h1>
+            <p class="hero__subtitle">Enter the code displayed on your device.</p>
+        }
+        else
+        {
+            <h1 class="hero__title">@Model.ClientName</h1>
+            <p class="hero__subtitle">Confirm that the authorization request matches the user code shown on your device.</p>
+            <div class="hero__eyebrow">User code: @Model.Input.UserCode</div>
+        }
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    @if (string.IsNullOrWhiteSpace(Model.StatusMessage) == false)
+    {
+        <div class="alert alert--error">
+            <strong>Verification issue</strong>
+            <div class="alert__content">@Model.StatusMessage</div>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card__body">
+            <form method="post">
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.UserCode">User code</label>
+                    <input class="form-control" asp-for="Input.UserCode" autofocus="@string.IsNullOrWhiteSpace(Model.ClientName)" />
+                </div>
+
+                @if (Model.IdentityScopes.Count > 0)
+                {
+                    <div class="form-group">
+                        <h2 class="card__title">Personal information</h2>
+                        <div class="scope-list section-spacer">
+                            @foreach (var scope in Model.IdentityScopes)
+                            {
+                                <div class="scope-item">
+                                    <div class="scope-item__title">@scope.DisplayName</div>
+                                    @if (scope.Required)
+                                    {
+                                        <div class="scope-item__meta">Required</div>
+                                    }
+                                    @if (string.IsNullOrWhiteSpace(scope.Description) == false)
+                                    {
+                                        <p class="scope-item__description">@scope.Description</p>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                @if (Model.ApiScopes.Count > 0)
+                {
+                    <div class="form-group">
+                        <h2 class="card__title">Application access</h2>
+                        <div class="scope-list section-spacer">
+                            @foreach (var scope in Model.ApiScopes)
+                            {
+                                <div class="scope-item">
+                                    <div class="scope-item__title">@scope.DisplayName</div>
+                                    @if (scope.Emphasize)
+                                    {
+                                        <div class="scope-item__meta">High impact</div>
+                                    }
+                                    @if (string.IsNullOrWhiteSpace(scope.Description) == false)
+                                    {
+                                        <p class="scope-item__description">@scope.Description</p>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit" name="Input.Action" value="lookup">Continue</button>
+                    @if (string.IsNullOrWhiteSpace(Model.ClientName) == false)
+                    {
+                        <button class="btn btn-primary" type="submit" name="Input.Action" value="accept">Yes, allow</button>
+                        <button class="btn btn-secondary" type="submit" name="Input.Action" value="deny">Deny</button>
+                    }
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

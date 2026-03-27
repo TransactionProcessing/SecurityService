@@ -1,0 +1,96 @@
+@page
+@model SecurityService.Pages.Consent.IndexModel
+@{
+    ViewData["Title"] = "Consent";
+}
+
+<div class="hero">
+    <h1 class="hero__title">@Model.ClientName</h1>
+    <p class="hero__subtitle">is requesting your permission. Uncheck the permissions you do not wish to grant.</p>
+</div>
+
+<partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+<form method="post" class="stack">
+    <input type="hidden" asp-for="Input.ReturnUrl" />
+
+    @if (Model.IdentityScopes.Count > 0)
+    {
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">Personal information</h2>
+                <p class="card__subtitle">These permissions let the application know who you are.</p>
+            </div>
+            <div class="card__body card__body--tight">
+                <div class="scope-list">
+                    @foreach (var scope in Model.IdentityScopes)
+                    {
+                        <div class="scope-item">
+                            <div class="scope-item__head">
+                                @if (scope.Required)
+                                {
+                                    <input type="hidden" name="Input.SelectedScopes" value="@scope.Name" />
+                                    <input type="checkbox" checked="checked" disabled="disabled" />
+                                }
+                                else
+                                {
+                                    <input type="checkbox" name="Input.SelectedScopes" value="@scope.Name" checked="checked" />
+                                }
+
+                                <div>
+                                    <div class="scope-item__title">@scope.DisplayName</div>
+                                    @if (scope.Required)
+                                    {
+                                        <div class="scope-item__meta">Required</div>
+                                    }
+                                    @if (string.IsNullOrWhiteSpace(scope.Description) == false)
+                                    {
+                                        <p class="scope-item__description">@scope.Description</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    @if (Model.ApiScopes.Count > 0)
+    {
+        <div class="card">
+            <div class="card__header">
+                <h2 class="card__title">Application access</h2>
+                <p class="card__subtitle">These permissions control which APIs the application can call.</p>
+            </div>
+            <div class="card__body card__body--tight">
+                <div class="scope-list">
+                    @foreach (var scope in Model.ApiScopes)
+                    {
+                        <div class="scope-item">
+                            <div class="scope-item__head">
+                                <input type="checkbox" name="Input.SelectedScopes" value="@scope.Name" checked="checked" />
+                                <div>
+                                    <div class="scope-item__title">@scope.DisplayName</div>
+                                    @if (scope.Emphasize)
+                                    {
+                                        <div class="scope-item__meta">High impact</div>
+                                    }
+                                    @if (string.IsNullOrWhiteSpace(scope.Description) == false)
+                                    {
+                                        <p class="scope-item__description">@scope.Description</p>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+
+    <div class="actions">
+        <button class="btn btn-primary" type="submit" name="Input.Button" value="accept">Yes, allow</button>
+        <button class="btn btn-secondary" type="submit" name="Input.Button" value="deny">No, deny</button>
+    </div>
+</form>

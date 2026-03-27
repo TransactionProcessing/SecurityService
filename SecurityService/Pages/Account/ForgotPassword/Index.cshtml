@@ -1,0 +1,42 @@
+@page
+@model SecurityService.Pages.Account.ForgotPassword.IndexModel
+@{
+    ViewData["Title"] = "Forgot password";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Forgot password</h1>
+        <p class="hero__subtitle">Enter your username and we will queue a password reset email if the account is eligible.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    @if (String.IsNullOrEmpty(Model.View.UserMessage) == false)
+    {
+        <div class="card-body">
+            <p id="forgotPasswordMessage" class="text-gray-700">@Model.View.UserMessage</p>
+        </div>
+    }
+    else
+    {
+    <div class="card">
+        <div class="card__body">
+            <form method="post">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <input type="hidden" asp-for="Input.ClientId" />
+
+                <div class="form-group">
+                        <label class="form-label" asp-for="Input.EmailAddress"></label>
+                        <input class="form-control" placeholder="Email Address" asp-for="Input.EmailAddress" autocomplete="off">
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" name="Input.Button" value="reset">Reset Password</button>
+                    <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    }
+</div>

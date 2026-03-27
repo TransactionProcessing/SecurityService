@@ -1,142 +1,134 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using Duende.IdentityModel;
-using SecurityService.DataTransferObjects.Requests;
+using MediatR;
+using Microsoft.EntityFrameworkCore;
+using OpenIddict.Abstractions;
+using SecurityService.BusinessLogic.Requests;
+using SecurityService.Database;
+using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
+using SecurityService.Models;
 using SimpleResults;
+using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace SecurityService.BusinessLogic.RequestHandlers
+namespace SecurityService.BusinessLogic.RequestHandlers;
+
+public sealed class ClientRequestHandler :
+    IRequestHandler<SecurityServiceCommands.CreateClientCommand, Result>,
+    IRequestHandler<SecurityServiceQueries.GetClientQuery, Result<ClientDetails>>,
+    IRequestHandler<SecurityServiceQueries.GetClientsQuery, Result<List<ClientDetails>>>
 {
-    using System.Threading;
-    using Duende.IdentityServer.EntityFramework.DbContexts;
-    using Duende.IdentityServer.EntityFramework.Entities;
-    using Duende.IdentityServer.EntityFramework.Mappers;
-    using Duende.IdentityServer.Models;
-    using MediatR;
-    using Microsoft.EntityFrameworkCore;
-    using Requests;
-    using Shared.Exceptions;
-    using Client = Duende.IdentityServer.Models.Client;
-    using Secret = Duende.IdentityServer.Models.Secret;
+    private static readonly HashSet<string> SupportedGrantTypes = new(StringComparer.OrdinalIgnoreCase)
+    {
+        GrantTypes.AuthorizationCode,
+        GrantTypes.ClientCredentials,
+        GrantTypes.DeviceCode,
+        "hybrid",
+        GrantTypes.Implicit,
+        GrantTypes.Password,
+        GrantTypes.RefreshToken
+    };
 
-    public class ClientRequestHandler : IRequestHandler<SecurityServiceCommands.CreateClientCommand, Result>,
-                                        IRequestHandler<SecurityServiceQueries.GetClientQuery, Result<Client>>,
-                                        IRequestHandler<SecurityServiceQueries.GetClientsQuery, Result<List<Client>>>{
-        private readonly ConfigurationDbContext ConfigurationDbContext;
+    private readonly SecurityServiceDbContext _dbContext;
+    private readonly IOpenIddictApplicationManager _applicationManager;
 
-        public ClientRequestHandler(ConfigurationDbContext configurationDbContext){
-            this.ConfigurationDbContext = configurationDbContext;
-        }
-
-        public async Task<Result> Handle(SecurityServiceCommands.CreateClientCommand command, CancellationToken cancellationToken){
-            // Validate the grant types list
-            Result validationResult = this.ValidateGrantTypes(command.AllowedGrantTypes);
-            if (validationResult.IsFailed) {
-                return validationResult;
-            }
-
-            // Create the model from the request
-            Client client = new Client
-            {
-                ClientId = command.ClientId,
-                ClientName = command.ClientName,
-                Description = command.ClientDescription,
-                ClientSecrets ={
-                                                             new Secret(command.Secret.ToSha256())
-                                                         },
-                AllowedGrantTypes = command.AllowedGrantTypes,
-                AllowedScopes = command.AllowedScopes,
-                RequireConsent = command.RequireConsent,
-                AllowOfflineAccess = command.AllowOfflineAccess,
-                ClientUri = command.ClientUri
-            };
-
-            if (command.AllowedGrantTypes.Contains("hybrid"))
-            {
-                client.RequirePkce = false;
-            }
-
-            if (command.ClientRedirectUris != null && command.ClientRedirectUris.Any())
-            {
-                client.RedirectUris = new List<String>();
-                foreach (String clientRedirectUri in command.ClientRedirectUris)
-                {
-                    client.RedirectUris.Add(clientRedirectUri);
-                }
-            }
-
-            if (command.ClientPostLogoutRedirectUris != null && command.ClientPostLogoutRedirectUris.Any())
-            {
-                client.PostLogoutRedirectUris = new List<String>();
-                foreach (String clientPostLogoutRedirectUri in command.ClientPostLogoutRedirectUris)
-                {
-                    client.PostLogoutRedirectUris.Add(clientPostLogoutRedirectUri);
-                }
-            }
-
-            // Now translate the model to the entity
-            await this.ConfigurationDbContext.Clients.AddAsync(client.ToEntity(), cancellationToken);
-
-            // Save the changes
-            await this.ConfigurationDbContext.SaveChangesAsync(cancellationToken);
-
-            return Result.Success();
-        }
-
-        public async Task<Result<Client>> Handle(SecurityServiceQueries.GetClientQuery query, CancellationToken cancellationToken){
-            Client clientModel = null;
-
-            Duende.IdentityServer.EntityFramework.Entities.Client clientEntity = await this.ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes)
-                                                                                           .Include(c => c.AllowedScopes).Where(c => c.ClientId == query.ClientId)
-                                                                                           .SingleOrDefaultAsync(cancellationToken: cancellationToken);
-
-            if (clientEntity == null)
-            {
-                return Result.NotFound($"No client found with Client Id [{query.ClientId}]");
-            }
-
-            clientModel = clientEntity.ToModel();
-
-            return  Result.Success(clientModel);
-        }
-
-        public async Task<Result<List<Client>>> Handle(SecurityServiceQueries.GetClientsQuery query, CancellationToken cancellationToken){
-            List<Client> clientModels = new List<Client>();
-
-            List<Duende.IdentityServer.EntityFramework.Entities.Client> clientEntities = await this.ConfigurationDbContext.Clients.Include(c => c.AllowedGrantTypes)
-                                                                                                   .Include(c => c.AllowedScopes)
-                                                                                                   .ToListAsync(cancellationToken: cancellationToken);
-
-            if (clientEntities.Any())
-            {
-                foreach (Duende.IdentityServer.EntityFramework.Entities.Client clientEntity in clientEntities)
-                {
-                    clientModels.Add(clientEntity.ToModel());
-                }
-            }
-
-            return  Result.Success(clientModels);
-        }
-
-        private Result ValidateGrantTypes(List<String> allowedGrantTypes){
-            // Get a list of valid grant types
-            List<String> validTypesList = new List<String>();
-
-            validTypesList.Add(GrantType.AuthorizationCode);
-            validTypesList.Add(GrantType.ClientCredentials);
-            validTypesList.Add(GrantType.DeviceFlow);
-            validTypesList.Add(GrantType.Hybrid);
-            validTypesList.Add(GrantType.Implicit);
-            validTypesList.Add(GrantType.ResourceOwnerPassword);
-
-            List<String> invalidGrantTypes = allowedGrantTypes.Where(a => validTypesList.All(v => v != a)).ToList();
-
-            if (invalidGrantTypes.Any()){
-                return Result.Invalid($"The grant types [{String.Join(", ", invalidGrantTypes)}] are not valid to create a new client");
-            }
-            return Result.Success();
-        }
+    public ClientRequestHandler(SecurityServiceDbContext dbContext, IOpenIddictApplicationManager applicationManager)
+    {
+        this._dbContext = dbContext;
+        this._applicationManager = applicationManager;
     }
+
+    public async Task<Result> Handle(SecurityServiceCommands.CreateClientCommand command, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(command.ClientId))
+        {
+            return Result.Invalid("Client id is required.");
+        }
+
+        if (command.AllowedGrantTypes.Count == 0)
+        {
+            return Result.Invalid("At least one grant type is required.");
+        }
+
+        var invalidGrantTypes = command.AllowedGrantTypes.Where(grantType => SupportedGrantTypes.Contains(grantType) == false).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        if (invalidGrantTypes.Length > 0)
+        {
+            return Result.Invalid($"Unsupported grant types: {string.Join(", ", invalidGrantTypes)}.");
+        }
+
+        if (await this._dbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId, cancellationToken))
+        {
+            return Result.Conflict($"A client with id '{command.ClientId}' already exists.");
+        }
+
+        var descriptor = new OpenIddictApplicationDescriptor
+        {
+            ClientId = command.ClientId,
+            DisplayName = command.ClientName,
+            ConsentType = command.RequireConsent ? ConsentTypes.Explicit : ConsentTypes.Implicit,
+            ClientType = string.IsNullOrWhiteSpace(command.Secret) ? ClientTypes.Public : ClientTypes.Confidential,
+            ClientSecret = string.IsNullOrWhiteSpace(command.Secret) ? null : command.Secret
+        };
+
+        foreach (var redirectUri in command.ClientRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            descriptor.RedirectUris.Add(new Uri(redirectUri, UriKind.Absolute));
+        }
+
+        foreach (var postLogoutRedirectUri in command.ClientPostLogoutRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
+        {
+            descriptor.PostLogoutRedirectUris.Add(new Uri(postLogoutRedirectUri, UriKind.Absolute));
+        }
+
+        await this._applicationManager.CreateAsync(descriptor, cancellationToken);
+
+        var definition = new ClientDefinition
+        {
+            Id = Guid.NewGuid(),
+            ClientId = command.ClientId,
+            ClientName = command.ClientName,
+            Description = command.ClientDescription,
+            ClientUri = command.ClientUri,
+            SecretHash = string.IsNullOrWhiteSpace(command.Secret) ? null : Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(command.Secret))),
+            AllowedScopesJson = JsonListSerializer.Serialize(command.AllowedScopes),
+            AllowedGrantTypesJson = JsonListSerializer.Serialize(command.AllowedGrantTypes),
+            RedirectUrisJson = JsonListSerializer.Serialize(command.ClientRedirectUris),
+            PostLogoutRedirectUrisJson = JsonListSerializer.Serialize(command.ClientPostLogoutRedirectUris),
+            RequireConsent = command.RequireConsent,
+            AllowOfflineAccess = command.AllowOfflineAccess,
+            ClientType = descriptor.ClientType
+        };
+
+        this._dbContext.ClientDefinitions.Add(definition);
+        await this._dbContext.SaveChangesAsync(cancellationToken);
+
+        return Result.Success();
+    }
+
+    public async Task<Result<ClientDetails>> Handle(SecurityServiceQueries.GetClientQuery query, CancellationToken cancellationToken)
+    {
+        var definition = await this._dbContext.ClientDefinitions.SingleOrDefaultAsync(client => client.ClientId == query.ClientId, cancellationToken);
+        return definition is null
+            ? Result.NotFound($"No client found with id '{query.ClientId}'.")
+            : Result.Success(Map(definition));
+    }
+
+    public async Task<Result<List<ClientDetails>>> Handle(SecurityServiceQueries.GetClientsQuery query, CancellationToken cancellationToken)
+    {
+        var definitions = await this._dbContext.ClientDefinitions.OrderBy(client => client.ClientId).ToListAsync(cancellationToken);
+        return Result.Success(definitions.Select(Map).ToList());
+    }
+
+    private static ClientDetails Map(ClientDefinition definition) => new(
+        definition.ClientId,
+        definition.ClientName,
+        definition.Description,
+        definition.ClientUri,
+        JsonListSerializer.Deserialize(definition.AllowedScopesJson),
+        JsonListSerializer.Deserialize(definition.AllowedGrantTypesJson),
+        JsonListSerializer.Deserialize(definition.RedirectUrisJson),
+        JsonListSerializer.Deserialize(definition.PostLogoutRedirectUrisJson),
+        definition.RequireConsent,
+        definition.AllowOfflineAccess,
+        definition.ClientType);
 }

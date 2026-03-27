@@ -206,7 +206,7 @@ await this.FeatureBackgroundAsync();
                             "Test",
                             "",
                             "User 1",
-                            "email:testuser1@testing.co.uk, given_name:Test, family_name:User 1",
+                            "emailaddress:testuser1@testing.co.uk, givenname:Test, surname:User 1",
                             "TestRole1",
                             "Today"});
 #line 18
@@ -228,7 +228,7 @@ await this.FeatureBackgroundAsync();
                             "Test",
                             "",
                             "User 2",
-                            "email:testuser2@testing.co.uk, given_name:Test, family_name:User 2",
+                            "emailaddress:testuser2@testing.co.uk, givenname:Test, surname:User 2",
                             "TestRole2",
                             "Today"});
 #line 21
@@ -250,7 +250,7 @@ await this.FeatureBackgroundAsync();
                             "Test",
                             "",
                             "User 3",
-                            "email:testuser3@testing.co.uk, given_name:Test, family_name:User 3",
+                            "emailaddress:testuser3@testing.co.uk, givenname:Test, surname:User 3",
                             "TestRole3",
                             "Today"});
 #line 24
@@ -272,7 +272,7 @@ await this.FeatureBackgroundAsync();
                             "Test",
                             "",
                             "User 1",
-                            "email:testuser1@testing.co.uk, given_name:Test, family_name:User 1",
+                            "emailaddress:testuser1@testing.co.uk, givenname:Test, surname:User 1",
                             "TestRole1",
                             "Today"});
                 table34.AddRow(new string[] {
@@ -281,7 +281,7 @@ await this.FeatureBackgroundAsync();
                             "Test",
                             "",
                             "User 2",
-                            "email:testuser2@testing.co.uk, given_name:Test, family_name:User 2",
+                            "emailaddress:testuser2@testing.co.uk, givenname:Test, surname:User 2",
                             "TestRole2",
                             "Today"});
                 table34.AddRow(new string[] {
@@ -290,7 +290,7 @@ await this.FeatureBackgroundAsync();
                             "Test",
                             "",
                             "User 3",
-                            "email:testuser3@testing.co.uk, given_name:Test, family_name:User 3",
+                            "emailaddress:testuser3@testing.co.uk, givenname:Test, surname:User 3",
                             "TestRole3",
                             "Today"});
 #line 27

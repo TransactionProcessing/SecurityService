@@ -1,0 +1,24 @@
+@page
+@model SecurityService.Pages.Account.Logout.IndexModel
+@{
+    ViewData["Title"] = "Logout";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Logout</h1>
+        <p class="hero__subtitle">Would you like to sign out of the Security Service?</p>
+    </div>
+
+    <div class="card">
+        <div class="card__body">
+            <form method="post">
+                <input type="hidden" asp-for="Input.ReturnUrl" />
+                <div class="actions">
+                    <button class="btn btn-primary" type="submit">Yes, logout</button>
+                    <a class="btn btn-secondary" href="/">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

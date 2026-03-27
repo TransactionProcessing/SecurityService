@@ -1,0 +1,39 @@
+@page
+@model SecurityService.Pages.Account.ResetPassword.IndexModel
+@{
+    ViewData["Title"] = "Reset password";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Reset password</h1>
+        <p class="hero__subtitle">Choose a new password for your account.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    <div class="card">
+        <div class="card__body">
+            <form method="post">
+                <input type="hidden" asp-for="Input.Username" />
+                <input type="hidden" asp-for="Input.Token" />
+                <input type="hidden" asp-for="Input.ClientId" />
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.Password"></label>
+                    <input class="form-control" asp-for="Input.Password" type="password" autocomplete="new-password" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.ConfirmPassword"></label>
+                    <input class="form-control" asp-for="Input.ConfirmPassword" type="password" autocomplete="new-password" />
+                </div>
+
+                <div class="actions">
+                    <button class="btn btn-primary" name="Input.Button" value="login">Confirm Reset Password</button>
+                    <button class="btn btn-secondary" name="Input.Button" value="cancel">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

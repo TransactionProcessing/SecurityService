@@ -1,29 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using Duende.IdentityServer.Models;
 using MediatR;
 using SecurityService.Models;
 using SimpleResults;
 
 namespace SecurityService.BusinessLogic.Requests;
 
-public record SecurityServiceQueries {
-    public record GetApiResourceQuery(string Name) : IRequest<Result<ApiResource>>;
-    public record GetApiResourcesQuery() : IRequest<Result<List<ApiResource>>>;
+public static class SecurityServiceQueries
+{
+    public sealed record GetClientQuery(string ClientId) : IRequest<Result<ClientDetails>>;
+    public sealed record GetClientsQuery() : IRequest<Result<List<ClientDetails>>>;
 
-    public record GetApiScopeQuery(string Name) : IRequest<Result<ApiScope>>;
+    public sealed record GetApiScopeQuery(string Name) : IRequest<Result<ApiScopeDetails>>;
+    public sealed record GetApiScopesQuery() : IRequest<Result<List<ApiScopeDetails>>>;
 
-    public record GetApiScopesQuery() : IRequest<Result<List<ApiScope>>>;
+    public sealed record GetApiResourceQuery(string Name) : IRequest<Result<ApiResourceDetails>>;
+    public sealed record GetApiResourcesQuery() : IRequest<Result<List<ApiResourceDetails>>>;
 
-    public record GetClientQuery(String ClientId) :IRequest<Result<Client>>;
-    public record GetClientsQuery() : IRequest<Result<List<Client>>>;
+    public sealed record GetIdentityResourceQuery(string Name) : IRequest<Result<IdentityResourceDetails>>;
+    public sealed record GetIdentityResourcesQuery() : IRequest<Result<List<IdentityResourceDetails>>>;
 
-    public record GetRoleQuery(Guid RoleId) : IRequest<Result<RoleDetails>>;
-    public record GetRolesQuery() : IRequest<Result<List<RoleDetails>>>;
-
-    public record GetIdentityResourceQuery(String IdentityResourceName) : IRequest<Result<IdentityResource>>;
-    public record GetIdentityResourcesQuery() : IRequest<Result<List<IdentityResource>>>;
-
-    public record GetUserQuery(Guid UserId) : IRequest<Result<UserDetails>>;
-    public record GetUsersQuery(String UserName) : IRequest<Result<List<UserDetails>>>;
+    public sealed record GetRoleQuery(string RoleId) : IRequest<Result<RoleDetails>>;
+    public sealed record GetRolesQuery() : IRequest<Result<List<RoleDetails>>>;
+    public sealed record GetUserQuery(string UserId) : IRequest<Result<UserDetails>>;
+    public sealed record GetUsersQuery(string? UserName) : IRequest<Result<List<UserDetails>>>;
 }

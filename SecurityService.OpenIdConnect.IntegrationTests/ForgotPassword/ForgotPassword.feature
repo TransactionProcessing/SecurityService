@@ -36,8 +36,8 @@ Scenario: Forgot Password
 	Then I am presented with a login screen
 	When I click on the Forgot Password Button
 	Then I am presented with the forgot password screen
-	When I enter my username 'estateuser@testestate1.co.uk'
-	And I enter my email address 'estateuser@testestate1.co.uk'
+	#When I enter my username 'estateuser@testestate1.co.uk'
+	When I enter my email address 'estateuser@testestate1.co.uk'
 	And I click on the Reset Password button
 	Then I am presented with the reset password request sent screen
 	Then I get an email with a forgot password link
