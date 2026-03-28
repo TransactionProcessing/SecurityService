@@ -15,23 +15,17 @@ COPY ["SecurityService.Models/SecurityService.Models.csproj", "SecurityService.M
 COPY ["SecurityService.SqlServerMigrations/SecurityService.SqlServerMigrations.csproj", "SecurityService.SqlServerMigrations/"]
 
 RUN dotnet restore "SecurityService/SecurityService.csproj"
-
 COPY . .
-WORKDIR /src/SecurityService
-RUN dotnet publish "SecurityService.csproj" -c Release -o /app/publish /p:UseAppHost=false
+WORKDIR "/src/SecurityService"
+RUN dotnet build "SecurityService.csproj" -c Release -o /app
+WORKDIR "/src/Certificates"
+RUN powershell -Command Import-PfxCertificate -FilePath "aspnetapp-root-cert.pfx" -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
 
-WORKDIR /src/Certificates
-
-# Sort out certificate stuff here
-RUN cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/
-RUN update-ca-certificates
-
-WORKDIR /src/SecurityService
+WORKDIR "/src/SecurityService"
 FROM build AS publish
 RUN dotnet publish "SecurityService.csproj" -c Release -o /app
 
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
-USER app
 ENTRYPOINT ["dotnet", "SecurityService.dll"]
