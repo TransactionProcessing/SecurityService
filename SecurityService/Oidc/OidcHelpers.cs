@@ -50,7 +50,8 @@ public static class OidcHelpers
         identity.SetClaim(Claims.Subject, user.Id)
                 .SetClaim(Claims.Email, user.Email)
                 .SetClaim(Claims.Name, user.UserName)
-                .SetClaim(Claims.PreferredUsername, user.UserName);
+                .SetClaim(Claims.PreferredUsername, user.UserName)
+                .SetClaim(ClaimTypes.NameIdentifier, user.Id);
 
         if (string.IsNullOrWhiteSpace(user.GivenName) == false)
         {
