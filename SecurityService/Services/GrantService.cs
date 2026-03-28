@@ -3,7 +3,6 @@ using OpenIddict.Abstractions;
 using SecurityService.Models;
 using SimpleResults;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.Services;
@@ -77,5 +76,3 @@ public sealed class GrantService : IGrantService
             : Result.Failure("The authorization could not be revoked.");
     }
 }
-
-

@@ -138,7 +138,7 @@ public static class OidcEndpoints
             {
                 return InvalidGrant("The token is no longer valid.");
             }
-
+            
             var principal = await OidcHelpers.CreatePrincipalAsync(
                 user,
                 userManager,
@@ -175,8 +175,10 @@ public static class OidcEndpoints
                 return InvalidGrant();
             }
 
-            var resources = await scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(request.GetScopes()), cancellationToken).ToListAsync(cancellationToken);
-            var principal = await OidcHelpers.CreatePrincipalAsync(user, userManager, request.GetScopes(), resources, authorizationId: null);
+            var grantedScopes = await ResolveClientCredentialsScopesAsync(request, dbContext, cancellationToken);
+
+            var resources = await scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(grantedScopes), cancellationToken).ToListAsync(cancellationToken);
+            var principal = await OidcHelpers.CreatePrincipalAsync(user, userManager, grantedScopes, resources, authorizationId: null);
             return Results.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         }
 
