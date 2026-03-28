@@ -119,7 +119,6 @@ builder.Services.AddDbContext<SecurityServiceDbContext>(dbOptions =>
 
 builder.Services.AddSingleton<IMessagingServiceClient, TestMessagingServiceClient>();
 builder.Services.AddSingleton<IClientJwtService, ClientJwtService>();
-builder.Services.AddTransient<IClaimsTransformation, ClaimsTransformer>();
 
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(identityOptions =>
 {
