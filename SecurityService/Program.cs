@@ -38,7 +38,12 @@ using Logger = Shared.Logger.Logger;
 using NLog.Extensions.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
-var builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args,
+    ContentRootPath = AppContext.BaseDirectory
+});
+builder.Host.UseWindowsService();
 
 builder.WebHost.ConfigureAppConfiguration((context, configBuilder) =>
 {
@@ -285,7 +290,7 @@ builder.Services.AddOpenIddict()
         validationOptions.UseAspNetCore();
     });
 
-String contentRoot = Directory.GetCurrentDirectory();
+String contentRoot = builder.Environment.ContentRootPath;
 String nlogConfigPath = Path.Combine(contentRoot, "nlog.config");
 
 LogManager.Setup(b =>
