@@ -11,7 +11,6 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.Oidc;
 
-
 public static class OidcHelpers
 {
     public static string BuildCurrentRequestUrl(HttpRequest request)
