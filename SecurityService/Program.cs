@@ -207,7 +207,11 @@ builder.Services.AddSingleton(config);
 
 
 builder.Services.AddAuthorization();
-builder.Services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(typeof(SecurityServiceCommands).Assembly));
+builder.Services.AddMediatR(configuration =>
+{
+    configuration.RegisterServicesFromAssembly(typeof(SecurityServiceCommands).Assembly);
+    configuration.RegisterServicesFromAssembly(typeof(OidcRequestHandler).Assembly);
+});
 builder.Services.ConfigureHttpJsonOptions(jsonOptions => JsonSerializerConfiguration.ConfigureMinimalApi(jsonOptions.SerializerOptions));
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();

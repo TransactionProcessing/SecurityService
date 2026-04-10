@@ -11,6 +11,7 @@ using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.Oidc;
 
+
 public static class OidcHelpers
 {
     public static string BuildCurrentRequestUrl(HttpRequest request)
@@ -155,6 +156,25 @@ public static class OidcHelpers
             .ToArray();
 
         return (identityScopes, apiScopes);
+    }
+
+    public static async Task<IReadOnlyCollection<string>> ResolveClientCredentialsScopesAsync(
+        OpenIddictRequest request,
+        SecurityServiceDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyCollection<string> grantedScopes = request.GetScopes().ToArray();
+        if (grantedScopes.Count > 0)
+        {
+            return grantedScopes;
+        }
+
+        var clientDefinition = await dbContext.ClientDefinitions
+            .SingleOrDefaultAsync(client => client.ClientId == request.ClientId, cancellationToken);
+
+        return clientDefinition is null
+            ? Array.Empty<string>()
+            : JsonListSerializer.Deserialize(clientDefinition.AllowedScopesJson);
     }
 }
 
