@@ -38,7 +38,7 @@ public static class OidcHelpers
     public static IReadOnlyCollection<string> ReadMultiValue(IQueryCollection query, string key)
         => query.TryGetValue(key, out StringValues values) ? values.Where(value => value is not null).Cast<string>().ToArray() : Array.Empty<string>();
 
-    public static async Task<ClaimsPrincipal> CreatePrincipalAsync(
+    public static async Task<ClaimsPrincipal> CreatePrincipal(
         ApplicationUser user,
         UserManager<ApplicationUser> userManager,
         IEnumerable<string> scopes,
@@ -116,15 +116,15 @@ public static class OidcHelpers
         };
     }
 
-    public static async Task<(IReadOnlyCollection<ScopeDisplayItem> IdentityScopes, IReadOnlyCollection<ScopeDisplayItem> ApiScopes)> BuildScopeDisplayAsync(
+    public static async Task<(IReadOnlyCollection<ScopeDisplayItem> IdentityScopes, IReadOnlyCollection<ScopeDisplayItem> ApiScopes)> BuildScopeDisplay(
         OpenIddictRequest request,
         SecurityServiceDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        return await BuildScopeDisplayAsync(request.GetScopes(), dbContext, cancellationToken);
+        return await BuildScopeDisplay(request.GetScopes(), dbContext, cancellationToken);
     }
 
-    public static async Task<(IReadOnlyCollection<ScopeDisplayItem> IdentityScopes, IReadOnlyCollection<ScopeDisplayItem> ApiScopes)> BuildScopeDisplayAsync(
+    public static async Task<(IReadOnlyCollection<ScopeDisplayItem> IdentityScopes, IReadOnlyCollection<ScopeDisplayItem> ApiScopes)> BuildScopeDisplay(
         IEnumerable<string> scopeNames,
         SecurityServiceDbContext dbContext,
         CancellationToken cancellationToken)
@@ -157,7 +157,7 @@ public static class OidcHelpers
         return (identityScopes, apiScopes);
     }
 
-    public static async Task<IReadOnlyCollection<string>> ResolveClientCredentialsScopesAsync(
+    public static async Task<IReadOnlyCollection<string>> ResolveClientCredentialsScopes(
         OpenIddictRequest request,
         SecurityServiceDbContext dbContext,
         CancellationToken cancellationToken)

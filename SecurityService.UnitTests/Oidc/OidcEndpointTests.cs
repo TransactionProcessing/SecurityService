@@ -79,9 +79,9 @@ public class OidcEndpointTests
     }
 
     [Fact]
-    public async Task ResolveClientCredentialsScopesAsync_WithoutRequestedScopes_FallsBackToConfiguredClientScopes()
+    public async Task ResolveClientCredentialsScopes_WithoutRequestedScopes_FallsBackToConfiguredClientScopes()
     {
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ResolveClientCredentialsScopesAsync_WithoutRequestedScopes_FallsBackToConfiguredClientScopes));
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ResolveClientCredentialsScopes_WithoutRequestedScopes_FallsBackToConfiguredClientScopes));
         using var scope = provider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
@@ -105,7 +105,7 @@ public class OidcEndpointTests
             ClientId = "serviceClient"
         };
 
-        var scopes = await OidcHelpers.ResolveClientCredentialsScopesAsync(
+        var scopes = await OidcHelpers.ResolveClientCredentialsScopes(
             request,
             dbContext,
             CancellationToken.None);
@@ -114,7 +114,7 @@ public class OidcEndpointTests
     }
 
     [Fact]
-    public async Task CreatePrincipalAsync_WhenUserClaimsDuplicateBuiltInClaims_DoesNotDuplicateValues()
+    public async Task CreatePrincipal_WhenUserClaimsDuplicateBuiltInClaims_DoesNotDuplicateValues()
     {
         var userManager = IdentityMocks.CreateUserManager();
         var user = new ApplicationUser
@@ -135,7 +135,7 @@ public class OidcEndpointTests
             new Claim(OpenIddictConstants.Claims.Role, "Merchant")
         ]);
 
-        var principal = await OidcHelpers.CreatePrincipalAsync(
+        var principal = await OidcHelpers.CreatePrincipal(
             user,
             userManager.Object,
             [OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles],
