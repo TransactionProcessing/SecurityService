@@ -72,13 +72,13 @@ public class OidcEndpointTests
         var result = await handler.Handle(new OidcCommands.UserInfoCommand(context), CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        var jsonResult = result.Value.ShouldBeOfType<OidcJsonResult>();
+        var jsonResult = result.Value.ShouldBeOfType<UserInfoJsonResult>();
         jsonResult.Data.ShouldContainKey("sub");
         jsonResult.Data["sub"].ShouldBe("user-1");
         jsonResult.Data.ShouldContainKey("email");
         jsonResult.Data["email"].ShouldBe("alice@example.com");
 
-        var iResult = OidcEndpoints.ToIResult(result.Value!);
+        var iResult = OidcEndpoints.ToIResult(result);
         await iResult.ExecuteAsync(context);
         context.Response.StatusCode.ShouldBe(StatusCodes.Status200OK);
         context.Response.Body.Position = 0;

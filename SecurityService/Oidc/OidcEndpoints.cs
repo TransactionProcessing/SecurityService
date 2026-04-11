@@ -1,5 +1,4 @@
 using MediatR;
-using Microsoft.AspNetCore.Authentication;
 using SecurityService.BusinessLogic.Oidc;
 using SimpleResults;
 
@@ -39,25 +38,67 @@ public static class OidcEndpoints
         return ToIResult(result);
     }
 
-    public static IResult ToIResult(Result<OidcActionResult> result)
+    public static IResult ToIResult(Result<AuthorizeCommandResult> result)
     {
         if (result.IsSuccess == false)
         {
             return Results.Problem(result.Message);
         }
 
-        return ToIResult(result.Value!);
+        return result.Value switch
+        {
+            AuthorizeSignInResult r  => Results.SignIn(r.Principal, properties: null, authenticationScheme: r.AuthenticationScheme),
+            AuthorizeRedirectResult r => Results.Redirect(r.Url),
+            AuthorizeForbidResult r  => Results.Forbid(r.Properties, r.AuthenticationSchemes),
+            AuthorizeChallengeResult r => Results.Challenge(r.Properties, r.AuthenticationSchemes),
+            AuthorizeBadRequestResult r => Results.BadRequest(r.Error),
+            _ => Results.StatusCode(500)
+        };
     }
 
-    public static IResult ToIResult(OidcActionResult action) => action switch
+    public static IResult ToIResult(Result<TokenCommandResult> result)
     {
-        OidcSignInResult r => Results.SignIn(r.Principal, properties: null, authenticationScheme: r.AuthenticationScheme),
-        OidcSignOutResult r => Results.SignOut(r.Properties, r.AuthenticationSchemes),
-        OidcRedirectResult r => Results.Redirect(r.Url),
-        OidcForbidResult r => Results.Forbid(r.Properties, r.AuthenticationSchemes),
-        OidcChallengeResult r => Results.Challenge(r.Properties, r.AuthenticationSchemes),
-        OidcJsonResult r => Results.Json(r.Data),
-        OidcBadRequestResult r => Results.BadRequest(r.Error),
-        _ => Results.StatusCode(500)
-    };
+        if (result.IsSuccess == false)
+        {
+            return Results.Problem(result.Message);
+        }
+
+        return result.Value switch
+        {
+            TokenSignInResult r  => Results.SignIn(r.Principal, properties: null, authenticationScheme: r.AuthenticationScheme),
+            TokenForbidResult r  => Results.Forbid(r.Properties, r.AuthenticationSchemes),
+            TokenBadRequestResult r => Results.BadRequest(r.Error),
+            _ => Results.StatusCode(500)
+        };
+    }
+
+    public static IResult ToIResult(Result<LogoutCommandResult> result)
+    {
+        if (result.IsSuccess == false)
+        {
+            return Results.Problem(result.Message);
+        }
+
+        return result.Value switch
+        {
+            LogoutSignOutResult r  => Results.SignOut(r.Properties, r.AuthenticationSchemes),
+            LogoutRedirectResult r => Results.Redirect(r.Url),
+            _ => Results.StatusCode(500)
+        };
+    }
+
+    public static IResult ToIResult(Result<UserInfoCommandResult> result)
+    {
+        if (result.IsSuccess == false)
+        {
+            return Results.Problem(result.Message);
+        }
+
+        return result.Value switch
+        {
+            UserInfoJsonResult r      => Results.Json(r.Data),
+            UserInfoChallengeResult r => Results.Challenge(r.Properties, r.AuthenticationSchemes),
+            _ => Results.StatusCode(500)
+        };
+    }
 }
