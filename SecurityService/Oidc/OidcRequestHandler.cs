@@ -52,26 +52,13 @@ public sealed class OidcRequestHandler :
         var authenticationResult = await context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
         if (authenticationResult.Succeeded == false)
         {
-            if (request.HasPromptValue(PromptValues.None))
-            {
-                return Results.Forbid(new AuthenticationProperties(new Dictionary<string, string?>
-                {
-                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.LoginRequired,
-                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The user is not logged in."
-                }), [OpenIddictServerAspNetCoreDefaults.AuthenticationScheme]);
-            }
-
-            return Results.Challenge(new AuthenticationProperties { RedirectUri = currentRequestUrl }, [IdentityConstants.ApplicationScheme]);
+            return HandleAuthenticationFailed(request, currentRequestUrl);
         }
 
         var user = await this._userManager.GetUserAsync(authenticationResult.Principal);
         if (user is null)
         {
-            return Results.Forbid(new AuthenticationProperties(new Dictionary<string, string?>
-            {
-                [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.LoginRequired,
-                [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The user account could not be resolved."
-            }), [OpenIddictServerAspNetCoreDefaults.AuthenticationScheme]);
+            return ForbidServer(Errors.LoginRequired, "The user account could not be resolved.");
         }
 
         var application = await this._applicationManager.FindByClientIdAsync(request.ClientId!, cancellationToken);
@@ -82,45 +69,10 @@ public sealed class OidcRequestHandler :
 
         if (context.Request.Query.TryGetValue("consent", out var consentDecision))
         {
-            if (string.Equals(consentDecision, "denied", StringComparison.OrdinalIgnoreCase))
-            {
-                return Results.Forbid(new AuthenticationProperties(new Dictionary<string, string?>
-                {
-                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.AccessDenied,
-                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "The authorization request was denied."
-                }), [OpenIddictServerAspNetCoreDefaults.AuthenticationScheme]);
-            }
-
-            if (string.Equals(consentDecision, "accepted", StringComparison.OrdinalIgnoreCase))
-            {
-                return await this.CompleteAuthorizationAsync(user, request, application, cancellationToken, OidcHelpers.ReadMultiValue(context.Request.Query, "granted_scope"));
-            }
+            return await this.HandleConsentDecisionAsync(user, request, application, context, consentDecision!, cancellationToken);
         }
 
-        var consentType = await this._applicationManager.GetConsentTypeAsync(application, cancellationToken) ?? ConsentTypes.Implicit;
-        var existingAuthorizations = await this._authorizationManager.FindAsync(
-            subject: user.Id,
-            client: await this._applicationManager.GetIdAsync(application, cancellationToken),
-            status: Statuses.Valid,
-            type: AuthorizationTypes.Permanent,
-            scopes: ImmutableArray.CreateRange(request.GetScopes()),
-            cancellationToken: cancellationToken).ToListAsync(cancellationToken);
-
-        if (string.Equals(consentType, ConsentTypes.Explicit, StringComparison.OrdinalIgnoreCase) && existingAuthorizations.Count == 0)
-        {
-            if (request.HasPromptValue(PromptValues.None))
-            {
-                return Results.Forbid(new AuthenticationProperties(new Dictionary<string, string?>
-                {
-                    [OpenIddictServerAspNetCoreConstants.Properties.Error] = Errors.ConsentRequired,
-                    [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = "Interactive user consent is required."
-                }), [OpenIddictServerAspNetCoreDefaults.AuthenticationScheme]);
-            }
-
-            return Results.Redirect($"/Consent?returnUrl={Uri.EscapeDataString(currentRequestUrl)}");
-        }
-
-        return await this.CompleteAuthorizationAsync(user, request, application, cancellationToken, request.GetScopes());
+        return await this.HandleConsentTypeAsync(user, request, application, currentRequestUrl, cancellationToken);
     }
 
     public async Task<IResult> Handle(OidcCommands.TokenCommand command, CancellationToken cancellationToken)
@@ -130,65 +82,17 @@ public sealed class OidcRequestHandler :
 
         if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType() || request.IsDeviceCodeGrantType())
         {
-            var authenticationResult = await context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-            if (authenticationResult.Succeeded == false || authenticationResult.Principal is null)
-            {
-                return InvalidGrant("The specified token is invalid.");
-            }
-
-            var subject = authenticationResult.Principal.GetClaim(Claims.Subject);
-            if (string.IsNullOrWhiteSpace(subject))
-            {
-                return Results.SignIn(authenticationResult.Principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-            }
-
-            var user = await this._userManager.FindByIdAsync(subject);
-            if (user is null || await this._signInManager.CanSignInAsync(user) == false)
-            {
-                return InvalidGrant("The token is no longer valid.");
-            }
-
-            var principal = await OidcHelpers.CreatePrincipalAsync(
-                user,
-                this._userManager,
-                authenticationResult.Principal.GetScopes(),
-                await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(authenticationResult.Principal.GetScopes()), cancellationToken).ToListAsync(cancellationToken),
-                authenticationResult.Principal.GetAuthorizationId());
-            return Results.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            return await this.HandleCodeOrRefreshTokenAsync(context, cancellationToken);
         }
 
         if (request.IsClientCredentialsGrantType())
         {
-            var grantedScopes = await OidcHelpers.ResolveClientCredentialsScopesAsync(request, this._dbContext, cancellationToken);
-
-            var identity = new ClaimsIdentity(TokenValidationParameters.DefaultAuthenticationType, Claims.Name, Claims.Role);
-            identity.SetClaim(Claims.Subject, request.ClientId!)
-                    .SetClaim(Claims.Name, request.ClientId!);
-            identity.SetScopes(grantedScopes);
-            identity.SetResources(await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(grantedScopes), cancellationToken).ToListAsync(cancellationToken));
-            identity.SetDestinations(OidcHelpers.GetDestinations);
-            return Results.SignIn(new ClaimsPrincipal(identity), authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            return await this.HandleClientCredentialsAsync(request, cancellationToken);
         }
 
         if (request.IsPasswordGrantType())
         {
-            var user = await this._userManager.FindByNameAsync(request.Username!);
-            if (user is null)
-            {
-                return InvalidGrant();
-            }
-
-            var signInResult = await this._signInManager.CheckPasswordSignInAsync(user, request.Password!, lockoutOnFailure: true);
-            if (signInResult.Succeeded == false)
-            {
-                return InvalidGrant();
-            }
-
-            var grantedScopes = await OidcHelpers.ResolveClientCredentialsScopesAsync(request, this._dbContext, cancellationToken);
-
-            var resources = await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(grantedScopes), cancellationToken).ToListAsync(cancellationToken);
-            var principal = await OidcHelpers.CreatePrincipalAsync(user, this._userManager, grantedScopes, resources, authorizationId: null);
-            return Results.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            return await this.HandlePasswordGrantAsync(request, cancellationToken);
         }
 
         return Results.BadRequest(new { error = "unsupported_grant_type", error_description = "The specified grant type is not supported by this service." });
@@ -229,10 +133,131 @@ public sealed class OidcRequestHandler :
         }
 
         var scopes = authenticationResult.Principal.GetScopes().ToHashSet(StringComparer.OrdinalIgnoreCase);
-        var response = new Dictionary<string, object?>
+        var response = await this.BuildUserInfoResponseAsync(user, scopes);
+        return Results.Json(response.Where(pair => pair.Value is not null).ToDictionary(pair => pair.Key, pair => pair.Value));
+    }
+
+    private static IResult HandleAuthenticationFailed(OpenIddictRequest request, string currentRequestUrl)
+    {
+        if (request.HasPromptValue(PromptValues.None))
         {
-            [Claims.Subject] = user.Id
-        };
+            return ForbidServer(Errors.LoginRequired, "The user is not logged in.");
+        }
+
+        return Results.Challenge(new AuthenticationProperties { RedirectUri = currentRequestUrl }, [IdentityConstants.ApplicationScheme]);
+    }
+
+    private async Task<IResult> HandleConsentDecisionAsync(
+        ApplicationUser user,
+        OpenIddictRequest request,
+        object application,
+        HttpContext context,
+        string consentDecision,
+        CancellationToken cancellationToken)
+    {
+        if (string.Equals(consentDecision, "denied", StringComparison.OrdinalIgnoreCase))
+        {
+            return ForbidServer(Errors.AccessDenied, "The authorization request was denied.");
+        }
+
+        if (string.Equals(consentDecision, "accepted", StringComparison.OrdinalIgnoreCase))
+        {
+            return await this.CompleteAuthorizationAsync(user, request, application, cancellationToken, OidcHelpers.ReadMultiValue(context.Request.Query, "granted_scope"));
+        }
+
+        return await this.HandleConsentTypeAsync(user, request, application, OidcHelpers.BuildCurrentRequestUrl(context.Request), cancellationToken);
+    }
+
+    private async Task<IResult> HandleConsentTypeAsync(
+        ApplicationUser user,
+        OpenIddictRequest request,
+        object application,
+        string currentRequestUrl,
+        CancellationToken cancellationToken)
+    {
+        var consentType = await this._applicationManager.GetConsentTypeAsync(application, cancellationToken) ?? ConsentTypes.Implicit;
+        var existingAuthorizations = await this._authorizationManager.FindAsync(
+            subject: user.Id,
+            client: await this._applicationManager.GetIdAsync(application, cancellationToken),
+            status: Statuses.Valid,
+            type: AuthorizationTypes.Permanent,
+            scopes: ImmutableArray.CreateRange(request.GetScopes()),
+            cancellationToken: cancellationToken).ToListAsync(cancellationToken);
+
+        if (string.Equals(consentType, ConsentTypes.Explicit, StringComparison.OrdinalIgnoreCase) && existingAuthorizations.Count == 0)
+        {
+            if (request.HasPromptValue(PromptValues.None))
+            {
+                return ForbidServer(Errors.ConsentRequired, "Interactive user consent is required.");
+            }
+
+            return Results.Redirect($"/Consent?returnUrl={Uri.EscapeDataString(currentRequestUrl)}");
+        }
+
+        return await this.CompleteAuthorizationAsync(user, request, application, cancellationToken, request.GetScopes());
+    }
+
+    private async Task<IResult> HandleCodeOrRefreshTokenAsync(HttpContext context, CancellationToken cancellationToken)
+    {
+        var authenticationResult = await context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        if (authenticationResult.Succeeded == false || authenticationResult.Principal is null)
+        {
+            return InvalidGrant("The specified token is invalid.");
+        }
+
+        var subject = authenticationResult.Principal.GetClaim(Claims.Subject);
+        if (string.IsNullOrWhiteSpace(subject))
+        {
+            return Results.SignIn(authenticationResult.Principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+        }
+
+        var user = await this._userManager.FindByIdAsync(subject);
+        if (user is null || await this._signInManager.CanSignInAsync(user) == false)
+        {
+            return InvalidGrant("The token is no longer valid.");
+        }
+
+        var scopes = authenticationResult.Principal.GetScopes();
+        var resources = await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(scopes), cancellationToken).ToListAsync(cancellationToken);
+        var principal = await OidcHelpers.CreatePrincipalAsync(user, this._userManager, scopes, resources, authenticationResult.Principal.GetAuthorizationId());
+        return Results.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    private async Task<IResult> HandleClientCredentialsAsync(OpenIddictRequest request, CancellationToken cancellationToken)
+    {
+        var grantedScopes = await OidcHelpers.ResolveClientCredentialsScopesAsync(request, this._dbContext, cancellationToken);
+        var identity = new ClaimsIdentity(TokenValidationParameters.DefaultAuthenticationType, Claims.Name, Claims.Role);
+        identity.SetClaim(Claims.Subject, request.ClientId!)
+                .SetClaim(Claims.Name, request.ClientId!);
+        identity.SetScopes(grantedScopes);
+        identity.SetResources(await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(grantedScopes), cancellationToken).ToListAsync(cancellationToken));
+        identity.SetDestinations(OidcHelpers.GetDestinations);
+        return Results.SignIn(new ClaimsPrincipal(identity), authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    private async Task<IResult> HandlePasswordGrantAsync(OpenIddictRequest request, CancellationToken cancellationToken)
+    {
+        var user = await this._userManager.FindByNameAsync(request.Username!);
+        if (user is null)
+        {
+            return InvalidGrant();
+        }
+
+        var signInResult = await this._signInManager.CheckPasswordSignInAsync(user, request.Password!, lockoutOnFailure: true);
+        if (signInResult.Succeeded == false)
+        {
+            return InvalidGrant();
+        }
+
+        var grantedScopes = await OidcHelpers.ResolveClientCredentialsScopesAsync(request, this._dbContext, cancellationToken);
+        var resources = await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(grantedScopes), cancellationToken).ToListAsync(cancellationToken);
+        var principal = await OidcHelpers.CreatePrincipalAsync(user, this._userManager, grantedScopes, resources, authorizationId: null);
+        return Results.SignIn(principal, authenticationScheme: OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    private async Task<Dictionary<string, object?>> BuildUserInfoResponseAsync(ApplicationUser user, HashSet<string> scopes)
+    {
+        var response = new Dictionary<string, object?> { [Claims.Subject] = user.Id };
 
         if (scopes.Contains(Scopes.Profile))
         {
@@ -262,8 +287,15 @@ public sealed class OidcRequestHandler :
             }
         }
 
-        return Results.Json(response.Where(pair => pair.Value is not null).ToDictionary(pair => pair.Key, pair => pair.Value));
+        return response;
     }
+
+    private static IResult ForbidServer(string error, string description) =>
+        Results.Forbid(new AuthenticationProperties(new Dictionary<string, string?>
+        {
+            [OpenIddictServerAspNetCoreConstants.Properties.Error] = error,
+            [OpenIddictServerAspNetCoreConstants.Properties.ErrorDescription] = description
+        }), [OpenIddictServerAspNetCoreDefaults.AuthenticationScheme]);
 
     private async Task<IResult> CompleteAuthorizationAsync(
         ApplicationUser user,
