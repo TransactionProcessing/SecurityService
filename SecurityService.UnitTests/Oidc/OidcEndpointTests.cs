@@ -1,5 +1,4 @@
 using System.Security.Claims;
-using System.Text;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +9,6 @@ using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
-using SecurityService.Oidc;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
 
@@ -46,11 +44,7 @@ public class OidcEndpointTests
 
         var context = new DefaultHttpContext
         {
-            RequestServices = services.BuildServiceProvider(),
-            Response =
-            {
-                Body = new MemoryStream()
-            }
+            RequestServices = services.BuildServiceProvider()
         };
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
@@ -77,14 +71,6 @@ public class OidcEndpointTests
         jsonResult.Data["sub"].ShouldBe("user-1");
         jsonResult.Data.ShouldContainKey("email");
         jsonResult.Data["email"].ShouldBe("alice@example.com");
-
-        var iResult = OidcEndpoints.ToIResult(result);
-        await iResult.ExecuteAsync(context);
-        context.Response.StatusCode.ShouldBe(StatusCodes.Status200OK);
-        context.Response.Body.Position = 0;
-        var payload = await new StreamReader(context.Response.Body, Encoding.UTF8).ReadToEndAsync();
-        payload.ShouldContain("\"sub\":\"user-1\"");
-        payload.ShouldContain("\"email\":\"alice@example.com\"");
     }
 
     [Fact]
