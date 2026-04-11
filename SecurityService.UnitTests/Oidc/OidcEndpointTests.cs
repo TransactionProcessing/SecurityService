@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using OpenIddict.Validation.AspNetCore;
+using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
@@ -69,8 +70,16 @@ public class OidcEndpointTests
             dbContext);
 
         var result = await handler.Handle(new OidcCommands.UserInfoCommand(context), CancellationToken.None);
-        await result.ExecuteAsync(context);
 
+        result.IsSuccess.ShouldBeTrue();
+        var jsonResult = result.Value.ShouldBeOfType<OidcJsonResult>();
+        jsonResult.Data.ShouldContainKey("sub");
+        jsonResult.Data["sub"].ShouldBe("user-1");
+        jsonResult.Data.ShouldContainKey("email");
+        jsonResult.Data["email"].ShouldBe("alice@example.com");
+
+        var iResult = OidcEndpoints.ToIResult(result.Value!);
+        await iResult.ExecuteAsync(context);
         context.Response.StatusCode.ShouldBe(StatusCodes.Status200OK);
         context.Response.Body.Position = 0;
         var payload = await new StreamReader(context.Response.Body, Encoding.UTF8).ReadToEndAsync();
@@ -168,4 +177,3 @@ public class OidcEndpointTests
         public Task SignOutAsync(HttpContext context, string? scheme, AuthenticationProperties? properties) => Task.CompletedTask;
     }
 }
-

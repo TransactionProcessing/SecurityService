@@ -7,7 +7,7 @@ using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
-using SecurityService.Oidc;
+using SecurityService.BusinessLogic.Oidc;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.Pages.Connect;

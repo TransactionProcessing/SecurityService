@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using SecurityService.Oidc;
+using SecurityService.BusinessLogic.Oidc;
 
 namespace SecurityService.Pages.Account.Logout;
 

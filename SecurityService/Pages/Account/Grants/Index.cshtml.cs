@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SecurityService.Database;
 using SecurityService.Models;
-using SecurityService.Oidc;
+using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Services;
 
 namespace SecurityService.Pages.Account.Grants;

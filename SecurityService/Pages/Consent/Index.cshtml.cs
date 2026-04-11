@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using OpenIddict.Abstractions;
 using SecurityService.Database.DbContexts;
-using SecurityService.Oidc;
+using SecurityService.BusinessLogic.Oidc;
 
 namespace SecurityService.Pages.Consent;
 

@@ -9,7 +9,7 @@ using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace SecurityService.Oidc;
+namespace SecurityService.BusinessLogic.Oidc;
 
 public static class OidcHelpers
 {
