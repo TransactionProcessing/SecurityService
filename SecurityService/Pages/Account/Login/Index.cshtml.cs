@@ -1,18 +1,18 @@
-using Microsoft.AspNetCore.Identity;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using SecurityService.Database;
+using SecurityService.BusinessLogic.Requests;
 
 namespace SecurityService.Pages.Account.Login;
 
 public sealed class IndexModel : PageModel
 {
-    private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly IMediator _mediator;
 
-    public IndexModel(SignInManager<ApplicationUser> signInManager)
+    public IndexModel(IMediator mediator)
     {
-        this._signInManager = signInManager;
+        this._mediator = mediator;
     }
 
     [BindProperty]
@@ -52,8 +52,8 @@ public sealed class IndexModel : PageModel
             });
         }
 
-        var result = await this._signInManager.PasswordSignInAsync(this.Input.Username, this.Input.Password, this.Input.RememberLogin, lockoutOnFailure: true);
-        if (result.Succeeded)
+        var result = await this._mediator.Send(new SecurityServiceCommands.LoginCommand(this.Input.Username, this.Input.Password, this.Input.RememberLogin));
+        if (result.IsSuccess)
         {
             return this.LocalRedirect(string.IsNullOrWhiteSpace(this.Input.ReturnUrl) ? "/" : this.Input.ReturnUrl);
         }
@@ -64,10 +64,10 @@ public sealed class IndexModel : PageModel
 
     private async Task LoadProvidersAsync()
     {
-        this.Providers = (await this._signInManager.GetExternalAuthenticationSchemesAsync())
-            .Select(scheme => new ExternalProviderViewModel(scheme.Name, scheme.DisplayName ?? scheme.Name))
-            .OrderBy(provider => provider.DisplayName, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+        var result = await this._mediator.Send(new SecurityServiceQueries.GetExternalProvidersQuery());
+        this.Providers = result.IsSuccess
+            ? result.Data.Select(p => new ExternalProviderViewModel(p.Name, p.DisplayName)).ToArray()
+            : Array.Empty<ExternalProviderViewModel>();
     }
 
     public sealed class InputModel
@@ -83,3 +83,4 @@ public sealed class IndexModel : PageModel
 
     public sealed record ExternalProviderViewModel(string Name, string DisplayName);
 }
+
