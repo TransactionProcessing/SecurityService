@@ -2,7 +2,6 @@ using MessagingService.DataTransferObjects;
 using Microsoft.AspNetCore.Http.HttpResults;
 using SecurityService.BusinessLogic;
 using SecurityService.Handlers;
-using SecurityService.Services;
 using Shouldly;
 
 namespace SecurityService.UnitTests.Handlers;

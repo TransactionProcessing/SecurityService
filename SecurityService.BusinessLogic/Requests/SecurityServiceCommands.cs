@@ -69,4 +69,5 @@ public static class SecurityServiceCommands
                                                           String ClientId) : IRequest<Result<String>>;
 
     public sealed record LoginCommand(string Username, string Password, bool RememberLogin) : IRequest<Result>;
+    public sealed record RevokeGrantCommand(string UserId, string AuthorizationId) : IRequest<Result>;
 }

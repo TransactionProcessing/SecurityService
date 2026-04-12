@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using SecurityService.Database;
-using SecurityService.Services;
 
 namespace SecurityService.Pages.Account.ResendConfirmationEmail;
 

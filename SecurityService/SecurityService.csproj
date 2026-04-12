@@ -7,12 +7,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Pages\Account\ExternalLogin\Index.cshtml.cs" />
-    <Compile Remove="Pages\Account\Grants\Index.cshtml.cs" />
     <Compile Remove="Pages\Account\ResendConfirmationEmail\Index.cshtml.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Account\ExternalLogin\Index.cshtml" />
-    <Content Remove="Pages\Account\Grants\Index.cshtml" />
     <Content Remove="Pages\Account\ResendConfirmationEmail\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
@@ -70,7 +68,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\Account\ExternalLogin\" />
-    <Folder Include="Pages\Account\Grants\" />
     <Folder Include="Pages\Account\ResendConfirmationEmail\" />
   </ItemGroup>
 </Project>
