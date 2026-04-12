@@ -33,7 +33,7 @@ public sealed class IndexModel : PageModel
         }
 
         var result = await this._mediator.Send(new SecurityServiceQueries.GetUserGrantsQuery(user.Id), cancellationToken);
-        this.Grants = result.Data ?? Array.Empty<GrantDetails>();
+        this.Grants = result.Data ?? new List<GrantDetails>();
         return this.Page();
     }
 
@@ -50,7 +50,7 @@ public sealed class IndexModel : PageModel
         {
             this.StatusMessage = result.Message ?? "The grant could not be revoked.";
             var grantsResult = await this._mediator.Send(new SecurityServiceQueries.GetUserGrantsQuery(user.Id), cancellationToken);
-            this.Grants = grantsResult.Data ?? Array.Empty<GrantDetails>();
+            this.Grants = grantsResult.Data ?? new List<GrantDetails>();
             return this.Page();
         }
 
