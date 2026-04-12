@@ -31,8 +31,27 @@ public sealed class LoginRequestHandler :
     public async Task<Result> Handle(SecurityServiceCommands.LoginCommand command, CancellationToken cancellationToken)
     {
         var result = await this._signInManager.PasswordSignInAsync(command.Username, command.Password, command.RememberLogin, lockoutOnFailure: true);
-        return result.Succeeded
-            ? Result.Success()
-            : Result.Failure("Invalid username or password.");
+
+        if (result.Succeeded)
+        {
+            return Result.Success();
+        }
+
+        if (result.IsLockedOut)
+        {
+            return Result.Failure("Your account has been locked. Please try again later or contact support.");
+        }
+
+        if (result.IsNotAllowed)
+        {
+            return Result.Failure("You are not allowed to sign in. Please confirm your email address.");
+        }
+
+        if (result.RequiresTwoFactor)
+        {
+            return Result.Failure("Two-factor authentication is required.");
+        }
+
+        return Result.Failure("Invalid username or password.");
     }
 }

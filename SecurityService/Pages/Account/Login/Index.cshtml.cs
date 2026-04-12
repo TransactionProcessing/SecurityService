@@ -58,7 +58,7 @@ public sealed class IndexModel : PageModel
             return this.LocalRedirect(string.IsNullOrWhiteSpace(this.Input.ReturnUrl) ? "/" : this.Input.ReturnUrl);
         }
 
-        this.ModelState.AddModelError(string.Empty, "Invalid username or password.");
+        this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? result.Message ?? "Invalid username or password.");
         return this.Page();
     }
 
