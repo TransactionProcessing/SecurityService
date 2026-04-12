@@ -48,3 +48,5 @@ public sealed record UserDetails(
     string? FamilyName,
     IReadOnlyDictionary<string, string> Claims,
     IReadOnlyCollection<string> Roles);
+
+public sealed record ExternalProviderDetails(string Name, string DisplayName);
