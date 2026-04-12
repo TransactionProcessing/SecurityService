@@ -1,7 +1,6 @@
 using MessagingService.Client;
 using MessagingService.DataTransferObjects;
 using SecurityService.BusinessLogic;
-using SecurityService.Services;
 
 namespace SecurityService.Handlers;
 
