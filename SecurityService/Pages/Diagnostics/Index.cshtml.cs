@@ -1,43 +1,41 @@
-using System.Net;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SecurityService.BusinessLogic.Oidc;
 
 namespace SecurityService.Pages.Diagnostics;
 
 public sealed class IndexModel : PageModel
 {
+    private readonly IMediator _mediator;
+
+    public IndexModel(IMediator mediator)
+    {
+        this._mediator = mediator;
+    }
+
     public IReadOnlyCollection<DiagnosticItem> Claims { get; private set; } = Array.Empty<DiagnosticItem>();
 
     public IReadOnlyCollection<DiagnosticItem> Properties { get; private set; } = Array.Empty<DiagnosticItem>();
 
-    public async Task<IActionResult> OnGetAsync()
+    public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
-        if (this.Request.HttpContext.Connection.RemoteIpAddress is { } remoteIpAddress &&
-            IPAddress.IsLoopback(remoteIpAddress) == false)
+        var result = await this._mediator.Send(new OidcCommands.DiagnosticsQuery(this.HttpContext), cancellationToken);
+
+        return result.Data switch
         {
-            return this.NotFound();
-        }
+            DiagnosticsNotFoundResult => this.NotFound(),
+            DiagnosticsChallengeResult challenge => this.Challenge(challenge.AuthenticationScheme),
+            DiagnosticsPageResult page => this.ApplyPageResult(page),
+            _ => this.Page()
+        };
+    }
 
-        var result = await this.HttpContext.AuthenticateAsync(IdentityConstants.ApplicationScheme);
-        if (result.Succeeded == false || result.Principal is null)
-        {
-            return this.Challenge(IdentityConstants.ApplicationScheme);
-        }
-
-        this.Claims = result.Principal.Claims
-            .Select(claim => new DiagnosticItem(claim.Type, claim.Value))
-            .OrderBy(item => item.Type, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-        this.Properties = result.Properties?.Items
-            .OrderBy(item => item.Key, StringComparer.OrdinalIgnoreCase)
-            .Select(item => new DiagnosticItem(item.Key, item.Value ?? string.Empty))
-            .ToArray() ?? Array.Empty<DiagnosticItem>();
-
+    private IActionResult ApplyPageResult(DiagnosticsPageResult page)
+    {
+        this.Claims = page.Claims;
+        this.Properties = page.Properties;
         return this.Page();
     }
 }
 
-public sealed record DiagnosticItem(string Type, string Value);
