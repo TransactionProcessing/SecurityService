@@ -27,23 +27,11 @@ public sealed class GrantRequestHandler :
 
         foreach (var authorization in authorizations)
         {
-            var authorizationId = await this._authorizationManager.GetIdAsync(authorization, cancellationToken);
-            if (string.IsNullOrWhiteSpace(authorizationId))
+            var grant = await this.BuildGrantDetailsAsync(authorization, cancellationToken);
+            if (grant is not null)
             {
-                continue;
+                grants.Add(grant);
             }
-
-            var applicationId = await this._authorizationManager.GetApplicationIdAsync(authorization, cancellationToken);
-            object? application = string.IsNullOrWhiteSpace(applicationId) ? null : await this._applicationManager.FindByIdAsync(applicationId, cancellationToken);
-            var clientId = application is null ? string.Empty : await this._applicationManager.GetClientIdAsync(application, cancellationToken) ?? string.Empty;
-            var displayName = application is null ? clientId : await this._applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? clientId;
-
-            grants.Add(new GrantDetails(
-                authorizationId,
-                clientId,
-                string.IsNullOrWhiteSpace(displayName) ? clientId : displayName,
-                await this._authorizationManager.GetScopesAsync(authorization, cancellationToken),
-                await this._authorizationManager.GetCreationDateAsync(authorization, cancellationToken)));
         }
 
         var sorted = grants
@@ -52,6 +40,27 @@ public sealed class GrantRequestHandler :
             .ToList();
 
         return Result.Success(sorted);
+    }
+
+    private async Task<GrantDetails?> BuildGrantDetailsAsync(object authorization, CancellationToken cancellationToken)
+    {
+        var authorizationId = await this._authorizationManager.GetIdAsync(authorization, cancellationToken);
+        if (string.IsNullOrWhiteSpace(authorizationId))
+        {
+            return null;
+        }
+
+        var applicationId = await this._authorizationManager.GetApplicationIdAsync(authorization, cancellationToken);
+        object? application = string.IsNullOrWhiteSpace(applicationId) ? null : await this._applicationManager.FindByIdAsync(applicationId, cancellationToken);
+        var clientId = application is null ? string.Empty : await this._applicationManager.GetClientIdAsync(application, cancellationToken) ?? string.Empty;
+        var displayName = application is null ? clientId : await this._applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? clientId;
+
+        return new GrantDetails(
+            authorizationId,
+            clientId,
+            string.IsNullOrWhiteSpace(displayName) ? clientId : displayName,
+            await this._authorizationManager.GetScopesAsync(authorization, cancellationToken),
+            await this._authorizationManager.GetCreationDateAsync(authorization, cancellationToken));
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.RevokeGrantCommand command, CancellationToken cancellationToken)
