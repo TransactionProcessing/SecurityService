@@ -51,16 +51,32 @@ public sealed class GrantRequestHandler :
         }
 
         var applicationId = await this._authorizationManager.GetApplicationIdAsync(authorization, cancellationToken);
-        object? application = string.IsNullOrWhiteSpace(applicationId) ? null : await this._applicationManager.FindByIdAsync(applicationId, cancellationToken);
-        var clientId = application is null ? string.Empty : await this._applicationManager.GetClientIdAsync(application, cancellationToken) ?? string.Empty;
-        var displayName = application is null ? clientId : await this._applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? clientId;
+        var (clientId, displayName) = await this.GetApplicationDisplayAsync(applicationId, cancellationToken);
 
         return new GrantDetails(
             authorizationId,
             clientId,
-            string.IsNullOrWhiteSpace(displayName) ? clientId : displayName,
+            displayName,
             await this._authorizationManager.GetScopesAsync(authorization, cancellationToken),
             await this._authorizationManager.GetCreationDateAsync(authorization, cancellationToken));
+    }
+
+    private async Task<(string clientId, string displayName)> GetApplicationDisplayAsync(string? applicationId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(applicationId))
+        {
+            return (string.Empty, string.Empty);
+        }
+
+        var application = await this._applicationManager.FindByIdAsync(applicationId, cancellationToken);
+        if (application is null)
+        {
+            return (string.Empty, string.Empty);
+        }
+
+        var clientId = await this._applicationManager.GetClientIdAsync(application, cancellationToken) ?? string.Empty;
+        var displayName = await this._applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? clientId;
+        return (clientId, string.IsNullOrWhiteSpace(displayName) ? clientId : displayName);
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.RevokeGrantCommand command, CancellationToken cancellationToken)
