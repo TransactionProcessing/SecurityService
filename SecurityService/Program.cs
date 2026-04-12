@@ -22,7 +22,6 @@ using SecurityService.Endpoints;
 using SecurityService.HealthChecks;
 using SecurityService.HostedServices;
 using SecurityService.Oidc;
-using SecurityService.Services;
 using Sentry.Extensibility;
 using Shared.Extensions;
 using Shared.General;
@@ -216,7 +215,6 @@ builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddHostedService<DatabaseInitializer>();
-builder.Services.AddScoped<IGrantService, GrantService>();
 
 if (builder.Environment.IsEnvironment("IntegrationTest")) {
     builder.Services.AddHealthChecks();

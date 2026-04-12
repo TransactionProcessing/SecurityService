@@ -1,33 +1,28 @@
-using Microsoft.IdentityModel.Tokens;
+using MediatR;
 using OpenIddict.Abstractions;
+using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
 using SimpleResults;
-using System.IdentityModel.Tokens.Jwt;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace SecurityService.Services;
+namespace SecurityService.BusinessLogic.RequestHandlers;
 
-public interface IGrantService
-{
-    Task<IReadOnlyCollection<GrantDetails>> GetUserGrantsAsync(string userId, CancellationToken cancellationToken);
-
-    Task<Result> RevokeAsync(string userId, string authorizationId, CancellationToken cancellationToken);
-}
-
-public sealed class GrantService : IGrantService
+public sealed class GrantRequestHandler :
+    IRequestHandler<SecurityServiceQueries.GetUserGrantsQuery, Result<List<GrantDetails>>>,
+    IRequestHandler<SecurityServiceCommands.RevokeGrantCommand, Result>
 {
     private readonly IOpenIddictAuthorizationManager _authorizationManager;
     private readonly IOpenIddictApplicationManager _applicationManager;
 
-    public GrantService(IOpenIddictAuthorizationManager authorizationManager, IOpenIddictApplicationManager applicationManager)
+    public GrantRequestHandler(IOpenIddictAuthorizationManager authorizationManager, IOpenIddictApplicationManager applicationManager)
     {
         this._authorizationManager = authorizationManager;
         this._applicationManager = applicationManager;
     }
 
-    public async Task<IReadOnlyCollection<GrantDetails>> GetUserGrantsAsync(string userId, CancellationToken cancellationToken)
+    public async Task<Result<List<GrantDetails>>> Handle(SecurityServiceQueries.GetUserGrantsQuery query, CancellationToken cancellationToken)
     {
-        var authorizations = await this._authorizationManager.FindAsync(userId, client: null, status: Statuses.Valid, type: null, scopes: null, cancellationToken).ToListAsync(cancellationToken);
+        var authorizations = await this._authorizationManager.FindAsync(query.UserId, client: null, status: Statuses.Valid, type: null, scopes: null, cancellationToken).ToListAsync(cancellationToken);
         var grants = new List<GrantDetails>();
 
         foreach (var authorization in authorizations)
@@ -51,24 +46,26 @@ public sealed class GrantService : IGrantService
                 await this._authorizationManager.GetCreationDateAsync(authorization, cancellationToken)));
         }
 
-        return grants
+        var sorted = grants
             .OrderByDescending(grant => grant.CreatedAt)
             .ThenBy(grant => grant.DisplayName, StringComparer.OrdinalIgnoreCase)
-            .ToArray();
+            .ToList();
+
+        return Result.Success(sorted);
     }
 
-    public async Task<Result> RevokeAsync(string userId, string authorizationId, CancellationToken cancellationToken)
+    public async Task<Result> Handle(SecurityServiceCommands.RevokeGrantCommand command, CancellationToken cancellationToken)
     {
-        var authorization = await this._authorizationManager.FindByIdAsync(authorizationId, cancellationToken);
+        var authorization = await this._authorizationManager.FindByIdAsync(command.AuthorizationId, cancellationToken);
         if (authorization is null)
         {
-            return Result.NotFound($"No authorization found with id '{authorizationId}'.");
+            return Result.NotFound($"No authorization found with id '{command.AuthorizationId}'.");
         }
 
         var subject = await this._authorizationManager.GetSubjectAsync(authorization, cancellationToken);
-        if (string.Equals(subject, userId, StringComparison.Ordinal) == false)
+        if (string.Equals(subject, command.UserId, StringComparison.Ordinal) == false)
         {
-            return Result.NotFound($"No authorization found with id '{authorizationId}'.");
+            return Result.NotFound($"No authorization found with id '{command.AuthorizationId}'.");
         }
 
         return await this._authorizationManager.TryRevokeAsync(authorization, cancellationToken)

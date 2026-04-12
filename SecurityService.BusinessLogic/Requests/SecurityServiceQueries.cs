@@ -23,4 +23,5 @@ public static class SecurityServiceQueries
     public sealed record GetUserQuery(string UserId) : IRequest<Result<UserDetails>>;
     public sealed record GetUsersQuery(string? UserName) : IRequest<Result<List<UserDetails>>>;
     public sealed record GetExternalProvidersQuery() : IRequest<Result<List<ExternalProviderDetails>>>;
+    public sealed record GetUserGrantsQuery(string UserId) : IRequest<Result<List<GrantDetails>>>;
 }
