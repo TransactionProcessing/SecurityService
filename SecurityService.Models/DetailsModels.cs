@@ -46,6 +46,7 @@ public sealed record UserDetails(
     string? GivenName,
     string? MiddleName,
     string? FamilyName,
+    DateTime RegistrationDateTime,
     IReadOnlyDictionary<string, string> Claims,
     IReadOnlyCollection<string> Roles);
 

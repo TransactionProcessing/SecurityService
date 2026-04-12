@@ -22,7 +22,7 @@ namespace SecurityService.Factories
                 Claims = model.Claims,
                 UserId = model.UserId,
                 EmailAddress = model.EmailAddress,
-                //RegistrationDateTime = model.RegistrationDateTime
+                RegistrationDateTime = model.RegistrationDateTime,
                 FamilyName = model.FamilyName,
                 GivenName = model.GivenName,
                 MiddleName = model.MiddleName

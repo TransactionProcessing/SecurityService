@@ -183,6 +183,7 @@ public sealed class UserRequestHandler :
             MiddleName = command.MiddleName,
             FamilyName = command.FamilyName,
             EmailConfirmed = string.IsNullOrWhiteSpace(command.EmailAddress),
+            RegistrationDateTime = DateTime.Now,
         };
 
         Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password) ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions) : command.Password;
@@ -350,6 +351,7 @@ public sealed class UserRequestHandler :
             user.GivenName,
             user.MiddleName,
             user.FamilyName,
+            user.RegistrationDateTime,
             claims.GroupBy(claim => claim.Type, StringComparer.OrdinalIgnoreCase).ToDictionary(group => group.Key, group => group.Last().Value, StringComparer.OrdinalIgnoreCase),
             roles.ToArray());
     }
