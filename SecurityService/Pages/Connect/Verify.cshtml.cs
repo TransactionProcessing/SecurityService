@@ -7,7 +7,7 @@ using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
-using SecurityService.Oidc;
+using SecurityService.BusinessLogic.Oidc;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.Pages.Connect;
@@ -96,7 +96,7 @@ public sealed class VerifyModel : PageModel
 
         var scopes = result.AuthenticationResult.Principal!.GetScopes();
         var resources = await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(scopes), cancellationToken).ToListAsync(cancellationToken);
-        var principal = await OidcHelpers.CreatePrincipalAsync(user, this._userManager, scopes, resources, authorizationId: null);
+        var principal = await OidcHelpers.CreatePrincipal(user, this._userManager, scopes, resources, authorizationId: null);
 
         return this.SignIn(principal, new AuthenticationProperties { RedirectUri = "/" }, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
@@ -104,7 +104,7 @@ public sealed class VerifyModel : PageModel
     private async Task PopulateAsync(AuthenticateResult authenticationResult, CancellationToken cancellationToken)
     {
         this.RequestedScopes = authenticationResult.Principal!.GetScopes().ToArray();
-        var scopeDisplay = await OidcHelpers.BuildScopeDisplayAsync(this.RequestedScopes, this._dbContext, cancellationToken);
+        var scopeDisplay = await OidcHelpers.BuildScopeDisplay(this.RequestedScopes, this._dbContext, cancellationToken);
         this.IdentityScopes = scopeDisplay.IdentityScopes;
         this.ApiScopes = scopeDisplay.ApiScopes;
         this.Input.UserCode = authenticationResult.Properties?.GetTokenValue(OpenIddictServerAspNetCoreConstants.Tokens.UserCode) ?? this.Request.Query["user_code"].FirstOrDefault() ?? string.Empty;

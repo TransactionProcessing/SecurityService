@@ -1,14 +1,14 @@
 using System.Security.Claims;
-using System.Text;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using OpenIddict.Validation.AspNetCore;
+using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
-using SecurityService.Oidc;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
 
@@ -44,27 +44,39 @@ public class OidcEndpointTests
 
         var context = new DefaultHttpContext
         {
-            RequestServices = services.BuildServiceProvider(),
-            Response =
-            {
-                Body = new MemoryStream()
-            }
+            RequestServices = services.BuildServiceProvider()
         };
 
-        var result = await OidcEndpoints.UserInfoAsync(context, userManager.Object);
-        await result.ExecuteAsync(context);
+        var signInManager = IdentityMocks.CreateSignInManager(userManager);
+        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var authManager = new Mock<OpenIddict.Abstractions.IOpenIddictAuthorizationManager>();
+        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
+        using var provider = TestServiceProviderFactory.Create(nameof(this.UserInfoAsync_WithValidPrincipal_ReturnsJsonPayload));
+        using var scope = provider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        context.Response.StatusCode.ShouldBe(StatusCodes.Status200OK);
-        context.Response.Body.Position = 0;
-        var payload = await new StreamReader(context.Response.Body, Encoding.UTF8).ReadToEndAsync();
-        payload.ShouldContain("\"sub\":\"user-1\"");
-        payload.ShouldContain("\"email\":\"alice@example.com\"");
+        var handler = new OidcRequestHandler(
+            userManager.Object,
+            signInManager.Object,
+            appManager.Object,
+            authManager.Object,
+            scopeManager.Object,
+            dbContext);
+
+        var result = await handler.Handle(new OidcCommands.UserInfoCommand(context), CancellationToken.None);
+
+        result.IsSuccess.ShouldBeTrue();
+        var jsonResult = result.Data.ShouldBeOfType<UserInfoJsonResult>();
+        jsonResult.Data.ShouldContainKey("sub");
+        jsonResult.Data["sub"].ShouldBe("user-1");
+        jsonResult.Data.ShouldContainKey("email");
+        jsonResult.Data["email"].ShouldBe("alice@example.com");
     }
 
     [Fact]
-    public async Task TokenAsync_ClientCredentialsWithoutRequestedScopes_FallsBackToConfiguredClientScopes()
+    public async Task ResolveClientCredentialsScopes_WithoutRequestedScopes_FallsBackToConfiguredClientScopes()
     {
-        using var provider = TestServiceProviderFactory.Create(nameof(this.TokenAsync_ClientCredentialsWithoutRequestedScopes_FallsBackToConfiguredClientScopes));
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ResolveClientCredentialsScopes_WithoutRequestedScopes_FallsBackToConfiguredClientScopes));
         using var scope = provider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
@@ -88,7 +100,7 @@ public class OidcEndpointTests
             ClientId = "serviceClient"
         };
 
-        var scopes = await OidcEndpoints.ResolveClientCredentialsScopesAsync(
+        var scopes = await OidcHelpers.ResolveClientCredentialsScopes(
             request,
             dbContext,
             CancellationToken.None);
@@ -97,7 +109,7 @@ public class OidcEndpointTests
     }
 
     [Fact]
-    public async Task CreatePrincipalAsync_WhenUserClaimsDuplicateBuiltInClaims_DoesNotDuplicateValues()
+    public async Task CreatePrincipal_WhenUserClaimsDuplicateBuiltInClaims_DoesNotDuplicateValues()
     {
         var userManager = IdentityMocks.CreateUserManager();
         var user = new ApplicationUser
@@ -118,7 +130,7 @@ public class OidcEndpointTests
             new Claim(OpenIddictConstants.Claims.Role, "Merchant")
         ]);
 
-        var principal = await OidcHelpers.CreatePrincipalAsync(
+        var principal = await OidcHelpers.CreatePrincipal(
             user,
             userManager.Object,
             [OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles],

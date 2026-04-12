@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
@@ -9,7 +10,7 @@ using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
-namespace SecurityService.Oidc;
+namespace SecurityService.BusinessLogic.Oidc;
 
 public static class OidcHelpers
 {
@@ -38,7 +39,7 @@ public static class OidcHelpers
     public static IReadOnlyCollection<string> ReadMultiValue(IQueryCollection query, string key)
         => query.TryGetValue(key, out StringValues values) ? values.Where(value => value is not null).Cast<string>().ToArray() : Array.Empty<string>();
 
-    public static async Task<ClaimsPrincipal> CreatePrincipalAsync(
+    public static async Task<ClaimsPrincipal> CreatePrincipal(
         ApplicationUser user,
         UserManager<ApplicationUser> userManager,
         IEnumerable<string> scopes,
@@ -116,15 +117,15 @@ public static class OidcHelpers
         };
     }
 
-    public static async Task<(IReadOnlyCollection<ScopeDisplayItem> IdentityScopes, IReadOnlyCollection<ScopeDisplayItem> ApiScopes)> BuildScopeDisplayAsync(
+    public static async Task<(IReadOnlyCollection<ScopeDisplayItem> IdentityScopes, IReadOnlyCollection<ScopeDisplayItem> ApiScopes)> BuildScopeDisplay(
         OpenIddictRequest request,
         SecurityServiceDbContext dbContext,
         CancellationToken cancellationToken)
     {
-        return await BuildScopeDisplayAsync(request.GetScopes(), dbContext, cancellationToken);
+        return await BuildScopeDisplay(request.GetScopes(), dbContext, cancellationToken);
     }
 
-    public static async Task<(IReadOnlyCollection<ScopeDisplayItem> IdentityScopes, IReadOnlyCollection<ScopeDisplayItem> ApiScopes)> BuildScopeDisplayAsync(
+    public static async Task<(IReadOnlyCollection<ScopeDisplayItem> IdentityScopes, IReadOnlyCollection<ScopeDisplayItem> ApiScopes)> BuildScopeDisplay(
         IEnumerable<string> scopeNames,
         SecurityServiceDbContext dbContext,
         CancellationToken cancellationToken)
@@ -155,6 +156,25 @@ public static class OidcHelpers
             .ToArray();
 
         return (identityScopes, apiScopes);
+    }
+
+    public static async Task<IReadOnlyCollection<string>> ResolveClientCredentialsScopes(
+        OpenIddictRequest request,
+        SecurityServiceDbContext dbContext,
+        CancellationToken cancellationToken)
+    {
+        IReadOnlyCollection<string> grantedScopes = request.GetScopes().ToArray();
+        if (grantedScopes.Count > 0)
+        {
+            return grantedScopes;
+        }
+
+        var clientDefinition = await dbContext.ClientDefinitions
+            .SingleOrDefaultAsync(client => client.ClientId == request.ClientId, cancellationToken);
+
+        return clientDefinition is null
+            ? Array.Empty<string>()
+            : JsonListSerializer.Deserialize(clientDefinition.AllowedScopesJson);
     }
 }
 

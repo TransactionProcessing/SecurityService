@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using OpenIddict.Abstractions;
 using SecurityService.Database.DbContexts;
-using SecurityService.Oidc;
+using SecurityService.BusinessLogic.Oidc;
 
 namespace SecurityService.Pages.Consent;
 
@@ -36,7 +36,7 @@ public sealed class IndexModel : PageModel
 
         var application = await this._applicationManager.FindByClientIdAsync(request.ClientId!, cancellationToken);
         this.ClientName = application is null ? request.ClientId! : await this._applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? request.ClientId!;
-        var scopes = await OidcHelpers.BuildScopeDisplayAsync(request, this._dbContext, cancellationToken);
+        var scopes = await OidcHelpers.BuildScopeDisplay(request, this._dbContext, cancellationToken);
         this.IdentityScopes = scopes.IdentityScopes;
         this.ApiScopes = scopes.ApiScopes;
         return this.Page();
