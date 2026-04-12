@@ -163,6 +163,10 @@ public sealed record UserResponse {
     [JsonProperty("roles")]
     [JsonPropertyName("roles")]
     public IReadOnlyCollection<string> Roles { get; set; }
+
+    [JsonProperty("registration_date_time")]
+    [JsonPropertyName("registration_date_time")]
+    public DateTime RegistrationDateTime { get; set; }
 }
 
 public class TokenResponse

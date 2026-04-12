@@ -9,4 +9,6 @@ public sealed class ApplicationUser : IdentityUser
     public string? MiddleName { get; set; }
 
     public string? FamilyName { get; set; }
+
+    public DateTime RegistrationDateTime { get; set; }
 }
