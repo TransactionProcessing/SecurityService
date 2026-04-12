@@ -1,30 +1,18 @@
-using System.Collections.Immutable;
+using MediatR;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using OpenIddict.Abstractions;
-using OpenIddict.Server.AspNetCore;
-using SecurityService.Database;
-using SecurityService.Database.DbContexts;
 using SecurityService.BusinessLogic.Oidc;
-using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.Pages.Connect;
 
 public sealed class VerifyModel : PageModel
 {
-    private readonly IOpenIddictApplicationManager _applicationManager;
-    private readonly IOpenIddictScopeManager _scopeManager;
-    private readonly SecurityServiceDbContext _dbContext;
-    private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IMediator _mediator;
 
-    public VerifyModel(IOpenIddictApplicationManager applicationManager, IOpenIddictScopeManager scopeManager, SecurityServiceDbContext dbContext, UserManager<ApplicationUser> userManager)
+    public VerifyModel(IMediator mediator)
     {
-        this._applicationManager = applicationManager;
-        this._scopeManager = scopeManager;
-        this._dbContext = dbContext;
-        this._userManager = userManager;
+        this._mediator = mediator;
     }
 
     [BindProperty]
@@ -42,95 +30,59 @@ public sealed class VerifyModel : PageModel
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
     {
-        var result = await this.LoadVerificationContextAsync(cancellationToken);
-        if (result.Valid == false)
+        var result = await this._mediator.Send(new OidcCommands.VerifyGetQuery(this.HttpContext), cancellationToken);
+
+        if (result.Data is VerifyGetRedirectResult redirect)
         {
-            this.StatusMessage = string.IsNullOrWhiteSpace(this.Input.UserCode) ? string.Empty : "The specified user code is invalid.";
-            return this.Page();
+            return this.Redirect(redirect.Url);
         }
 
-        if (this.User.Identity?.IsAuthenticated != true)
+        if (result.Data is VerifyGetPageResult page)
         {
-            return this.Redirect($"/Account/Login?returnUrl={Uri.EscapeDataString(OidcHelpers.BuildCurrentRequestUrl(this.Request))}");
+            this.StatusMessage = page.StatusMessage;
+            this.ApplyDisplayData(page.Data);
         }
 
-        await this.PopulateAsync(result.AuthenticationResult!, cancellationToken);
         return this.Page();
     }
 
     public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
     {
-        if (string.Equals(this.Input.Action, "lookup", StringComparison.OrdinalIgnoreCase))
+        var result = await this._mediator.Send(new OidcCommands.VerifyPostCommand(this.HttpContext, this.Input.Action, this.Input.UserCode), cancellationToken);
+
+        return result.Data switch
         {
-            if (string.IsNullOrWhiteSpace(this.Input.UserCode))
-            {
-                this.ModelState.AddModelError(string.Empty, "Enter the user code shown on the device.");
-                return this.Page();
-            }
-
-            return this.Redirect($"/connect/verify?user_code={Uri.EscapeDataString(this.Input.UserCode)}");
-        }
-
-        var result = await this.LoadVerificationContextAsync(cancellationToken);
-        if (result.Valid == false || result.AuthenticationResult is null)
-        {
-            this.ModelState.AddModelError(string.Empty, "The specified user code is invalid.");
-            return this.Page();
-        }
-
-        if (this.User.Identity?.IsAuthenticated != true)
-        {
-            return this.Redirect($"/Account/Login?returnUrl={Uri.EscapeDataString(OidcHelpers.BuildCurrentRequestUrl(this.Request))}");
-        }
-
-        if (string.Equals(this.Input.Action, "deny", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.Forbid(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-        }
-
-        var user = await this._userManager.GetUserAsync(this.User);
-        if (user is null)
-        {
-            return this.Redirect($"/Account/Login?returnUrl={Uri.EscapeDataString(OidcHelpers.BuildCurrentRequestUrl(this.Request))}");
-        }
-
-        var scopes = result.AuthenticationResult.Principal!.GetScopes();
-        var resources = await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(scopes), cancellationToken).ToListAsync(cancellationToken);
-        var principal = await OidcHelpers.CreatePrincipal(user, this._userManager, scopes, resources, authorizationId: null);
-
-        return this.SignIn(principal, new AuthenticationProperties { RedirectUri = "/" }, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+            VerifyPostRedirectResult redirect => this.Redirect(redirect.Url),
+            VerifyPostForbidResult forbid => this.Forbid(forbid.AuthenticationScheme),
+            VerifyPostSignInResult signIn => this.SignIn(signIn.Principal, signIn.Properties, signIn.AuthenticationScheme),
+            VerifyPostPageResult page => this.HandlePageResult(page),
+            _ => this.Page()
+        };
     }
 
-    private async Task PopulateAsync(AuthenticateResult authenticationResult, CancellationToken cancellationToken)
+    private IActionResult HandlePageResult(VerifyPostPageResult page)
     {
-        this.RequestedScopes = authenticationResult.Principal!.GetScopes().ToArray();
-        var scopeDisplay = await OidcHelpers.BuildScopeDisplay(this.RequestedScopes, this._dbContext, cancellationToken);
-        this.IdentityScopes = scopeDisplay.IdentityScopes;
-        this.ApiScopes = scopeDisplay.ApiScopes;
-        this.Input.UserCode = authenticationResult.Properties?.GetTokenValue(OpenIddictServerAspNetCoreConstants.Tokens.UserCode) ?? this.Request.Query["user_code"].FirstOrDefault() ?? string.Empty;
-
-        var clientId = authenticationResult.Principal?.GetClaim(Claims.ClientId);
-        if (string.IsNullOrWhiteSpace(clientId))
+        if (page.ModelError is not null)
         {
-            this.ClientName = string.Empty;
+            this.ModelState.AddModelError(string.Empty, page.ModelError);
+        }
+
+        this.ApplyDisplayData(page.Data);
+        return this.Page();
+    }
+
+    private void ApplyDisplayData(VerifyDisplayData? data)
+    {
+        if (data is null)
+        {
             return;
         }
 
-        var application = await this._applicationManager.FindByClientIdAsync(clientId, cancellationToken);
-        this.ClientName = application is null ? clientId : await this._applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? clientId;
-    }
-
-    private async Task<(bool Valid, AuthenticateResult? AuthenticationResult)> LoadVerificationContextAsync(CancellationToken cancellationToken)
-    {
-        this.Input.UserCode = this.Request.Query["user_code"].FirstOrDefault() ?? this.Input.UserCode;
-        var authenticationResult = await this.HttpContext.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
-        if (authenticationResult.Succeeded == false || authenticationResult.Principal?.GetClaim(Claims.ClientId) is null)
-        {
-            return (false, null);
-        }
-
-        await this.PopulateAsync(authenticationResult, cancellationToken);
-        return (true, authenticationResult);
+        this.ClientName = data.ClientName;
+        this.RequestedScopes = data.RequestedScopes;
+        this.IdentityScopes = data.IdentityScopes;
+        this.ApiScopes = data.ApiScopes;
+        this.Input.UserCode = data.UserCode;
     }
 
     public sealed class InputModel
@@ -140,3 +92,4 @@ public sealed class VerifyModel : PageModel
         public string Action { get; set; } = "lookup";
     }
 }
+

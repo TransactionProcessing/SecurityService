@@ -42,3 +42,28 @@ public abstract record UserInfoCommandResult;
 public sealed record UserInfoJsonResult(Dictionary<string, object?> Data) : UserInfoCommandResult;
 
 public sealed record UserInfoChallengeResult(AuthenticationProperties Properties, IList<string> AuthenticationSchemes) : UserInfoCommandResult;
+
+// ---- Verify endpoint ----
+
+public abstract record VerifyGetQueryResult;
+
+public sealed record VerifyGetPageResult(string StatusMessage, VerifyDisplayData? Data) : VerifyGetQueryResult;
+
+public sealed record VerifyGetRedirectResult(string Url) : VerifyGetQueryResult;
+
+public abstract record VerifyPostCommandResult;
+
+public sealed record VerifyPostPageResult(string? ModelError, VerifyDisplayData? Data) : VerifyPostCommandResult;
+
+public sealed record VerifyPostRedirectResult(string Url) : VerifyPostCommandResult;
+
+public sealed record VerifyPostForbidResult(string AuthenticationScheme) : VerifyPostCommandResult;
+
+public sealed record VerifyPostSignInResult(ClaimsPrincipal Principal, AuthenticationProperties Properties, string AuthenticationScheme) : VerifyPostCommandResult;
+
+public sealed record VerifyDisplayData(
+    string ClientName,
+    IReadOnlyCollection<string> RequestedScopes,
+    IReadOnlyCollection<ScopeDisplayItem> IdentityScopes,
+    IReadOnlyCollection<ScopeDisplayItem> ApiScopes,
+    string UserCode);
