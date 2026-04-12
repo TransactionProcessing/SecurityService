@@ -67,3 +67,20 @@ public sealed record VerifyDisplayData(
     IReadOnlyCollection<ScopeDisplayItem> IdentityScopes,
     IReadOnlyCollection<ScopeDisplayItem> ApiScopes,
     string UserCode);
+
+// ---- Consent endpoint ----
+
+public abstract record ConsentGetQueryResult;
+
+public sealed record ConsentGetPageResult(
+    string ClientName,
+    IReadOnlyCollection<ScopeDisplayItem> IdentityScopes,
+    IReadOnlyCollection<ScopeDisplayItem> ApiScopes) : ConsentGetQueryResult;
+
+public sealed record ConsentGetLocalRedirectResult(string Url) : ConsentGetQueryResult;
+
+public abstract record ConsentPostCommandResult;
+
+public sealed record ConsentPostRedirectResult(string Url) : ConsentPostCommandResult;
+
+public sealed record ConsentPostPageResult(string ModelError) : ConsentPostCommandResult;
