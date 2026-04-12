@@ -84,3 +84,17 @@ public abstract record ConsentPostCommandResult;
 public sealed record ConsentPostRedirectResult(string Url) : ConsentPostCommandResult;
 
 public sealed record ConsentPostPageResult(string ModelError) : ConsentPostCommandResult;
+
+// ---- Diagnostics endpoint ----
+
+public abstract record DiagnosticsQueryResult;
+
+public sealed record DiagnosticsPageResult(
+    IReadOnlyCollection<DiagnosticItem> Claims,
+    IReadOnlyCollection<DiagnosticItem> Properties) : DiagnosticsQueryResult;
+
+public sealed record DiagnosticsNotFoundResult : DiagnosticsQueryResult;
+
+public sealed record DiagnosticsChallengeResult(string AuthenticationScheme) : DiagnosticsQueryResult;
+
+public sealed record DiagnosticItem(string Type, string Value);
