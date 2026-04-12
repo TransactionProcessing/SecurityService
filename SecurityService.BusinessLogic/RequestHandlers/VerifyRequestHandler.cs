@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
@@ -61,12 +62,7 @@ public sealed class VerifyRequestHandler :
 
         if (string.Equals(command.Action, "lookup", StringComparison.OrdinalIgnoreCase))
         {
-            if (string.IsNullOrWhiteSpace(command.UserCode))
-            {
-                return Result.Success<VerifyPostCommandResult>(new VerifyPostPageResult("Enter the user code shown on the device.", null));
-            }
-
-            return Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult($"/connect/verify?user_code={Uri.EscapeDataString(command.UserCode)}"));
+            return HandleLookupPost(command.UserCode);
         }
 
         var authenticationResult = await context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
@@ -81,7 +77,22 @@ public sealed class VerifyRequestHandler :
             return Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult(loginUrl));
         }
 
-        if (string.Equals(command.Action, "deny", StringComparison.OrdinalIgnoreCase))
+        return await this.HandleVerifiedPostAsync(command.Action, authenticationResult, context, cancellationToken);
+    }
+
+    private static Result<VerifyPostCommandResult> HandleLookupPost(string userCode)
+    {
+        if (string.IsNullOrWhiteSpace(userCode))
+        {
+            return Result.Success<VerifyPostCommandResult>(new VerifyPostPageResult("Enter the user code shown on the device.", null));
+        }
+
+        return Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult($"/connect/verify?user_code={Uri.EscapeDataString(userCode)}"));
+    }
+
+    private async Task<Result<VerifyPostCommandResult>> HandleVerifiedPostAsync(string action, AuthenticateResult authenticationResult, HttpContext context, CancellationToken cancellationToken)
+    {
+        if (string.Equals(action, "deny", StringComparison.OrdinalIgnoreCase))
         {
             return Result.Success<VerifyPostCommandResult>(new VerifyPostForbidResult(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme));
         }
