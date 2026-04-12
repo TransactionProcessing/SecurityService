@@ -12,4 +12,6 @@ public static class OidcCommands
     public sealed record UserInfoCommand(HttpContext HttpContext) : IRequest<Result<UserInfoCommandResult>>;
     public sealed record VerifyGetQuery(HttpContext HttpContext) : IRequest<Result<VerifyGetQueryResult>>;
     public sealed record VerifyPostCommand(HttpContext HttpContext, string Action, string UserCode) : IRequest<Result<VerifyPostCommandResult>>;
+    public sealed record ConsentGetQuery(HttpContext HttpContext, string ReturnUrl) : IRequest<Result<ConsentGetQueryResult>>;
+    public sealed record ConsentPostCommand(string ReturnUrl, string Button, IReadOnlyCollection<string> SelectedScopes) : IRequest<Result<ConsentPostCommandResult>>;
 }

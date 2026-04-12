@@ -1,21 +1,17 @@
-using Microsoft.AspNetCore;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using OpenIddict.Abstractions;
-using SecurityService.Database.DbContexts;
 using SecurityService.BusinessLogic.Oidc;
 
 namespace SecurityService.Pages.Consent;
 
 public sealed class IndexModel : PageModel
 {
-    private readonly SecurityServiceDbContext _dbContext;
-    private readonly IOpenIddictApplicationManager _applicationManager;
+    private readonly IMediator _mediator;
 
-    public IndexModel(SecurityServiceDbContext dbContext, IOpenIddictApplicationManager applicationManager)
+    public IndexModel(IMediator mediator)
     {
-        this._dbContext = dbContext;
-        this._applicationManager = applicationManager;
+        this._mediator = mediator;
     }
 
     public string ClientName { get; private set; } = string.Empty;
@@ -28,36 +24,42 @@ public sealed class IndexModel : PageModel
     public async Task<IActionResult> OnGetAsync(string returnUrl, CancellationToken cancellationToken)
     {
         this.Input.ReturnUrl = returnUrl;
-        var request = this.HttpContext.GetOpenIddictServerRequest();
-        if (request is null)
-        {
-            return this.LocalRedirect(returnUrl);
-        }
+        var result = await this._mediator.Send(new OidcCommands.ConsentGetQuery(this.HttpContext, returnUrl), cancellationToken);
 
-        var application = await this._applicationManager.FindByClientIdAsync(request.ClientId!, cancellationToken);
-        this.ClientName = application is null ? request.ClientId! : await this._applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? request.ClientId!;
-        var scopes = await OidcHelpers.BuildScopeDisplay(request, this._dbContext, cancellationToken);
-        this.IdentityScopes = scopes.IdentityScopes;
-        this.ApiScopes = scopes.ApiScopes;
+        return result.Data switch
+        {
+            ConsentGetLocalRedirectResult redirect => this.LocalRedirect(redirect.Url),
+            ConsentGetPageResult page => this.ApplyPageResult(page),
+            _ => this.Page()
+        };
+    }
+
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
+    {
+        var result = await this._mediator.Send(
+            new OidcCommands.ConsentPostCommand(this.Input.ReturnUrl, this.Input.Button, this.Input.SelectedScopes),
+            cancellationToken);
+
+        return result.Data switch
+        {
+            ConsentPostRedirectResult redirect => this.Redirect(redirect.Url),
+            ConsentPostPageResult page => this.HandlePageResult(page),
+            _ => this.Page()
+        };
+    }
+
+    private IActionResult ApplyPageResult(ConsentGetPageResult page)
+    {
+        this.ClientName = page.ClientName;
+        this.IdentityScopes = page.IdentityScopes;
+        this.ApiScopes = page.ApiScopes;
         return this.Page();
     }
 
-    public IActionResult OnPost()
+    private IActionResult HandlePageResult(ConsentPostPageResult page)
     {
-        if (string.Equals(this.Input.Button, "deny", StringComparison.OrdinalIgnoreCase))
-        {
-            return this.Redirect(OidcHelpers.AppendQueryValue(this.Input.ReturnUrl, "consent", "denied"));
-        }
-
-        if (this.Input.SelectedScopes.Count == 0)
-        {
-            this.ModelState.AddModelError(string.Empty, "Select at least one scope to continue.");
-            return this.Page();
-        }
-
-        var redirectUrl = OidcHelpers.AppendQueryValue(this.Input.ReturnUrl, "consent", "accepted");
-        redirectUrl = OidcHelpers.AppendQueryValues(redirectUrl, "granted_scope", this.Input.SelectedScopes);
-        return this.Redirect(redirectUrl);
+        this.ModelState.AddModelError(string.Empty, page.ModelError);
+        return this.Page();
     }
 
     public sealed class InputModel
@@ -67,3 +69,4 @@ public sealed class IndexModel : PageModel
         public string Button { get; set; } = "accept";
     }
 }
+
