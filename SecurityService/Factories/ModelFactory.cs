@@ -12,19 +12,20 @@ public static class ModelFactory {
             return null;
         }
 
-        return new UserResponse {
-            UserName = model.UserName,
-            PhoneNumber = model.PhoneNumber,
-            Roles = model.Roles,
-            Claims = model.Claims,
-            UserId = model.UserId,
-            EmailAddress = model.EmailAddress,
-            RegistrationDateTime = model.RegistrationDateTime
-            FamilyName = model.FamilyName,
-            GivenName = model.GivenName,
-            MiddleName = model.MiddleName
-        };
-    }
+            return new UserResponse
+            {
+                UserName = model.UserName,
+                PhoneNumber = model.PhoneNumber,
+                Roles = model.Roles,
+                Claims = model.Claims,
+                UserId = model.UserId,
+                EmailAddress = model.EmailAddress,
+                RegistrationDateTime = model.RegistrationDateTime,
+                FamilyName = model.FamilyName,
+                GivenName = model.GivenName,
+                MiddleName = model.MiddleName
+            };
+        }
 
     public static RoleResponse ConvertFrom(RoleDetails model) {
         if (model == null) {
