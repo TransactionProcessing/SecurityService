@@ -6,51 +6,47 @@ namespace SecurityService.BusinessLogic.Requests;
 
 public static class SecurityServiceCommands
 {
-    public sealed record CreateClientCommand(
-        string ClientId,
-        string? Secret,
-        string ClientName,
-        string? ClientDescription,
-        IReadOnlyCollection<string> AllowedScopes,
-        IReadOnlyCollection<string> AllowedGrantTypes,
-        string? ClientUri,
-        IReadOnlyCollection<string> ClientRedirectUris,
-        IReadOnlyCollection<string> ClientPostLogoutRedirectUris,
-        bool RequireConsent,
-        bool AllowOfflineAccess) : IRequest<Result>;
+    public record CreateClientCommand(string ClientId,
+                                             string? Secret,
+                                             string ClientName,
+                                             string? ClientDescription,
+                                             IReadOnlyCollection<string> AllowedScopes,
+                                             IReadOnlyCollection<string> AllowedGrantTypes,
+                                             string? ClientUri,
+                                             IReadOnlyCollection<string> ClientRedirectUris,
+                                             IReadOnlyCollection<string> ClientPostLogoutRedirectUris,
+                                             bool RequireConsent,
+                                             bool AllowOfflineAccess) : IRequest<Result>;
 
-    public sealed record CreateApiScopeCommand(string Name, string? DisplayName, string? Description)
+    public record CreateApiScopeCommand(string Name, string? DisplayName, string? Description)
         : IRequest<Result>;
 
-    public sealed record CreateApiResourceCommand(
-        string Name,
-        string? DisplayName,
-        string? Description,
-        string? Secret,
-        IReadOnlyCollection<string> Scopes,
-        IReadOnlyCollection<string> UserClaims) : IRequest<Result>;
+    public record CreateApiResourceCommand(string Name,
+                                                  string? DisplayName,
+                                                  string? Description,
+                                                  string? Secret,
+                                                  IReadOnlyCollection<string> Scopes,
+                                                  IReadOnlyCollection<string> UserClaims) : IRequest<Result>;
 
-    public sealed record CreateIdentityResourceCommand(
-        string Name,
-        string? DisplayName,
-        string? Description,
-        bool Required,
-        bool Emphasize,
-        bool ShowInDiscoveryDocument,
-        IReadOnlyCollection<string> Claims) : IRequest<Result>;
+    public record CreateIdentityResourceCommand(string Name,
+                                                       string? DisplayName,
+                                                       string? Description,
+                                                       bool Required,
+                                                       bool Emphasize,
+                                                       bool ShowInDiscoveryDocument,
+                                                       IReadOnlyCollection<string> Claims) : IRequest<Result>;
 
-    public sealed record CreateRoleCommand(string Name) : IRequest<Result>;
+    public record CreateRoleCommand(string Name) : IRequest<Result>;
 
-    public sealed record CreateUserCommand(
-        string? GivenName,
-        string? MiddleName,
-        string? FamilyName,
-        string UserName,
-        string Password,
-        string? EmailAddress,
-        string? PhoneNumber,
-        IReadOnlyDictionary<string, string> Claims,
-        List<string> Roles) : IRequest<Result>;
+    public record CreateUserCommand(string? GivenName,
+                                           string? MiddleName,
+                                           string? FamilyName,
+                                           string UserName,
+                                           string Password,
+                                           string? EmailAddress,
+                                           string? PhoneNumber,
+                                           IReadOnlyDictionary<string, string> Claims,
+                                           List<string> Roles) : IRequest<Result>;
 
     public record ChangeUserPasswordCommand(String UserName,
                                             String CurrentPassword,
@@ -68,6 +64,6 @@ public static class SecurityServiceCommands
                                                           String Password,
                                                           String ClientId) : IRequest<Result<String>>;
 
-    public sealed record LoginCommand(string Username, string Password, bool RememberLogin) : IRequest<Result>;
-    public sealed record RevokeGrantCommand(string UserId, string AuthorizationId) : IRequest<Result>;
+    public record LoginCommand(string Username, string Password, bool RememberLogin) : IRequest<Result>;
+    public record RevokeGrantCommand(string UserId, string AuthorizationId) : IRequest<Result>;
 }

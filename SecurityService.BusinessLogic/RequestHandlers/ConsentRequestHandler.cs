@@ -12,15 +12,14 @@ public sealed class ConsentRequestHandler :
     IRequestHandler<OidcCommands.ConsentGetQuery, Result<ConsentGetQueryResult>>,
     IRequestHandler<OidcCommands.ConsentPostCommand, Result<ConsentPostCommandResult>>
 {
-    private readonly IOpenIddictApplicationManager _applicationManager;
-    private readonly SecurityServiceDbContext _dbContext;
+    private readonly IOpenIddictApplicationManager ApplicationManager;
+    private readonly SecurityServiceDbContext DbContext;
 
-    public ConsentRequestHandler(
-        IOpenIddictApplicationManager applicationManager,
-        SecurityServiceDbContext dbContext)
+    public ConsentRequestHandler(IOpenIddictApplicationManager applicationManager,
+                                 SecurityServiceDbContext dbContext)
     {
-        this._applicationManager = applicationManager;
-        this._dbContext = dbContext;
+        this.ApplicationManager = applicationManager;
+        this.DbContext = dbContext;
     }
 
     public async Task<Result<ConsentGetQueryResult>> Handle(OidcCommands.ConsentGetQuery query, CancellationToken cancellationToken)
@@ -31,12 +30,12 @@ public sealed class ConsentRequestHandler :
             return Result.Success<ConsentGetQueryResult>(new ConsentGetLocalRedirectResult(query.ReturnUrl));
         }
 
-        var application = await this._applicationManager.FindByClientIdAsync(request.ClientId!, cancellationToken);
+        var application = await this.ApplicationManager.FindByClientIdAsync(request.ClientId!, cancellationToken);
         var clientName = application is null
             ? request.ClientId!
-            : await this._applicationManager.GetDisplayNameAsync(application, cancellationToken) ?? request.ClientId!;
+            : await this.ApplicationManager.GetDisplayNameAsync(application, cancellationToken) ?? request.ClientId!;
 
-        var scopes = await OidcHelpers.BuildScopeDisplay(request, this._dbContext, cancellationToken);
+        var scopes = await OidcHelpers.BuildScopeDisplay(request, this.DbContext, cancellationToken);
 
         return Result.Success<ConsentGetQueryResult>(new ConsentGetPageResult(clientName, scopes.IdentityScopes, scopes.ApiScopes));
     }

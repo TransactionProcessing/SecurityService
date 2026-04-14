@@ -1,4 +1,4 @@
-namespace SecurityService.Oidc;
+namespace SecurityService.Endpoints;
 
 public static class OidcEndpoints
 {

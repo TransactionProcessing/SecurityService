@@ -2,21 +2,37 @@ using MediatR;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.DataTransferObjects;
 using SecurityService.Factories;
+using SecurityService.Models;
 using Shared.Results.Web;
+using SimpleResults;
 
 namespace SecurityService.Handlers;
 
 public static class RoleHandler
 {
-    public static async Task<IResult> CreateRole(IMediator mediator, CreateRoleRequest request, CancellationToken cancellationToken)
-    {
-        var result = await mediator.Send(new SecurityServiceCommands.CreateRoleCommand(request.Name), cancellationToken);
+    public static async Task<IResult> CreateRole(IMediator mediator, CreateRoleRequest request, CancellationToken cancellationToken) {
+        SecurityServiceCommands.CreateRoleCommand command = new(request.Name);
+
+        Result result = await mediator.Send(command, cancellationToken);
+        
         return ResponseFactory.FromResult(result);
     }
 
-    public static async Task<IResult> GetRole(IMediator mediator, string roleId, CancellationToken cancellationToken)
-        => ResponseFactory.FromResult(await mediator.Send(new SecurityServiceQueries.GetRoleQuery(roleId), cancellationToken), ModelFactory.ConvertFrom);
+    public static async Task<IResult> GetRole(IMediator mediator,
+                                              string roleId,
+                                              CancellationToken cancellationToken) {
+        SecurityServiceQueries.GetRoleQuery query = new(roleId);
 
+        Result<RoleDetails> result = await mediator.Send(query, cancellationToken);
+
+        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+    }
     public static async Task<IResult> GetRoles(IMediator mediator, CancellationToken cancellationToken)
-        => ResponseFactory.FromResult(await mediator.Send(new SecurityServiceQueries.GetRolesQuery(), cancellationToken), ModelFactory.ConvertFrom);
+    {
+        SecurityServiceQueries.GetRolesQuery query = new();
+
+        Result<List<RoleDetails>> result = await mediator.Send(query, cancellationToken);
+
+        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+    }
 }

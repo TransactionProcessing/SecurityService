@@ -6,9 +6,9 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SecurityService.BusinessLogic;
-using SecurityService.Database;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using SecurityService.Database.Entities;
 
 namespace SecurityService.UnitTests.Pages;
 

@@ -16,13 +16,13 @@ public sealed class IdentityResourceRequestHandler :
     IRequestHandler<SecurityServiceQueries.GetIdentityResourceQuery, Result<IdentityResourceDetails>>,
     IRequestHandler<SecurityServiceQueries.GetIdentityResourcesQuery, Result<List<IdentityResourceDetails>>>
 {
-    private readonly SecurityServiceDbContext _dbContext;
-    private readonly IOpenIddictScopeManager _scopeManager;
+    private readonly SecurityServiceDbContext DbContext;
+    private readonly IOpenIddictScopeManager ScopeManager;
 
     public IdentityResourceRequestHandler(SecurityServiceDbContext dbContext, IOpenIddictScopeManager scopeManager)
     {
-        this._dbContext = dbContext;
-        this._scopeManager = scopeManager;
+        this.DbContext = dbContext;
+        this.ScopeManager = scopeManager;
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.CreateIdentityResourceCommand command, CancellationToken cancellationToken)
@@ -32,7 +32,7 @@ public sealed class IdentityResourceRequestHandler :
             return Result.Failure("Identity resource name is required.");
         }
 
-        if (await this._dbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.IdentityResource, cancellationToken))
+        if (await this.DbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.IdentityResource, cancellationToken))
         {
             return Result.Conflict($"An identity resource named '{command.Name}' already exists.");
         }
@@ -44,7 +44,7 @@ public sealed class IdentityResourceRequestHandler :
             Description = command.Description
         };
 
-        await this._scopeManager.CreateAsync(descriptor, cancellationToken);
+        await this.ScopeManager.CreateAsync(descriptor, cancellationToken);
 
         var resource = new ResourceDefinition
         {
@@ -59,15 +59,15 @@ public sealed class IdentityResourceRequestHandler :
             ClaimsJson = JsonListSerializer.Serialize(command.Claims)
         };
 
-        this._dbContext.ResourceDefinitions.Add(resource);
-        await this._dbContext.SaveChangesAsync(cancellationToken);
+        await this.DbContext.ResourceDefinitions.AddAsync(resource, cancellationToken);
+        await this.DbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }
 
     public async Task<Result<IdentityResourceDetails>> Handle(SecurityServiceQueries.GetIdentityResourceQuery query, CancellationToken cancellationToken)
     {
-        var resource = await this._dbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.IdentityResource, cancellationToken);
+        var resource = await this.DbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.IdentityResource, cancellationToken);
         return resource is null
             ? Result.NotFound($"No identity resource named '{query.Name}' was found.")
             : Result.Success(new IdentityResourceDetails(resource.Name, resource.DisplayName, resource.Description, resource.Required, resource.Emphasize, resource.ShowInDiscoveryDocument, JsonListSerializer.Deserialize(resource.ClaimsJson)));
@@ -75,7 +75,7 @@ public sealed class IdentityResourceRequestHandler :
 
     public async Task<Result<List<IdentityResourceDetails>>> Handle(SecurityServiceQueries.GetIdentityResourcesQuery query, CancellationToken cancellationToken)
     {
-        var resources = await this._dbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.IdentityResource).OrderBy(definition => definition.Name).ToListAsync(cancellationToken);
+        var resources = await this.DbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.IdentityResource).OrderBy(definition => definition.Name).ToListAsync(cancellationToken);
         return Result.Success(resources.Select(resource => new IdentityResourceDetails(resource.Name, resource.DisplayName, resource.Description, resource.Required, resource.Emphasize, resource.ShowInDiscoveryDocument, JsonListSerializer.Deserialize(resource.ClaimsJson))).ToList());
     }
 }

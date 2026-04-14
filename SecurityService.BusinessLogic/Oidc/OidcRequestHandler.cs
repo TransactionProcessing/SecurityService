@@ -10,8 +10,8 @@ using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
-using SecurityService.Database;
 using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
 using SimpleResults;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 

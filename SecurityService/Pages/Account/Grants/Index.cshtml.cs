@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.BusinessLogic.Requests;
-using SecurityService.Database;
+using SecurityService.Database.Entities;
 using SecurityService.Models;
 
 namespace SecurityService.Pages.Account.Grants;

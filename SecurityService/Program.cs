@@ -16,12 +16,10 @@ using SecurityService.BusinessLogic;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Common;
 using SecurityService.Configuration;
-using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Endpoints;
 using SecurityService.HealthChecks;
 using SecurityService.HostedServices;
-using SecurityService.Oidc;
 using Sentry.Extensibility;
 using Shared.Extensions;
 using Shared.General;
@@ -36,6 +34,7 @@ using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Logger = Shared.Logger.Logger;
 using NLog.Extensions.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+using SecurityService.Database.Entities;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {

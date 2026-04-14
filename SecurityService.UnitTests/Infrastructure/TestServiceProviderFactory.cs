@@ -5,8 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SecurityService.BusinessLogic;
 using SecurityService.BusinessLogic.Requests;
-using SecurityService.Database;
 using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
 
 namespace SecurityService.UnitTests.Infrastructure;
 
