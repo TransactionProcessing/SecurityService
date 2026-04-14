@@ -10,15 +10,10 @@ namespace SecurityService.Handlers;
 
 public static class ApiResourceHandler
 {
-    public static async Task<IResult> CreateApiResource(IMediator mediator, CreateApiResourceRequest request, CancellationToken cancellationToken)
-    {
-        Result result = await mediator.Send(new SecurityServiceCommands.CreateApiResourceCommand(
-            request.Name,
-            request.DisplayName,
-            request.Description,
-            request.Secret,
-            request.Scopes,
-            request.UserClaims), cancellationToken);
+    public static async Task<IResult> CreateApiResource(IMediator mediator, CreateApiResourceRequest request, CancellationToken cancellationToken) {
+        SecurityServiceCommands.CreateApiResourceCommand command = new(request.Name, request.DisplayName, request.Description, request.Secret, request.Scopes, request.UserClaims);
+
+        Result result = await mediator.Send(command, cancellationToken);
 
         return ResponseFactory.FromResult(result);
     }
@@ -27,7 +22,7 @@ public static class ApiResourceHandler
                                                      string name,
                                                      CancellationToken cancellationToken) {
 
-        SecurityServiceQueries.GetApiResourceQuery query = new SecurityServiceQueries.GetApiResourceQuery(name);
+        SecurityServiceQueries.GetApiResourceQuery query = new(name);
 
         Result<ApiResourceDetails> result = await mediator.Send(query, cancellationToken);
 
@@ -38,7 +33,7 @@ public static class ApiResourceHandler
                                                       CancellationToken cancellationToken)
     {
 
-        SecurityServiceQueries.GetApiResourcesQuery query = new SecurityServiceQueries.GetApiResourcesQuery();
+        SecurityServiceQueries.GetApiResourcesQuery query = new();
 
         Result<List<ApiResourceDetails>> result = await mediator.Send(query, cancellationToken);
 

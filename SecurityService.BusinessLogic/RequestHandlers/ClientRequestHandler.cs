@@ -29,13 +29,13 @@ public sealed class ClientRequestHandler :
         GrantTypes.RefreshToken
     };
 
-    private readonly SecurityServiceDbContext _dbContext;
-    private readonly IOpenIddictApplicationManager _applicationManager;
+    private readonly SecurityServiceDbContext DbContext;
+    private readonly IOpenIddictApplicationManager ApplicationManager;
 
     public ClientRequestHandler(SecurityServiceDbContext dbContext, IOpenIddictApplicationManager applicationManager)
     {
-        this._dbContext = dbContext;
-        this._applicationManager = applicationManager;
+        this.DbContext = dbContext;
+        this.ApplicationManager = applicationManager;
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.CreateClientCommand command, CancellationToken cancellationToken)
@@ -50,18 +50,18 @@ public sealed class ClientRequestHandler :
             return Result.Invalid("At least one grant type is required.");
         }
 
-        var invalidGrantTypes = command.AllowedGrantTypes.Where(grantType => SupportedGrantTypes.Contains(grantType) == false).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        String[] invalidGrantTypes = command.AllowedGrantTypes.Where(grantType => SupportedGrantTypes.Contains(grantType) == false).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         if (invalidGrantTypes.Length > 0)
         {
             return Result.Invalid($"Unsupported grant types: {string.Join(", ", invalidGrantTypes)}.");
         }
 
-        if (await this._dbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId, cancellationToken))
+        if (await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId, cancellationToken))
         {
             return Result.Conflict($"A client with id '{command.ClientId}' already exists.");
         }
 
-        var descriptor = new OpenIddictApplicationDescriptor
+        OpenIddictApplicationDescriptor descriptor = new OpenIddictApplicationDescriptor
         {
             ClientId = command.ClientId,
             DisplayName = command.ClientName,
@@ -70,19 +70,19 @@ public sealed class ClientRequestHandler :
             ClientSecret = string.IsNullOrWhiteSpace(command.Secret) ? null : command.Secret
         };
 
-        foreach (var redirectUri in command.ClientRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (String redirectUri in command.ClientRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
         {
             descriptor.RedirectUris.Add(new Uri(redirectUri, UriKind.Absolute));
         }
 
-        foreach (var postLogoutRedirectUri in command.ClientPostLogoutRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (String postLogoutRedirectUri in command.ClientPostLogoutRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
         {
             descriptor.PostLogoutRedirectUris.Add(new Uri(postLogoutRedirectUri, UriKind.Absolute));
         }
 
-        await this._applicationManager.CreateAsync(descriptor, cancellationToken);
+        await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
 
-        var definition = new ClientDefinition
+        ClientDefinition definition = new ClientDefinition
         {
             Id = Guid.NewGuid(),
             ClientId = command.ClientId,
@@ -99,36 +99,25 @@ public sealed class ClientRequestHandler :
             ClientType = descriptor.ClientType
         };
 
-        this._dbContext.ClientDefinitions.Add(definition);
-        await this._dbContext.SaveChangesAsync(cancellationToken);
+        await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
+        await this.DbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }
 
     public async Task<Result<ClientDetails>> Handle(SecurityServiceQueries.GetClientQuery query, CancellationToken cancellationToken)
     {
-        var definition = await this._dbContext.ClientDefinitions.SingleOrDefaultAsync(client => client.ClientId == query.ClientId, cancellationToken);
+        ClientDefinition? definition = await this.DbContext.ClientDefinitions.SingleOrDefaultAsync(client => client.ClientId == query.ClientId, cancellationToken);
         return definition is null
             ? Result.NotFound($"No client found with id '{query.ClientId}'.")
-            : Result.Success(Map(definition));
+            : Result.Success(Factory.ConvertFrom(definition));
     }
 
     public async Task<Result<List<ClientDetails>>> Handle(SecurityServiceQueries.GetClientsQuery query, CancellationToken cancellationToken)
     {
-        var definitions = await this._dbContext.ClientDefinitions.OrderBy(client => client.ClientId).ToListAsync(cancellationToken);
-        return Result.Success(definitions.Select(Map).ToList());
+        List<ClientDefinition> definitions = await this.DbContext.ClientDefinitions.OrderBy(client => client.ClientId).ToListAsync(cancellationToken);
+        return Result.Success(definitions.Select(Factory.ConvertFrom).ToList());
     }
 
-    private static ClientDetails Map(ClientDefinition definition) => new(
-        definition.ClientId,
-        definition.ClientName,
-        definition.Description,
-        definition.ClientUri,
-        JsonListSerializer.Deserialize(definition.AllowedScopesJson),
-        JsonListSerializer.Deserialize(definition.AllowedGrantTypesJson),
-        JsonListSerializer.Deserialize(definition.RedirectUrisJson),
-        JsonListSerializer.Deserialize(definition.PostLogoutRedirectUrisJson),
-        definition.RequireConsent,
-        definition.AllowOfflineAccess,
-        definition.ClientType);
+    
 }

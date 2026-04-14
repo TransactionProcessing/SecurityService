@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 
-namespace SecurityService.Database;
+namespace SecurityService.Database.Entities;
 
 public sealed class ApplicationUser : IdentityUser
 {

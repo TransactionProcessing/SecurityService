@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using SecurityService.BusinessLogic;
 using SecurityService.BusinessLogic.Requests;
-using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.UnitTests.Infrastructure;

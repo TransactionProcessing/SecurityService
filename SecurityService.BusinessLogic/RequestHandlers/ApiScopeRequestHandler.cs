@@ -15,13 +15,13 @@ public sealed class ApiScopeRequestHandler :
     IRequestHandler<SecurityServiceQueries.GetApiScopeQuery, Result<ApiScopeDetails>>,
     IRequestHandler<SecurityServiceQueries.GetApiScopesQuery, Result<List<ApiScopeDetails>>>
 {
-    private readonly SecurityServiceDbContext _dbContext;
-    private readonly IOpenIddictScopeManager _scopeManager;
+    private readonly SecurityServiceDbContext DbContext;
+    private readonly IOpenIddictScopeManager ScopeManager;
 
     public ApiScopeRequestHandler(SecurityServiceDbContext dbContext, IOpenIddictScopeManager scopeManager)
     {
-        this._dbContext = dbContext;
-        this._scopeManager = scopeManager;
+        this.DbContext = dbContext;
+        this.ScopeManager = scopeManager;
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.CreateApiScopeCommand command, CancellationToken cancellationToken)
@@ -31,7 +31,7 @@ public sealed class ApiScopeRequestHandler :
             return Result.Invalid("Scope name is required.");
         }
 
-        if (await this._dbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.ApiScope, cancellationToken))
+        if (await this.DbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.ApiScope, cancellationToken))
         {
             return Result.Conflict($"An API scope named '{command.Name}' already exists.");
         }
@@ -43,7 +43,7 @@ public sealed class ApiScopeRequestHandler :
             Description = command.Description
         };
 
-        await this._scopeManager.CreateAsync(descriptor, cancellationToken);
+        await this.ScopeManager.CreateAsync(descriptor, cancellationToken);
 
         var resource = new ResourceDefinition
         {
@@ -54,23 +54,23 @@ public sealed class ApiScopeRequestHandler :
             Type = ResourceType.ApiScope
         };
 
-        this._dbContext.ResourceDefinitions.Add(resource);
-        await this._dbContext.SaveChangesAsync(cancellationToken);
+        await this.DbContext.ResourceDefinitions.AddAsync(resource, cancellationToken);
+        await this.DbContext.SaveChangesAsync(cancellationToken);
 
         return Result.Success();
     }
 
     public async Task<Result<ApiScopeDetails>> Handle(SecurityServiceQueries.GetApiScopeQuery query, CancellationToken cancellationToken)
     {
-        var resource = await this._dbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.ApiScope, cancellationToken);
+        var resource = await this.DbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.ApiScope, cancellationToken);
         return resource is null
             ? Result.NotFound($"No API scope named '{query.Name}' was found.")
-            : Result.Success(new ApiScopeDetails(resource.Name, resource.DisplayName, resource.Description));
+            : Result.Success(Factory.ConvertFrom(resource.Name, resource.DisplayName, resource.Description));
     }
 
     public async Task<Result<List<ApiScopeDetails>>> Handle(SecurityServiceQueries.GetApiScopesQuery query, CancellationToken cancellationToken)
     {
-        var scopes = await this._dbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.ApiScope).OrderBy(definition => definition.Name).Select(definition => new ApiScopeDetails(definition.Name, definition.DisplayName, definition.Description)).ToArrayAsync(cancellationToken);
-        return Result.Success(scopes.ToList());
+        var scopes = await this.DbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.ApiScope).OrderBy(definition => definition.Name).ToListAsync(cancellationToken);
+        return Result.Success(Factory.ConvertFrom(scopes.Select(definition => (definition.Name, definition.DisplayName, definition.Description)).ToList()));
     }
 }

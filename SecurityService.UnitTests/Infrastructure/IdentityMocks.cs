@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using SecurityService.Database;
+using SecurityService.Database.Entities;
 
 namespace SecurityService.UnitTests.Infrastructure;
 

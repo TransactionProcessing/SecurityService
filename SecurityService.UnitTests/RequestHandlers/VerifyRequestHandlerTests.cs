@@ -7,8 +7,8 @@ using Moq;
 using OpenIddict.Server.AspNetCore;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.BusinessLogic.RequestHandlers;
-using SecurityService.Database;
 using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
 

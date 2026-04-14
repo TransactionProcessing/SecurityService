@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Moq;
 using SecurityService.BusinessLogic.Requests;
-using SecurityService.Database;
+using SecurityService.Database.Entities;
 using SecurityService.Models;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
