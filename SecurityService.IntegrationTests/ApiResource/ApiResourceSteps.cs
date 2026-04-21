@@ -1,5 +1,4 @@
 ﻿using SecurityService.DataTransferObjects;
-using SecurityService.Models;
 
 namespace SecurityService.IntegrationTests.ApiResource
 {

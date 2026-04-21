@@ -1,5 +1,4 @@
-﻿using SecurityService.Models;
-using SimpleResults;
+﻿using SimpleResults;
 
 namespace SecurityService.IntegrationTesting.Helpers;
 
