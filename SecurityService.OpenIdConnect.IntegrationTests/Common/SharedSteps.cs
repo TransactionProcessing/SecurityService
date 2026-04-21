@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using SecurityService.Models;
 using SimpleResults;
 
 namespace SecurityService.OpenIdConnect.IntegrationTests.Common
