@@ -1,6 +1,5 @@
 ﻿using System;
 using SecurityService.DataTransferObjects;
-using SecurityService.Models;
 
 namespace SecurityService.IntegrationTests.ApiScopes
 {

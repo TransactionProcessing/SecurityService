@@ -5,6 +5,10 @@ on:
     branches:
     - master
 
+permissions:
+  contents: read
+  checks: write
+
 jobs:
   buildnonui:
     name: "Build and Unit Test Pull Requests - Non UI"
@@ -177,10 +181,10 @@ jobs:
         dotnet-version: '9.0.x'
 
     - name: Restore Nuget Packages
-      run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
+      run: dotnet restore SecurityService.slnx --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: Build Code
-      run: dotnet build SecurityService.sln --configuration Release
+      run: dotnet build SecurityService.slnx --configuration Release
    
     - name: Build Docker Images
       run: |
@@ -233,10 +237,10 @@ jobs:
         dotnet-version: '9.0.x'
 
     - name: Restore Nuget Packages
-      run: dotnet restore SecurityService.sln --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
+      run: dotnet restore SecurityService.slnx --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
     - name: Build Code
-      run: dotnet build SecurityService.sln --configuration Release
+      run: dotnet build SecurityService.slnx --configuration Release
     
     - name: Build Docker Images
       run: |
