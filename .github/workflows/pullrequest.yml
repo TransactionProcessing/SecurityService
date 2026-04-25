@@ -59,10 +59,9 @@ jobs:
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=nonui-test-results.trx"
 
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
       with:
         name: nonuilogs
-        path: /home/txnproc/trace/
+        path: /home/runner/trace/
 
     - name: Publish test results
       uses: dorny/test-reporter@v1
@@ -127,10 +126,9 @@ jobs:
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=firefoxui-test-results.trx"    
 
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
       with:
         name: firefoxlogs
-        path: /home/txnproc/trace/
+        path: /home/runner/trace/
 
     - name: Publish test results
       uses: dorny/test-reporter@v1
@@ -200,10 +198,9 @@ jobs:
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
       with:
         name: chromelogs
-        path: /home/txnproc/trace/
+        path: /home/runner/trace/
 
 
   buildedgeui:
@@ -259,7 +256,6 @@ jobs:
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest 
 
     - uses: actions/upload-artifact@v4
-      if: ${{ failure() }}
       with:
         name: edgelogs
-        path: /home/txnproc/trace/
+        path: /home/runner/trace/

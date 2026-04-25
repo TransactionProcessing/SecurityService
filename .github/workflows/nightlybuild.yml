@@ -63,10 +63,9 @@ jobs:
         dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest    
 
     - uses: actions/upload-artifact@v4.4.0
-      if: ${{ failure() }}
       with:
         name: nonuilogs
-        path: /home/txnproc/trace/
+        path: /home/runner/trace/
 
     - name: Create Issue on Failed workflow
       if: ${{ failure() }}
@@ -131,10 +130,9 @@ jobs:
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
     - uses: actions/upload-artifact@v4.4.0
-      if: ${{ failure() }}
       with:
         name: firefoxlogs
-        path: /home/txnproc/trace/
+        path: /home/runner/trace/
     
     - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
@@ -204,10 +202,9 @@ jobs:
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
     - uses: actions/upload-artifact@v4.4.0
-      if: ${{ failure() }}
       with:
         name: chromelogs
-        path: /home/txnproc/trace/
+        path: /home/runner/trace/
         
     - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
@@ -274,10 +271,9 @@ jobs:
         dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest
 
     - uses: actions/upload-artifact@v4.4.0
-      if: ${{ failure() }}
       with:
         name: edgelogs
-        path: /home/txnproc/trace/
+        path: /home/runner/trace/
 
     - uses: dacbd/create-issue-action@main
       if: ${{ failure() }}
