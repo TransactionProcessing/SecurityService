@@ -1,4 +1,5 @@
-﻿using Shared.Results;
+﻿using Newtonsoft.Json;
+using Shared.Results;
 using SimpleResults;
 
 namespace SecurityService.Client
@@ -17,8 +18,18 @@ namespace SecurityService.Client
     /// </summary>
     /// <seealso cref="ClientProxyBase" />
     /// <seealso cref="SecurityService.Client.ISecurityServiceClient" />
-    public class SecurityServiceClient : ClientProxyBase, ISecurityServiceClient
+    public class SecurityServiceClient : ClientBase, ISecurityServiceClient
     {
+        private static String Serialise(Object arg)
+        {
+            return JsonConvert.SerializeObject(arg);
+        }
+
+        private static Object Deserialise(String arg, Type type)
+        {
+            return JsonConvert.DeserializeObject(arg, type);
+        }
+
         #region Fields
 
         /// <summary>
@@ -34,20 +45,20 @@ namespace SecurityService.Client
         #endregion
 
         #region Constructors
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="SecurityServiceClient" /> class.
         /// </summary>
         /// <param name="baseAddressResolver">The base address resolver.</param>
         /// <param name="httpClient">The HTTP client.</param>
         public SecurityServiceClient(Func<String, String> baseAddressResolver,
-                                     HttpClient httpClient) : base(httpClient)
+                                     HttpClient httpClient) : base(httpClient, Serialise, Deserialise)
         {
             this.BaseAddressResolver = baseAddressResolver;
             this.BaseAddress = baseAddressResolver("SecurityService");
 
             // Add the API version header
-            this.HttpClient.DefaultRequestHeaders.Add("api-version", "1.0");
+            //this.HttpClient.DefaultRequestHeaders.Add("api-version", "1.0");
         }
 
         #endregion
@@ -61,7 +72,7 @@ namespace SecurityService.Client
 
             try
             {
-                Result<String> result = await this.SendHttpPostRequest<CreateApiResourceRequest, String>(requestUri, createApiResourceRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createApiResourceRequest, cancellationToken);
 
                 if(result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -84,7 +95,7 @@ namespace SecurityService.Client
 
             try
             {
-                Result<String> result = await this.SendHttpPostRequest<CreateApiScopeRequest, String>(requestUri, createApiScopeRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createApiScopeRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -107,7 +118,7 @@ namespace SecurityService.Client
 
             try
             {
-                Result<String> result = await this.SendHttpPostRequest<CreateClientRequest, String>(requestUri, createClientRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createClientRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -130,7 +141,7 @@ namespace SecurityService.Client
 
             try
             {
-                Result<String> result = await this.SendHttpPostRequest<CreateIdentityResourceRequest, String>(requestUri, createIdentityResourceRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createIdentityResourceRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -153,7 +164,7 @@ namespace SecurityService.Client
 
             try
             {
-                Result<String> result = await this.SendHttpPostRequest<CreateRoleRequest, String>(requestUri, createRoleRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createRoleRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -182,7 +193,7 @@ namespace SecurityService.Client
 
             try
             {
-                Result<String> result = await this.SendHttpPostRequest<CreateUserRequest, String>(requestUri, createUserRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createUserRequest, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -204,7 +215,7 @@ namespace SecurityService.Client
             String requestUri = this.BuildRequestUrl($"/api/apiresources/{apiResourceName}");
 
             try {
-                Result<ApiResourceResponse> result = await this.SendHttpGetRequest<ApiResourceResponse>(requestUri, cancellationToken);
+                Result<ApiResourceResponse> result = await this.Get<ApiResourceResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -226,7 +237,7 @@ namespace SecurityService.Client
 
             try
             {
-                Result<List<ApiResourceResponse>> result = await this.SendHttpGetRequest<List<ApiResourceResponse>>(requestUri, cancellationToken);
+                Result<List<ApiResourceResponse>> result = await this.Get<List<ApiResourceResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -249,7 +260,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<ApiScopeResponse>(requestUri, cancellationToken);
+                var result = await this.Get<ApiScopeResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -271,7 +282,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<List<ApiScopeResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<ApiScopeResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -294,7 +305,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<ClientResponse>(requestUri, cancellationToken);
+                var result = await this.Get<ClientResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -316,7 +327,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<List<ClientResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<ClientResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -339,7 +350,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<IdentityResourceResponse>(requestUri, cancellationToken);
+                var result = await this.Get<IdentityResourceResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -361,7 +372,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<List<IdentityResourceResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<IdentityResourceResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -384,7 +395,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<RoleResponse>(requestUri, cancellationToken);
+                var result = await this.Get<RoleResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -406,7 +417,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<List<RoleResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<RoleResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -474,7 +485,7 @@ namespace SecurityService.Client
 
             try
             {
-                var result = await this.SendHttpGetRequest<UserResponse>(requestUri, cancellationToken);
+                Result<UserResponse> result = await this.Get<UserResponse>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -502,7 +513,7 @@ namespace SecurityService.Client
                     requestUri = $"{requestUri}?username={userName}";
                 }
 
-                var result = await this.SendHttpGetRequest<List<UserResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<UserResponse>>(requestUri, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -539,11 +550,9 @@ namespace SecurityService.Client
                 StringContent httpContent = new StringContent(tokenRequest, Encoding.UTF8, "application/x-www-form-urlencoded");
 
                 // Make the Http Call here
-                HttpResponseMessage httpResponse = await this.HttpClient.PostAsync(requestUri, httpContent, cancellationToken);
+                var result = await this.Post<String>(requestUri, httpContent, cancellationToken);
 
-                // Process the response
-                Result<String> result = await this.HandleResponseX(httpResponse, cancellationToken);
-
+                
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
 
