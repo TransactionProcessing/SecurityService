@@ -20,15 +20,15 @@ namespace SecurityService.Client
     /// <seealso cref="SecurityService.Client.ISecurityServiceClient" />
     public class SecurityServiceClient : ClientBase, ISecurityServiceClient
     {
-        private static String Serialise(Object arg)
-        {
-            return JsonConvert.SerializeObject(arg);
-        }
+        //private static String Serialise(Object arg)
+        //{
+        //    return JsonConvert.SerializeObject(arg);
+        //}
 
-        private static Object Deserialise(String arg, Type type)
-        {
-            return JsonConvert.DeserializeObject(arg, type);
-        }
+        //private static Object Deserialise(String arg, Type type)
+        //{
+        //    return JsonConvert.DeserializeObject(arg, type);
+        //}
 
         #region Fields
 
@@ -52,13 +52,12 @@ namespace SecurityService.Client
         /// <param name="baseAddressResolver">The base address resolver.</param>
         /// <param name="httpClient">The HTTP client.</param>
         public SecurityServiceClient(Func<String, String> baseAddressResolver,
-                                     HttpClient httpClient) : base(httpClient, Serialise, Deserialise)
+                                     HttpClient httpClient,
+                                     Func<object, string> serialise,
+                                     Func<string, Type, object> deserialise) : base(httpClient, serialise, deserialise)
         {
             this.BaseAddressResolver = baseAddressResolver;
             this.BaseAddress = baseAddressResolver("SecurityService");
-
-            // Add the API version header
-            //this.HttpClient.DefaultRequestHeaders.Add("api-version", "1.0");
         }
 
         #endregion

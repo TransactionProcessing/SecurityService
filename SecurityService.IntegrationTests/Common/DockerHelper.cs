@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Shared.Serialisation;
 
 namespace SecurityService.IntergrationTests.Common
 {
-    using System.Data.SqlClient;
-    using System.Linq;
-    using System.Net;
-    using System.Net.Http;
-    using System.Net.Security;
-    using System.Security.Cryptography.X509Certificates;
-    using System.Threading;
-    using System.Threading.Tasks;
     using Client;
     using Ductus.FluentDocker;
     using Ductus.FluentDocker.Builders;
@@ -22,18 +15,36 @@ namespace SecurityService.IntergrationTests.Common
     using Ductus.FluentDocker.Services.Extensions;
     using Microsoft.EntityFrameworkCore;
     using Shared.IntegrationTesting;
+    using System.Data.SqlClient;
+    using System.Linq;
+    using System.Net;
+    using System.Net.Http;
+    using System.Net.Security;
+    using System.Security.Cryptography.X509Certificates;
+    using System.Threading;
+    using System.Threading.Tasks;
     
     public class DockerHelper : Shared.IntegrationTesting.TestContainers.DockerHelper
     {
         public ISecurityServiceClient SecurityServiceClient;
-                
+
+        String Serialise(Object arg)
+        {
+            return StringSerialiser.Serialise<Object>(arg);
+        }
+
+        Object Deserialise(String arg, Type type)
+        {
+            return StringSerialiser.DeserializeObject<Object>(arg, type);
+        }
+
         public async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
             await base.StartContainersForScenarioRun(scenarioName, dockerServices);
                                    
             Func<String, String> securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
             HttpClient httpClient = new HttpClient();
-            this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver,httpClient);
+            this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver,httpClient, Serialise, Deserialise);
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
         }

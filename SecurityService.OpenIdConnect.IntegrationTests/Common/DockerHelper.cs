@@ -1,12 +1,19 @@
-﻿using System.Runtime.InteropServices;
-using DotNet.Testcontainers.Builders;
+﻿using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
 using Shared.IntegrationTesting.TestContainers;
+using System.Runtime.InteropServices;
 
 namespace SecurityService.IntergrationTests.Common
 {
+    using Client;
+    using Newtonsoft.Json;
+    using Shared.HealthChecks;
+    using Shared.IntegrationTesting;
+    using Shared.Logger;
+    using Shared.Serialisation;
+    using Shouldly;
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
@@ -16,12 +23,6 @@ namespace SecurityService.IntergrationTests.Common
     using System.Runtime.CompilerServices;
     using System.Threading;
     using System.Threading.Tasks;
-    using Client;
-    using Newtonsoft.Json;
-    using Shared.HealthChecks;
-    using Shared.IntegrationTesting;
-    using Shared.Logger;
-    using Shouldly;
 
     /// <summary>
     /// 
@@ -79,6 +80,16 @@ namespace SecurityService.IntergrationTests.Common
             // Nothing to set up here
         }
 
+        String Serialise(Object arg)
+        {
+            return StringSerialiser.Serialise<Object>(arg);
+        }
+
+        Object Deserialise(String arg, Type type)
+        {
+            return StringSerialiser.DeserializeObject<Object>(arg, type);
+        }
+
         /// <summary>
         /// Starts the containers for scenario run.
         /// </summary>
@@ -93,7 +104,7 @@ namespace SecurityService.IntergrationTests.Common
 
             securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
-            this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient);
+            this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
 
             DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
             DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);
