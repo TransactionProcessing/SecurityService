@@ -1,3 +1,4 @@
+using Shared.Serialisation;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -7,10 +8,11 @@ public static class JsonSerializerConfiguration
 {
     public static void ConfigureMinimalApi(JsonSerializerOptions serializerOptions)
     {
-        serializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-        serializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
-        serializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-        serializerOptions.WriteIndented = true;
+        var defaultOptions = SystemTextJsonSerializer.GetDefaultJsonSerializerOptions();
+        serializerOptions.PropertyNamingPolicy = defaultOptions.PropertyNamingPolicy;
+        serializerOptions.DictionaryKeyPolicy = defaultOptions.DictionaryKeyPolicy;
+        serializerOptions.ReferenceHandler = defaultOptions.ReferenceHandler;
+        serializerOptions.WriteIndented = defaultOptions.WriteIndented;
         serializerOptions.Converters.Add(new UtcDateTimeJsonConverter());
         serializerOptions.Converters.Add(new NullableUtcDateTimeJsonConverter());
     }

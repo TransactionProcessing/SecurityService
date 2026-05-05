@@ -14,9 +14,7 @@ public class JsonSerializerConfigurationTests
 
         JsonSerializerConfiguration.ConfigureMinimalApi(options);
 
-        options.PropertyNamingPolicy.ShouldBe(JsonNamingPolicy.CamelCase);
-        options.DictionaryKeyPolicy.ShouldBe(JsonNamingPolicy.CamelCase);
-        options.ReferenceHandler.ShouldBe(ReferenceHandler.IgnoreCycles);
+        options.PropertyNamingPolicy.ShouldBe(JsonNamingPolicy.SnakeCaseLower);
         options.WriteIndented.ShouldBeTrue();
 
         var payload = new SerializerPayload
@@ -26,7 +24,7 @@ public class JsonSerializerConfigurationTests
 
         var json = System.Text.Json.JsonSerializer.Serialize(payload, options);
 
-        json.ShouldContain("createdDate");
+        json.ShouldContain("created_date");
         json.ShouldContain("Z");
     }
 

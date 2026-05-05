@@ -162,7 +162,7 @@ namespace SecurityService.Client
             catch(Exception ex)
             {
                 // An exception has occurred, add some additional information to the message
-                Exception exception = new Exception($"Error creating role {createRoleRequest.Name}.", ex);
+                Exception exception = new Exception($"Error creating role {createRoleRequest.RoleName}.", ex);
 
                 throw exception;
             }

@@ -32,7 +32,7 @@ public static class ModelFactory {
             return null;
         }
 
-        return new RoleResponse { RoleId = model.RoleId, Name = model.Name };
+        return new RoleResponse { RoleId = model.RoleId, RoleName = model.Name };
     }
 
     public static List<UserResponse> ConvertFrom(List<UserDetails> model) {
@@ -75,9 +75,9 @@ public static class ModelFactory {
             AllowedGrantTypes = model.AllowedGrantTypes.ToList(),
             ClientName = model.ClientName,
             Description = model.Description,
-            PostLogoutRedirectUris = model.PostLogoutRedirectUris.ToList(),
+            ClientPostLogoutRedirectUris = model.PostLogoutRedirectUris.ToList(),
             RequireConsent = model.RequireConsent,
-            RedirectUris = model.RedirectUris.ToList(),
+            ClientRedirectUris = model.RedirectUris.ToList(),
             AllowOfflineAccess = model.AllowOfflineAccess,
             ClientType = model.ClientType,
             ClientUri = model.ClientUri

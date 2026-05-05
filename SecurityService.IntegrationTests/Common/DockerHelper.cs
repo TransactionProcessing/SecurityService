@@ -30,12 +30,12 @@ namespace SecurityService.IntergrationTests.Common
 
         String Serialise(Object arg)
         {
-            return StringSerialiser.Serialise<Object>(arg);
+            return StringSerialiser.Serialise<Object>(arg, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         }
 
         Object Deserialise(String arg, Type type)
         {
-            return StringSerialiser.DeserializeObject<Object>(arg, type);
+            return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         }
 
         public async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)

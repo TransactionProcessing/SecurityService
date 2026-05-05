@@ -219,7 +219,7 @@
 
             foreach (DataTableRow tableRow in tableRows){
                 CreateRoleRequest request = new CreateRoleRequest{
-                                                                     Name = ReqnrollTableHelper.GetStringRowValue(tableRow, "Role Name")
+                                                                     RoleName = ReqnrollTableHelper.GetStringRowValue(tableRow, "Role Name")
                                                                  };
                 requests.Add(request);
             }
@@ -232,7 +232,7 @@
 
             foreach (DataTableRow tableRow in tableRows){
                 RoleResponse roleDetails = new RoleResponse(){
-                                                               Name = ReqnrollTableHelper.GetStringRowValue(tableRow, "Role Name")
+                                                               RoleName = ReqnrollTableHelper.GetStringRowValue(tableRow, "Role Name")
                                                            };
                 requests.Add(roleDetails);
             }
