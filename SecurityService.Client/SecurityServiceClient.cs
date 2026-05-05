@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using Shared.Results;
+﻿using Shared.Results;
 using SimpleResults;
 
 namespace SecurityService.Client
@@ -18,18 +17,8 @@ namespace SecurityService.Client
     /// </summary>
     /// <seealso cref="ClientProxyBase" />
     /// <seealso cref="SecurityService.Client.ISecurityServiceClient" />
-    public class SecurityServiceClient : ClientBase, ISecurityServiceClient
+    public class SecurityServiceClient : ClientProxyBase, ISecurityServiceClient
     {
-        //private static String Serialise(Object arg)
-        //{
-        //    return JsonConvert.SerializeObject(arg);
-        //}
-
-        //private static Object Deserialise(String arg, Type type)
-        //{
-        //    return JsonConvert.DeserializeObject(arg, type);
-        //}
-
         #region Fields
 
         /// <summary>
