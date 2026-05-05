@@ -11,7 +11,7 @@ namespace SecurityService.Handlers;
 public static class RoleHandler
 {
     public static async Task<IResult> CreateRole(IMediator mediator, CreateRoleRequest request, CancellationToken cancellationToken) {
-        SecurityServiceCommands.CreateRoleCommand command = new(request.Name);
+        SecurityServiceCommands.CreateRoleCommand command = new(request.RoleName);
 
         Result result = await mediator.Send(command, cancellationToken);
         

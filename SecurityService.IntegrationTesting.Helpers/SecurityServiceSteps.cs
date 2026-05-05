@@ -249,8 +249,8 @@ public class SecurityServiceSteps{
         roles.IsSuccess.ShouldBeTrue();
 
         foreach (CreateRoleRequest request in requests) {
-            RoleResponse r = roles.Data.Single(r => r.Name == request.Name);
-            roleList.Add((r.Name, r.RoleId));
+            RoleResponse r = roles.Data.Single(r => r.RoleName == request.RoleName);
+            roleList.Add((r.RoleName, r.RoleId));
         }
 
         return roleList;
@@ -263,7 +263,7 @@ public class SecurityServiceSteps{
         RoleResponse roleDetails =getRoleResult.Data;
         RoleResponse expectedRecord = expectedDetails.Single();
 
-        roleDetails.Name.ShouldBe(expectedRecord.Name);
+        roleDetails.RoleName.ShouldBe(expectedRecord.RoleName);
     }
 
     public async Task WhenIGetTheRolesRolesDetailsAreReturnedAsFollows(List<RoleResponse> expectedDetails, CancellationToken cancellationToken)
@@ -273,9 +273,9 @@ public class SecurityServiceSteps{
         List<RoleResponse>? rolesList = getRolesResult.Data;
         foreach (RoleResponse expectedRecord in expectedDetails)
         {
-            RoleResponse? foundRecord = rolesList.SingleOrDefault(a => a.Name == expectedRecord.Name);
+            RoleResponse? foundRecord = rolesList.SingleOrDefault(a => a.RoleName == expectedRecord.RoleName);
             foundRecord.ShouldNotBeNull();
-            foundRecord.Name.ShouldBe(expectedRecord.Name);
+            foundRecord.RoleName.ShouldBe(expectedRecord.RoleName);
         }
     }
 
