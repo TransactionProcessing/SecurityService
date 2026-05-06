@@ -1,4 +1,5 @@
 ﻿using System;
+using Shared.Serialisation;
 
 namespace SecurityService.IntegrationTests.UserLogin
 {
@@ -12,7 +13,6 @@ namespace SecurityService.IntegrationTests.UserLogin
     using System.Threading.Tasks;
     using HtmlAgilityPack;
     using IntergrationTests.Common;
-    using Newtonsoft.Json;
     using OpenQA.Selenium;
     using Reqnroll;
     using Shared.IntegrationTesting;
@@ -112,7 +112,7 @@ namespace SecurityService.IntegrationTests.UserLogin
                                    MessageId = Guid.Empty,
                                    Body = String.Empty
                                };
-            var x = JsonConvert.DeserializeAnonymousType(await response.Content.ReadAsStringAsync(CancellationToken.None), emailMessage);
+            var x = StringSerialiser.DeserialiseAnonymousType(await response.Content.ReadAsStringAsync(CancellationToken.None), emailMessage);
 
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(x.Body);
@@ -140,7 +140,7 @@ namespace SecurityService.IntegrationTests.UserLogin
                                    MessageId = Guid.Empty,
                                    Body = String.Empty
                                };
-            var x = JsonConvert.DeserializeAnonymousType(await response.Content.ReadAsStringAsync(CancellationToken.None), emailMessage);
+            var x = StringSerialiser.DeserialiseAnonymousType(await response.Content.ReadAsStringAsync(CancellationToken.None), emailMessage);
 
             HtmlDocument doc = new HtmlDocument();
             doc.LoadHtml(x.Body);

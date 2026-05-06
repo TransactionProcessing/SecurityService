@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Shared.Serialisation;
 
 namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
 {
@@ -11,7 +12,6 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
     using System.Threading;
     using HtmlAgilityPack;
     using IntergrationTests.Common;
-    using Newtonsoft.Json;
     using OpenQA.Selenium;
     using Reqnroll;
     using SecurityService.IntegrationTests.UserLogin;
@@ -87,7 +87,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                                        MessageId = Guid.Empty,
                                        Body = String.Empty
                                    };
-            var x = JsonConvert.DeserializeAnonymousType(await response.Content.ReadAsStringAsync(CancellationToken.None), emailMessage);
+            var x = StringSerialiser.DeserialiseAnonymousType(await response.Content.ReadAsStringAsync(CancellationToken.None), emailMessage);
 
             var doc = new HtmlDocument();
             doc.LoadHtml(x.Body);

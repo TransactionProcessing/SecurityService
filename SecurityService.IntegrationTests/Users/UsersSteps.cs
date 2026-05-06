@@ -10,7 +10,6 @@
     using Common;
     using DataTransferObjects;
     using IntegrationTesting.Helpers;
-    using Newtonsoft.Json;
     using Reqnroll;
     using Shouldly;
 
