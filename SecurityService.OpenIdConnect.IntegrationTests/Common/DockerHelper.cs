@@ -56,7 +56,7 @@ namespace SecurityService.IntergrationTests.Common
         /// <param name="logger">The logger.</param>
         public DockerHelper() : base()
         {
-            
+            StringSerialiser.Initialise(new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         }
 
         #endregion
