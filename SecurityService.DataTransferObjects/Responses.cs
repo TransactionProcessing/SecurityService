@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System.Text.Json.Serialization;
+﻿
+using System.Text.Json;
 
 namespace SecurityService.DataTransferObjects;
 
@@ -100,21 +100,20 @@ public class TokenResponse
     public Int64 ExpiresIn { get; private set; }
     public DateTimeOffset Issued { get; private set; }
     public String RefreshToken { get; private set; }
-    public static TokenResponse Create(String token)
-    {
-        dynamic auth = JsonConvert.DeserializeObject(token);
+    public static TokenResponse Create(String token) {
+        using var doc = JsonDocument.Parse(token);
+        var root = doc.RootElement;
 
-        Int64 expiresIn = auth["expires_in"].Value;
-        String accessToken = auth["access_token"].Value;
+        long expiresIn = root.GetProperty("expires_in").GetInt64();
+        string accessToken = root.GetProperty("access_token").GetString();
 
         DateTimeOffset issued = DateTimeOffset.Now;
-        DateTimeOffset expires = DateTimeOffset.Now.AddSeconds(expiresIn);
+        DateTimeOffset expires = issued.AddSeconds(expiresIn);
 
-        String refreshToken = null;
-        //For client credentials, the refresh_token will not be present
-        if (auth["refresh_token"] != null)
+        string refreshToken = null;
+        if (root.TryGetProperty("refresh_token", out var refreshElement))
         {
-            refreshToken = auth["refresh_token"].Value;
+            refreshToken = refreshElement.GetString();
         }
 
         return TokenResponse.Create(accessToken, refreshToken, expiresIn, issued, expires);

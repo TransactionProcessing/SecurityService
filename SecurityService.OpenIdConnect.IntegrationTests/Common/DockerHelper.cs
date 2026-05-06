@@ -4,11 +4,11 @@ using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
 using Shared.IntegrationTesting.TestContainers;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace SecurityService.IntergrationTests.Common
 {
     using Client;
-    using Newtonsoft.Json;
     using Shared.HealthChecks;
     using Shared.IntegrationTesting;
     using Shared.Logger;
@@ -57,7 +57,7 @@ namespace SecurityService.IntergrationTests.Common
         /// <param name="logger">The logger.</param>
         public DockerHelper() : base()
         {
-            
+            StringSerialiser.Initialise(new SystemTextJsonSerializer(SystemTextJsonSerializer.GetDefaultJsonSerializerOptions()));
         }
 
         #endregion
@@ -119,7 +119,7 @@ namespace SecurityService.IntergrationTests.Common
                                     await this.HealthCheckClient.PerformHealthCheck("https", "127.0.0.1", this.SecurityServiceTestUIPort, CancellationToken.None);
 
                                 healthCheck.IsSuccess.ShouldBeTrue($"Health check for Test UI failed with [{healthCheck.Message}]");
-                                HealthCheckResult result = JsonConvert.DeserializeObject<HealthCheckResult>(healthCheck.Data);
+                                HealthCheckResult result = StringSerialiser.Deserialise<HealthCheckResult>(healthCheck.Data);
 
                                 this.Trace($"health check complete for Test UI result is [{healthCheck}]");
 

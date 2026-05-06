@@ -12,7 +12,6 @@ namespace SecurityService.IntegrationTests.ApiResource
     using Clients;
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
-    using Newtonsoft.Json;
     using Reqnroll;
     using Shouldly;
 
