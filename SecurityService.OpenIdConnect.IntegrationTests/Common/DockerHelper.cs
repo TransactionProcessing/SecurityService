@@ -4,6 +4,7 @@ using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
 using Shared.IntegrationTesting.TestContainers;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 
 namespace SecurityService.IntergrationTests.Common
 {
@@ -56,7 +57,7 @@ namespace SecurityService.IntergrationTests.Common
         /// <param name="logger">The logger.</param>
         public DockerHelper() : base()
         {
-            StringSerialiser.Initialise(new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
+            StringSerialiser.Initialise(new SystemTextJsonSerializer(SystemTextJsonSerializer.GetDefaultJsonSerializerOptions()));
         }
 
         #endregion
