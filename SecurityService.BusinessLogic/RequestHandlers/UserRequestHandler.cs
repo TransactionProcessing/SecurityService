@@ -20,6 +20,7 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
+using Shared.Logger;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
@@ -63,23 +64,12 @@ public sealed class UserRequestHandler :
     {
         // Get a token to talk to the estate service
         String clientId = this.Options.Value.ClientId;
-        
-        //Logger.LogInformation($"Client Id is {clientId}");
-        //Logger.LogInformation($"Client Secret is {clientSecret}");
 
         if (this.TokenResponse == null) {
             String clientToken = this.ClientJwtService.CreateClientAssertion(clientId, this.Options.Value.IssuerUrl, 60);
             this.TokenResponse = TokenResponse.Create(clientToken, null, 3600, DateTimeOffset.Now, DateTimeOffset.Now.AddSeconds(3600));
-            //    Logger.LogInformation($"Token is {this.TokenResponse.AccessToken}");
-            return this.TokenResponse;
         }
 
-        if (this.TokenResponse.Expires.UtcDateTime.Subtract(DateTime.UtcNow) < TimeSpan.FromMinutes(2))
-        {
-        //    Logger.LogInformation($"Token is about to expire at {this.TokenResponse.Expires.DateTime:O}");
-        //    Logger.LogInformation($"Token is {this.TokenResponse.AccessToken}");
-            return this.TokenResponse;
-        }
         return this.TokenResponse;
     }
 
@@ -94,15 +84,18 @@ public sealed class UserRequestHandler :
         SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
         Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         // TODO: Error handling
-        //if (sendEmailResult.IsFailed)
-            //Logger.LogWarning($"Error sending email to {newIdentityUser.Email} as part of user creation {sendEmailResult}");
+        if (sendEmailResult.IsFailed) {
+            Logger.LogWarning($"Error sending email to {newIdentityUser.Email} as part of user creation {sendEmailResult}");
+            return ResultHelpers.CreateFailure(sendEmailResult);
+        }
+
         return Result.Success();
     }
 
     private SendEmailRequest BuildEmailConfirmationRequest(ApplicationUser user,
                                                            String emailConfirmationToken)
     {
-        StringBuilder mesasgeBuilder = new StringBuilder();
+        StringBuilder mesasgeBuilder = new();
 
         mesasgeBuilder.Append("<html>");
         mesasgeBuilder.Append("<body>");
@@ -414,7 +407,46 @@ public sealed class UserRequestHandler :
         return Result.Success();
     }
 
-    
+    public async Task<Result> Handle(SecurityServiceCommands.ResendWelcomeEmailCommand command,
+                                     CancellationToken cancellationToken)
+    {
+        ApplicationUser? user = await this.UserManager.FindByNameAsync(command.Username);
+        if (user == null)
+        {
+            return Result.NotFound($"No user found with username {command.Username}");
+        }
+
+        IdentityResult removePasswordResult = await this.UserManager.RemovePasswordAsync(user);
+        if (removePasswordResult.Succeeded == false)
+        {
+            return Result.Failure($"Errors removing password for user [{command.Username}]");
+        }
+
+        Result<string> generatedPasswordResult = PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions);
+        if (generatedPasswordResult.IsFailed)
+        {
+            return ResultHelpers.CreateFailure(generatedPasswordResult);
+        }
+
+        IdentityResult addPasswordResult = await this.UserManager.AddPasswordAsync(user, generatedPasswordResult.Data);
+        if (addPasswordResult.Succeeded == false)
+        {
+            return Result.Failure($"Errors adding password for user [{command.Username}]");
+        }
+
+        TokenResponse token = await this.GetToken();
+        string emailAddress = user.Email ?? user.UserName ?? string.Empty;
+        SendEmailRequest emailRequest = this.BuildWelcomeEmail(emailAddress, generatedPasswordResult.Data);
+        Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+        if (sendEmailResult.IsFailed)
+        {
+            return ResultHelpers.CreateFailure(sendEmailResult);
+        }
+
+        return Result.Success();
+    }
+
+
 
 
     public static class PasswordGenerator {
@@ -489,17 +521,14 @@ public sealed class UserRequestHandler :
 
     public async Task<Result<ChangeUserPasswordResult>> Handle(SecurityServiceCommands.ChangeUserPasswordCommand command,
                                                                CancellationToken cancellationToken) {
-        //Logger.LogWarning("In Handle ChangeUserPasswordCommand");
         // Find the user based on the user name passed in
         ApplicationUser user = await this.UserManager.FindByNameAsync(command.UserName);
 
-        if (user == null)
-        {
-            //Logger.LogWarning("In Handle ChangeUserPasswordCommand - user is null");
+        if (user == null) {
             // this prevents giving away info to a potential hacker...
             return Result.NotFound();
         }
-        //Logger.LogWarning("In Handle ChangeUserPasswordCommand - user is not null");
+
         IdentityResult result = await this.UserManager.ChangePasswordAsync(user,
             command.CurrentPassword,
             command.NewPassword);
@@ -507,27 +536,22 @@ public sealed class UserRequestHandler :
         if (result.Succeeded == false)
         {
             // Log any errors
-            ///Logger.LogInformation($"Errors during password change for user [{command.UserName} and Client [{command.ClientId}]");
+            StringBuilder errors = new StringBuilder();
             foreach (IdentityError identityError in result.Errors)
             {
-                //Logger.LogInformation($"Code {identityError.Code} Description {identityError.Description}");
+                errors.AppendLine($"Code {identityError.Code} Description {identityError.Description}");
             }
 
-            return Result.Failure($"Errors during password change for user [{command.UserName} and Client [{command.ClientId}]");
+            return Result.Failure($"Errors during password change for user [{command.UserName}] and Client [{command.ClientId}]: {errors}");
         }
 
-        //Logger.LogWarning("In Handle ChangeUserPasswordCommand - password changed");
         // build the redirect uri
         var client = await this.DbContext.ClientDefinitions.Where(c => c.ClientId == command.ClientId).SingleOrDefaultAsync(cancellationToken);
 
-        if (client == null)
-        {
-            //Logger.LogWarning("In Handle ChangeUserPasswordCommand - client not found");
-            //Logger.LogInformation($"Client not found for clientId {command.ClientId}");
+        if (client == null) {
             return Result.Invalid($"Client not found for clientId {command.ClientId}");
         }
 
-        //Logger.LogWarning($"Client uri: {client.ClientUri}");
         return Result.Success(new ChangeUserPasswordResult { IsSuccessful = true, RedirectUri = client.ClientUri });
     }
 
@@ -536,8 +560,7 @@ public sealed class UserRequestHandler :
         // Find the user based on the user name passed in
         ApplicationUser user = await this.UserManager.FindByNameAsync(command.Username);
 
-        if (user == null)
-        {
+        if (user == null) {
             return Result.Success();
         }
 
@@ -594,7 +617,6 @@ public sealed class UserRequestHandler :
         if (user == null)
         {
             // this prevents giving away info to a potential hacker...
-            //Logger.LogInformation($"user not found for username {command.Username}");
             return Result.NotFound($"user not found for username {command.Username}");
         }
 
@@ -604,13 +626,13 @@ public sealed class UserRequestHandler :
         if (result.Succeeded == false)
         {
             // Log any errors
-            //Logger.LogInformation($"Errors during password reset for user [{command.Username} and Client [{command.ClientId}]");
+            StringBuilder errors = new StringBuilder();
             foreach (IdentityError identityError in result.Errors)
             {
-                //Logger.LogInformation($"Code {identityError.Code} Description {identityError.Description}");
+                errors.AppendLine($"Code {identityError.Code} Description {identityError.Description}");
             }
 
-            return Result.Failure($"Errors during password reset for user [{command.Username} and Client [{command.ClientId}]");
+            return Result.Failure($"Errors during password reset for user [{command.Username}] and Client [{command.ClientId}]: {errors}");
         }
 
         // build the redirect uri
@@ -618,7 +640,6 @@ public sealed class UserRequestHandler :
 
         if (client == null)
         {
-            //Logger.LogInformation($"Client not found for clientId {command.ClientId}");
             return Result.Invalid($"Client not found for clientId {command.ClientId}");
         }
 

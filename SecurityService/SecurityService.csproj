@@ -8,11 +8,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Pages\Account\ExternalLogin\Index.cshtml.cs" />
-    <Compile Remove="Pages\Account\ResendConfirmationEmail\Index.cshtml.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Remove="Pages\Account\ExternalLogin\Index.cshtml" />
-    <Content Remove="Pages\Account\ResendConfirmationEmail\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="9.0.0" />
@@ -69,6 +67,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\Account\ExternalLogin\" />
-    <Folder Include="Pages\Account\ResendConfirmationEmail\" />
   </ItemGroup>
 </Project>
