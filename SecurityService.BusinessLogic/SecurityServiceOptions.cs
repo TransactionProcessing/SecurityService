@@ -118,7 +118,6 @@ public class TestMessagingServiceClient : IMessagingServiceClient
                                         SendEmailRequest request,
                                         CancellationToken cancellationToken)
     {
-        //Logger.LogWarning($"Sending Email {request.Subject}");
         this.LastEmailRequest = new SendEmailRequest() {
             Body = request.Body,
             ConnectionIdentifier = request.ConnectionIdentifier,

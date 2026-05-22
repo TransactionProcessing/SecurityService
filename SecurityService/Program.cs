@@ -60,7 +60,6 @@ builder.WebHost.ConfigureAppConfiguration((context, configBuilder) =>
     var builtConfig = configBuilder.Build();
 
     // Keep existing static usage (if you must), and initialise the ConfigurationReader now.
-    //builder.Configuration = builtConfig;
     ConfigurationReader.Initialise(builder.Configuration);
 
     // Configure Sentry on the webBuilder using the config snapshot.
@@ -150,35 +149,6 @@ builder.Services.ConfigureApplicationCookie(cookieOptions =>
     cookieOptions.LoginPath = "/Account/Login";
     cookieOptions.LogoutPath = "/Account/Logout";
 });
-
-//AuthenticationBuilder authenticationBuilder = builder.Services.AddAuthentication();
-//foreach (var provider in options.ExternalProviders.Where(provider => provider.Enabled))
-//{
-//    authenticationBuilder.AddOpenIdConnect(provider.Scheme, string.IsNullOrWhiteSpace(provider.DisplayName) ? provider.Scheme : provider.DisplayName, openIdOptions =>
-//    {
-//        openIdOptions.SignInScheme = IdentityConstants.ExternalScheme;
-//        openIdOptions.Authority = provider.Authority;
-//        openIdOptions.ClientId = provider.ClientId;
-//        openIdOptions.ClientSecret = provider.ClientSecret;
-//        openIdOptions.CallbackPath = provider.CallbackPath;
-//        openIdOptions.ResponseType = "code";
-//        openIdOptions.SaveTokens = true;
-//        openIdOptions.GetClaimsFromUserInfoEndpoint = true;
-//        openIdOptions.MapInboundClaims = false;
-//        openIdOptions.Scope.Clear();
-//        openIdOptions.Scope.Add("openid");
-//        openIdOptions.Scope.Add("profile");
-//        openIdOptions.Scope.Add("email");
-
-//        foreach (var scope in provider.Scopes.Where(scope => string.IsNullOrWhiteSpace(scope) == false).Distinct(StringComparer.OrdinalIgnoreCase))
-//        {
-//            if (openIdOptions.Scope.Contains(scope, StringComparer.OrdinalIgnoreCase) == false)
-//            {
-//                openIdOptions.Scope.Add(scope);
-//            }
-//        }
-//    });
-//}
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<TenantContext>();

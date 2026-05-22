@@ -56,6 +56,7 @@ public static class SecurityServiceCommands
     public record ConfirmUserEmailAddressCommand(String UserName, String ConfirmEmailToken) : IRequest<Result>;
 
     public record SendWelcomeEmailCommand(String Username) : IRequest<Result>;
+    public record ResendWelcomeEmailCommand(String Username) : IRequest<Result>;
     public record ProcessPasswordResetRequestCommand(String Username,
                                                      String EmailAddress,
                                                      String ClientId) : IRequest<Result>;
