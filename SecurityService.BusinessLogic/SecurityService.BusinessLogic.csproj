@@ -5,17 +5,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="MediatR" Version="14.1.0" />
-    <PackageReference Include="MessagingService.Client" Version="2026.4.3-build126" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
-    <PackageReference Include="OpenIddict.Abstractions" Version="7.3.0" />
-    <PackageReference Include="OpenIddict.Server" Version="7.3.0" />
-    <PackageReference Include="OpenIddict.Server.AspNetCore" Version="7.3.0" />
-    <PackageReference Include="OpenIddict.Validation.AspNetCore" Version="7.3.0" />
-    <PackageReference Include="Shared.Logger" Version="2026.5.5" />
-    <PackageReference Include="Shared.Results" Version="2026.5.5" />
-    <PackageReference Include="SimpleResults" Version="4.0.0" />
+    <PackageReference Include="MediatR" />
+    <PackageReference Include="MessagingService.Client" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" />
+    <PackageReference Include="OpenIddict.Abstractions" />
+    <PackageReference Include="OpenIddict.Server" />
+    <PackageReference Include="OpenIddict.Server.AspNetCore" />
+    <PackageReference Include="OpenIddict.Validation.AspNetCore" />
+    <PackageReference Include="Shared.Logger" />
+    <PackageReference Include="Shared.Results" />
+    <PackageReference Include="SimpleResults" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />
