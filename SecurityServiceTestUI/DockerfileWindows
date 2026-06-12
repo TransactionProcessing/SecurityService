@@ -9,6 +9,8 @@ WORKDIR /src
 COPY ["SecurityService/NuGet.Config", "."]
 COPY ["Certificates/*.*", "Certificates/"]
 COPY ["SecurityServiceTestUI/SecurityServiceTestUI.csproj", "SecurityServiceTestUI/"]
+COPY ["Directory.Packages.props", "."]
+COPY . .
 RUN dotnet restore "SecurityServiceTestUI/SecurityServiceTestUI.csproj"
 COPY . .
 WORKDIR "/src/SecurityServiceTestUI"
