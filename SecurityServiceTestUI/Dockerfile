@@ -14,6 +14,8 @@ RUN sed -i "s|NUGET_TOKEN|${NUGET_TOKEN}|g" NuGet.Config
 
 COPY ["Certificates/*.*", "Certificates/"]
 COPY ["SecurityServiceTestUI/SecurityServiceTestUI.csproj", "SecurityServiceTestUI/"]
+COPY ["Directory.Packages.props", "."]
+COPY . .
 RUN dotnet restore "SecurityServiceTestUI/SecurityServiceTestUI.csproj"
 COPY . .
 WORKDIR "/src/SecurityServiceTestUI"
