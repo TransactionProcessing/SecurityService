@@ -53,10 +53,13 @@ namespace SecurityService.IntegrationTests.UserLogin
         #endregion
 
         [Given(@"I am on the application home page")]
-        public void GivenIAmOnTheApplicationHomePage()
+        public async Task GivenIAmOnTheApplicationHomePage()
         {
             this.WebDriver.Navigate().GoToUrl($"https://localhost:{this.TestingContext.DockerHelper.SecurityServiceTestUIPort}");
-            this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestUI");
+            await Retry.For(async () =>
+                            {
+                                this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestUI");
+                            });
         }
 
         [When(@"I click the '(.*)' link")]
@@ -68,16 +71,19 @@ namespace SecurityService.IntegrationTests.UserLogin
         [Then(@"I am presented with a login screen")]
         public async Task ThenIAmPresentedWithALoginScreen()
         {
-            IWebElement loginButton = await this.WebDriver.FindButton("Login");
-            loginButton.ShouldNotBeNull();
+            await Retry.For(async () =>
+                            {
+                                IWebElement loginButton = await this.WebDriver.FindButton("Login");
+                                loginButton.ShouldNotBeNull();
+                            });
         }
 
         [When(@"I login with the username '([^']*)' and the provided password")]
-        public void WhenILoginWithTheUsernameAndTheProvidedPassword(string userName)
+        public async Task WhenILoginWithTheUsernameAndTheProvidedPassword(string userName)
         {
             this.WebDriver.FillIn("Input.Username", userName);
             this.WebDriver.FillIn("Input.Password", this.TestingContext.Password);
-            this.WebDriver.ClickButton("Login");
+            await this.WebDriver.ClickButton("Login");
         }
 
 
@@ -87,10 +93,6 @@ namespace SecurityService.IntegrationTests.UserLogin
         {
             await Retry.For(async () =>
                             {
-                                var page = this.WebDriver.PageSource;
-
-                                Console.WriteLine($"Source Is [{page}");
-
                                 this.WebDriver.Title.ShouldBe("Privacy Policy - SecurityServiceTestUI");
                             });
             
@@ -184,16 +186,14 @@ namespace SecurityService.IntegrationTests.UserLogin
         }
 
         public static async Task<IWebElement> FindButton(this IWebDriver webDriver,
-                                       String buttonText)
+                                        String buttonText)
         {
             IWebElement e = null;
             await Retry.For(async () =>
                       {
-
-
                           ReadOnlyCollection<IWebElement> elements = webDriver.FindElements(By.TagName("button"));
 
-                          var foundElements = elements.Where(e => e.GetAttribute("innerText") == buttonText).ToList();
+                          var foundElements = elements.Where(element => element.Text.Trim() == buttonText).ToList();
                           foundElements.ShouldHaveSingleItem();
 
                           e = foundElements.Single();
