@@ -115,8 +115,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
         [Then("I am presented with the reset password request sent screen")]
         public async Task ThenIAmPresentedWithTheResetPasswordRequestSentScreen()
         {
-            IWebElement resetPasswordLabel = this.WebDriver.FindElement(By.Id("forgotPasswordMessage"));
             await Retry.For(async () => {
+                IWebElement resetPasswordLabel = this.WebDriver.FindElement(By.Id("forgotPasswordMessage"));
                 resetPasswordLabel.ShouldNotBeNull();
             });
         }

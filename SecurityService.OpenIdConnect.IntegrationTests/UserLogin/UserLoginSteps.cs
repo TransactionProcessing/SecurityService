@@ -63,9 +63,9 @@ namespace SecurityService.IntegrationTests.UserLogin
         }
 
         [When(@"I click the '(.*)' link")]
-        public void WhenIClickTheLink(string linkText)
+        public async Task WhenIClickTheLink(string linkText)
         {
-            this.WebDriver.ClickLink(linkText);
+            await this.WebDriver.ClickLink(linkText);
         }
 
         [Then(@"I am presented with a login screen")]
@@ -167,9 +167,12 @@ namespace SecurityService.IntegrationTests.UserLogin
         }
 
         [Then(@"I am presented with the confirm email address successful screen")]
-        public void ThenIAmPresentedWithTheConfirmEmailAddressSuccessfulScreen() {
-            IWebElement webElement = this.WebDriver.FindElement(By.Id("userMessage"));
-            webElement.Text.ShouldBe("Thanks for confirming your email address, you should receive a welcome email soon.");
+        public async Task ThenIAmPresentedWithTheConfirmEmailAddressSuccessfulScreen() {
+            await Retry.For(async () =>
+                            {
+                                IWebElement webElement = this.WebDriver.FindElement(By.Id("userMessage"));
+                                webElement.Text.ShouldBe("Thanks for confirming your email address, you should receive a welcome email soon.");
+                            });
         }
 
     }
@@ -202,12 +205,15 @@ namespace SecurityService.IntegrationTests.UserLogin
             return e;
         }
 
-        public static void ClickLink(this IWebDriver webDriver,
-                                       String linkText)
+        public static async Task ClickLink(this IWebDriver webDriver,
+                                        String linkText)
         {
-            IWebElement webElement = webDriver.FindElement(By.LinkText(linkText));
-            webElement.ShouldNotBeNull();
-            webElement.Click();
+            await Retry.For(async () =>
+                            {
+                                IWebElement webElement = webDriver.FindElement(By.LinkText(linkText));
+                                webElement.ShouldNotBeNull();
+                                webElement.Click();
+                            });
         }
 
         public static async Task ClickButton(this IWebDriver webDriver,
