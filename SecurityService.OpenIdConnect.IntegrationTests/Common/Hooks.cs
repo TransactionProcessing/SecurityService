@@ -71,14 +71,17 @@ namespace SecurityService.IntergrationTests.Common
             {
                 ChromeOptions options = new ChromeOptions();
                 options.AddArguments("--disable-gpu");
-                options.AddArguments("--headless");
+                options.AddArguments("--headless=new");
                 options.AddArguments("--no-sandbox");
                 options.AddArguments("--disable-dev-shm-usage");
                 options.AddArguments("disable-infobars");
                 options.AddArguments("--disable-extensions");
                 options.AddArguments("--window-size=1280x1024");
                 options.AcceptInsecureCertificates = true;
-                this.WebDriver = new ChromeDriver(options);
+                await Retry.For(async () =>
+                                {
+                                    this.WebDriver = new ChromeDriver(options);
+                                }, TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(60));
                 this.WebDriver.Manage().Window.Maximize();
             }
 

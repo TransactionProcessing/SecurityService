@@ -10,6 +10,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
     using OpenQA.Selenium;
     using Reqnroll;
     using SecurityService.IntegrationTests.UserLogin;
+    using Shared.IntegrationTesting;
     using Shouldly;
 
     [Binding]
@@ -75,9 +76,12 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
         }
 
         [Then(@"I am returned to the application home page")]
-        public void ThenIAmReturnedToTheApplicationHomePage()
+        public async Task ThenIAmReturnedToTheApplicationHomePage()
         {
-            this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestUI");
+            await Retry.For(async () =>
+                            {
+                                this.WebDriver.Title.ShouldBe("Home Page - SecurityServiceTestUI");
+                            });
         }
 
     }
