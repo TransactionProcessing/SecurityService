@@ -242,11 +242,11 @@ public class SecurityServiceSteps{
         List<(String, String)> roleList = new List<(String, String)>();
         foreach (CreateRoleRequest request in requests){
             Result? result = await this.SecurityServiceClient.CreateRole(request, cancellationToken).ConfigureAwait(false);
-            result.IsSuccess.ShouldBeTrue();
+            result.IsSuccess.ShouldBeTrue(result.Message);
         }
 
         Result<List<RoleResponse>>? roles = await this.SecurityServiceClient.GetRoles(cancellationToken);
-        roles.IsSuccess.ShouldBeTrue();
+        roles.IsSuccess.ShouldBeTrue(roles.Message);
 
         foreach (CreateRoleRequest request in requests) {
             RoleResponse r = roles.Data.Single(r => r.RoleName == request.RoleName);
