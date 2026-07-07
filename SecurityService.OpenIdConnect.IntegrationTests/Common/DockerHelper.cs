@@ -9,6 +9,7 @@ using System.Text.Json;
 namespace SecurityService.IntergrationTests.Common
 {
     using Client;
+    using SecurityService.IntegrationTesting.Helpers;
     using Shared.HealthChecks;
     using Shared.IntegrationTesting;
     using Shared.Logger;
@@ -21,6 +22,7 @@ namespace SecurityService.IntergrationTests.Common
     using System.Linq;
     using System.Net.Http;
     using System.Runtime.CompilerServices;
+    using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -36,6 +38,8 @@ namespace SecurityService.IntergrationTests.Common
         /// The security service client
         /// </summary>
         public ISecurityServiceClient SecurityServiceClient;
+        public HttpClient httpClient = new HttpClient();
+        private IntegrationTestCertificate? _integrationTestCertificate;
 
         /// <summary>
         /// The security service test UI container name
@@ -65,7 +69,6 @@ namespace SecurityService.IntergrationTests.Common
         #region Methods
 
         public Func<String, String> securityServiceBaseAddressResolver;
-        public HttpClient httpClient = new HttpClient();
 
         public override void SetupContainerNames()
         {
@@ -97,17 +100,27 @@ namespace SecurityService.IntergrationTests.Common
         public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
             this.Trace($"Test Id is {this.TestId} and Scenario {scenarioName}");
+            this._integrationTestCertificate = IntegrationTestCertificate.Create();
 
-            await base.StartContainersForScenarioRun(scenarioName,dockerServices);
+            try
+            {
+                await base.StartContainersForScenarioRun(scenarioName,dockerServices);
 
-            await StartContainer(SetupSecurityServiceTestUIContainer, this.TestNetworks);
+                await StartContainer(SetupSecurityServiceTestUIContainer, this.TestNetworks);
 
-            securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
+                securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
-            this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
+                this.httpClient = this.CreatePinnedHttpClient();
+                this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, this.httpClient, Serialise, Deserialise);
 
-            DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
-            DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);
+                DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
+                DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);
+            }
+            catch
+            {
+                this.DisposeIntegrationTestCertificate();
+                throw;
+            }
         }
 
         protected async Task DoTestUIHealthCheck()
@@ -221,8 +234,10 @@ namespace SecurityService.IntergrationTests.Common
 
 
 
-            ContainerBuilder securityServiceTestUIContainer = new ContainerBuilder().WithName(this.SecurityServiceTestUIContainerName)
-                .WithEnvironment(environmentVariables).WithImage("securityservicetestui").WithPortBinding(5004, true);
+            ContainerBuilder securityServiceTestUIContainer = new ContainerBuilder("securityservicetestui")
+                .WithName(this.SecurityServiceTestUIContainerName)
+                .WithEnvironment(environmentVariables)
+                .WithPortBinding(5004, true);
 
             return securityServiceTestUIContainer;
         }
@@ -231,11 +246,18 @@ namespace SecurityService.IntergrationTests.Common
         {
             this.Trace("About to Start Security Container");
 
+            if (this._integrationTestCertificate is null)
+            {
+                throw new InvalidOperationException("Integration test certificate was not initialised before container setup.");
+            }
+
             var environmentVariables = this.GetCommonEnvironmentVariables();
             environmentVariables.Add($"ServiceOptions:PublicOrigin",$"https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
             environmentVariables.Add($"ServiceOptions:IssuerUrl",$"https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
             environmentVariables.Add("ASPNETCORE_ENVIRONMENT","IntegrationTest");
             environmentVariables.Add($"urls",$"https://*:{DockerPorts.SecurityServiceDockerPort}");
+            environmentVariables.Add("ServiceOptions:KestrelOptions:Path", this._integrationTestCertificate.GetContainerCertificatePath());
+            environmentVariables.Add("ServiceOptions:KestrelOptions:Password", this._integrationTestCertificate.Password);
 
             environmentVariables.Add($"ServiceOptions:PasswordOptions:RequiredLength","6");
             environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireDigit","false");
@@ -260,9 +282,37 @@ namespace SecurityService.IntergrationTests.Common
             if (imageDetailsResult.IsFailed)
                 throw new Exception($"Image details not found for {ContainerType.SecurityService}");
 
-            ContainerBuilder securityServiceContainer = new ContainerBuilder().WithName(this.SecurityServiceContainerName).WithEnvironment(environmentVariables).WithImage(imageDetailsResult.Data.imageName).WithPortBinding(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort).MountHostFolder(this.DockerPlatform, this.HostTraceFolder);
+            ContainerBuilder securityServiceContainer = new ContainerBuilder(imageDetailsResult.Data.imageName)
+                .WithName(this.SecurityServiceContainerName)
+                .WithEnvironment(environmentVariables)
+                .WithPortBinding(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
+                .WithBindMount(this._integrationTestCertificate.CertificateDirectory, this._integrationTestCertificate.ContainerCertificateDirectory, AccessMode.ReadOnly)
+                .MountHostFolder(this.DockerPlatform, this.HostTraceFolder);
 
             return securityServiceContainer;
+        }
+
+        public void DisposeIntegrationTestCertificate()
+        {
+            this._integrationTestCertificate?.Dispose();
+            this._integrationTestCertificate = null;
+        }
+
+        private HttpClient CreatePinnedHttpClient()
+        {
+            if (this._integrationTestCertificate is null)
+            {
+                throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
+            }
+
+            HttpClientHandler handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
+                    certificate is X509Certificate2 certificate2 &&
+                    String.Equals(certificate2.Thumbprint, this._integrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
+            };
+
+            return new HttpClient(handler, disposeHandler: true);
         }
 
         #endregion
