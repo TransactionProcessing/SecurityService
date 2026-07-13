@@ -79,7 +79,7 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         title: Investigate Nightly Build Failure
         labels: nightlybuild
-        dedupe_key: nightlybuild
+        dedupe_key: nightlybuild-nonui
         body: |
           Repo: ${{ github.repository }}
           Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
@@ -144,6 +144,21 @@ jobs:
       with:
         name: firefoxlogs
         path: /home/runner/trace/
+
+    - name: Notify on nightly failure
+      if: ${{ failure() }}
+      uses: TransactionProcessing/org-ci-workflows/.github/actions/nightly-failure-issue@main
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        title: Investigate Nightly Build Failure
+        labels: nightlybuild
+        dedupe_key: nightlybuild-firefox-ui
+        body: |
+          Repo: ${{ github.repository }}
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Commit: ${{ github.sha }}
+          Workflow: ${{ github.workflow }}
+          Job: ${{ github.job }}
     
 
   buildchromeui:
@@ -208,6 +223,21 @@ jobs:
       with:
         name: chromelogs
         path: /home/runner/trace/
+
+    - name: Notify on nightly failure
+      if: ${{ failure() }}
+      uses: TransactionProcessing/org-ci-workflows/.github/actions/nightly-failure-issue@main
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        title: Investigate Nightly Build Failure
+        labels: nightlybuild
+        dedupe_key: nightlybuild-chrome-ui
+        body: |
+          Repo: ${{ github.repository }}
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Commit: ${{ github.sha }}
+          Workflow: ${{ github.workflow }}
+          Job: ${{ github.job }}
         
 
   buildedgeui:
@@ -269,4 +299,19 @@ jobs:
       with:
         name: edgelogs
         path: /home/runner/trace/
+
+    - name: Notify on nightly failure
+      if: ${{ failure() }}
+      uses: TransactionProcessing/org-ci-workflows/.github/actions/nightly-failure-issue@main
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        title: Investigate Nightly Build Failure
+        labels: nightlybuild
+        dedupe_key: nightlybuild-edge-ui
+        body: |
+          Repo: ${{ github.repository }}
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Commit: ${{ github.sha }}
+          Workflow: ${{ github.workflow }}
+          Job: ${{ github.job }}
 
