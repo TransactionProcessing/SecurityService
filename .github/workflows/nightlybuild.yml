@@ -5,6 +5,11 @@ on:
   - cron: "30 23 * * *"
   repository_dispatch:
 
+permissions:
+  contents: read
+  issues: write
+
+
 jobs:
   buildnonui:
     name: "Nightly Build - Non UI"
@@ -67,14 +72,20 @@ jobs:
         name: nonuilogs
         path: /home/runner/trace/
 
-    - name: Create Issue on Failed workflow
+    - name: Notify on nightly failure
       if: ${{ failure() }}
-      uses: dacbd/create-issue-action@main
+      uses: TransactionProcessing/org-ci-workflows/.github/actions/nightly-failure-issue@main
       with:
-        token: ${{ github.token }}
-        title: Investigate Nightly Build Failure - Non UI Tests
-        body: Url is ${{env.action_url}}
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        title: Investigate Nightly Build Failure
         labels: nightlybuild
+        dedupe_key: nightlybuild
+        body: |
+          Repo: ${{ github.repository }}
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          Commit: ${{ github.sha }}
+          Workflow: ${{ github.workflow }}
+          Job: ${{ github.job }}
 
   buildfirefoxui:
     name: "Nightly Build - Firefox UI"
@@ -134,14 +145,6 @@ jobs:
         name: firefoxlogs
         path: /home/runner/trace/
     
-    - uses: dacbd/create-issue-action@main
-      if: ${{ failure() }}
-      name: Create an issue on build failure
-      with:
-        title: Investigate Nightly Build Failure - Firefox UI
-        token: ${{secrets.GITHUB_TOKEN}}
-        labels: nightlybuild
-        body: Url is ${{env.action_url}}
 
   buildchromeui:
     name: "Nightly Build - Chrome UI"
@@ -206,14 +209,6 @@ jobs:
         name: chromelogs
         path: /home/runner/trace/
         
-    - uses: dacbd/create-issue-action@main
-      if: ${{ failure() }}
-      name: Create an issue on build failure
-      with:
-        title: Investigate Nightly Build Failure - Chrome UI
-        token: ${{secrets.GITHUB_TOKEN}}
-        labels: nightlybuild
-        body: Url is ${{env.action_url}}
 
   buildedgeui:
     name: "Nightly Build - Edge UI"
@@ -275,11 +270,3 @@ jobs:
         name: edgelogs
         path: /home/runner/trace/
 
-    - uses: dacbd/create-issue-action@main
-      if: ${{ failure() }}
-      name: Create an issue on build failure
-      with:
-        title: Investigate Nightly Build Failure - Edge UI
-        token: ${{secrets.GITHUB_TOKEN}}
-        labels: nightlybuild
-        body: Url is ${{env.action_url}}    
