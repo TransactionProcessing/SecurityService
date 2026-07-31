@@ -306,7 +306,7 @@
                 }
 
                 DateTime dateTime = ReqnrollTableHelper.GetDateForDateString(ReqnrollTableHelper.GetStringRowValue(tableRow, "RegistrationDate"), DateTime.Now);
-                //userDetails.RegistrationDateTime = dateTime;
+                userDetails.RegistrationDateTime = dateTime;
                 userDetailsList.Add(userDetails);
             }
             return userDetailsList;

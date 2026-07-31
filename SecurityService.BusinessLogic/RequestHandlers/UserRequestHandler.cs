@@ -175,7 +175,7 @@ public sealed class UserRequestHandler :
             MiddleName = command.MiddleName,
             FamilyName = command.FamilyName,
             EmailConfirmed = string.IsNullOrWhiteSpace(command.EmailAddress),
-            RegistrationDateTime = DateTime.Now,
+            RegistrationDateTime = DateTime.UtcNow,
         };
 
         Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password) ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions) : command.Password;

@@ -11,12 +11,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using NLog;
+using NLog.Extensions.Logging;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Common;
 using SecurityService.Configuration;
 using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
 using SecurityService.Endpoints;
 using SecurityService.HealthChecks;
 using SecurityService.HostedServices;
@@ -26,15 +28,14 @@ using Shared.General;
 using Shared.Logger;
 using Shared.Logger.TennantContext;
 using Shared.Middleware;
+using Shared.Serialisation;
 using System.Reflection;
 using System.Security.Cryptography;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Abstractions.OpenIddictConstants.Permissions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Logger = Shared.Logger.Logger;
-using NLog.Extensions.Logging;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
-using SecurityService.Database.Entities;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -162,6 +163,10 @@ else
     builder.Services.RegisterHttpClient<IMessagingServiceClient, MessagingServiceClient>();
 }
 
+StringSerialiser.Initialise(new SystemTextJsonSerializer(SystemTextJsonSerializer.GetDefaultJsonSerializerOptions()));
+
+builder.Services.AddSingleton<Func<Object, String>>(_ => obj => StringSerialiser.Serialise(obj));
+builder.Services.AddSingleton<Func<String, Type, Object>>(_ => (str, type) => StringSerialiser.DeserializeObject<Object>(str, type));
 builder.Services.AddSingleton<Func<String, String>>(container => serviceName => { return ConfigurationReader.GetBaseServerUri(serviceName).OriginalString; });
 
 bool logRequests = ConfigurationReader.GetValueOrDefault<Boolean>("MiddlewareLogging", "LogRequests", true);
@@ -179,7 +184,7 @@ builder.Services.AddMediatR(configuration =>
 {
     configuration.RegisterServicesFromAssembly(typeof(SecurityServiceCommands).Assembly);
 });
-builder.Services.ConfigureHttpJsonOptions(jsonOptions => JsonSerializerConfiguration.ConfigureMinimalApi(jsonOptions.SerializerOptions));
+builder.Services.ConfigureHttpJsonOptions(jsonOptions => SecurityService.Configuration.JsonSerializerConfiguration.ConfigureMinimalApi(jsonOptions.SerializerOptions));
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

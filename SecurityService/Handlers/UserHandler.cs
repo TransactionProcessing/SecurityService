@@ -25,7 +25,11 @@ public static class UserHandler
 
         Result<UserDetails> result = await mediator.Send(query, cancellationToken);
 
-        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        if (result.IsFailed) {
+            return OidcResponseFactory.TranslateResultStatus(result);
+        }
+
+        return Results.Ok(ModelFactory.ConvertFrom(result.Data));
     }
 
     public static async Task<IResult> GetUsers(IMediator mediator, string? userName, CancellationToken cancellationToken) {
@@ -33,6 +37,10 @@ public static class UserHandler
 
         Result<List<UserDetails>> result = await mediator.Send(query, cancellationToken);
 
-        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        if (result.IsFailed) {
+            return OidcResponseFactory.TranslateResultStatus(result);
+        }
+
+        return Results.Ok(ModelFactory.ConvertFrom(result.Data));
     }
 }
