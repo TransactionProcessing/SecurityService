@@ -34,7 +34,6 @@ using System.Security.Cryptography;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Abstractions.OpenIddictConstants.Permissions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using JsonSerializerConfiguration = Shared.Serialisation.JsonSerializerConfiguration;
 using Logger = Shared.Logger.Logger;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
@@ -163,6 +162,9 @@ else
 {
     builder.Services.RegisterHttpClient<IMessagingServiceClient, MessagingServiceClient>();
 }
+
+StringSerialiser.Initialise(new SystemTextJsonSerializer(SystemTextJsonSerializer.GetDefaultJsonSerializerOptions()));
+
 builder.Services.AddSingleton<Func<Object, String>>(_ => obj => StringSerialiser.Serialise(obj));
 builder.Services.AddSingleton<Func<String, Type, Object>>(_ => (str, type) => StringSerialiser.DeserializeObject<Object>(str, type));
 builder.Services.AddSingleton<Func<String, String>>(container => serviceName => { return ConfigurationReader.GetBaseServerUri(serviceName).OriginalString; });
@@ -182,7 +184,7 @@ builder.Services.AddMediatR(configuration =>
 {
     configuration.RegisterServicesFromAssembly(typeof(SecurityServiceCommands).Assembly);
 });
-builder.Services.ConfigureHttpJsonOptions(jsonOptions => JsonSerializerConfiguration.ConfigureMinimalApi(jsonOptions.SerializerOptions));
+builder.Services.ConfigureHttpJsonOptions(jsonOptions => SecurityService.Configuration.JsonSerializerConfiguration.ConfigureMinimalApi(jsonOptions.SerializerOptions));
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
