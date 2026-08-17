@@ -47,7 +47,7 @@ jobs:
     - name: Run Unit Tests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj" --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=unit-test-results.trx"
+        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj" --configuration Release --no-build --verbosity normal -- --report-trx
 
     
     - name: Build Docker Images
@@ -56,28 +56,45 @@ jobs:
 
     - name: Run Integration Tests (Non UI)
       run: |
-        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=nonui-test-results.trx"
+        dotnet test "SecurityService.IntegrationTests\SecurityService.IntegrationTests.csproj" --filter Category=PRTest --configuration Release --no-build --verbosity normal --results-directory "${{ github.workspace }}/TestResults" --settings "SecurityService.IntegrationTests/Integration.runsettings"
 
     - uses: actions/upload-artifact@v4
       with:
         name: nonuilogs
         path: /home/runner/trace/
 
-    - name: Publish test results
+    - name: Publish unit test results
       uses: dorny/test-reporter@v1
       if: always()
       with:
-          name: Unit and NonUI Test Results
+          name: Unit Test Results
           path: '**/TestResults/*.trx'
           reporter: dotnet-trx
           fail-on-error: true
-    
+
+    - name: Publish integration test results
+      uses: dorny/test-reporter@v1
+      if: always()
+      with:
+          name: Non-UI Integration Test Results
+          path: 'TestResults/**/*.xml'
+          reporter: dotnet-nunit
+          fail-on-error: true
+
     - name: Upload test results
       uses: actions/upload-artifact@v4
       if: always()
       with:
-          name: ui-nonui-test-results
+          name: unit-test-results
           path: '**/TestResults/*.trx'
+          retention-days: 30
+
+    - name: Upload integration test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+          name: nonui-test-results
+          path: 'TestResults/**/*.xml'
           retention-days: 30
 
   buildfirefox:
@@ -123,20 +140,20 @@ jobs:
       env:
         Browser: Firefox
       run: |
-        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=firefoxui-test-results.trx"    
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest --configuration Release --no-build --verbosity normal --results-directory "${{ github.workspace }}/TestResults" --settings "SecurityService.OpenIdConnect.IntegrationTests/Integration.runsettings"
 
     - uses: actions/upload-artifact@v4
       with:
         name: firefoxlogs
         path: /home/runner/trace/
 
-    - name: Publish test results
+    - name: Publish integration test results
       uses: dorny/test-reporter@v1
       if: always()
       with:
           name: Integration Test Results
-          path: '**/TestResults/*.trx'
-          reporter: dotnet-trx
+          path: 'TestResults/**/*.xml'
+          reporter: dotnet-nunit
           fail-on-error: true
     
     - name: Upload test results
@@ -144,7 +161,7 @@ jobs:
       if: always()
       with:
           name: integration-test-results
-          path: '**/TestResults/*.trx'
+          path: 'TestResults/**/*.xml'
           retention-days: 30
 
   buildchromeui:
