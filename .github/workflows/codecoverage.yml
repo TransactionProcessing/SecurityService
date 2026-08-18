@@ -25,20 +25,13 @@ jobs:
       run: dotnet build SecurityService.slnx --configuration Release
 
     - name: Run Unit Tests
+      working-directory: SecurityService.UnitTests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
+        dotnet test "SecurityService.UnitTests.csproj" --configuration Release --verbosity normal --coverage --coverage-output-format cobertura --results-directory TestResults
 
-    - name: Install LCOV merger
-      run: npm install -g lcov-result-merger
-
-    - name: Merge LCOV reports
-      run: |
-        mkdir -p coverage
-        lcov-result-merger "*.info" > lcov.info
-
-    - name: Upload merged coverage to Codacy
+    - name: Upload coverage to Codacy
       uses: codacy/codacy-coverage-reporter-action@v1
       with:
         project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-        coverage-reports: ./lcov.info  
+        coverage-reports: ./SecurityService.UnitTests/TestResults/*.cobertura.xml

@@ -54,9 +54,10 @@ jobs:
       run: dotnet build SecurityService.slnx --configuration Release
 
     - name: Run Unit Tests
+      working-directory: SecurityService.UnitTests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
+        dotnet test "SecurityService.UnitTests.csproj" --configuration Release --no-build --verbosity normal
     
     - name: Build Docker Images
       run: |
@@ -204,9 +205,10 @@ jobs:
       run: dotnet build SecurityService.slnx --configuration Release
 
     - name: Run Unit Tests
+      working-directory: SecurityService.UnitTests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj"  /p:ExcludeByFile="\SecurityService\Views\**\*.cshtml" /p:CollectCoverage=true /p:Exclude="[xunit*]*" /p:ExcludeByAttribute="Obsolete" /p:ExcludeByAttribute="GeneratedCodeAttribute" /p:ExcludeByAttribute="CompilerGeneratedAttribute" /p:ExcludeByAttribute="ExcludeFromCodeCoverageAttribute" /p:CoverletOutput="../lcov1.info" /maxcpucount:1 /p:CoverletOutputFormat="lcov"
+        dotnet test "SecurityService.UnitTests.csproj" --configuration Release --no-build --verbosity normal
     
     - name: Build Docker Images
       run: |
