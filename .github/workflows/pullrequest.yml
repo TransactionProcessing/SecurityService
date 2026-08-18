@@ -45,9 +45,10 @@ jobs:
       run: dotnet build SecurityService.slnx --configuration Release
 
     - name: Run Unit Tests
+      working-directory: SecurityService.UnitTests
       run: |
         echo "ASPNETCORE_ENVIRONMENT are > ${ASPNETCORE_ENVIRONMENT}"
-        dotnet test "SecurityService.UnitTests\SecurityService.UnitTests.csproj" --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=unit-test-results.trx"
+        dotnet test "SecurityService.UnitTests.csproj" --configuration Release --no-build --verbosity normal --report-trx --report-trx-filename unit-test-results.trx --results-directory TestResults
 
     
     - name: Build Docker Images
@@ -123,7 +124,7 @@ jobs:
       env:
         Browser: Firefox
       run: |
-        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=firefoxui-test-results.trx"    
+        dotnet test "SecurityService.OpenIdConnect.IntegrationTests\SecurityService.OpenIdConnect.IntegrationTests.csproj" --filter Category=PRTest  --configuration Release --no-build --verbosity normal --logger "trx;LogFileName=firefoxui-test-results.trx"
 
     - uses: actions/upload-artifact@v4
       with:

@@ -23,6 +23,7 @@ using SecurityService.Endpoints;
 using SecurityService.HealthChecks;
 using SecurityService.HostedServices;
 using Sentry.Extensibility;
+using Shared.EntityFramework;
 using Shared.Extensions;
 using Shared.General;
 using Shared.Logger;
@@ -104,22 +105,54 @@ if (kestrelCertificate is not null)
     });
 }
 
-builder.Services.AddDbContext<SecurityServiceDbContext>(dbOptions =>
+if (options.UseInMemoryDatabase)
 {
-    if (options.UseInMemoryDatabase)
+    builder.Services.AddDbContext<SecurityServiceDbContext>(builder => {
+        builder.UseInMemoryDatabase(options.InMemoryDatabaseName);
+        builder.UseOpenIddict();
+    });
+}
+else
+{
+    SqlServerRetryOptions retryOptions;
+    try
     {
-        dbOptions.UseInMemoryDatabase(options.InMemoryDatabaseName);
+        retryOptions = ConfigurationReader.GetSection<SqlServerRetryOptions>("AppSettings:SqlServerRetry");
+    }
+    catch (KeyNotFoundException)
+    {
+        retryOptions = null;
+    }
+
+    if (retryOptions != null)
+    {
+        builder.Services.AddDbContext<SecurityServiceDbContext>(options => {
+            
+            options.UseSharedSqlServer<SecurityServiceDbContext>(ConfigurationReader.GetConnectionString("AuthenticationDbContext"), retry => {
+                retry.AdditionalTransientErrorNumbers = retryOptions.AdditionalTransientErrorNumbers;
+                retry.MaxRetryCount = retryOptions.MaxRetryCount;
+                retry.MaxRetryDelay = retryOptions.MaxRetryDelay;
+            });
+            options.UseOpenIddict();
+            options.UseSqlServer(options => {
+                options.MigrationsAssembly("SecurityService.SqlServerMigrations");
+            });
+        });
     }
     else
     {
-        dbOptions.UseSqlServer(builder.Configuration.GetConnectionString("AuthenticationDbContext"), sqlServerOptions =>
-        {
-            sqlServerOptions.MigrationsAssembly("SecurityService.SqlServerMigrations");
+        builder.Services.AddDbContext<SecurityServiceDbContext>(options => {
+            options.UseSqlServer(ConfigurationReader.GetConnectionString("AuthenticationDbContext"), retry => {
+                retry.EnableRetryOnFailure();
+                retry.MigrationsAssembly("SecurityService.SqlServerMigrations");
+            });
+            options.UseOpenIddict();
+            
         });
+        
     }
+}
 
-    dbOptions.UseOpenIddict();
-});
 
 builder.Services.AddSingleton<IMessagingServiceClient, TestMessagingServiceClient>();
 builder.Services.AddSingleton<IClientJwtService, ClientJwtService>();
