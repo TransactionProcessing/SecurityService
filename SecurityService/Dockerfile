@@ -12,7 +12,6 @@ COPY ["SecurityService.BusinessLogic/SecurityService.BusinessLogic.csproj", "Sec
 COPY ["SecurityService.Database/SecurityService.Database.csproj", "SecurityService.Database/"]
 COPY ["SecurityService.DataTransferObjects/SecurityService.DataTransferObjects.csproj", "SecurityService.DataTransferObjects/"]
 COPY ["SecurityService.Models/SecurityService.Models.csproj", "SecurityService.Models/"]
-COPY ["SecurityService.SqlServerMigrations/SecurityService.SqlServerMigrations.csproj", "SecurityService.SqlServerMigrations/"]
 COPY ["Directory.Packages.props", "."]
 COPY . .
 RUN dotnet restore "SecurityService/SecurityService.csproj"
