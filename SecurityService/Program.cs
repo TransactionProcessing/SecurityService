@@ -134,9 +134,6 @@ else
                 retry.MaxRetryDelay = retryOptions.MaxRetryDelay;
             });
             options.UseOpenIddict();
-            options.UseSqlServer(options => {
-                options.MigrationsAssembly("SecurityService.SqlServerMigrations");
-            });
         });
     }
     else
@@ -144,7 +141,6 @@ else
         builder.Services.AddDbContext<SecurityServiceDbContext>(options => {
             options.UseSqlServer(ConfigurationReader.GetConnectionString("AuthenticationDbContext"), retry => {
                 retry.EnableRetryOnFailure();
-                retry.MigrationsAssembly("SecurityService.SqlServerMigrations");
             });
             options.UseOpenIddict();
             

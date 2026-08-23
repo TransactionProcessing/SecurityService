@@ -37,7 +37,6 @@
     <PackageReference Include="NLog.Web.AspNetCore" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SecurityService.SqlServerMigrations\SecurityService.SqlServerMigrations.csproj" />
     <ProjectReference Include="..\SecurityService.BusinessLogic\SecurityService.BusinessLogic.csproj" />
     <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />
     <ProjectReference Include="..\SecurityService.DataTransferObjects\SecurityService.DataTransferObjects.csproj" />
