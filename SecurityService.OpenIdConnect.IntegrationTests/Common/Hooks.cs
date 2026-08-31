@@ -113,7 +113,6 @@ namespace SecurityService.IntergrationTests.Common
                                 {
                                     this.WebDriver = new EdgeDriver(options);
                                 }, TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(60));
-                this.WebDriver.Manage().Window.Maximize();
             }
 
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
