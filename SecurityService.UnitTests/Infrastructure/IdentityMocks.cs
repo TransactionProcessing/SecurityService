@@ -56,34 +56,88 @@ internal static class IdentityMocks
 
 internal sealed class UserManagerDouble
 {
+    private readonly List<CallSetup<string, ApplicationUser?>> _findByNameSetups = [];
+    private readonly List<string> _findByNameCalls = [];
+    private readonly List<CallSetup<string, ApplicationUser?>> _findByIdSetups = [];
+    private readonly List<string> _findByIdCalls = [];
+    private readonly List<CallSetup<ApplicationUser, IList<string>>> _getRolesSetups = [];
+    private readonly List<ApplicationUser> _getRolesCalls = [];
+    private readonly List<CallSetup<ApplicationUser, IList<Claim>>> _getClaimsSetups = [];
+    private readonly List<ApplicationUser> _getClaimsCalls = [];
+    private readonly List<CallSetup<ClaimsPrincipal, ApplicationUser?>> _getUserSetups = [];
+    private readonly List<ClaimsPrincipal> _getUserCalls = [];
+    private readonly List<CallSetup<(ApplicationUser User, string Token), IdentityResult>> _confirmEmailSetups = [];
+    private readonly List<(ApplicationUser User, string Token)> _confirmEmailCalls = [];
+    private readonly List<CallSetup<ApplicationUser, IdentityResult>> _removePasswordSetups = [];
+    private readonly List<ApplicationUser> _removePasswordCalls = [];
+    private readonly List<CallSetup<(ApplicationUser User, string Password), IdentityResult>> _addPasswordSetups = [];
+    private readonly List<(ApplicationUser User, string Password)> _addPasswordCalls = [];
+    private readonly List<CallSetup<ApplicationUser, string>> _generateTokenSetups = [];
+    private readonly List<ApplicationUser> _generateTokenCalls = [];
+    private readonly List<CallSetup<(ApplicationUser User, string Token, string Password), IdentityResult>> _resetPasswordSetups = [];
+    private readonly List<(ApplicationUser User, string Token, string Password)> _resetPasswordCalls = [];
     private readonly TestUserManager _instance;
 
-    public UserManagerDouble(TestUserManager instance) => _instance = instance;
+    public UserManagerDouble(TestUserManager instance)
+    {
+        _instance = instance;
+        _instance.FindByName = userName => Resolve(_findByNameSetups, _findByNameCalls, userName);
+        _instance.FindById = userId => Resolve(_findByIdSetups, _findByIdCalls, userId);
+        _instance.GetRoles = user => Resolve(_getRolesSetups, _getRolesCalls, user) ?? [];
+        _instance.GetClaims = user => Resolve(_getClaimsSetups, _getClaimsCalls, user) ?? [];
+        _instance.GetUser = principal => Resolve(_getUserSetups, _getUserCalls, principal);
+        _instance.ConfirmEmail = request => Resolve(_confirmEmailSetups, _confirmEmailCalls, request) ?? IdentityResult.Success;
+        _instance.RemovePassword = user => Resolve(_removePasswordSetups, _removePasswordCalls, user) ?? IdentityResult.Success;
+        _instance.AddPassword = request => Resolve(_addPasswordSetups, _addPasswordCalls, request) ?? IdentityResult.Success;
+        _instance.GenerateToken = user => Resolve(_generateTokenSetups, _generateTokenCalls, user) ?? string.Empty;
+        _instance.ResetPassword = request => Resolve(_resetPasswordSetups, _resetPasswordCalls, request) ?? IdentityResult.Success;
+    }
 
     public UserManager<ApplicationUser> Instance() => _instance;
 
-    public Call<ApplicationUser?> FindByNameAsync(string _) => new(value => _instance.FindByNameResult = value, () => _instance.FindByNameCalls++);
-    public Call<ApplicationUser?> FindByNameAsync(Arg<string> _) => FindByNameAsync(string.Empty);
-    public Call<ApplicationUser?> FindByIdAsync(string _) => new(value => _instance.FindByIdResult = value, () => _instance.FindByIdCalls++);
-    public Call<ApplicationUser?> FindByIdAsync(Arg<string> _) => FindByIdAsync(string.Empty);
-    public Call<IList<string>> GetRolesAsync(ApplicationUser _) => new(value => _instance.RolesResult = value, () => _instance.GetRolesCalls++);
-    public Call<IList<string>> GetRolesAsync(Arg<ApplicationUser> _) => GetRolesAsync(null!);
-    public Call<IList<Claim>> GetClaimsAsync(ApplicationUser _) => new(value => _instance.ClaimsResult = value, () => _instance.GetClaimsCalls++);
-    public Call<IList<Claim>> GetClaimsAsync(Arg<ApplicationUser> _) => GetClaimsAsync(null!);
-    public Call<ApplicationUser?> GetUserAsync(ClaimsPrincipal _) => new(value => _instance.GetUserResult = value, () => _instance.GetUserCalls++);
-    public Call<ApplicationUser?> GetUserAsync(Arg<ClaimsPrincipal> _) => GetUserAsync(null!);
-    public Call<IdentityResult> ConfirmEmailAsync(ApplicationUser _, string __) => new(value => _instance.ConfirmEmailResult = value, () => _instance.ConfirmEmailCalls++);
-    public Call<IdentityResult> ConfirmEmailAsync(ApplicationUser user, Arg<string> token) => ConfirmEmailAsync(user, string.Empty);
-    public Call<IdentityResult> ConfirmEmailAsync(Arg<ApplicationUser> user, Arg<string> token) => ConfirmEmailAsync(null!, string.Empty);
-    public Call<IdentityResult> RemovePasswordAsync(ApplicationUser _) => new(value => _instance.RemovePasswordResult = value, () => _instance.RemovePasswordCalls++);
-    public Call<IdentityResult> RemovePasswordAsync(Arg<ApplicationUser> _) => RemovePasswordAsync(null!);
-    public Call<IdentityResult> AddPasswordAsync(ApplicationUser _, string __) => new(value => _instance.AddPasswordResult = value, () => _instance.AddPasswordCalls++);
-    public Call<IdentityResult> AddPasswordAsync(ApplicationUser user, Arg<string> password) => AddPasswordAsync(user, string.Empty);
-    public Call<IdentityResult> AddPasswordAsync(Arg<ApplicationUser> user, Arg<string> password) => AddPasswordAsync(null!, string.Empty);
-    public Call<string> GeneratePasswordResetTokenAsync(ApplicationUser _) => new(value => _instance.GenerateTokenResult = value, () => _instance.GenerateTokenCalls++);
-    public Call<string> GeneratePasswordResetTokenAsync(Arg<ApplicationUser> _) => GeneratePasswordResetTokenAsync(null!);
-    public Call<IdentityResult> ResetPasswordAsync(ApplicationUser _, string __, string ___) => new(value => _instance.ResetPasswordResult = value, () => _instance.ResetPasswordCalls++);
-    public Call<IdentityResult> ResetPasswordAsync(Arg<ApplicationUser> user, Arg<string> token, Arg<string> password) => ResetPasswordAsync(null!, string.Empty, string.Empty);
+    public Call<string, ApplicationUser?> FindByNameAsync(string userName) => Add(_findByNameSetups, _findByNameCalls, actual => userName.Equals(actual, StringComparison.Ordinal));
+    public Call<string, ApplicationUser?> FindByNameAsync(Arg<string> _) => Add(_findByNameSetups, _findByNameCalls, Any<string>());
+    public Call<string, ApplicationUser?> FindByIdAsync(string userId) => Add(_findByIdSetups, _findByIdCalls, actual => userId.Equals(actual, StringComparison.Ordinal));
+    public Call<string, ApplicationUser?> FindByIdAsync(Arg<string> _) => Add(_findByIdSetups, _findByIdCalls, Any<string>());
+    public Call<ApplicationUser, IList<string>> GetRolesAsync(ApplicationUser user) => Add(_getRolesSetups, _getRolesCalls, actual => user.Equals(actual));
+    public Call<ApplicationUser, IList<string>> GetRolesAsync(Arg<ApplicationUser> _) => Add(_getRolesSetups, _getRolesCalls, Any<ApplicationUser>());
+    public Call<ApplicationUser, IList<Claim>> GetClaimsAsync(ApplicationUser user) => Add(_getClaimsSetups, _getClaimsCalls, actual => user.Equals(actual));
+    public Call<ApplicationUser, IList<Claim>> GetClaimsAsync(Arg<ApplicationUser> _) => Add(_getClaimsSetups, _getClaimsCalls, Any<ApplicationUser>());
+    public Call<ClaimsPrincipal, ApplicationUser?> GetUserAsync(ClaimsPrincipal principal) => Add(_getUserSetups, _getUserCalls, actual => principal.Equals(actual));
+    public Call<ClaimsPrincipal, ApplicationUser?> GetUserAsync(Arg<ClaimsPrincipal> _) => Add(_getUserSetups, _getUserCalls, Any<ClaimsPrincipal>());
+    public Call<(ApplicationUser User, string Token), IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token) => Add(_confirmEmailSetups, _confirmEmailCalls, request => user.Equals(request.User) && token.Equals(request.Token, StringComparison.Ordinal));
+    public Call<(ApplicationUser User, string Token), IdentityResult> ConfirmEmailAsync(ApplicationUser user, Arg<string> _) => Add(_confirmEmailSetups, _confirmEmailCalls, request => user.Equals(request.User));
+    public Call<(ApplicationUser User, string Token), IdentityResult> ConfirmEmailAsync(Arg<ApplicationUser> _, Arg<string> __) => Add(_confirmEmailSetups, _confirmEmailCalls, Any<(ApplicationUser User, string Token)>());
+    public Call<ApplicationUser, IdentityResult> RemovePasswordAsync(ApplicationUser user) => Add(_removePasswordSetups, _removePasswordCalls, actual => user.Equals(actual));
+    public Call<ApplicationUser, IdentityResult> RemovePasswordAsync(Arg<ApplicationUser> _) => Add(_removePasswordSetups, _removePasswordCalls, Any<ApplicationUser>());
+    public Call<(ApplicationUser User, string Password), IdentityResult> AddPasswordAsync(ApplicationUser user, string password) => Add(_addPasswordSetups, _addPasswordCalls, request => user.Equals(request.User) && password.Equals(request.Password, StringComparison.Ordinal));
+    public Call<(ApplicationUser User, string Password), IdentityResult> AddPasswordAsync(ApplicationUser user, Arg<string> _) => Add(_addPasswordSetups, _addPasswordCalls, request => user.Equals(request.User));
+    public Call<(ApplicationUser User, string Password), IdentityResult> AddPasswordAsync(Arg<ApplicationUser> _, Arg<string> __) => Add(_addPasswordSetups, _addPasswordCalls, Any<(ApplicationUser User, string Password)>());
+    public Call<ApplicationUser, string> GeneratePasswordResetTokenAsync(ApplicationUser user) => Add(_generateTokenSetups, _generateTokenCalls, actual => user.Equals(actual));
+    public Call<ApplicationUser, string> GeneratePasswordResetTokenAsync(Arg<ApplicationUser> _) => Add(_generateTokenSetups, _generateTokenCalls, Any<ApplicationUser>());
+    public Call<(ApplicationUser User, string Token, string Password), IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string password) => Add(_resetPasswordSetups, _resetPasswordCalls, request => user.Equals(request.User) && token.Equals(request.Token, StringComparison.Ordinal) && password.Equals(request.Password, StringComparison.Ordinal));
+    public Call<(ApplicationUser User, string Token, string Password), IdentityResult> ResetPasswordAsync(Arg<ApplicationUser> _, Arg<string> __, Arg<string> ___) => Add(_resetPasswordSetups, _resetPasswordCalls, Any<(ApplicationUser User, string Token, string Password)>());
+
+    private static Func<T, bool> Any<T>() => _ => true;
+
+    private static Call<TArgument, TResult> Add<TArgument, TResult>(ICollection<CallSetup<TArgument, TResult>> setups, IReadOnlyList<TArgument> calls, Func<TArgument, bool> matcher)
+    {
+        var setup = new CallSetup<TArgument, TResult>(matcher);
+        setups.Add(setup);
+        return new Call<TArgument, TResult>(setup, calls, matcher);
+    }
+
+    private static TResult? Resolve<TArgument, TResult>(IReadOnlyList<CallSetup<TArgument, TResult>> setups, ICollection<TArgument> calls, TArgument argument)
+    {
+        calls.Add(argument);
+        for (var index = setups.Count - 1; index >= 0; index--)
+        {
+            if (setups[index].TryInvoke(argument, out var result))
+                return result;
+        }
+
+        return default;
+    }
 }
 
 internal sealed class SignInManagerDouble
@@ -95,25 +149,57 @@ internal sealed class SignInManagerDouble
     public SignInManager<ApplicationUser> Instance() => _instance;
 }
 
-internal sealed class Call<T>
+internal sealed class CallSetup<TArgument, TResult>
 {
-    private readonly Action<T> _setResult;
-    private readonly Action _recordSetup;
+    private readonly Func<TArgument, bool> _matcher;
+    private TResult? _result;
 
-    public Call(Action<T> setResult, Action recordSetup)
+    public CallSetup(Func<TArgument, bool> matcher) => _matcher = matcher;
+
+    public TResult? Result
     {
-        _setResult = setResult;
-        _recordSetup = recordSetup;
+        get => _result;
+        set => _result = value;
     }
 
-    public Call<T> ReturnsAsync(T value)
+    public bool TryInvoke(TArgument argument, out TResult? result)
     {
-        _setResult(value);
-        _recordSetup();
+        if (!_matcher(argument))
+        {
+            result = default;
+            return false;
+        }
+
+        result = _result;
+        return true;
+    }
+}
+
+internal sealed class Call<TArgument, TResult>
+{
+    private readonly CallSetup<TArgument, TResult> _setup;
+    private readonly IReadOnlyList<TArgument> _calls;
+    private readonly Func<TArgument, bool> _matcher;
+
+    public Call(CallSetup<TArgument, TResult> setup, IReadOnlyList<TArgument> calls, Func<TArgument, bool> matcher)
+    {
+        _setup = setup;
+        _calls = calls;
+        _matcher = matcher;
+    }
+
+    public Call<TArgument, TResult> ReturnsAsync(TResult value)
+    {
+        _setup.Result = value;
         return this;
     }
 
-    public void Called(Count _) { }
+    public void Called(Count expected)
+    {
+        var actual = _calls.Count(_matcher);
+        if (!expected.Matches(actual))
+            throw new InvalidOperationException($"Expected {expected} calls but received {actual}.");
+    }
 }
 
 internal sealed class TestUserManager : UserManager<ApplicationUser>
@@ -130,28 +216,27 @@ internal sealed class TestUserManager : UserManager<ApplicationUser>
         ILogger<UserManager<ApplicationUser>> logger)
         : base(store, optionsAccessor, passwordHasher, userValidators, passwordValidators, keyNormalizer, errors, services, logger) { }
 
-    public ApplicationUser? FindByNameResult { get; set; }
-    public ApplicationUser? FindByIdResult { get; set; }
-    public ApplicationUser? GetUserResult { get; set; }
-    public IList<string> RolesResult { get; set; } = [];
-    public IList<Claim> ClaimsResult { get; set; } = [];
-    public IdentityResult ConfirmEmailResult { get; set; } = IdentityResult.Success;
-    public IdentityResult RemovePasswordResult { get; set; } = IdentityResult.Success;
-    public IdentityResult AddPasswordResult { get; set; } = IdentityResult.Success;
-    public string GenerateTokenResult { get; set; } = string.Empty;
-    public IdentityResult ResetPasswordResult { get; set; } = IdentityResult.Success;
-    public int FindByNameCalls, FindByIdCalls, GetUserCalls, GetRolesCalls, GetClaimsCalls, ConfirmEmailCalls, RemovePasswordCalls, AddPasswordCalls, GenerateTokenCalls, ResetPasswordCalls;
+    public Func<string, ApplicationUser?> FindByName { get; set; } = _ => null;
+    public Func<string, ApplicationUser?> FindById { get; set; } = _ => null;
+    public Func<ClaimsPrincipal, ApplicationUser?> GetUser { get; set; } = _ => null;
+    public Func<ApplicationUser, IList<string>> GetRoles { get; set; } = _ => [];
+    public Func<ApplicationUser, IList<Claim>> GetClaims { get; set; } = _ => [];
+    public Func<(ApplicationUser User, string Token), IdentityResult> ConfirmEmail { get; set; } = _ => IdentityResult.Success;
+    public Func<ApplicationUser, IdentityResult> RemovePassword { get; set; } = _ => IdentityResult.Success;
+    public Func<(ApplicationUser User, string Password), IdentityResult> AddPassword { get; set; } = _ => IdentityResult.Success;
+    public Func<ApplicationUser, string> GenerateToken { get; set; } = _ => string.Empty;
+    public Func<(ApplicationUser User, string Token, string Password), IdentityResult> ResetPassword { get; set; } = _ => IdentityResult.Success;
 
-    public override Task<ApplicationUser?> FindByNameAsync(string userName) { FindByNameCalls++; return Task.FromResult(FindByNameResult); }
-    public override Task<ApplicationUser?> FindByIdAsync(string userId) { FindByIdCalls++; return Task.FromResult(FindByIdResult); }
-    public override Task<IList<string>> GetRolesAsync(ApplicationUser user) { GetRolesCalls++; return Task.FromResult(RolesResult); }
-    public override Task<IList<Claim>> GetClaimsAsync(ApplicationUser user) { GetClaimsCalls++; return Task.FromResult(ClaimsResult); }
-    public override Task<ApplicationUser?> GetUserAsync(ClaimsPrincipal principal) { GetUserCalls++; return Task.FromResult(GetUserResult); }
-    public override Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token) { ConfirmEmailCalls++; return Task.FromResult(ConfirmEmailResult); }
-    public override Task<IdentityResult> RemovePasswordAsync(ApplicationUser user) { RemovePasswordCalls++; return Task.FromResult(RemovePasswordResult); }
-    public override Task<IdentityResult> AddPasswordAsync(ApplicationUser user, string password) { AddPasswordCalls++; return Task.FromResult(AddPasswordResult); }
-    public override Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user) { GenerateTokenCalls++; return Task.FromResult(GenerateTokenResult); }
-    public override Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword) { ResetPasswordCalls++; return Task.FromResult(ResetPasswordResult); }
+    public override Task<ApplicationUser?> FindByNameAsync(string userName) => Task.FromResult(FindByName(userName));
+    public override Task<ApplicationUser?> FindByIdAsync(string userId) => Task.FromResult(FindById(userId));
+    public override Task<IList<string>> GetRolesAsync(ApplicationUser user) => Task.FromResult(GetRoles(user));
+    public override Task<IList<Claim>> GetClaimsAsync(ApplicationUser user) => Task.FromResult(GetClaims(user));
+    public override Task<ApplicationUser?> GetUserAsync(ClaimsPrincipal principal) => Task.FromResult(GetUser(principal));
+    public override Task<IdentityResult> ConfirmEmailAsync(ApplicationUser user, string token) => Task.FromResult(ConfirmEmail((user, token)));
+    public override Task<IdentityResult> RemovePasswordAsync(ApplicationUser user) => Task.FromResult(RemovePassword(user));
+    public override Task<IdentityResult> AddPasswordAsync(ApplicationUser user, string password) => Task.FromResult(AddPassword((user, password)));
+    public override Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user) => Task.FromResult(GenerateToken(user));
+    public override Task<IdentityResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword) => Task.FromResult(ResetPassword((user, token, newPassword)));
 }
 
 //internal sealed class FakeEmailService : IEmailService
