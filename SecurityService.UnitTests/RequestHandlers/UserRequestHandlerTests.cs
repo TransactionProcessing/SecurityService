@@ -2,7 +2,7 @@ using MessagingService.Client;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Imposter.Abstractions;
 using SecurityService.BusinessLogic;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Database.DbContexts;
@@ -102,31 +102,31 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ConfirmEmailAsync(user, "token-123"))
+        userManager.ConfirmEmailAsync(user, "token-123")
             .ReturnsAsync(IdentityResult.Success);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ConfirmUserEmailAddress_UsesResolvedMediatorAndConfirmsUser), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ConfirmUserEmailAddress_UsesResolvedMediatorAndConfirmsUser), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.ConfirmUserEmailAddressCommand("alice", "token-123"));
 
         result.IsSuccess.ShouldBeTrue();
-        userManager.Verify(instance => instance.FindByNameAsync("alice"), Times.Once);
-        userManager.Verify(instance => instance.ConfirmEmailAsync(user, "token-123"), Times.Once);
+        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.ConfirmEmailAsync(user, "token-123").Called(Count.Once());
     }
 
     [Fact]
     public async Task ConfirmUserEmailAddress_WhenUserMissing_ReturnsNotFound()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync((ApplicationUser?)null);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ConfirmUserEmailAddress_WhenUserMissing_ReturnsNotFound), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ConfirmUserEmailAddress_WhenUserMissing_ReturnsNotFound), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.ConfirmUserEmailAddressCommand("alice", "token-123"));
@@ -144,13 +144,13 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ConfirmEmailAsync(user, "token-123"))
+        userManager.ConfirmEmailAsync(user, "token-123")
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "bad token" }));
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ConfirmUserEmailAddress_WhenConfirmationFails_ReturnsFailure), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ConfirmUserEmailAddress_WhenConfirmationFails_ReturnsFailure), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.ConfirmUserEmailAddressCommand("alice", "token-123"));
@@ -168,24 +168,24 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.RemovePasswordAsync(user))
+        userManager.RemovePasswordAsync(user)
             .ReturnsAsync(IdentityResult.Success);
-        userManager.Setup(instance => instance.AddPasswordAsync(user, It.IsAny<string>()))
+        userManager.AddPasswordAsync(user, Arg<string>.Any())
             .ReturnsAsync(IdentityResult.Success);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_UsesResolvedMediatorAndSendsEmail), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_UsesResolvedMediatorAndSendsEmail), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice"));
         var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
 
         result.IsSuccess.ShouldBeTrue();
-        userManager.Verify(instance => instance.FindByNameAsync("alice"), Times.Once);
-        userManager.Verify(instance => instance.RemovePasswordAsync(user), Times.Once);
-        userManager.Verify(instance => instance.AddPasswordAsync(user, It.IsAny<string>()), Times.Once);
+        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.RemovePasswordAsync(user).Called(Count.Once());
+        userManager.AddPasswordAsync(user, Arg<string>.Any()).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Subject.ShouldBe("Welcome to Transaction Processing");
         messagingClient.LastEmailRequest.ToAddresses.ShouldContain("alice@example.com");
@@ -200,20 +200,20 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.RemovePasswordAsync(user))
+        userManager.RemovePasswordAsync(user)
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "cannot remove" }));
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_WhenRemovePasswordFails_ReturnsFailure), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_WhenRemovePasswordFails_ReturnsFailure), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice"));
 
         result.IsFailed.ShouldBeTrue();
         result.Status.ShouldBe(SimpleResults.ResultStatus.Failure);
-        userManager.Verify(instance => instance.AddPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Never);
+        userManager.AddPasswordAsync(Arg<ApplicationUser>.Any(), Arg<string>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -225,15 +225,15 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.RemovePasswordAsync(user))
+        userManager.RemovePasswordAsync(user)
             .ReturnsAsync(IdentityResult.Success);
-        userManager.Setup(instance => instance.AddPasswordAsync(user, It.IsAny<string>()))
+        userManager.AddPasswordAsync(user, Arg<string>.Any())
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "cannot add" }));
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_WhenAddPasswordFails_ReturnsFailure), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_WhenAddPasswordFails_ReturnsFailure), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice"));
@@ -251,21 +251,21 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.GeneratePasswordResetTokenAsync(user))
+        userManager.GeneratePasswordResetTokenAsync(user)
             .ReturnsAsync("token+/=");
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetRequest_UsesResolvedMediatorAndSendsEmail), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetRequest_UsesResolvedMediatorAndSendsEmail), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetRequestCommand("alice", "alice", "test-client-id"));
         var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
 
         result.IsSuccess.ShouldBeTrue();
-        userManager.Verify(instance => instance.FindByNameAsync("alice"), Times.Once);
-        userManager.Verify(instance => instance.GeneratePasswordResetTokenAsync(user), Times.Once);
+        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.GeneratePasswordResetTokenAsync(user).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Subject.ShouldBe("Password Reset Requested");
         messagingClient.LastEmailRequest.ToAddresses.ShouldContain("alice@example.com");
@@ -276,18 +276,18 @@ public class UserRequestHandlerTests
     public async Task ProcessPasswordResetRequest_WhenUserMissing_ReturnsSuccessAndDoesNotSendEmail()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync((ApplicationUser?)null);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetRequest_WhenUserMissing_ReturnsSuccessAndDoesNotSendEmail), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetRequest_WhenUserMissing_ReturnsSuccessAndDoesNotSendEmail), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
         var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetRequestCommand("alice", "alice", "test-client-id"));
 
         result.IsSuccess.ShouldBeTrue();
-        userManager.Verify(instance => instance.GeneratePasswordResetTokenAsync(It.IsAny<ApplicationUser>()), Times.Never);
+        userManager.GeneratePasswordResetTokenAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
         messagingClient.LastEmailRequest.ShouldBeNull();
     }
 
@@ -300,13 +300,13 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ResetPasswordAsync(user, "token-123", "NewPassword1!"))
+        userManager.ResetPasswordAsync(user, "token-123", "NewPassword1!")
             .ReturnsAsync(IdentityResult.Success);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetConfirmation_UsesResolvedMediatorAndReturnsClientUri), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetConfirmation_UsesResolvedMediatorAndReturnsClientUri), userManager.Instance(), signInManager.Instance());
         await SeedClientAsync(provider, "test-client-id", "http://localhost/app");
         var mediator = provider.GetRequiredService<IMediator>();
 
@@ -314,26 +314,26 @@ public class UserRequestHandlerTests
 
         result.IsSuccess.ShouldBeTrue();
         result.Data.ShouldBe("http://localhost/app");
-        userManager.Verify(instance => instance.FindByNameAsync("alice"), Times.Once);
-        userManager.Verify(instance => instance.ResetPasswordAsync(user, "token-123", "NewPassword1!"), Times.Once);
+        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.ResetPasswordAsync(user, "token-123", "NewPassword1!").Called(Count.Once());
     }
 
     [Fact]
     public async Task ProcessPasswordResetConfirmation_WhenUserMissing_ReturnsNotFound()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync((ApplicationUser?)null);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetConfirmation_WhenUserMissing_ReturnsNotFound), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetConfirmation_WhenUserMissing_ReturnsNotFound), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "test-client-id"));
 
         result.IsFailed.ShouldBeTrue();
         result.Status.ShouldBe(SimpleResults.ResultStatus.NotFound);
-        userManager.Verify(instance => instance.ResetPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        userManager.ResetPasswordAsync(Arg<ApplicationUser>.Any(), Arg<string>.Any(), Arg<string>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -345,13 +345,13 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ResetPasswordAsync(user, "token-123", "NewPassword1!"))
+        userManager.ResetPasswordAsync(user, "token-123", "NewPassword1!")
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "bad token" }));
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetConfirmation_WhenResetFails_ReturnsFailure), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetConfirmation_WhenResetFails_ReturnsFailure), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "test-client-id"));
@@ -369,13 +369,13 @@ public class UserRequestHandlerTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ResetPasswordAsync(user, "token-123", "NewPassword1!"))
+        userManager.ResetPasswordAsync(user, "token-123", "NewPassword1!")
             .ReturnsAsync(IdentityResult.Success);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetConfirmation_WhenClientMissing_ReturnsInvalid), userManager.Object, signInManager.Object);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetConfirmation_WhenClientMissing_ReturnsInvalid), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "missing-client-id"));

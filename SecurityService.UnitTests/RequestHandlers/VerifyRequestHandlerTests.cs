@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Imposter.Abstractions;
 using OpenIddict.Server.AspNetCore;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.BusinessLogic.RequestHandlers;
@@ -20,13 +20,13 @@ public class VerifyRequestHandlerTests
     public async Task VerifyGetQuery_WhenAuthFails_ReturnsPageResultWithNoData()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyGetQuery_WhenAuthFails_ReturnsPageResultWithNoData));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Fail("no ticket"), isAuthenticated: false, userCode: string.Empty);
 
         var result = await handler.Handle(new OidcCommands.VerifyGetQuery(context), CancellationToken.None);
@@ -41,13 +41,13 @@ public class VerifyRequestHandlerTests
     public async Task VerifyGetQuery_WhenAuthFailsWithUserCode_ReturnsPageWithInvalidCodeMessage()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyGetQuery_WhenAuthFailsWithUserCode_ReturnsPageWithInvalidCodeMessage));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Fail("no ticket"), isAuthenticated: false, userCode: "ABCD-1234");
 
         var result = await handler.Handle(new OidcCommands.VerifyGetQuery(context), CancellationToken.None);
@@ -62,14 +62,14 @@ public class VerifyRequestHandlerTests
     public async Task VerifyGetQuery_WhenAuthSucceedsButUserNotAuthenticated_ReturnsRedirectToLogin()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyGetQuery_WhenAuthSucceedsButUserNotAuthenticated_ReturnsRedirectToLogin));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
         var authTicket = CreateAuthTicket("client-1");
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Success(authTicket), isAuthenticated: false, userCode: string.Empty);
 
         var result = await handler.Handle(new OidcCommands.VerifyGetQuery(context), CancellationToken.None);
@@ -83,13 +83,13 @@ public class VerifyRequestHandlerTests
     public async Task VerifyPostCommand_WithLookupAction_WhenEmptyUserCode_ReturnsPageWithError()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyPostCommand_WithLookupAction_WhenEmptyUserCode_ReturnsPageWithError));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Fail("irrelevant"), isAuthenticated: false, userCode: string.Empty);
 
         var result = await handler.Handle(
@@ -105,13 +105,13 @@ public class VerifyRequestHandlerTests
     public async Task VerifyPostCommand_WithLookupAction_WhenValidUserCode_ReturnsRedirect()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyPostCommand_WithLookupAction_WhenValidUserCode_ReturnsRedirect));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Fail("irrelevant"), isAuthenticated: false, userCode: string.Empty);
 
         var result = await handler.Handle(
@@ -127,13 +127,13 @@ public class VerifyRequestHandlerTests
     public async Task VerifyPostCommand_WhenAuthFails_ReturnsPageWithInvalidCodeError()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyPostCommand_WhenAuthFails_ReturnsPageWithInvalidCodeError));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Fail("no ticket"), isAuthenticated: false, userCode: string.Empty);
 
         var result = await handler.Handle(
@@ -149,14 +149,14 @@ public class VerifyRequestHandlerTests
     public async Task VerifyPostCommand_WhenAuthSucceedsButUserNotAuthenticated_ReturnsRedirectToLogin()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyPostCommand_WhenAuthSucceedsButUserNotAuthenticated_ReturnsRedirectToLogin));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
         var authTicket = CreateAuthTicket("client-1");
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Success(authTicket), isAuthenticated: false, userCode: string.Empty);
 
         var result = await handler.Handle(
@@ -172,14 +172,14 @@ public class VerifyRequestHandlerTests
     public async Task VerifyPostCommand_WithDenyAction_WhenAuthenticatedUser_ReturnsForbid()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyPostCommand_WithDenyAction_WhenAuthenticatedUser_ReturnsForbid));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
         var authTicket = CreateAuthTicket("client-1");
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Success(authTicket), isAuthenticated: true, userCode: string.Empty);
 
         var result = await handler.Handle(
@@ -195,15 +195,15 @@ public class VerifyRequestHandlerTests
     public async Task VerifyPostCommand_WhenAuthenticatedUserNotFoundInStore_ReturnsRedirectToLogin()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(m => m.GetUserAsync(It.IsAny<ClaimsPrincipal>())).ReturnsAsync((ApplicationUser?)null);
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
+        userManager.GetUserAsync(Arg<ClaimsPrincipal>.Any()).ReturnsAsync((ApplicationUser?)null);
+        var scopeManager = new IOpenIddictScopeManagerImposter();
+        var appManager = new IOpenIddictApplicationManagerImposter();
         using var serviceProvider = TestServiceProviderFactory.Create(nameof(this.VerifyPostCommand_WhenAuthenticatedUserNotFoundInStore_ReturnsRedirectToLogin));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
         var authTicket = CreateAuthTicket("client-1");
-        var handler = new VerifyRequestHandler(appManager.Object, scopeManager.Object, dbContext, userManager.Object);
+        var handler = new VerifyRequestHandler(appManager.Instance(), scopeManager.Instance(), dbContext, userManager.Instance());
         var context = CreateHttpContext(AuthenticateResult.Success(authTicket), isAuthenticated: true, userCode: string.Empty);
 
         var result = await handler.Handle(
@@ -274,4 +274,3 @@ public class VerifyRequestHandlerTests
             Task.CompletedTask;
     }
 }
-

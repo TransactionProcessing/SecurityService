@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Imposter.Abstractions;
 using SecurityService.BusinessLogic;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
@@ -23,13 +23,13 @@ public class ConfirmEmailPageModelTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ConfirmEmailAsync(user, "token-123"))
+        userManager.ConfirmEmailAsync(user, "token-123")
             .ReturnsAsync(IdentityResult.Success);
-        userManager.Setup(instance => instance.RemovePasswordAsync(user))
+        userManager.RemovePasswordAsync(user)
             .ReturnsAsync(IdentityResult.Success);
-        userManager.Setup(instance => instance.AddPasswordAsync(user, It.IsAny<string>()))
+        userManager.AddPasswordAsync(user, Arg<string>.Any())
             .ReturnsAsync(IdentityResult.Success);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
@@ -59,7 +59,7 @@ public class ConfirmEmailPageModelTests
 
         result.ShouldBeOfType<PageResult>();
         model.View.UserMessage.ShouldBe("The email confirmation link is invalid.");
-        userManager.Verify(instance => instance.FindByNameAsync(It.IsAny<string>()), Times.Never);
+        userManager.FindByNameAsync(Arg<string>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -71,9 +71,9 @@ public class ConfirmEmailPageModelTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ConfirmEmailAsync(user, "token-123"))
+        userManager.ConfirmEmailAsync(user, "token-123")
             .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "failed" }));
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
@@ -89,9 +89,9 @@ public class ConfirmEmailPageModelTests
         model.View.UserMessage.ShouldBe("Failed confirming user email address for username alice");
         model.Input.Username.ShouldBe("alice");
         model.Input.Token.ShouldBe("token-123");
-        userManager.Verify(instance => instance.ConfirmEmailAsync(user, "token-123"), Times.Once);
-        userManager.Verify(instance => instance.RemovePasswordAsync(It.IsAny<ApplicationUser>()), Times.Never);
-        userManager.Verify(instance => instance.AddPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()), Times.Never);
+        userManager.ConfirmEmailAsync(user, "token-123").Called(Count.Once());
+        userManager.RemovePasswordAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
+        userManager.AddPasswordAsync(Arg<ApplicationUser>.Any(), Arg<string>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -103,13 +103,13 @@ public class ConfirmEmailPageModelTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ConfirmEmailAsync(user, "token-123"))
+        userManager.ConfirmEmailAsync(user, "token-123")
             .ReturnsAsync(IdentityResult.Success);
-        userManager.Setup(instance => instance.RemovePasswordAsync(user))
+        userManager.RemovePasswordAsync(user)
             .ReturnsAsync(IdentityResult.Success);
-        userManager.Setup(instance => instance.AddPasswordAsync(user, It.IsAny<string>()))
+        userManager.AddPasswordAsync(user, Arg<string>.Any())
             .ReturnsAsync(IdentityResult.Success);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
@@ -126,19 +126,19 @@ public class ConfirmEmailPageModelTests
         model.Input.Username.ShouldBe("alice");
         model.Input.Token.ShouldBe("token-123");
         model.View.UserMessage.ShouldBe("Thanks for confirming your email address, you should receive a welcome email soon.");
-        userManager.Verify(instance => instance.ConfirmEmailAsync(user, "token-123"), Times.Once);
-        userManager.Verify(instance => instance.RemovePasswordAsync(user), Times.Once);
-        userManager.Verify(instance => instance.AddPasswordAsync(user, It.IsAny<string>()), Times.Once);
+        userManager.ConfirmEmailAsync(user, "token-123").Called(Count.Once());
+        userManager.RemovePasswordAsync(user).Called(Count.Once());
+        userManager.AddPasswordAsync(user, Arg<string>.Any()).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Subject.ShouldBe("Welcome to Transaction Processing");
         messagingClient.LastEmailRequest.ToAddresses.ShouldContain("alice@example.com");
     }
 
     private static ServiceProvider CreateProvider(string databaseName,
-                                                  Mock<UserManager<ApplicationUser>> userManager,
-                                                  Mock<SignInManager<ApplicationUser>> signInManager)
+                                                  UserManagerDouble userManager,
+                                                  SignInManagerDouble signInManager)
     {
-        return TestServiceProviderFactory.Create(databaseName, userManager.Object, signInManager.Object);
+        return TestServiceProviderFactory.Create(databaseName, userManager.Instance(), signInManager.Instance());
     }
 
     private static SecurityService.Pages.Account.ConfirmEmail.IndexModel CreateModel(ServiceProvider provider, HttpContext httpContext)

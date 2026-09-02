@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Imposter.Abstractions;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.UnitTests.Infrastructure;
@@ -53,7 +53,7 @@ public class ResetPasswordPageModelTests
         var result = await model.OnPost(CancellationToken.None);
 
         result.ShouldBeOfType<PageResult>();
-        userManager.Verify(instance => instance.FindByNameAsync(It.IsAny<string>()), Times.Never);
+        userManager.FindByNameAsync(Arg<string>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -76,14 +76,14 @@ public class ResetPasswordPageModelTests
 
         result.ShouldBeOfType<PageResult>();
         model.ModelState[string.Empty]!.Errors.ShouldContain(error => error.ErrorMessage == "Password does not match Confirm Password");
-        userManager.Verify(instance => instance.FindByNameAsync(It.IsAny<string>()), Times.Never);
+        userManager.FindByNameAsync(Arg<string>.Any()).Called(Count.Never());
     }
 
     [Fact]
     public async Task OnPost_WhenMediatorPathFails_ReturnsPageWithFailureMessage()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync((ApplicationUser?)null);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
@@ -102,8 +102,8 @@ public class ResetPasswordPageModelTests
 
         result.ShouldBeOfType<PageResult>();
         model.View.UserMessage.ShouldContain("Failed processing password reset for username alice");
-        userManager.Verify(instance => instance.FindByNameAsync("alice"), Times.Once);
-        userManager.Verify(instance => instance.ResetPasswordAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.ResetPasswordAsync(Arg<ApplicationUser>.Any(), Arg<string>.Any(), Arg<string>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -115,9 +115,9 @@ public class ResetPasswordPageModelTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.ResetPasswordAsync(user, "token-123", "NewPassword1!"))
+        userManager.ResetPasswordAsync(user, "token-123", "NewPassword1!")
             .ReturnsAsync(IdentityResult.Success);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
@@ -138,8 +138,8 @@ public class ResetPasswordPageModelTests
 
         var redirect = result.ShouldBeOfType<RedirectResult>();
         redirect.Url.ShouldBe("http://localhost/app");
-        userManager.Verify(instance => instance.FindByNameAsync("alice"), Times.Once);
-        userManager.Verify(instance => instance.ResetPasswordAsync(user, "token-123", "NewPassword1!"), Times.Once);
+        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.ResetPasswordAsync(user, "token-123", "NewPassword1!").Called(Count.Once());
     }
 
     private static async Task SeedClientAsync(ServiceProvider provider, string clientId, string clientUri)
@@ -158,10 +158,10 @@ public class ResetPasswordPageModelTests
     }
 
     private static ServiceProvider CreateProvider(string databaseName,
-                                                  Mock<UserManager<ApplicationUser>> userManager,
-                                                  Mock<SignInManager<ApplicationUser>> signInManager)
+                                                  UserManagerDouble userManager,
+                                                  SignInManagerDouble signInManager)
     {
-        return TestServiceProviderFactory.Create(databaseName, userManager.Object, signInManager.Object);
+        return TestServiceProviderFactory.Create(databaseName, userManager.Instance(), signInManager.Instance());
     }
 
     private static SecurityService.Pages.Account.ResetPassword.IndexModel CreateModel(ServiceProvider provider, HttpContext httpContext)
