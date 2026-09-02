@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moq;
+using Imposter.Abstractions;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Database.Entities;
 using SecurityService.Models;
@@ -19,10 +19,10 @@ public class GrantsPageModelTests
     public async Task OnGetAsync_WhenUserNotFound_RedirectsToLogin()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
+        userManager.GetUserAsync(Arg<System.Security.Claims.ClaimsPrincipal>.Any())
             .ReturnsAsync((ApplicationUser?)null);
 
-        var mediator = new Mock<IMediator>();
+        var mediator = new IMediatorImposter();
         var model = CreateModel(userManager, mediator, new DefaultHttpContext());
 
         var result = await model.OnGetAsync(CancellationToken.None);
@@ -35,7 +35,7 @@ public class GrantsPageModelTests
     {
         var user = new ApplicationUser { Id = "user-1" };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
+        userManager.GetUserAsync(Arg<System.Security.Claims.ClaimsPrincipal>.Any())
             .ReturnsAsync(user);
 
         var grants = new List<GrantDetails>
@@ -43,8 +43,8 @@ public class GrantsPageModelTests
             new GrantDetails("auth-1", "client-1", "Client One", new[] { "openid" }, DateTimeOffset.UtcNow)
         };
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.Is<SecurityServiceQueries.GetUserGrantsQuery>(q => q.UserId == "user-1"), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<List<GrantDetails>>>>.Is(q => q is SecurityServiceQueries.GetUserGrantsQuery query && query.UserId == "user-1"), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success(grants));
 
         var model = CreateModel(userManager, mediator, new DefaultHttpContext());
@@ -53,23 +53,23 @@ public class GrantsPageModelTests
 
         result.ShouldBeOfType<PageResult>();
         model.Grants.ShouldHaveSingleItem();
-        mediator.Verify(m => m.Send(It.Is<SecurityServiceQueries.GetUserGrantsQuery>(q => q.UserId == "user-1"), It.IsAny<CancellationToken>()), Times.Once);
+        mediator.Send(Arg<IRequest<Result<List<GrantDetails>>>>.Is(q => q is SecurityServiceQueries.GetUserGrantsQuery query && query.UserId == "user-1"), Arg<CancellationToken>.Any()).Called(Count.Once());
     }
 
     [Fact]
     public async Task OnPostRevokeAsync_WhenUserNotFound_RedirectsToLogin()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
+        userManager.GetUserAsync(Arg<System.Security.Claims.ClaimsPrincipal>.Any())
             .ReturnsAsync((ApplicationUser?)null);
 
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var mediator = new IMediatorImposter(ImposterMode.Explicit);
         var model = CreateModel(userManager, mediator, new DefaultHttpContext());
 
         var result = await model.OnPostRevokeAsync("auth-1", CancellationToken.None);
 
         result.ShouldBeOfType<RedirectResult>();
-        mediator.Verify(m => m.Send(It.IsAny<SecurityServiceCommands.RevokeGrantCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+        mediator.Send(Arg<SecurityServiceCommands.RevokeGrantCommand>.Any(), Arg<CancellationToken>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -77,11 +77,11 @@ public class GrantsPageModelTests
     {
         var user = new ApplicationUser { Id = "user-1" };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
+        userManager.GetUserAsync(Arg<System.Security.Claims.ClaimsPrincipal>.Any())
             .ReturnsAsync(user);
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<SecurityServiceCommands.RevokeGrantCommand>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success());
 
         var model = CreateModel(userManager, mediator, new DefaultHttpContext());
@@ -96,13 +96,13 @@ public class GrantsPageModelTests
     {
         var user = new ApplicationUser { Id = "user-1" };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(m => m.GetUserAsync(It.IsAny<System.Security.Claims.ClaimsPrincipal>()))
+        userManager.GetUserAsync(Arg<System.Security.Claims.ClaimsPrincipal>.Any())
             .ReturnsAsync(user);
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<SecurityServiceCommands.RevokeGrantCommand>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Failure("The authorization could not be revoked."));
-        mediator.Setup(m => m.Send(It.IsAny<SecurityServiceQueries.GetUserGrantsQuery>(), It.IsAny<CancellationToken>()))
+        mediator.Send(Arg<IRequest<Result<List<GrantDetails>>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success(new List<GrantDetails>()));
 
         var model = CreateModel(userManager, mediator, new DefaultHttpContext());
@@ -114,11 +114,11 @@ public class GrantsPageModelTests
     }
 
     private static SecurityService.Pages.Account.Grants.IndexModel CreateModel(
-        Mock<UserManager<ApplicationUser>> userManager,
-        Mock<IMediator> mediator,
+        UserManagerDouble userManager,
+        IMediatorImposter mediator,
         HttpContext httpContext)
     {
-        return new SecurityService.Pages.Account.Grants.IndexModel(userManager.Object, mediator.Object)
+        return new SecurityService.Pages.Account.Grants.IndexModel(userManager.Instance(), mediator.Instance())
         {
             PageContext = new PageContext
             {

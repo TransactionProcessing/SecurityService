@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moq;
+using Imposter.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
 using Shouldly;
 using SimpleResults;
@@ -14,8 +14,8 @@ public class ConsentPageModelTests
     [Fact]
     public async Task OnGetAsync_WhenHandlerReturnsLocalRedirect_ReturnsLocalRedirectResult()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.ConsentGetQuery>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<ConsentGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetLocalRedirectResult("/return")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -32,8 +32,8 @@ public class ConsentPageModelTests
     {
         var identityScopes = new[] { new ScopeDisplayItem("openid", "OpenID", null, true, false) };
         var apiScopes = new[] { new ScopeDisplayItem("api", "API", null, false, false) };
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.ConsentGetQuery>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<ConsentGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetPageResult("My App", identityScopes, apiScopes)));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -51,13 +51,14 @@ public class ConsentPageModelTests
     {
         OidcCommands.ConsentGetQuery? capturedQuery = null;
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.ConsentGetQuery>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<Result<ConsentGetQueryResult>>, CancellationToken>((req, _) =>
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<ConsentGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetPageResult(string.Empty, [], [])))
+            .Callback((req, _) =>
             {
                 capturedQuery = req.ShouldBeOfType<OidcCommands.ConsentGetQuery>();
-            })
-            .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetPageResult(string.Empty, [], [])));
+                return default!;
+            });
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         await model.OnGetAsync("/my-return", CancellationToken.None);
@@ -69,8 +70,8 @@ public class ConsentPageModelTests
     [Fact]
     public async Task OnPostAsync_WhenHandlerReturnsRedirect_ReturnsRedirectResult()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.ConsentPostCommand>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<ConsentPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<ConsentPostCommandResult>(new ConsentPostRedirectResult("/return?consent=denied")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -90,8 +91,8 @@ public class ConsentPageModelTests
     [Fact]
     public async Task OnPostAsync_WhenHandlerReturnsPageWithError_AddsModelErrorAndReturnsPage()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.ConsentPostCommand>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<ConsentPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<ConsentPostCommandResult>(new ConsentPostPageResult("Select at least one scope to continue.")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -113,13 +114,14 @@ public class ConsentPageModelTests
     {
         OidcCommands.ConsentPostCommand? capturedCommand = null;
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.ConsentPostCommand>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<Result<ConsentPostCommandResult>>, CancellationToken>((req, _) =>
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<ConsentPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success<ConsentPostCommandResult>(new ConsentPostRedirectResult("/return?consent=accepted")))
+            .Callback((req, _) =>
             {
                 capturedCommand = req.ShouldBeOfType<OidcCommands.ConsentPostCommand>();
-            })
-            .ReturnsAsync(Result.Success<ConsentPostCommandResult>(new ConsentPostRedirectResult("/return?consent=accepted")));
+                return default!;
+            });
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel
@@ -138,9 +140,9 @@ public class ConsentPageModelTests
         capturedCommand.SelectedScopes.ShouldContain("profile");
     }
 
-    private static SecurityService.Pages.Consent.IndexModel CreateModel(Mock<IMediator> mediator, HttpContext httpContext)
+    private static SecurityService.Pages.Consent.IndexModel CreateModel(IMediatorImposter mediator, HttpContext httpContext)
     {
-        return new SecurityService.Pages.Consent.IndexModel(mediator.Object)
+        return new SecurityService.Pages.Consent.IndexModel(mediator.Instance())
         {
             PageContext = new PageContext
             {

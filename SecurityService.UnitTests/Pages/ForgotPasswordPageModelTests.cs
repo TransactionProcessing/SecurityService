@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Imposter.Abstractions;
 using SecurityService.BusinessLogic;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
@@ -51,7 +51,7 @@ public class ForgotPasswordPageModelTests
 
         var redirect = result.ShouldBeOfType<RedirectResult>();
         redirect.Url.ShouldBe("Login/Index");
-        userManager.Verify(instance => instance.FindByNameAsync(It.IsAny<string>()), Times.Never);
+        userManager.FindByNameAsync(Arg<string>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -63,9 +63,9 @@ public class ForgotPasswordPageModelTests
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.Setup(instance => instance.GeneratePasswordResetTokenAsync(user))
+        userManager.GeneratePasswordResetTokenAsync(user)
             .ReturnsAsync("token+/=");
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
@@ -82,8 +82,8 @@ public class ForgotPasswordPageModelTests
 
         result.ShouldBeOfType<PageResult>();
         model.View.UserMessage.ShouldBe("Password Reset sent, please check your registered email for further instructions.");
-        userManager.Verify(instance => instance.FindByNameAsync("alice"), Times.Once);
-        userManager.Verify(instance => instance.GeneratePasswordResetTokenAsync(user), Times.Once);
+        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.GeneratePasswordResetTokenAsync(user).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Subject.ShouldBe("Password Reset Requested");
         messagingClient.LastEmailRequest.ToAddresses.ShouldContain("alice@example.com");
@@ -94,7 +94,7 @@ public class ForgotPasswordPageModelTests
     public async Task OnPost_WhenUserIsMissing_ReturnsPageWithGenericMessageAndDoesNotSendEmail()
     {
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.Setup(instance => instance.FindByNameAsync("alice"))
+        userManager.FindByNameAsync("alice")
             .ReturnsAsync((ApplicationUser?)null);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
@@ -111,16 +111,16 @@ public class ForgotPasswordPageModelTests
 
         result.ShouldBeOfType<PageResult>();
         model.View.UserMessage.ShouldBe("Password Reset sent, please check your registered email for further instructions.");
-        userManager.Verify(instance => instance.FindByNameAsync("alice"), Times.Once);
-        userManager.Verify(instance => instance.GeneratePasswordResetTokenAsync(It.IsAny<ApplicationUser>()), Times.Never);
+        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.GeneratePasswordResetTokenAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
         messagingClient.LastEmailRequest.ShouldBeNull();
     }
 
     private static ServiceProvider CreateProvider(string databaseName,
-                                                  Mock<UserManager<ApplicationUser>> userManager,
-                                                  Mock<SignInManager<ApplicationUser>> signInManager)
+                                                  UserManagerDouble userManager,
+                                                  SignInManagerDouble signInManager)
     {
-        return TestServiceProviderFactory.Create(databaseName, userManager.Object, signInManager.Object);
+        return TestServiceProviderFactory.Create(databaseName, userManager.Instance(), signInManager.Instance());
     }
 
     private static SecurityService.Pages.Account.ForgotPassword.IndexModel CreateModel(ServiceProvider provider, HttpContext httpContext)

@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moq;
+using Imposter.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
 using Shouldly;
 using SimpleResults;
@@ -16,8 +16,8 @@ public class VerifyPageModelTests
     [Fact]
     public async Task OnGetAsync_WhenHandlerReturnsRedirect_ReturnsRedirectResult()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyGetQuery>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetRedirectResult("/Account/Login?returnUrl=%2Fconnect%2Fverify")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -31,8 +31,8 @@ public class VerifyPageModelTests
     [Fact]
     public async Task OnGetAsync_WhenHandlerReturnsPageWithStatusMessage_SetsStatusMessageAndReturnsPage()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyGetQuery>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult("The specified user code is invalid.", null)));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -55,8 +55,8 @@ public class VerifyPageModelTests
             [],
             "ABCD-1234");
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyGetQuery>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, displayData)));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -77,13 +77,14 @@ public class VerifyPageModelTests
         var httpContext = new DefaultHttpContext();
         OidcCommands.VerifyGetQuery? capturedQuery = null;
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyGetQuery>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<Result<VerifyGetQueryResult>>, CancellationToken>((req, _) =>
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, null)))
+            .Callback((req, _) =>
             {
                 capturedQuery = req.ShouldBeOfType<OidcCommands.VerifyGetQuery>();
-            })
-            .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, null)));
+                return default!;
+            });
 
         var model = CreateModel(mediator, httpContext);
         await model.OnGetAsync(CancellationToken.None);
@@ -95,8 +96,8 @@ public class VerifyPageModelTests
     [Fact]
     public async Task OnPostAsync_WhenHandlerReturnsRedirect_ReturnsRedirectResult()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyPostCommand>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult("/connect/verify?user_code=ABCD-1234")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -115,8 +116,8 @@ public class VerifyPageModelTests
     [Fact]
     public async Task OnPostAsync_WhenHandlerReturnsForbid_ReturnsForbidResult()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyPostCommand>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostForbidResult("OpenIddict.Server.AspNetCore")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -133,8 +134,8 @@ public class VerifyPageModelTests
         var principal = new ClaimsPrincipal(new ClaimsIdentity());
         var properties = new AuthenticationProperties { RedirectUri = "/" };
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyPostCommand>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostSignInResult(principal, properties, "OpenIddict.Server.AspNetCore")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -150,8 +151,8 @@ public class VerifyPageModelTests
     [Fact]
     public async Task OnPostAsync_WhenHandlerReturnsPageWithError_AddsModelErrorAndReturnsPage()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyPostCommand>(), It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostPageResult("Enter the user code shown on the device.", null)));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -168,13 +169,14 @@ public class VerifyPageModelTests
     {
         OidcCommands.VerifyPostCommand? capturedCommand = null;
 
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(m => m.Send(It.IsAny<OidcCommands.VerifyPostCommand>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<Result<VerifyPostCommandResult>>, CancellationToken>((req, _) =>
+        var mediator = new IMediatorImposter();
+        mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
+            .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult("/connect/verify?user_code=ABCD-1234")))
+            .Callback((req, _) =>
             {
                 capturedCommand = req.ShouldBeOfType<OidcCommands.VerifyPostCommand>();
-            })
-            .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult("/connect/verify?user_code=ABCD-1234")));
+                return default!;
+            });
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Connect.VerifyModel.InputModel
@@ -190,9 +192,9 @@ public class VerifyPageModelTests
         capturedCommand.UserCode.ShouldBe("ABCD-1234");
     }
 
-    private static SecurityService.Pages.Connect.VerifyModel CreateModel(Mock<IMediator> mediator, HttpContext httpContext)
+    private static SecurityService.Pages.Connect.VerifyModel CreateModel(IMediatorImposter mediator, HttpContext httpContext)
     {
-        return new SecurityService.Pages.Connect.VerifyModel(mediator.Object)
+        return new SecurityService.Pages.Connect.VerifyModel(mediator.Instance())
         {
             PageContext = new PageContext
             {

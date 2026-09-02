@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Imposter.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database;
@@ -29,9 +29,9 @@ public class OidcEndpointTests
             GivenName = "Alice",
             FamilyName = "Example"
         };
-        userManager.Setup(manager => manager.FindByIdAsync("user-1")).ReturnsAsync(user);
-        userManager.Setup(manager => manager.GetRolesAsync(user)).ReturnsAsync(["Admin"]);
-        userManager.Setup(manager => manager.GetClaimsAsync(user)).ReturnsAsync([]);
+        userManager.FindByIdAsync("user-1").ReturnsAsync(user);
+        userManager.GetRolesAsync(user).ReturnsAsync(["Admin"]);
+        userManager.GetClaimsAsync(user).ReturnsAsync([]);
 
         var identity = new ClaimsIdentity("Test");
         identity.AddClaim(new Claim(OpenIddict.Abstractions.OpenIddictConstants.Claims.Subject, "user-1"));
@@ -48,19 +48,19 @@ public class OidcEndpointTests
         };
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        var appManager = new Mock<OpenIddict.Abstractions.IOpenIddictApplicationManager>();
-        var authManager = new Mock<OpenIddict.Abstractions.IOpenIddictAuthorizationManager>();
-        var scopeManager = new Mock<OpenIddict.Abstractions.IOpenIddictScopeManager>();
+        var appManager = new IOpenIddictApplicationManagerImposter();
+        var authManager = new IOpenIddictAuthorizationManagerImposter();
+        var scopeManager = new IOpenIddictScopeManagerImposter();
         using var provider = TestServiceProviderFactory.Create(nameof(this.UserInfoAsync_WithValidPrincipal_ReturnsJsonPayload));
         using var scope = provider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
         var handler = new OidcRequestHandler(
-            userManager.Object,
-            signInManager.Object,
-            appManager.Object,
-            authManager.Object,
-            scopeManager.Object,
+            userManager.Instance(),
+            signInManager.Instance(),
+            appManager.Instance(),
+            authManager.Instance(),
+            scopeManager.Instance(),
             dbContext);
 
         var result = await handler.Handle(new OidcCommands.UserInfoCommand(context), CancellationToken.None);
@@ -121,8 +121,8 @@ public class OidcEndpointTests
             FamilyName = "User"
         };
 
-        userManager.Setup(manager => manager.GetRolesAsync(user)).ReturnsAsync(["Merchant"]);
-        userManager.Setup(manager => manager.GetClaimsAsync(user)).ReturnsAsync(
+        userManager.GetRolesAsync(user).ReturnsAsync(["Merchant"]);
+        userManager.GetClaimsAsync(user).ReturnsAsync(
         [
             new Claim(OpenIddictConstants.Claims.Email, "merchantuser@stagingmerchant1.co.uk"),
             new Claim(OpenIddictConstants.Claims.GivenName, "Staging Merchant 1"),
@@ -132,7 +132,7 @@ public class OidcEndpointTests
 
         var principal = await OidcHelpers.CreatePrincipal(
             user,
-            userManager.Object,
+            userManager.Instance(),
             [OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Roles],
             ["transactionProcessor"],
             authorizationId: null);

@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Moq;
+using Imposter.Abstractions;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
 using Shouldly;
@@ -15,7 +15,7 @@ public class ChangePasswordPageModelTests
     [Fact]
     public void OnGet_WithReturnUrlAndClientIdQuery_PopulatesInput()
     {
-        var mediator = new Mock<IMediator>();
+        var mediator = new IMediatorImposter();
         var httpContext = new DefaultHttpContext();
         httpContext.Request.QueryString = new QueryString("?clientId=test-client-id");
 
@@ -31,7 +31,7 @@ public class ChangePasswordPageModelTests
     [Fact]
     public async Task OnPost_WhenPasswordsDoNotMatch_ReturnsPageAndDoesNotCallMediator()
     {
-        var mediator = new Mock<IMediator>(MockBehavior.Strict);
+        var mediator = new IMediatorImposter(ImposterMode.Explicit);
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Account.ChangePassword.IndexInputModel
         {
@@ -47,16 +47,16 @@ public class ChangePasswordPageModelTests
 
         result.ShouldBeOfType<PageResult>();
         model.ModelState[string.Empty]!.Errors.ShouldContain(error => error.ErrorMessage == "New Password does not match Confirm Password");
-        mediator.Verify(instance => instance.Send(It.IsAny<SecurityServiceCommands.ChangeUserPasswordCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+        mediator.Send(Arg<IRequest<Result<ChangeUserPasswordResult>>>.Any(), Arg<CancellationToken>.Any()).Called(Count.Never());
     }
 
     [Fact]
     public async Task OnPost_WhenMediatorFails_ReturnsPageWithGenericError()
     {
-        var mediator = new Mock<IMediator>();
-        mediator.Setup(instance => instance.Send(
-                It.IsAny<SecurityServiceCommands.ChangeUserPasswordCommand>(),
-                It.IsAny<CancellationToken>()))
+        var mediator = new IMediatorImposter();
+        mediator.Send(
+                Arg<IRequest<Result<ChangeUserPasswordResult>>>.Any(),
+                Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Failure("boom"));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
@@ -79,20 +79,21 @@ public class ChangePasswordPageModelTests
     [Fact]
     public async Task OnPost_WhenMediatorSucceeds_RedirectsToReturnedUriAndSendsExpectedCommand()
     {
-        var mediator = new Mock<IMediator>();
+        var mediator = new IMediatorImposter();
         SecurityServiceCommands.ChangeUserPasswordCommand? capturedCommand = null;
-        mediator.Setup(instance => instance.Send(
-                It.IsAny<SecurityServiceCommands.ChangeUserPasswordCommand>(),
-                It.IsAny<CancellationToken>()))
-            .Callback<IRequest<Result<ChangeUserPasswordResult>>, CancellationToken>((request, _) =>
-            {
-                capturedCommand = request.ShouldBeOfType<SecurityServiceCommands.ChangeUserPasswordCommand>();
-            })
+        mediator.Send(
+                Arg<IRequest<Result<ChangeUserPasswordResult>>>.Any(),
+                Arg<CancellationToken>.Any())
             .ReturnsAsync(Result.Success(new ChangeUserPasswordResult
             {
                 IsSuccessful = true,
                 RedirectUri = "http://localhost/app"
-            }));
+            }))
+            .Callback((request, _) =>
+            {
+                capturedCommand = request.ShouldBeOfType<SecurityServiceCommands.ChangeUserPasswordCommand>();
+                return default!;
+            });
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.QueryString = new QueryString("?clientId=query-client-id");
@@ -122,9 +123,9 @@ public class ChangePasswordPageModelTests
         capturedCommand.ClientId.ShouldBe("query-client-id");
     }
 
-    private static SecurityService.Pages.Account.ChangePassword.IndexModel CreateModel(Mock<IMediator> mediator, HttpContext httpContext)
+    private static SecurityService.Pages.Account.ChangePassword.IndexModel CreateModel(IMediatorImposter mediator, HttpContext httpContext)
     {
-        return new SecurityService.Pages.Account.ChangePassword.IndexModel(mediator.Object)
+        return new SecurityService.Pages.Account.ChangePassword.IndexModel(mediator.Instance())
         {
             PageContext = new Microsoft.AspNetCore.Mvc.RazorPages.PageContext
             {
