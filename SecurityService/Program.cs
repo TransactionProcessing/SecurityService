@@ -56,6 +56,7 @@ builder.WebHost.ConfigureAppConfiguration((context, configBuilder) =>
         .AddJsonFile($"/home/txnproc/config/appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
+        .AddJsonFile($"/home/txnproc/config/appsettings.local.json", optional: true, reloadOnChange: true)
         .AddEnvironmentVariables();
 
     // Build a snapshot of configuration so we can use it immediately (e.g. for Sentry)
