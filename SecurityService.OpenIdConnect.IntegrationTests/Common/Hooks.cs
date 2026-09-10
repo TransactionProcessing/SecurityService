@@ -104,7 +104,7 @@ namespace SecurityService.IntergrationTests.Common
             {
                 EdgeOptions options = new EdgeOptions();
                 options.AcceptInsecureCertificates = true;
-                options.PageLoadStrategy = PageLoadStrategy.Eager;
+                options.PageLoadStrategy = PageLoadStrategy.None;
                 options.AddArguments("--headless=new");
                 options.AddArguments("--window-size=1280x1024");
                 options.AddArguments("--no-sandbox");
