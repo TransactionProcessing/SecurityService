@@ -164,7 +164,7 @@ namespace SecurityService.IntegrationTests.UserLogin
         [When(@"I navigate to the confirm email address")]
         public async Task WhenINavigateToTheConfirmEmailAddress()
         {
-            await BrowserNavigation.NavigateWithRetryAsync(
+            await BrowserNavigation.NavigateWithDiagnosticsAsync(
                 () =>
                 {
                     this.WebDriver.Navigate().GoToUrl(this.TestingContext.ConfirmEmailAddressLink);

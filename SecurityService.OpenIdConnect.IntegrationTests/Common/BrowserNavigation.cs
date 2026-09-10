@@ -6,39 +6,18 @@ namespace SecurityService.IntergrationTests.Common;
 
 public static class BrowserNavigation
 {
-    public static async Task NavigateWithRetryAsync(
+    public static async Task NavigateWithDiagnosticsAsync(
         Func<Task> navigate,
-        Action<string> log = null,
-        Int32 maxAttempts = 2,
-        TimeSpan retryDelay = default)
+        Action<string> log = null)
     {
-        if (maxAttempts < 1)
+        try
         {
-            throw new ArgumentOutOfRangeException(nameof(maxAttempts));
+            await navigate();
         }
-
-        Exception lastException = null;
-        TimeSpan delay = retryDelay == default ? TimeSpan.FromSeconds(1) : retryDelay;
-
-        for (Int32 attempt = 1; attempt <= maxAttempts; attempt++)
+        catch (WebDriverException exception)
         {
-            try
-            {
-                await navigate();
-                return;
-            }
-            catch (WebDriverException exception)
-            {
-                lastException = exception;
-                log?.Invoke($"Browser navigation attempt {attempt} of {maxAttempts} failed: {exception.Message}");
-
-                if (attempt < maxAttempts)
-                {
-                    await Task.Delay(delay);
-                }
-            }
+            log?.Invoke($"Browser navigation failed without retry because the URL may be state-changing: {exception.Message}");
+            throw;
         }
-
-        throw new WebDriverException($"Browser navigation failed after {maxAttempts} attempts.", lastException);
     }
 }

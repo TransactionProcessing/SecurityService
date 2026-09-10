@@ -9,22 +9,20 @@ namespace SecurityService.IntergrationTests.Common;
 public class BrowserNavigationTests
 {
     [Test]
-    public async Task NavigateWithRetryAsync_RetriesAfterTransientNavigationFailure()
+    public async Task NavigateWithDiagnosticsAsync_DoesNotRetryAfterNavigationFailure()
     {
         Int32 attempts = 0;
+        String logMessage = String.Empty;
 
-        await BrowserNavigation.NavigateWithRetryAsync(
-            () =>
+        Assert.ThrowsAsync<WebDriverException>(async () => await BrowserNavigation.NavigateWithDiagnosticsAsync(
+            async () =>
             {
                 attempts++;
-                if (attempts == 1)
-                {
-                    throw new WebDriverException("transient navigation failure");
-                }
+                throw new WebDriverException("navigation failure");
+            },
+            message => logMessage = message));
 
-                return Task.CompletedTask;
-            });
-
-        Assert.That(attempts, Is.EqualTo(2));
+        Assert.That(attempts, Is.EqualTo(1));
+        Assert.That(logMessage, Does.Contain("navigation failure"));
     }
 }
