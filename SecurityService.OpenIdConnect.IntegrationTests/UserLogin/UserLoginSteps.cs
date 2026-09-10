@@ -162,8 +162,15 @@ namespace SecurityService.IntegrationTests.UserLogin
 
 
         [When(@"I navigate to the confirm email address")]
-        public void WhenINavigateToTheConfirmEmailAddress() {
-            this.WebDriver.Navigate().GoToUrl(this.TestingContext.ConfirmEmailAddressLink);
+        public async Task WhenINavigateToTheConfirmEmailAddress()
+        {
+            await BrowserNavigation.NavigateWithRetryAsync(
+                () =>
+                {
+                    this.WebDriver.Navigate().GoToUrl(this.TestingContext.ConfirmEmailAddressLink);
+                    return Task.CompletedTask;
+                },
+                message => this.TestingContext.DockerHelper.Logger.LogInformation(message));
         }
 
         [Then(@"I am presented with the confirm email address successful screen")]

@@ -104,15 +104,18 @@ namespace SecurityService.IntergrationTests.Common
             {
                 EdgeOptions options = new EdgeOptions();
                 options.AcceptInsecureCertificates = true;
+                options.PageLoadStrategy = PageLoadStrategy.Eager;
                 options.AddArguments("--headless=new");
                 options.AddArguments("--window-size=1280x1024");
                 options.AddArguments("--no-sandbox");
                 options.AddArguments("--disable-dev-shm-usage");
                 options.AddArguments("--disable-gpu");
+                options.AddArguments("--host-resolver-rules=MAP identity-server 127.0.0.1");
                 await Retry.For(async () =>
                                 {
                                     this.WebDriver = new EdgeDriver(options);
                                 }, TimeSpan.FromMinutes(5), TimeSpan.FromSeconds(60));
+                this.WebDriver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(45);
             }
 
             this.ObjectContainer.RegisterInstanceAs(this.WebDriver);
