@@ -32,6 +32,7 @@ using Shared.Middleware;
 using Shared.Serialisation;
 using System.Reflection;
 using System.Security.Cryptography;
+using Shared.Monitoring;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Abstractions.OpenIddictConstants.Permissions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -229,7 +230,7 @@ else if (options.UseInMemoryDatabase) {
 else {
     builder.Services.AddHealthChecks().AddMessagingService().AddCheck<DatabaseHealthCheck>("database").AddCheck<IssuerHealthCheck>("issuer");
 }
-
+builder.Services.AddUptimeKuma();
 
 builder.Services.AddHttpLogging(loggingOptions =>
 {
@@ -345,5 +346,12 @@ app.MapManagementEndpoints();
 app.MapOidcEndpoints();
 app.MapHealthChecks("health", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse });
 app.MapHealthChecks("healthui", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });
+
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    app.RegisterWithUptimeKumaAsync()
+        .GetAwaiter()
+        .GetResult();
+});
 
 app.Run();
