@@ -5,6 +5,7 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
@@ -29,6 +30,7 @@ public sealed class OidcRequestHandler :
     private readonly IOpenIddictAuthorizationManager _authorizationManager;
     private readonly IOpenIddictScopeManager _scopeManager;
     private readonly SecurityServiceDbContext _dbContext;
+    private readonly ConsentTransactionProtector _consentTransactionProtector;
 
     public OidcRequestHandler(
         UserManager<ApplicationUser> userManager,
@@ -36,7 +38,8 @@ public sealed class OidcRequestHandler :
         IOpenIddictApplicationManager applicationManager,
         IOpenIddictAuthorizationManager authorizationManager,
         IOpenIddictScopeManager scopeManager,
-        SecurityServiceDbContext dbContext)
+         SecurityServiceDbContext dbContext,
+         ConsentTransactionProtector consentTransactionProtector)
     {
         this._userManager = userManager;
         this._signInManager = signInManager;
@@ -44,6 +47,7 @@ public sealed class OidcRequestHandler :
         this._authorizationManager = authorizationManager;
         this._scopeManager = scopeManager;
         this._dbContext = dbContext;
+        this._consentTransactionProtector = consentTransactionProtector;
     }
 
     public async Task<Result<AuthorizeCommandResult>> Handle(OidcCommands.AuthorizeCommand command, CancellationToken cancellationToken)
@@ -72,6 +76,16 @@ public sealed class OidcRequestHandler :
 
         if (context.Request.Query.TryGetValue("consent", out var consentDecision))
         {
+            var transaction = this._consentTransactionProtector.Unprotect(
+                context.Request.Query["consent_transaction"], DateTimeOffset.UtcNow);
+            if (transaction is null || !string.Equals(transaction.UserId, user.Id, StringComparison.Ordinal) ||
+                !string.Equals(transaction.ClientId, request.ClientId, StringComparison.Ordinal) ||
+                !this.MatchesOriginalRequest(context, transaction))
+            {
+                return Result.Success<AuthorizeCommandResult>(AuthorizeForbidServer(
+                    Errors.InvalidRequest, "The consent request is missing, invalid, or expired."));
+            }
+
             return Result.Success<AuthorizeCommandResult>(await this.HandleConsentDecision(user, request, application, context, consentDecision!, cancellationToken));
         }
 
@@ -198,7 +212,13 @@ public sealed class OidcRequestHandler :
                 return AuthorizeForbidServer(Errors.ConsentRequired, "Interactive user consent is required.");
             }
 
-            return new AuthorizeRedirectResult($"/Consent?returnUrl={Uri.EscapeDataString(currentRequestUrl)}");
+            var transaction = new ConsentTransaction(
+                user.Id,
+                currentRequestUrl,
+                request.ClientId!,
+                request.GetScopes().ToArray(),
+                DateTimeOffset.UtcNow.AddMinutes(10));
+            return new AuthorizeRedirectResult($"/Consent?transactionId={Uri.EscapeDataString(this._consentTransactionProtector.Protect(transaction))}");
         }
 
         return await this.CompleteAuthorization(user, request, application, cancellationToken, request.GetScopes());
@@ -335,6 +355,27 @@ public sealed class OidcRequestHandler :
 
         principal.SetAuthorizationId(await this._authorizationManager.GetIdAsync(authorization, cancellationToken));
         return new AuthorizeSignInResult(principal, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
+    }
+
+    private bool MatchesOriginalRequest(HttpContext context, ConsentTransaction transaction)
+    {
+        if (!Uri.TryCreate(transaction.AuthorizationUrl, UriKind.Relative, out var originalUri) ||
+            !string.Equals(originalUri.AbsolutePath, context.Request.PathBase + context.Request.Path, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        var original = QueryHelpers.ParseQuery(originalUri.Query);
+        foreach (var pair in original)
+        {
+            if (!context.Request.Query.TryGetValue(pair.Key, out var current) || !current.SequenceEqual(pair.Value))
+            {
+                return false;
+            }
+        }
+
+        return context.Request.Query.Keys.All(key =>
+            original.ContainsKey(key) || key is "consent" or "consent_transaction" or "granted_scope");
     }
 
     private static TokenForbidResult InvalidGrant(string description = "The username/password couple is invalid.") =>

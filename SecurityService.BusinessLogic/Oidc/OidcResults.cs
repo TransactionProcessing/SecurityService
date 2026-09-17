@@ -77,13 +77,15 @@ public sealed record ConsentGetPageResult(
     IReadOnlyCollection<ScopeDisplayItem> IdentityScopes,
     IReadOnlyCollection<ScopeDisplayItem> ApiScopes) : ConsentGetQueryResult;
 
-public sealed record ConsentGetLocalRedirectResult(string Url) : ConsentGetQueryResult;
+public sealed record ConsentGetInvalidResult(string Message) : ConsentGetQueryResult;
 
 public abstract record ConsentPostCommandResult;
 
 public sealed record ConsentPostRedirectResult(string Url) : ConsentPostCommandResult;
 
 public sealed record ConsentPostPageResult(string ModelError) : ConsentPostCommandResult;
+
+public sealed record ConsentPostInvalidResult(string Message) : ConsentPostCommandResult;
 
 // ---- Diagnostics endpoint ----
 
