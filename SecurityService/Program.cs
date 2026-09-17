@@ -3,6 +3,7 @@ using HealthChecks.UI.Client;
 using MediatR;
 using MessagingService.Client;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Json;
@@ -14,6 +15,7 @@ using NLog;
 using NLog.Extensions.Logging;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Oidc;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Common;
 using SecurityService.Configuration;
@@ -183,6 +185,9 @@ builder.Services.ConfigureApplicationCookie(cookieOptions =>
 });
 
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddDataProtection();
+builder.Services.AddSingleton(serviceProvider => new ConsentTransactionProtector(
+    serviceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector("SecurityService.Consent")));
 builder.Services.AddScoped<TenantContext>();
 
 if (builder.Environment.IsEnvironment("IntegrationTest"))

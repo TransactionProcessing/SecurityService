@@ -12,19 +12,19 @@ namespace SecurityService.UnitTests.Pages;
 public class ConsentPageModelTests
 {
     [Fact]
-    public async Task OnGetAsync_WhenHandlerReturnsLocalRedirect_ReturnsLocalRedirectResult()
+    public async Task OnGetAsync_WhenHandlerReturnsInvalid_ReturnsBadRequest()
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<ConsentGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetLocalRedirectResult("/return")));
+            .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetInvalidResult("invalid")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
-        model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel { ReturnUrl = "/return" };
+        model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel { TransactionId = "token" };
 
-        var result = await model.OnGetAsync("/return", CancellationToken.None);
+        var result = await model.OnGetAsync("token", CancellationToken.None);
 
-        var redirect = result.ShouldBeOfType<LocalRedirectResult>();
-        redirect.Url.ShouldBe("/return");
+        var badRequest = result.ShouldBeOfType<BadRequestObjectResult>();
+        badRequest.Value.ShouldBe("invalid");
     }
 
     [Fact]
@@ -38,7 +38,7 @@ public class ConsentPageModelTests
 
         var model = CreateModel(mediator, new DefaultHttpContext());
 
-        var result = await model.OnGetAsync("/return", CancellationToken.None);
+        var result = await model.OnGetAsync("token", CancellationToken.None);
 
         result.ShouldBeOfType<PageResult>();
         model.ClientName.ShouldBe("My App");
@@ -61,10 +61,10 @@ public class ConsentPageModelTests
             });
 
         var model = CreateModel(mediator, new DefaultHttpContext());
-        await model.OnGetAsync("/my-return", CancellationToken.None);
+        await model.OnGetAsync("token", CancellationToken.None);
 
         capturedQuery.ShouldNotBeNull();
-        capturedQuery.ReturnUrl.ShouldBe("/my-return");
+        capturedQuery.TransactionId.ShouldBe("token");
     }
 
     [Fact]
@@ -77,7 +77,7 @@ public class ConsentPageModelTests
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel
         {
-            ReturnUrl = "/return",
+            TransactionId = "token",
             Button = "deny",
             SelectedScopes = []
         };
@@ -98,7 +98,7 @@ public class ConsentPageModelTests
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel
         {
-            ReturnUrl = "/return",
+            TransactionId = "token",
             Button = "accept",
             SelectedScopes = []
         };
@@ -126,7 +126,7 @@ public class ConsentPageModelTests
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel
         {
-            ReturnUrl = "/return",
+            TransactionId = "token",
             Button = "accept",
             SelectedScopes = ["openid", "profile"]
         };
@@ -134,7 +134,7 @@ public class ConsentPageModelTests
         await model.OnPostAsync(CancellationToken.None);
 
         capturedCommand.ShouldNotBeNull();
-        capturedCommand.ReturnUrl.ShouldBe("/return");
+        capturedCommand.TransactionId.ShouldBe("token");
         capturedCommand.Button.ShouldBe("accept");
         capturedCommand.SelectedScopes.ShouldContain("openid");
         capturedCommand.SelectedScopes.ShouldContain("profile");

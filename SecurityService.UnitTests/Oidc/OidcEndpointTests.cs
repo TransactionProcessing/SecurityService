@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
 using Imposter.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using SecurityService.BusinessLogic.Oidc;
@@ -61,7 +62,8 @@ public class OidcEndpointTests
             appManager.Instance(),
             authManager.Instance(),
             scopeManager.Instance(),
-            dbContext);
+            dbContext,
+            new ConsentTransactionProtector(new EphemeralDataProtectionProvider().CreateProtector("consent")));
 
         var result = await handler.Handle(new OidcCommands.UserInfoCommand(context), CancellationToken.None);
 

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.DataProtection;
 using Imposter.Abstractions;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
@@ -13,21 +14,20 @@ namespace SecurityService.UnitTests.RequestHandlers;
 public class ConsentRequestHandlerTests
 {
     [Fact]
-    public async Task ConsentGetQuery_WhenNoOpenIddictServerRequest_ReturnsLocalRedirect()
+    public async Task ConsentGetQuery_WhenTransactionIsInvalid_ReturnsControlledError()
     {
         var appManager = new IOpenIddictApplicationManagerImposter();
-        using var serviceProvider = TestServiceProviderFactory.Create(nameof(ConsentGetQuery_WhenNoOpenIddictServerRequest_ReturnsLocalRedirect));
+        using var serviceProvider = TestServiceProviderFactory.Create(nameof(ConsentGetQuery_WhenTransactionIsInvalid_ReturnsControlledError));
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new ConsentRequestHandler(appManager.Instance(), dbContext);
+        var handler = new ConsentRequestHandler(appManager.Instance(), dbContext, CreateProtector());
         var context = new DefaultHttpContext();
 
         var result = await handler.Handle(new OidcCommands.ConsentGetQuery(context, "/return"), CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        var redirect = result.Data.ShouldBeOfType<ConsentGetLocalRedirectResult>();
-        redirect.Url.ShouldBe("/return");
+        result.Data.ShouldBeOfType<ConsentGetInvalidResult>();
     }
 
     [Fact]
@@ -38,15 +38,14 @@ public class ConsentRequestHandlerTests
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new ConsentRequestHandler(appManager.Instance(), dbContext);
+        var handler = new ConsentRequestHandler(appManager.Instance(), dbContext, CreateProtector());
 
         var result = await handler.Handle(
-            new OidcCommands.ConsentPostCommand("/return", "deny", Array.Empty<string>()),
+            new OidcCommands.ConsentPostCommand(new DefaultHttpContext(), "invalid", "deny", Array.Empty<string>()),
             CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        var redirect = result.Data.ShouldBeOfType<ConsentPostRedirectResult>();
-        redirect.Url.ShouldContain("consent=denied");
+        result.Data.ShouldBeOfType<ConsentPostInvalidResult>();
     }
 
     [Fact]
@@ -57,15 +56,14 @@ public class ConsentRequestHandlerTests
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new ConsentRequestHandler(appManager.Instance(), dbContext);
+        var handler = new ConsentRequestHandler(appManager.Instance(), dbContext, CreateProtector());
 
         var result = await handler.Handle(
-            new OidcCommands.ConsentPostCommand("/return", "accept", Array.Empty<string>()),
+            new OidcCommands.ConsentPostCommand(new DefaultHttpContext(), "invalid", "accept", Array.Empty<string>()),
             CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        var page = result.Data.ShouldBeOfType<ConsentPostPageResult>();
-        page.ModelError.ShouldBe("Select at least one scope to continue.");
+        result.Data.ShouldBeOfType<ConsentPostInvalidResult>();
     }
 
     [Fact]
@@ -76,16 +74,16 @@ public class ConsentRequestHandlerTests
         using var scope = serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
 
-        var handler = new ConsentRequestHandler(appManager.Instance(), dbContext);
+        var handler = new ConsentRequestHandler(appManager.Instance(), dbContext, CreateProtector());
 
         var result = await handler.Handle(
-            new OidcCommands.ConsentPostCommand("/return", "accept", ["openid", "profile"]),
+            new OidcCommands.ConsentPostCommand(new DefaultHttpContext(), "invalid", "accept", ["openid", "profile"]),
             CancellationToken.None);
 
         result.IsSuccess.ShouldBeTrue();
-        var redirect = result.Data.ShouldBeOfType<ConsentPostRedirectResult>();
-        redirect.Url.ShouldContain("consent=accepted");
-        redirect.Url.ShouldContain("granted_scope=openid");
-        redirect.Url.ShouldContain("granted_scope=profile");
+        result.Data.ShouldBeOfType<ConsentPostInvalidResult>();
     }
+
+    private static ConsentTransactionProtector CreateProtector() => new(
+        new EphemeralDataProtectionProvider().CreateProtector("consent"));
 }
