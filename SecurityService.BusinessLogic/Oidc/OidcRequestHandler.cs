@@ -359,13 +359,21 @@ public sealed class OidcRequestHandler :
 
     private bool MatchesOriginalRequest(HttpContext context, ConsentTransaction transaction)
     {
-        if (!Uri.TryCreate(transaction.AuthorizationUrl, UriKind.Relative, out var originalUri) ||
-            !string.Equals(originalUri.AbsolutePath, context.Request.PathBase + context.Request.Path, StringComparison.Ordinal))
+        var queryStart = transaction.AuthorizationUrl.IndexOf('?');
+        var originalPath = queryStart >= 0
+            ? transaction.AuthorizationUrl[..queryStart]
+            : transaction.AuthorizationUrl;
+
+        if (string.IsNullOrEmpty(originalPath) ||
+            originalPath[0] != '/' ||
+            transaction.AuthorizationUrl.Contains('#', StringComparison.Ordinal) ||
+            !string.Equals(originalPath, context.Request.PathBase + context.Request.Path, StringComparison.Ordinal))
         {
             return false;
         }
 
-        var original = QueryHelpers.ParseQuery(originalUri.Query);
+        var originalQuery = queryStart >= 0 ? transaction.AuthorizationUrl[queryStart..] : string.Empty;
+        var original = QueryHelpers.ParseQuery(originalQuery);
         foreach (var pair in original)
         {
             if (!context.Request.Query.TryGetValue(pair.Key, out var current) || !current.SequenceEqual(pair.Value))
