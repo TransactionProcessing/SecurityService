@@ -1,10 +1,11 @@
 using ClientProxyBase;
 using HealthChecks.UI.Client;
+using HealthMonitoring.Client;
 using MediatR;
 using MessagingService.Client;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Json;
 using Microsoft.AspNetCore.HttpLogging;
@@ -31,10 +32,10 @@ using Shared.General;
 using Shared.Logger;
 using Shared.Logger.TennantContext;
 using Shared.Middleware;
+using Shared.Monitoring;
 using Shared.Serialisation;
 using System.Reflection;
 using System.Security.Cryptography;
-using Shared.Monitoring;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 using static OpenIddict.Abstractions.OpenIddictConstants.Permissions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -60,7 +61,11 @@ builder.WebHost.ConfigureAppConfiguration((context, configBuilder) =>
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"/home/txnproc/config/appsettings.local.json", optional: true, reloadOnChange: true)
-        .AddEnvironmentVariables();
+        .AddEnvironmentVariables()
+        .AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["HealthMonitoring:Service:Version"] = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "0.0.0.0"
+        });
 
     // Build a snapshot of configuration so we can use it immediately (e.g. for Sentry)
     var builtConfig = configBuilder.Build();
@@ -235,7 +240,7 @@ else if (options.UseInMemoryDatabase) {
 else {
     builder.Services.AddHealthChecks().AddMessagingService().AddCheck<DatabaseHealthCheck>("database").AddCheck<IssuerHealthCheck>("issuer");
 }
-builder.Services.AddUptimeKuma();
+builder.Services.AddHealthMonitoringRegistration(builder.Configuration);
 
 builder.Services.AddHttpLogging(loggingOptions =>
 {
@@ -351,12 +356,5 @@ app.MapManagementEndpoints();
 app.MapOidcEndpoints();
 app.MapHealthChecks("health", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse });
 app.MapHealthChecks("healthui", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });
-
-app.Lifetime.ApplicationStarted.Register(() =>
-{
-    app.RegisterWithUptimeKumaAsync()
-        .GetAwaiter()
-        .GetResult();
-});
 
 app.Run();
