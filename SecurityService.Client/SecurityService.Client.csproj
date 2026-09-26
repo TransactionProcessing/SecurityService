@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="ClientProxyBase" />
+    <PackageReference Include="Shared.Logger" />
     <PackageReference Include="Shared.Results" />
   </ItemGroup>
 
