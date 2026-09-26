@@ -11,6 +11,7 @@ namespace SecurityService.Client
     using System.Threading.Tasks;
     using ClientProxyBase;
     using DataTransferObjects;
+    using Shared.Logger.TennantContext;
 
     /// <summary>
     /// 
@@ -46,7 +47,7 @@ namespace SecurityService.Client
                                      Func<string, Type, object> deserialise) : base(httpClient, serialise, deserialise)
         {
             this.BaseAddressResolver = baseAddressResolver;
-            this.BaseAddress = baseAddressResolver("SecurityService");
+            this.BaseAddress = baseAddressResolver("SecurityService");            
         }
 
         #endregion
