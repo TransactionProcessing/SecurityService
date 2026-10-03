@@ -15,6 +15,8 @@ namespace SecurityService.Client
     {
         #region Methods
 
+        void SetAccessToken(String accessToken);
+
         Task<Result> CreateApiResource(CreateApiResourceRequest createApiResourceRequest,
                                                                   CancellationToken cancellationToken);
         Task<Result> CreateApiScope(CreateApiScopeRequest createApiScopeRequest,

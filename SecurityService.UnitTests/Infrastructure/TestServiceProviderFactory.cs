@@ -12,7 +12,7 @@ namespace SecurityService.UnitTests.Infrastructure;
 
 public static class TestServiceProviderFactory
 {
-    public static ServiceProvider Create(string databaseName, UserManager<ApplicationUser>? userManager = null, SignInManager<ApplicationUser>? signInManager = null)
+    public static ServiceProvider Create(string databaseName, UserManager<ApplicationUser>? userManager = null, SignInManager<ApplicationUser>? signInManager = null, Action<ServiceOptions>? configureOptions = null)
     {
         var rsa = RSA.Create(2048);
         var key = new RsaSecurityKey(rsa);
@@ -26,6 +26,7 @@ public static class TestServiceProviderFactory
             options.IssuerUrl = "https://localhost:5001";
             options.InMemoryDatabaseName = databaseName;
             options.SeedDefaultScopes = true;
+            configureOptions?.Invoke(options);
         });
         services.AddSingleton<IClientJwtService, ClientJwtService>();
         services.AddLogging();

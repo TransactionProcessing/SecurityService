@@ -13,6 +13,7 @@ namespace SecurityService.IntergrationTests.Common
     using System.Net;
     using System.Net.Http;
     using System.Security.Cryptography.X509Certificates;
+    using System.Threading;
     using System.Threading.Tasks;
 
     public class DockerHelper : Shared.IntegrationTesting.TestContainers.DockerHelper
@@ -41,6 +42,14 @@ namespace SecurityService.IntergrationTests.Common
                 Func<String, String> securityServiceBaseAddressResolver = _ => $"https://localhost:{this.SecurityServicePort}";
                 HttpClient httpClient = this.CreatePinnedHttpClient();
                 this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
+
+                SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
+                if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
+                {
+                    throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
+                }
+
+                this.SecurityServiceClient.SetAccessToken(bootstrapToken.Data.AccessToken);
 
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
             }
@@ -72,6 +81,9 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add("ServiceOptions:PasswordOptions:RequireUpperCase", "false");
             environmentVariables.Add("ServiceOptions:UserOptions:RequireUniqueEmail", "false");
             environmentVariables.Add("ServiceOptions:SignInOptions:RequireConfirmedEmail", "false");
+            environmentVariables.Add("ServiceOptions:ManagementBootstrap:Enabled", "true");
+            environmentVariables.Add("ServiceOptions:ManagementBootstrap:ClientId", "management-bootstrap");
+            environmentVariables.Add("ServiceOptions:ManagementBootstrap:ClientSecret", "management-bootstrap-secret");
             environmentVariables.Add("ConnectionStrings:PersistedGrantDbContext", this.SetConnectionString($"PersistedGrantStore-{this.TestId}", this.UseSecureSqlServerDatabase));
             environmentVariables.Add("ConnectionStrings:ConfigurationDbContext", this.SetConnectionString($"Configuration-{this.TestId}", this.UseSecureSqlServerDatabase));
             environmentVariables.Add("ConnectionStrings:AuthenticationDbContext", this.SetConnectionString($"Authentication-{this.TestId}", this.UseSecureSqlServerDatabase));
