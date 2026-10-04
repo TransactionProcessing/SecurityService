@@ -45,7 +45,7 @@ public sealed class ManagementBootstrapper
 
         ValidateOptions();
         await EnsureBootstrapClientAsync(cancellationToken);
-        await EnsureAdministratorAsync(cancellationToken);
+        await EnsureAdministratorAsync();
     }
 
     private void ValidateOptions()
@@ -86,7 +86,7 @@ public sealed class ManagementBootstrapper
                 DisplayName = _options.ClientName
             };
 
-            application = await _applicationManager.CreateAsync(descriptor, cancellationToken);
+            await _applicationManager.CreateAsync(descriptor, cancellationToken);
         }
         else if (await _applicationManager.ValidateClientSecretAsync(application, _options.ClientSecret, cancellationToken) == false)
         {
@@ -113,7 +113,7 @@ public sealed class ManagementBootstrapper
         }
     }
 
-    private async Task EnsureAdministratorAsync(CancellationToken cancellationToken)
+    private async Task EnsureAdministratorAsync()
     {
         if (string.IsNullOrWhiteSpace(_options.AdminUserName))
         {

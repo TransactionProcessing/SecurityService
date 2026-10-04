@@ -5,7 +5,7 @@ namespace SecurityService.Authorization;
 
 public static class ManagementAuthorizationPolicies
 {
-    public const string ManagementApi = "ManagementApi";
+    public static string ManagementApi { get; } = "ManagementApi";
 
     public static void AddManagementApiPolicy(AuthorizationOptions options)
     {

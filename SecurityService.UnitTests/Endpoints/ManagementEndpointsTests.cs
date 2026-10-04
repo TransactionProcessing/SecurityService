@@ -30,7 +30,7 @@ public sealed class ManagementEndpointsTests
             .ToArray();
 
         endpoints.ShouldNotBeEmpty();
-        endpoints.All(endpoint => endpoint.Metadata.GetMetadata<IAuthorizeData>() is { Policy: ManagementAuthorizationPolicies.ManagementApi })
+        endpoints.All(endpoint => endpoint.Metadata.GetMetadata<IAuthorizeData>()?.Policy == ManagementAuthorizationPolicies.ManagementApi)
             .ShouldBeTrue();
     }
 }
