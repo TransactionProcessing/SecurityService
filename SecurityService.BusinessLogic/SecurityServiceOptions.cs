@@ -17,6 +17,7 @@ public class ServiceOptions
         this.TokenOptions = new TokenOptions();
         this.SignInOptions = new SignInOptions();
         this.UserOptions = new UserOptions();
+        this.ManagementBootstrap = new ManagementBootstrapOptions();
     }
 
     #region Properties
@@ -45,7 +46,26 @@ public class ServiceOptions
 
     public UserOptions UserOptions { get; set; }
 
+    public ManagementBootstrapOptions ManagementBootstrap { get; set; }
+
     #endregion
+}
+
+public sealed class ManagementBootstrapOptions
+{
+    public bool Enabled { get; set; }
+
+    public string ClientId { get; set; } = string.Empty;
+
+    public string ClientSecret { get; set; } = string.Empty;
+
+    public string ClientName { get; set; } = "Management Bootstrap Client";
+
+    public string? AdminUserName { get; set; }
+
+    public string? AdminEmail { get; set; }
+
+    public string? AdminPassword { get; set; }
 }
 
 public class KestrelOptions

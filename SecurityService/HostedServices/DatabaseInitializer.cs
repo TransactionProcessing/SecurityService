@@ -50,6 +50,9 @@ public sealed class DatabaseInitializer : IHostedService
                 }
             }
 
+            ManagementBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ManagementBootstrapper>();
+            await bootstrapper.InitializeAsync(cancellationToken);
+
             Logger.LogWarning("Database initialization complete.");
         }
         catch (Exception ex) {

@@ -1,31 +1,36 @@
 namespace SecurityService.Endpoints;
 
+using SecurityService.Authorization;
+
 public static class ManagementEndpoints
 {
     public static void MapManagementEndpoints(this IEndpointRouteBuilder endpoints)
     {
-        endpoints.MapPost("/api/clients", Handlers.ClientHandler.CreateClient).WithName("CreateClient");
-        endpoints.MapGet("/api/clients/{clientId}", Handlers.ClientHandler.GetClient).WithName("GetClient");
-        endpoints.MapGet("/api/clients", Handlers.ClientHandler.GetClients).WithName("GetClients");
+        RouteGroupBuilder management = endpoints.MapGroup("/api")
+            .RequireAuthorization(ManagementAuthorizationPolicies.ManagementApi);
 
-        endpoints.MapPost("/api/apiscopes", Handlers.ApiScopeHandler.CreateApiScope).WithName("CreateApiScope");
-        endpoints.MapGet("/api/apiscopes/{name}", Handlers.ApiScopeHandler.GetApiScope).WithName("GetApiScope");
-        endpoints.MapGet("/api/apiscopes", Handlers.ApiScopeHandler.GetApiScopes).WithName("GetApiScopes");
+        management.MapPost("/clients", Handlers.ClientHandler.CreateClient).WithName("CreateClient");
+        management.MapGet("/clients/{clientId}", Handlers.ClientHandler.GetClient).WithName("GetClient");
+        management.MapGet("/clients", Handlers.ClientHandler.GetClients).WithName("GetClients");
 
-        endpoints.MapPost("/api/apiresources", Handlers.ApiResourceHandler.CreateApiResource).WithName("CreateApiResource");
-        endpoints.MapGet("/api/apiresources/{name}", Handlers.ApiResourceHandler.GetApiResource).WithName("GetApiResource");
-        endpoints.MapGet("/api/apiresources", Handlers.ApiResourceHandler.GetApiResources).WithName("GetApiResources");
+        management.MapPost("/apiscopes", Handlers.ApiScopeHandler.CreateApiScope).WithName("CreateApiScope");
+        management.MapGet("/apiscopes/{name}", Handlers.ApiScopeHandler.GetApiScope).WithName("GetApiScope");
+        management.MapGet("/apiscopes", Handlers.ApiScopeHandler.GetApiScopes).WithName("GetApiScopes");
 
-        endpoints.MapPost("/api/identityresources", Handlers.IdentityResourceHandler.CreateIdentityResource).WithName("CreateIdentityResource");
-        endpoints.MapGet("/api/identityresources/{name}", Handlers.IdentityResourceHandler.GetIdentityResource).WithName("GetIdentityResource");
-        endpoints.MapGet("/api/identityresources", Handlers.IdentityResourceHandler.GetIdentityResources).WithName("GetIdentityResources");
+        management.MapPost("/apiresources", Handlers.ApiResourceHandler.CreateApiResource).WithName("CreateApiResource");
+        management.MapGet("/apiresources/{name}", Handlers.ApiResourceHandler.GetApiResource).WithName("GetApiResource");
+        management.MapGet("/apiresources", Handlers.ApiResourceHandler.GetApiResources).WithName("GetApiResources");
 
-        endpoints.MapPost("/api/roles", Handlers.RoleHandler.CreateRole).WithName("CreateRole");
-        endpoints.MapGet("/api/roles/{roleId}", Handlers.RoleHandler.GetRole).WithName("GetRole");
-        endpoints.MapGet("/api/roles", Handlers.RoleHandler.GetRoles).WithName("GetRoles");
+        management.MapPost("/identityresources", Handlers.IdentityResourceHandler.CreateIdentityResource).WithName("CreateIdentityResource");
+        management.MapGet("/identityresources/{name}", Handlers.IdentityResourceHandler.GetIdentityResource).WithName("GetIdentityResource");
+        management.MapGet("/identityresources", Handlers.IdentityResourceHandler.GetIdentityResources).WithName("GetIdentityResources");
 
-        endpoints.MapPost("/api/users", Handlers.UserHandler.CreateUser).WithName("CreateUser");
-        endpoints.MapGet("/api/users/{userId}", Handlers.UserHandler.GetUser).WithName("GetUser");
-        endpoints.MapGet("/api/users", Handlers.UserHandler.GetUsers).WithName("GetUsers");
+        management.MapPost("/roles", Handlers.RoleHandler.CreateRole).WithName("CreateRole");
+        management.MapGet("/roles/{roleId}", Handlers.RoleHandler.GetRole).WithName("GetRole");
+        management.MapGet("/roles", Handlers.RoleHandler.GetRoles).WithName("GetRoles");
+
+        management.MapPost("/users", Handlers.UserHandler.CreateUser).WithName("CreateUser");
+        management.MapGet("/users/{userId}", Handlers.UserHandler.GetUser).WithName("GetUser");
+        management.MapGet("/users", Handlers.UserHandler.GetUsers).WithName("GetUsers");
     }
 }

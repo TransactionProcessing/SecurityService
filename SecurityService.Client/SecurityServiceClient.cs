@@ -6,6 +6,7 @@ namespace SecurityService.Client
     using System;
     using System.Collections.Generic;
     using System.Net.Http;
+    using System.Net.Http.Headers;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -32,6 +33,8 @@ namespace SecurityService.Client
         /// </summary>
         private readonly Func<String, String> BaseAddressResolver;
 
+        private readonly HttpClient HttpClient;
+
         #endregion
 
         #region Constructors
@@ -48,9 +51,15 @@ namespace SecurityService.Client
         {
             this.BaseAddressResolver = baseAddressResolver;
             this.BaseAddress = baseAddressResolver("SecurityService");            
+            this.HttpClient = httpClient;
         }
 
         #endregion
+
+        public void SetAccessToken(String accessToken)
+        {
+            this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        }
 
         #region Methods
 

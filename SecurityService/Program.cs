@@ -21,6 +21,7 @@ using SecurityService.Database.Entities;
 using SecurityService.Endpoints;
 using SecurityService.HealthChecks;
 using SecurityService.HostedServices;
+using SecurityService.Authorization;
 using Sentry.Extensibility;
 using Shared.EntityFramework;
 using Shared.Extensions;
@@ -180,6 +181,28 @@ builder.Services.ConfigureApplicationCookie(cookieOptions =>
 {
     cookieOptions.LoginPath = "/Account/Login";
     cookieOptions.LogoutPath = "/Account/Logout";
+    cookieOptions.Events.OnRedirectToLogin = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
+    cookieOptions.Events.OnRedirectToAccessDenied = context =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api"))
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            return Task.CompletedTask;
+        }
+
+        context.Response.Redirect(context.RedirectUri);
+        return Task.CompletedTask;
+    };
 });
 
 builder.Services.AddHttpContextAccessor();
@@ -213,7 +236,7 @@ RequestResponseMiddlewareLoggingConfig config =
 builder.Services.AddSingleton(config);
 
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(ManagementAuthorizationPolicies.AddManagementApiPolicy);
 builder.Services.AddMediatR(configuration =>
 {
     configuration.RegisterServicesFromAssembly(typeof(SecurityServiceCommands).Assembly);
@@ -222,6 +245,7 @@ builder.Services.ConfigureHttpJsonOptions(jsonOptions => SecurityService.Configu
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ManagementBootstrapper>();
 builder.Services.AddHostedService<DatabaseInitializer>();
 
 if (builder.Environment.IsEnvironment("IntegrationTest")) {
