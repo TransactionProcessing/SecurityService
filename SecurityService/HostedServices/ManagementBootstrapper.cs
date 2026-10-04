@@ -88,6 +88,10 @@ public sealed class ManagementBootstrapper
 
             application = await _applicationManager.CreateAsync(descriptor, cancellationToken);
         }
+        else if (await _applicationManager.ValidateClientSecretAsync(application, _options.ClientSecret, cancellationToken) == false)
+        {
+            throw new InvalidOperationException("The existing management bootstrap application has a different client secret.");
+        }
 
         ClientDefinition? definition = await _dbContext.ClientDefinitions
             .SingleOrDefaultAsync(client => client.ClientId == _options.ClientId, cancellationToken);
@@ -141,6 +145,10 @@ public sealed class ManagementBootstrapper
             {
                 throw new InvalidOperationException($"Unable to create bootstrap administrator user: {userResult}");
             }
+        }
+        else if (string.Equals(user.Email, _options.AdminEmail, StringComparison.OrdinalIgnoreCase) == false)
+        {
+            throw new InvalidOperationException("The existing bootstrap administrator has a different email address.");
         }
 
         if (await _userManager.IsInRoleAsync(user, AdministratorRole) == false)
