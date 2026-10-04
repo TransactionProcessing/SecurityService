@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
+using OpenIddict.Validation.AspNetCore;
 using SecurityService.Authorization;
 using Shouldly;
 
@@ -18,5 +19,6 @@ public sealed class ManagementAuthorizationPolicyTests
 
         policy.ShouldNotBeNull();
         policy!.Requirements.ShouldContain(requirement => requirement is DenyAnonymousAuthorizationRequirement);
+        policy.AuthenticationSchemes.ShouldContain(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using OpenIddict.Validation.AspNetCore;
 
 namespace SecurityService.Authorization;
 
@@ -8,6 +9,8 @@ public static class ManagementAuthorizationPolicies
 
     public static void AddManagementApiPolicy(AuthorizationOptions options)
     {
-        options.AddPolicy(ManagementApi, policy => policy.RequireAuthenticatedUser());
+        options.AddPolicy(ManagementApi, policy =>
+            policy.AddAuthenticationSchemes(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme)
+                  .RequireAuthenticatedUser());
     }
 }
