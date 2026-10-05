@@ -368,7 +368,11 @@ app.UseAuthorization();
 
 app.MapGet("/", () => Results.Redirect("/swagger"));
 app.MapRazorPages();
-app.MapDeveloperEndpoints();
+
+if (app.Environment.IsEnvironment("IntegrationTest"))
+{
+    app.MapDeveloperEndpoints();
+}
 app.MapManagementEndpoints();
 app.MapOidcEndpoints();
 app.MapHealthChecks("health", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse });
