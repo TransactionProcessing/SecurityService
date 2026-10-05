@@ -39,7 +39,7 @@ public sealed class IndexModel : PageModel
         }
         else
         {
-            this.View.UserMessage = $"Thanks for confirming your email address, you should receive a welcome email soon.";
+            this.View.UserMessage = $"Thanks for confirming your email address, you should receive an account activation email soon.";
             SecurityServiceCommands.SendWelcomeEmailCommand command = new(this.Input.Username);
             await this._mediator.Send(command, cancellationToken);
         }

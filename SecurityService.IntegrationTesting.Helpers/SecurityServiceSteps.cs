@@ -288,7 +288,10 @@ public class SecurityServiceSteps{
             Result<List<UserResponse>>? user = await this.SecurityServiceClient.GetUsers(createUserRequest.EmailAddress, cancellationToken);
             user.IsSuccess.ShouldBeTrue();
 
-            results.Add((createUserRequest.EmailAddress, user.Data.Single().UserId));
+            String userKey = String.IsNullOrWhiteSpace(createUserRequest.UserName)
+                                 ? createUserRequest.EmailAddress ?? String.Empty
+                                 : createUserRequest.UserName;
+            results.Add((userKey, user.Data.Single().UserId));
         }
         return results;
     }

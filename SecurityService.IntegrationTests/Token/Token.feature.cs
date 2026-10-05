@@ -121,83 +121,84 @@ namespace SecurityService.IntegrationTests.Token
         {
 #line 4
 #line hidden
-            global::Reqnroll.Table table22 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
                         "Role Name"});
-            table22.AddRow(new string[] {
+            table1.AddRow(new string[] {
                         "Estate"});
-            table22.AddRow(new string[] {
+            table1.AddRow(new string[] {
                         "Merchant"});
 #line 6
- await testRunner.GivenAsync("I create the following roles", ((string)(null)), table22, "Given ");
+ await testRunner.GivenAsync("I create the following roles", ((string)(null)), table1, "Given ");
 #line hidden
-            global::Reqnroll.Table table23 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table2 = new global::Reqnroll.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Description"});
-            table23.AddRow(new string[] {
+            table2.AddRow(new string[] {
                         "estateManagement",
                         "estateManagement Scope",
                         "A scope for estateManagement"});
-            table23.AddRow(new string[] {
+            table2.AddRow(new string[] {
                         "transactionProcessor",
                         "transactionProcessor Scope",
                         "A scope for transactionProcessor"});
-            table23.AddRow(new string[] {
+            table2.AddRow(new string[] {
                         "transactionProcessorAcl",
                         "transactionProcessorAcl Scope",
                         "A scope for transactionProcessorAcl"});
 #line 11
- await testRunner.GivenAsync("I create the following api scopes", ((string)(null)), table23, "Given ");
+ await testRunner.GivenAsync("I create the following api scopes", ((string)(null)), table2, "Given ");
 #line hidden
-            global::Reqnroll.Table table24 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table3 = new global::Reqnroll.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table24.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "estateManagement",
                         "Estate Managememt REST",
                         "Secret1",
                         "estateManagement",
                         "MerchantId, EstateId, role"});
-            table24.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
                         ""});
-            table24.AddRow(new string[] {
+            table3.AddRow(new string[] {
                         "transactionProcessorAcl",
                         "Transaction Processor ACL REST",
                         "Secret1",
                         "transactionProcessorAcl",
                         "MerchantId, EstateId, role"});
 #line 17
- await testRunner.GivenAsync("I create the following api resources", ((string)(null)), table24, "Given ");
+ await testRunner.GivenAsync("I create the following api resources", ((string)(null)), table3, "Given ");
 #line hidden
-            global::Reqnroll.Table table25 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
                         "Scopes",
                         "GrantTypes"});
-            table25.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "serviceClient",
                         "Service Client",
                         "Secret1",
                         "estateManagement,transactionProcessor,transactionProcessorAcl",
                         "client_credentials"});
-            table25.AddRow(new string[] {
+            table4.AddRow(new string[] {
                         "merchantClient",
                         "Merchant Client",
                         "Secret1",
                         "transactionProcessorAcl",
                         "password"});
 #line 23
- await testRunner.GivenAsync("I create the following clients", ((string)(null)), table25, "Given ");
+ await testRunner.GivenAsync("I create the following clients", ((string)(null)), table4, "Given ");
 #line hidden
-            global::Reqnroll.Table table26 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
+                        "User Name",
                         "Email Address",
                         "Password",
                         "Phone Number",
@@ -206,8 +207,9 @@ namespace SecurityService.IntegrationTests.Token
                         "Family Name",
                         "Claims",
                         "Roles"});
-            table26.AddRow(new string[] {
-                        "merchantuser@testmerchant1.co.uk",
+            table5.AddRow(new string[] {
+                        "merchantuser",
+                        "",
                         "123456",
                         "123456789",
                         "Test",
@@ -216,7 +218,7 @@ namespace SecurityService.IntegrationTests.Token
                         "EstateId:1,MerchantId:2",
                         "Merchant"});
 #line 28
- await testRunner.GivenAsync("I create the following users", ((string)(null)), table26, "Given ");
+ await testRunner.GivenAsync("I create the following users", ((string)(null)), table5, "Given ");
 #line hidden
         }
         
@@ -250,30 +252,30 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-                global::Reqnroll.Table table27 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table6 = new global::Reqnroll.Table(new string[] {
                             "ClientId",
                             "ClientSecret"});
-                table27.AddRow(new string[] {
+                table6.AddRow(new string[] {
                             "serviceClient",
                             "Secret1"});
 #line 34
- await testRunner.WhenAsync("I request a client token with the following values", ((string)(null)), table27, "When ");
+ await testRunner.WhenAsync("I request a client token with the following values", ((string)(null)), table6, "When ");
 #line hidden
 #line 37
  await testRunner.ThenAsync("my token is returned", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-                global::Reqnroll.Table table28 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
                             "ClientId",
                             "ClientSecret",
                             "Username",
                             "Password"});
-                table28.AddRow(new string[] {
+                table7.AddRow(new string[] {
                             "merchantClient",
                             "Secret1",
-                            "merchantuser@testmerchant1.co.uk",
+                            "merchantuser",
                             "123456"});
 #line 38
- await testRunner.WhenAsync("I request a password token with the following values", ((string)(null)), table28, "When ");
+ await testRunner.WhenAsync("I request a password token with the following values", ((string)(null)), table7, "When ");
 #line hidden
 #line 41
  await testRunner.ThenAsync("my token is returned", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");

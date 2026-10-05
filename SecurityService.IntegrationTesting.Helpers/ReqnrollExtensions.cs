@@ -259,6 +259,7 @@
                 String roles = ReqnrollTableHelper.GetStringRowValue(tableRow, "Roles");
 
                 CreateUserRequest createUserRequest = new CreateUserRequest{
+                                                                               UserName = ReqnrollTableHelper.GetStringRowValue(tableRow, "User Name"),
                                                                                EmailAddress = ReqnrollTableHelper.GetStringRowValue(tableRow, "Email Address"),
                                                                                FamilyName = ReqnrollTableHelper.GetStringRowValue(tableRow, "Family Name"),
                                                                                GivenName = ReqnrollTableHelper.GetStringRowValue(tableRow, "Given Name"),

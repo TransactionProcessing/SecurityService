@@ -26,8 +26,8 @@ Background:
 	| merchantClient | Merchant Client | Secret1 | transactionProcessorAcl                                       | password           |
 
 	Given I create the following users
-	| Email Address           | Password | Phone Number | Given Name | Middle Name | Family Name | Claims                  | Roles    |
-	| merchantuser@testmerchant1.co.uk | 123456   | 123456789    | Test       |             | User 1      | EstateId:1,MerchantId:2 | Merchant |
+	| User Name      | Email Address | Password | Phone Number | Given Name | Middle Name | Family Name | Claims                  | Roles    |
+	| merchantuser   |               | 123456   | 123456789    | Test       |             | User 1      | EstateId:1,MerchantId:2 | Merchant |
 
 @PRTest
 Scenario: Get Tokens
@@ -37,7 +37,7 @@ Scenario: Get Tokens
 	Then my token is returned
 	When I request a password token with the following values
 	| ClientId       | ClientSecret | Username                         | Password |
-	| merchantClient | Secret1      | merchantuser@testmerchant1.co.uk | 123456   |
+	| merchantClient | Secret1      | merchantuser                    | 123456   |
 	Then my token is returned
 
 

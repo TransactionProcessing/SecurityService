@@ -27,10 +27,8 @@ public class ConfirmEmailPageModelTests
             .ReturnsAsync(user);
         userManager.ConfirmEmailAsync(user, "token-123")
             .ReturnsAsync(IdentityResult.Success);
-        userManager.RemovePasswordAsync(user)
-            .ReturnsAsync(IdentityResult.Success);
-        userManager.AddPasswordAsync(user, Arg<string>.Any())
-            .ReturnsAsync(IdentityResult.Success);
+        userManager.GeneratePasswordResetTokenAsync(user)
+            .ReturnsAsync("activation-token");
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
         using var provider = CreateProvider(nameof(this.OnGet_WithQueryValues_PopulatesInput), userManager, signInManager);
@@ -90,8 +88,7 @@ public class ConfirmEmailPageModelTests
         model.Input.Username.ShouldBe("alice");
         model.Input.Token.ShouldBe("token-123");
         userManager.ConfirmEmailAsync(user, "token-123").Called(Count.Once());
-        userManager.RemovePasswordAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
-        userManager.AddPasswordAsync(Arg<ApplicationUser>.Any(), Arg<string>.Any()).Called(Count.Never());
+        userManager.GeneratePasswordResetTokenAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
     }
 
     [Fact]
@@ -107,10 +104,8 @@ public class ConfirmEmailPageModelTests
             .ReturnsAsync(user);
         userManager.ConfirmEmailAsync(user, "token-123")
             .ReturnsAsync(IdentityResult.Success);
-        userManager.RemovePasswordAsync(user)
-            .ReturnsAsync(IdentityResult.Success);
-        userManager.AddPasswordAsync(user, Arg<string>.Any())
-            .ReturnsAsync(IdentityResult.Success);
+        userManager.GeneratePasswordResetTokenAsync(user)
+            .ReturnsAsync("activation-token");
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
         using var provider = CreateProvider(nameof(this.OnGet_WhenConfirmationSucceeds_ReturnsPageAndSendsExpectedCommands), userManager, signInManager);
@@ -125,13 +120,14 @@ public class ConfirmEmailPageModelTests
         result.ShouldBeOfType<PageResult>();
         model.Input.Username.ShouldBe("alice");
         model.Input.Token.ShouldBe("token-123");
-        model.View.UserMessage.ShouldBe("Thanks for confirming your email address, you should receive a welcome email soon.");
+        model.View.UserMessage.ShouldBe("Thanks for confirming your email address, you should receive an account activation email soon.");
         userManager.ConfirmEmailAsync(user, "token-123").Called(Count.Once());
-        userManager.RemovePasswordAsync(user).Called(Count.Once());
-        userManager.AddPasswordAsync(user, Arg<string>.Any()).Called(Count.Once());
+        userManager.GeneratePasswordResetTokenAsync(user).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Subject.ShouldBe("Welcome to Transaction Processing");
         messagingClient.LastEmailRequest.ToAddresses.ShouldContain("alice@example.com");
+        messagingClient.LastEmailRequest.Body.ShouldContain("activation-token");
+        messagingClient.LastEmailRequest.Body.ShouldNotContain("Password</strong>");
     }
 
     private static ServiceProvider CreateProvider(string databaseName,

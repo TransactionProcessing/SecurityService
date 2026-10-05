@@ -149,15 +149,32 @@ namespace SecurityService.IntegrationTests.UserLogin
             
             
             var emailNode = doc.DocumentNode.SelectNodes("//*[@id='username']");
-            var passwordNode = doc.DocumentNode.SelectNodes("//*[@id='password']");
+            var activationNode = doc.DocumentNode.SelectNodes("//a[@href]");
 
             emailNode.ShouldHaveSingleItem();
             emailNode.Single().InnerText.ShouldNotBeNullOrEmpty();
-            passwordNode.ShouldHaveSingleItem();
-            passwordNode.Single().InnerText.ShouldNotBeNullOrEmpty();
+            activationNode.ShouldHaveSingleItem();
 
             this.TestingContext.EmailAddress = emailNode.Single().InnerText.Trim();
-            this.TestingContext.Password = passwordNode.Single().InnerText.Trim();
+            this.TestingContext.Password = "Pa55word!";
+
+            await BrowserNavigation.NavigateWithDiagnosticsAsync(
+                () =>
+                {
+                    this.WebDriver.Navigate().GoToUrl(activationNode.Single().GetAttributeValue("href", string.Empty));
+                    return Task.CompletedTask;
+                },
+                message => this.TestingContext.DockerHelper.Logger.LogInformation(message));
+
+            this.WebDriver.FillIn("Input.Password", this.TestingContext.Password);
+            this.WebDriver.FillIn("Input.ConfirmPassword", this.TestingContext.Password);
+            await this.WebDriver.ClickButton("Activate account");
+
+            await Retry.For(async () =>
+                            {
+                                IWebElement activationMessage = this.WebDriver.FindElement(By.Id("activationMessage"));
+                                activationMessage.Text.ShouldBe("Your account has been activated. You can now log in.");
+                            });
         }
 
 
@@ -178,7 +195,7 @@ namespace SecurityService.IntegrationTests.UserLogin
             await Retry.For(async () =>
                             {
                                 IWebElement webElement = this.WebDriver.FindElement(By.Id("userMessage"));
-                                webElement.Text.ShouldBe("Thanks for confirming your email address, you should receive a welcome email soon.");
+                                webElement.Text.ShouldBe("Thanks for confirming your email address, you should receive an account activation email soon.");
                             });
         }
 

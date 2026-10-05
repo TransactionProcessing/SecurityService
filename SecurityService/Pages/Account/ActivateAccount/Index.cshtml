@@ -1,0 +1,43 @@
+@page
+@model SecurityService.Pages.Account.ActivateAccount.IndexModel
+@{
+    ViewData["Title"] = "Activate account";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Activate account</h1>
+        <p class="hero__subtitle">Choose a password for your account.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    @if (string.IsNullOrWhiteSpace(Model.View.UserMessage) == false)
+    {
+        <p id="activationMessage">@Model.View.UserMessage</p>
+        <a class="btn btn-primary" href="/Account/Login">Return to login</a>
+    }
+    else
+    {
+        <div class="card">
+            <div class="card__body">
+                <form method="post">
+                    <input type="hidden" asp-for="Input.Username" />
+                    <input type="hidden" asp-for="Input.Token" />
+
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Input.Password"></label>
+                        <input class="form-control" asp-for="Input.Password" type="password" autocomplete="new-password" />
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Input.ConfirmPassword"></label>
+                        <input class="form-control" asp-for="Input.ConfirmPassword" type="password" autocomplete="new-password" />
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">Activate account</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
