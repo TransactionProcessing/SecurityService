@@ -169,6 +169,12 @@ namespace SecurityService.IntegrationTests.UserLogin
             this.WebDriver.FillIn("Input.Password", this.TestingContext.Password);
             this.WebDriver.FillIn("Input.ConfirmPassword", this.TestingContext.Password);
             await this.WebDriver.ClickButton("Activate account");
+
+            await Retry.For(async () =>
+                            {
+                                IWebElement activationMessage = this.WebDriver.FindElement(By.Id("activationMessage"));
+                                activationMessage.Text.ShouldBe("Your account has been activated. You can now log in.");
+                            });
         }
 
 
