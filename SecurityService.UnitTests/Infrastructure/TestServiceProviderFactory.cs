@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Microsoft.AspNetCore.DataProtection;
 using MessagingService.Client;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,7 @@ namespace SecurityService.UnitTests.Infrastructure;
 
 public static class TestServiceProviderFactory
 {
-    public static ServiceProvider Create(string databaseName, UserManager<ApplicationUser>? userManager = null, SignInManager<ApplicationUser>? signInManager = null, Action<ServiceOptions>? configureOptions = null)
+    public static ServiceProvider Create(string databaseName, UserManager<ApplicationUser>? userManager = null, SignInManager<ApplicationUser>? signInManager = null, Action<ServiceOptions>? configureOptions = null, TimeSpan? passwordTokenLifespan = null)
     {
         var rsa = RSA.Create(2048);
         var key = new RsaSecurityKey(rsa);
@@ -30,6 +31,9 @@ public static class TestServiceProviderFactory
         });
         services.AddSingleton<IClientJwtService, ClientJwtService>();
         services.AddLogging();
+        services.AddDataProtection().UseEphemeralDataProtectionProvider();
+        if (passwordTokenLifespan.HasValue)
+            services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = passwordTokenLifespan.Value);
         services.AddDbContext<SecurityServiceDbContext>(options =>
         {
             options.UseInMemoryDatabase(databaseName);

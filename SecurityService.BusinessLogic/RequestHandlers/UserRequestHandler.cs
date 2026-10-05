@@ -33,7 +33,8 @@ public sealed class UserRequestHandler :
     IRequestHandler<SecurityServiceCommands.ConfirmUserEmailAddressCommand, Result>,
     IRequestHandler<SecurityServiceCommands.SendWelcomeEmailCommand, Result>,
     IRequestHandler<SecurityServiceCommands.ProcessPasswordResetConfirmationCommand, Result<String>>,
-    IRequestHandler<SecurityServiceCommands.ProcessPasswordResetRequestCommand, Result>
+    IRequestHandler<SecurityServiceCommands.ProcessPasswordResetRequestCommand, Result>,
+    IRequestHandler<SecurityServiceCommands.ProcessAccountActivationCommand, Result>
 {
     private readonly UserManager<ApplicationUser> UserManager;
     private readonly IPasswordHasher<ApplicationUser> PasswordHasher;
@@ -121,19 +122,18 @@ public sealed class UserRequestHandler :
         return request;
     }
 
-    private SendEmailRequest BuildWelcomeEmail(string emailAddress,
-                                               string password)
+    private SendEmailRequest BuildActivationEmail(string emailAddress,
+                                                  string activationUri)
     {
         StringBuilder mesasgeBuilder = new StringBuilder();
         mesasgeBuilder.AppendLine("<html><body>");
         mesasgeBuilder.AppendLine("<p>Welcome to Transaction Processing System</p>");
         mesasgeBuilder.AppendLine("<p></p>");
-        mesasgeBuilder.AppendLine("<p>Please find below your user details:</p>");
+        mesasgeBuilder.AppendLine("<p>Please activate your account by choosing a password:</p>");
         mesasgeBuilder.AppendLine("<table>");
         mesasgeBuilder.AppendLine("<tr><td><strong>User Name</strong></td></tr>");
         mesasgeBuilder.AppendLine($"<tr><td id=\"username\">{emailAddress}</td></tr>");
-        mesasgeBuilder.AppendLine("<tr><td><strong>Password</strong></td></tr>");
-        mesasgeBuilder.AppendLine($"<tr><td id=\"password\">{password}</td></tr>");
+        mesasgeBuilder.AppendLine($"<tr><td><a href=\"{activationUri}\">Activate account</a></td></tr>");
         mesasgeBuilder.AppendLine("</table>");
         mesasgeBuilder.AppendLine("</body></html>");
 
@@ -178,16 +178,18 @@ public sealed class UserRequestHandler :
             RegistrationDateTime = DateTime.UtcNow,
         };
 
-        Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password) ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions) : command.Password;
+        bool hasEmailAddress = String.IsNullOrWhiteSpace(command.EmailAddress) == false;
+        if (hasEmailAddress == false)
+        {
+            Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password) ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions) : command.Password;
 
-        if (passwordValueResult.IsFailed)
-            return ResultHelpers.CreateFailure(passwordValueResult);
+            if (passwordValueResult.IsFailed)
+                return ResultHelpers.CreateFailure(passwordValueResult);
 
-        // Hash the default password
-        newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValueResult.Data);
+            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValueResult.Data);
 
-        if (String.IsNullOrEmpty(newIdentityUser.PasswordHash)) {
-            return Result.Failure("Error generating password hash value, hash was null or empty");
+            if (String.IsNullOrEmpty(newIdentityUser.PasswordHash))
+                return Result.Failure("Error generating password hash value, hash was null or empty");
         }
 
         // Create the User
@@ -197,7 +199,7 @@ public sealed class UserRequestHandler :
 
         Result result = (createResult.IsSuccess, addRolesToUserResult.IsSuccess, addClaimsToUserResult.IsSuccess) switch
         {
-            (true, true, true) => await SendConfirmationEmail(newIdentityUser, cancellationToken),
+            (true, true, true) => hasEmailAddress ? await SendConfirmationEmail(newIdentityUser, cancellationToken) : Result.Success(),
             _ => await this.DeleteUser(createResult, addRolesToUserResult, addClaimsToUserResult, newIdentityUser)
         };
         return result; }
@@ -376,34 +378,7 @@ public sealed class UserRequestHandler :
             return Result.NotFound($"No user found with username {command.Username}");
         }
 
-        IdentityResult removePasswordResult = await this.UserManager.RemovePasswordAsync(user);
-        if (removePasswordResult.Succeeded == false)
-        {
-            return Result.Failure($"Errors removing password for user [{command.Username}]");
-        }
-
-        Result<string> generatedPasswordResult = PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions);
-        if (generatedPasswordResult.IsFailed)
-        {
-            return ResultHelpers.CreateFailure(generatedPasswordResult);
-        }
-
-        IdentityResult addPasswordResult = await this.UserManager.AddPasswordAsync(user, generatedPasswordResult.Data);
-        if (addPasswordResult.Succeeded == false)
-        {
-            return Result.Failure($"Errors adding password for user [{command.Username}]");
-        }
-
-        TokenResponse token = await this.GetToken();
-        string emailAddress = user.Email ?? user.UserName ?? string.Empty;
-        SendEmailRequest emailRequest = this.BuildWelcomeEmail(emailAddress, generatedPasswordResult.Data);
-        Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-        if (sendEmailResult.IsFailed)
-        {
-            return ResultHelpers.CreateFailure(sendEmailResult);
-        }
-
-        return Result.Success();
+        return await this.SendActivationEmail(user, cancellationToken);
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.ResendWelcomeEmailCommand command,
@@ -415,32 +390,38 @@ public sealed class UserRequestHandler :
             return Result.NotFound($"No user found with username {command.Username}");
         }
 
-        IdentityResult removePasswordResult = await this.UserManager.RemovePasswordAsync(user);
-        if (removePasswordResult.Succeeded == false)
-        {
-            return Result.Failure($"Errors removing password for user [{command.Username}]");
-        }
+        if (user.EmailConfirmed == false)
+            return await this.SendConfirmationEmail(user, cancellationToken);
 
-        Result<string> generatedPasswordResult = PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions);
-        if (generatedPasswordResult.IsFailed)
-        {
-            return ResultHelpers.CreateFailure(generatedPasswordResult);
-        }
+        return await this.SendActivationEmail(user, cancellationToken);
+    }
 
-        IdentityResult addPasswordResult = await this.UserManager.AddPasswordAsync(user, generatedPasswordResult.Data);
-        if (addPasswordResult.Succeeded == false)
-        {
-            return Result.Failure($"Errors adding password for user [{command.Username}]");
-        }
+    private async Task<Result> SendActivationEmail(ApplicationUser user, CancellationToken cancellationToken)
+    {
+        String activationToken = await this.UserManager.GeneratePasswordResetTokenAsync(user);
+        activationToken = UrlEncoder.Default.Encode(activationToken);
+        String emailAddress = user.Email ?? user.UserName ?? string.Empty;
+        String uri = $"{this.Options.Value.PublicOrigin}/Account/ActivateAccount?userName={user.UserName}&activationToken={activationToken}";
 
         TokenResponse token = await this.GetToken();
-        string emailAddress = user.Email ?? user.UserName ?? string.Empty;
-        SendEmailRequest emailRequest = this.BuildWelcomeEmail(emailAddress, generatedPasswordResult.Data);
+        SendEmailRequest emailRequest = this.BuildActivationEmail(emailAddress, uri);
         Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (sendEmailResult.IsFailed)
-        {
             return ResultHelpers.CreateFailure(sendEmailResult);
-        }
+
+        return Result.Success();
+    }
+
+    public async Task<Result> Handle(SecurityServiceCommands.ProcessAccountActivationCommand command,
+                                     CancellationToken cancellationToken)
+    {
+        ApplicationUser? user = await this.UserManager.FindByNameAsync(command.Username);
+        if (user == null)
+            return Result.NotFound();
+
+        IdentityResult result = await this.UserManager.ResetPasswordAsync(user, command.Token, command.Password);
+        if (result.Succeeded == false)
+            return Result.Failure("The account activation link is invalid or has expired.");
 
         return Result.Success();
     }

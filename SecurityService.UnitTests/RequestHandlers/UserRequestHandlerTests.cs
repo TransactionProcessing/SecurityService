@@ -15,6 +15,28 @@ namespace SecurityService.UnitTests.RequestHandlers;
 public class UserRequestHandlerTests
 {
     [Fact]
+    public async Task CreateUser_WithEmailAddress_DoesNotCreateAnInitialPassword()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateUser_WithEmailAddress_DoesNotCreateAnInitialPassword));
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateUserCommand(
+            "Alice", null, "Tester", "alice", "SuppliedPassword1!", "alice@example.com", null,
+            new Dictionary<string, string>(), new List<string>()));
+
+        result.IsSuccess.ShouldBeTrue();
+        var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
+        messagingClient.LastEmailRequest.ShouldNotBeNull();
+        messagingClient.LastEmailRequest.Body.ShouldNotContain("SuppliedPassword1!");
+        messagingClient.LastEmailRequest.Body.ShouldNotContain("Password</strong>");
+        using var scope = provider.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var user = await userManager.FindByNameAsync("alice");
+        user.ShouldNotBeNull();
+        user.PasswordHash.ShouldBeNull();
+    }
+
+    [Fact]
     public async Task UserLifecycle_CreateGetAndList_Works()
     {
         using var provider = TestServiceProviderFactory.Create(nameof(this.UserLifecycle_CreateGetAndList_Works));
@@ -170,10 +192,8 @@ public class UserRequestHandlerTests
         var userManager = IdentityMocks.CreateUserManager();
         userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.RemovePasswordAsync(user)
-            .ReturnsAsync(IdentityResult.Success);
-        userManager.AddPasswordAsync(user, Arg<string>.Any())
-            .ReturnsAsync(IdentityResult.Success);
+        userManager.GeneratePasswordResetTokenAsync(user)
+            .ReturnsAsync("activation-token");
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
         using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_UsesResolvedMediatorAndSendsEmail), userManager.Instance(), signInManager.Instance());
@@ -184,40 +204,32 @@ public class UserRequestHandlerTests
 
         result.IsSuccess.ShouldBeTrue();
         userManager.FindByNameAsync("alice").Called(Count.Once());
-        userManager.RemovePasswordAsync(user).Called(Count.Once());
-        userManager.AddPasswordAsync(user, Arg<string>.Any()).Called(Count.Once());
+        userManager.GeneratePasswordResetTokenAsync(user).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Subject.ShouldBe("Welcome to Transaction Processing");
         messagingClient.LastEmailRequest.ToAddresses.ShouldContain("alice@example.com");
+        messagingClient.LastEmailRequest.Body.ShouldContain("activation-token");
+        messagingClient.LastEmailRequest.Body.ShouldNotContain("Password</strong>");
     }
 
     [Fact]
-    public async Task SendWelcomeEmail_WhenRemovePasswordFails_ReturnsFailure()
+    public async Task SendWelcomeEmail_WhenUserMissing_ReturnsNotFound()
     {
-        var user = new ApplicationUser
-        {
-            UserName = "alice",
-            Email = "alice@example.com"
-        };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.FindByNameAsync("alice")
-            .ReturnsAsync(user);
-        userManager.RemovePasswordAsync(user)
-            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "cannot remove" }));
+        userManager.FindByNameAsync("alice").ReturnsAsync((ApplicationUser?)null);
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_WhenRemovePasswordFails_ReturnsFailure), userManager.Instance(), signInManager.Instance());
+        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_WhenUserMissing_ReturnsNotFound), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
         var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(SimpleResults.ResultStatus.Failure);
-        userManager.AddPasswordAsync(Arg<ApplicationUser>.Any(), Arg<string>.Any()).Called(Count.Never());
+        result.Status.ShouldBe(SimpleResults.ResultStatus.NotFound);
+        userManager.GeneratePasswordResetTokenAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
     }
 
     [Fact]
-    public async Task SendWelcomeEmail_WhenAddPasswordFails_ReturnsFailure()
+    public async Task ProcessAccountActivation_UsesTokenToSetPassword()
     {
         var user = new ApplicationUser
         {
@@ -227,19 +239,36 @@ public class UserRequestHandlerTests
         var userManager = IdentityMocks.CreateUserManager();
         userManager.FindByNameAsync("alice")
             .ReturnsAsync(user);
-        userManager.RemovePasswordAsync(user)
+        userManager.ResetPasswordAsync(user, "activation-token", "NewPassword1!")
             .ReturnsAsync(IdentityResult.Success);
-        userManager.AddPasswordAsync(user, Arg<string>.Any())
-            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "cannot add" }));
 
         var signInManager = IdentityMocks.CreateSignInManager(userManager);
-        using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_WhenAddPasswordFails_ReturnsFailure), userManager.Instance(), signInManager.Instance());
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessAccountActivation_UsesTokenToSetPassword), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
-        var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice"));
+        var result = await mediator.Send(new SecurityServiceCommands.ProcessAccountActivationCommand("alice", "activation-token", "NewPassword1!"));
+
+        result.IsSuccess.ShouldBeTrue();
+        userManager.ResetPasswordAsync(user, "activation-token", "NewPassword1!").Called(Count.Once());
+    }
+
+    [Fact]
+    public async Task ProcessAccountActivation_WhenTokenIsInvalid_ReturnsFailure()
+    {
+        var user = new ApplicationUser { UserName = "alice", Email = "alice@example.com" };
+        var userManager = IdentityMocks.CreateUserManager();
+        userManager.FindByNameAsync("alice").ReturnsAsync(user);
+        userManager.ResetPasswordAsync(user, "invalid-token", "NewPassword1!")
+            .ReturnsAsync(IdentityResult.Failed(new IdentityError { Description = "invalid token" }));
+
+        var signInManager = IdentityMocks.CreateSignInManager(userManager);
+        using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessAccountActivation_WhenTokenIsInvalid_ReturnsFailure), userManager.Instance(), signInManager.Instance());
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.ProcessAccountActivationCommand("alice", "invalid-token", "NewPassword1!"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(SimpleResults.ResultStatus.Failure);
+        result.Message.ShouldBe("The account activation link is invalid or has expired.");
     }
 
     [Fact]
