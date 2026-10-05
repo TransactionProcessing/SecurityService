@@ -2,6 +2,7 @@ using MediatR;
 using MessagingService.Client;
 using MessagingService.DataTransferObjects;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -399,9 +400,14 @@ public sealed class UserRequestHandler :
     private async Task<Result> SendActivationEmail(ApplicationUser user, CancellationToken cancellationToken)
     {
         String activationToken = await this.UserManager.GeneratePasswordResetTokenAsync(user);
-        activationToken = UrlEncoder.Default.Encode(activationToken);
         String emailAddress = user.Email ?? user.UserName ?? string.Empty;
-        String uri = $"{this.Options.Value.PublicOrigin}/Account/ActivateAccount?userName={user.UserName}&activationToken={activationToken}";
+        String uri = QueryHelpers.AddQueryString(
+            $"{this.Options.Value.PublicOrigin}/Account/ActivateAccount",
+            new Dictionary<string, string?>
+            {
+                ["userName"] = user.UserName,
+                ["activationToken"] = activationToken
+            });
 
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildActivationEmail(emailAddress, uri);
@@ -546,8 +552,14 @@ public sealed class UserRequestHandler :
 
         // User has been found so send an email with reset details
         String resetToken = await this.UserManager.GeneratePasswordResetTokenAsync(user);
-        resetToken = UrlEncoder.Default.Encode(resetToken);
-        String uri = $"{this.Options.Value.PublicOrigin}/Account/ResetPassword?userName={user.UserName}&resetToken={resetToken}&clientId={command.ClientId}";
+        String uri = QueryHelpers.AddQueryString(
+            $"{this.Options.Value.PublicOrigin}/Account/ResetPassword",
+            new Dictionary<string, string?>
+            {
+                ["userName"] = user.UserName,
+                ["resetToken"] = resetToken,
+                ["clientId"] = command.ClientId
+            });
 
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);

@@ -186,11 +186,11 @@ public class UserRequestHandlerTests
     {
         var user = new ApplicationUser
         {
-            UserName = "alice",
+            UserName = "alice+ops@example.com",
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.FindByNameAsync("alice")
+        userManager.FindByNameAsync("alice+ops@example.com")
             .ReturnsAsync(user);
         userManager.GeneratePasswordResetTokenAsync(user)
             .ReturnsAsync("activation-token");
@@ -199,15 +199,16 @@ public class UserRequestHandlerTests
         using var provider = TestServiceProviderFactory.Create(nameof(this.SendWelcomeEmail_UsesResolvedMediatorAndSendsEmail), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
-        var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice"));
+        var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice+ops@example.com"));
         var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
 
         result.IsSuccess.ShouldBeTrue();
-        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.FindByNameAsync("alice+ops@example.com").Called(Count.Once());
         userManager.GeneratePasswordResetTokenAsync(user).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Subject.ShouldBe("Welcome to Transaction Processing");
         messagingClient.LastEmailRequest.ToAddresses.ShouldContain("alice@example.com");
+        messagingClient.LastEmailRequest.Body.ShouldContain("userName=alice%2Bops@example.com");
         messagingClient.LastEmailRequest.Body.ShouldContain("activation-token");
         messagingClient.LastEmailRequest.Body.ShouldNotContain("Password</strong>");
     }
@@ -276,11 +277,11 @@ public class UserRequestHandlerTests
     {
         var user = new ApplicationUser
         {
-            UserName = "alice",
+            UserName = "alice+ops@example.com",
             Email = "alice@example.com"
         };
         var userManager = IdentityMocks.CreateUserManager();
-        userManager.FindByNameAsync("alice")
+        userManager.FindByNameAsync("alice+ops@example.com")
             .ReturnsAsync(user);
         userManager.GeneratePasswordResetTokenAsync(user)
             .ReturnsAsync("token+/=");
@@ -289,16 +290,16 @@ public class UserRequestHandlerTests
         using var provider = TestServiceProviderFactory.Create(nameof(this.ProcessPasswordResetRequest_UsesResolvedMediatorAndSendsEmail), userManager.Instance(), signInManager.Instance());
         var mediator = provider.GetRequiredService<IMediator>();
 
-        var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetRequestCommand("alice", "alice", "test-client-id"));
+        var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetRequestCommand("alice+ops@example.com", "alice", "test-client-id"));
         var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
 
         result.IsSuccess.ShouldBeTrue();
-        userManager.FindByNameAsync("alice").Called(Count.Once());
+        userManager.FindByNameAsync("alice+ops@example.com").Called(Count.Once());
         userManager.GeneratePasswordResetTokenAsync(user).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Subject.ShouldBe("Password Reset Requested");
         messagingClient.LastEmailRequest.ToAddresses.ShouldContain("alice@example.com");
-        messagingClient.LastEmailRequest.Body.ShouldContain("/Account/ResetPassword?userName=alice&resetToken=token%2B%2F%3D&clientId=test-client-id");
+        messagingClient.LastEmailRequest.Body.ShouldContain("/Account/ResetPassword?userName=alice%2Bops@example.com&resetToken=token%2B%2F%3D&clientId=test-client-id");
     }
 
     [Fact]
