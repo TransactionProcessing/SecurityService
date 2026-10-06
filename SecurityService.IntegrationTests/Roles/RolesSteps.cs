@@ -66,5 +66,26 @@ namespace SecurityService.IntegrationTests.Roles
             await this.SecurityServiceSteps.WhenIGetTheRolesRolesDetailsAreReturnedAsFollows(requests, CancellationToken.None);
         }
 
+        [When(@"I require MFA for role '(.*)'")]
+        public async Task WhenIRequireMfaForRole(String roleName)
+        {
+            String roleId = this.TestingContext.Roles.Single(r => r.Key == roleName).Value;
+            this.TestingContext.LastMfaPolicyResult = await this.SecurityServiceSteps.RequireRoleMfa(roleId, CancellationToken.None);
+        }
+
+        [When(@"I remove MFA for role '(.*)'")]
+        public async Task WhenIRemoveMfaForRole(String roleName)
+        {
+            String roleId = this.TestingContext.Roles.Single(r => r.Key == roleName).Value;
+            this.TestingContext.LastMfaPolicyResult = await this.SecurityServiceSteps.RemoveRoleMfa(roleId, CancellationToken.None);
+        }
+
+        [Then(@"the MFA policy operation succeeds")]
+        public void ThenTheMfaPolicyOperationSucceeds()
+        {
+            this.TestingContext.LastMfaPolicyResult.ShouldNotBeNull();
+            this.TestingContext.LastMfaPolicyResult.IsSuccess.ShouldBeTrue(this.TestingContext.LastMfaPolicyResult.Message);
+        }
+
     }
 }

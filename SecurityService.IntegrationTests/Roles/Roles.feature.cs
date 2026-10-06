@@ -109,7 +109,7 @@ namespace SecurityService.IntegrationTests.Roles
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Roles/Roles.feature.ndjson", 3);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Roles/Roles.feature.ndjson", 4);
         }
         
         [global::NUnit.Framework.TestAttribute()]
@@ -134,48 +134,92 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
             else
             {
                 await this.ScenarioStartAsync();
-                global::Reqnroll.Table table17 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
                             "Role Name"});
-                table17.AddRow(new string[] {
+                table1.AddRow(new string[] {
                             "TestRole1"});
-                table17.AddRow(new string[] {
+                table1.AddRow(new string[] {
                             "TestRole2"});
-                table17.AddRow(new string[] {
+                table1.AddRow(new string[] {
                             "TestRole3"});
 #line 6
- await testRunner.GivenAsync("I create the following roles", ((string)(null)), table17, "Given ");
+ await testRunner.GivenAsync("I create the following roles", ((string)(null)), table1, "Given ");
 #line hidden
-                global::Reqnroll.Table table18 = new global::Reqnroll.Table(new string[] {
-                            "Role Name"});
-                table18.AddRow(new string[] {
-                            "TestRole1"});
-#line 11
- await testRunner.WhenAsync("I get the role with name \'TestRole1\' the role details are returned as follows", ((string)(null)), table18, "When ");
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Require and remove MFA for a role")]
+        [global::NUnit.Framework.CategoryAttribute("mfa")]
+        public async global::System.Threading.Tasks.Task RequireAndRemoveMFAForARole()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "mfa"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "1";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Require and remove MFA for a role", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 13
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line hidden
-                global::Reqnroll.Table table19 = new global::Reqnroll.Table(new string[] {
-                            "Role Name"});
-                table19.AddRow(new string[] {
-                            "TestRole2"});
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
 #line 14
- await testRunner.WhenAsync("I get the role with name \'TestRole2\' the role details are returned as follows", ((string)(null)), table19, "When ");
+ await testRunner.WhenAsync("I require MFA for role \'TestRole1\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
-                global::Reqnroll.Table table20 = new global::Reqnroll.Table(new string[] {
-                            "Role Name"});
-                table20.AddRow(new string[] {
-                            "TestRole3"});
+#line 15
+ await testRunner.ThenAsync("the MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 16
+ await testRunner.WhenAsync("I require MFA for role \'TestRole1\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
 #line 17
- await testRunner.WhenAsync("I get the role with name \'TestRole3\' the role details are returned as follows", ((string)(null)), table20, "When ");
+ await testRunner.ThenAsync("the MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-                global::Reqnroll.Table table21 = new global::Reqnroll.Table(new string[] {
+#line 18
+ await testRunner.WhenAsync("I remove MFA for role \'TestRole1\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 19
+ await testRunner.ThenAsync("the MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+                global::Reqnroll.Table table2 = new global::Reqnroll.Table(new string[] {
                             "Role Name"});
-                table21.AddRow(new string[] {
+                table2.AddRow(new string[] {
                             "TestRole1"});
-                table21.AddRow(new string[] {
-                            "TestRole2"});
-                table21.AddRow(new string[] {
-                            "TestRole3"});
 #line 20
- await testRunner.WhenAsync("I get the roles 3 roles details are returned as follows", ((string)(null)), table21, "When ");
+ await testRunner.WhenAsync("I get the role with name \'TestRole1\' the role details are returned as follows", ((string)(null)), table2, "When ");
+#line hidden
+                global::Reqnroll.Table table3 = new global::Reqnroll.Table(new string[] {
+                            "Role Name"});
+                table3.AddRow(new string[] {
+                            "TestRole2"});
+#line 23
+ await testRunner.WhenAsync("I get the role with name \'TestRole2\' the role details are returned as follows", ((string)(null)), table3, "When ");
+#line hidden
+                global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
+                            "Role Name"});
+                table4.AddRow(new string[] {
+                            "TestRole3"});
+#line 26
+ await testRunner.WhenAsync("I get the role with name \'TestRole3\' the role details are returned as follows", ((string)(null)), table4, "When ");
+#line hidden
+                global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
+                            "Role Name"});
+                table5.AddRow(new string[] {
+                            "TestRole1"});
+                table5.AddRow(new string[] {
+                            "TestRole2"});
+                table5.AddRow(new string[] {
+                            "TestRole3"});
+#line 29
+ await testRunner.WhenAsync("I get the roles 3 roles details are returned as follows", ((string)(null)), table5, "When ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
