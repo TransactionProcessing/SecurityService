@@ -43,7 +43,10 @@ public static class KestrelCertificateLoader
             throw new FileNotFoundException($"The configured Kestrel certificate '{certificatePath}' was not found.", certificatePath);
         }
 
-        return X509CertificateLoader.LoadPkcs12FromFile(certificatePath, password);
+        return X509CertificateLoader.LoadPkcs12FromFile(
+            certificatePath,
+            password,
+            X509KeyStorageFlags.EphemeralKeySet);
     }
 
     private static string ResolveCertificatePath(string certificatePath, string contentRootPath)
