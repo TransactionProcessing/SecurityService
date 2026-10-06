@@ -34,4 +34,6 @@ Client applications should link authenticated users to the hosted account page r
 
 Apply the generated EF migrations before enabling MFA policies. The MFA tables are `MfaPolicies` and `RecoveryCodes`; recovery codes are never included in claims or logs.
 
+For a multi-instance deployment, set `ServiceOptions:DataProtectionKeyDirectory` to a shared, access-controlled directory. This preserves the protected MFA challenge and Identity tokens across restarts and instances. The directory must not be a user-writable public web directory.
+
 Removing an authenticator requires the current password or a valid current TOTP code, disables Identity two-factor authentication, resets the authenticator key, and revokes all recovery codes. Users should generate a fresh set after re-enrollment.

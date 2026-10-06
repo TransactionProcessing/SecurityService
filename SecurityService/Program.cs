@@ -207,13 +207,19 @@ builder.Services.ConfigureApplicationCookie(cookieOptions =>
 });
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDataProtection();
+var dataProtectionKeyDirectory = builder.Configuration["ServiceOptions:DataProtectionKeyDirectory"];
+var dataProtectionBuilder = builder.Services.AddDataProtection();
+if (string.IsNullOrWhiteSpace(dataProtectionKeyDirectory) == false)
+{
+    dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeyDirectory));
+}
 builder.Services.AddSingleton(serviceProvider => new ConsentTransactionProtector(
     serviceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector("SecurityService.Consent")));
 builder.Services.AddScoped<TenantContext>();
 builder.Services.AddScoped<MfaPolicyService>();
 builder.Services.AddScoped<RecoveryCodeGenerator>();
 builder.Services.AddScoped<MfaAccountService>();
+builder.Services.AddSingleton<MfaSignInTransactionProtector>();
 
 if (builder.Environment.IsEnvironment("IntegrationTest"))
 {

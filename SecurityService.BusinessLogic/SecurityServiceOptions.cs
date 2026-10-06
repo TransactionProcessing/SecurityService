@@ -40,6 +40,8 @@ public class ServiceOptions
 
     public String PublicOrigin { get; set; } = string.Empty;
 
+    public String DataProtectionKeyDirectory { get; set; } = string.Empty;
+
     public SignInOptions SignInOptions { get; set; }
 
     public TokenOptions TokenOptions { get; set; }
