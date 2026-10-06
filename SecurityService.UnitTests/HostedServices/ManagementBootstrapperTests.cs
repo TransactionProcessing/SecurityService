@@ -45,44 +45,12 @@ public sealed class ManagementBootstrapperTests
     }
 
     [Fact]
-    public async Task InitializeAsync_WhenBootstrapApplicationSecretConflicts_FailsClearly()
+    public async Task InitializeAsync_WhenExistingBootstrapClientHasStaleGrants_RestoresClientCredentialsOnly()
     {
         using var provider = TestServiceProviderFactory.Create(
             Guid.NewGuid().ToString(),
             configureOptions: options =>
             {
-                options.ManagementBootstrap.Enabled = true;
-                options.ManagementBootstrap.ClientId = "bootstrap-client";
-                options.ManagementBootstrap.ClientSecret = "configured-secret";
-            });
-
-        using var scope = provider.CreateScope();
-        var applicationManager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
-        await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
-        {
-            ClientId = "bootstrap-client",
-            ClientSecret = "existing-secret",
-            ClientType = OpenIddictConstants.ClientTypes.Confidential,
-            ConsentType = OpenIddictConstants.ConsentTypes.Implicit
-        });
-
-        var bootstrapper = CreateBootstrapper(scope);
-
-        var exception = await Should.ThrowAsync<InvalidOperationException>(() => bootstrapper.InitializeAsync(CancellationToken.None));
-
-        exception.Message.ShouldContain("bootstrap application");
-        exception.Message.ShouldContain("secret");
-    }
-
-    [Fact]
-    public async Task DatabaseInitialization_WhenBootstrapDefinitionHasStaleGrants_LeavesClientCredentialsOnly()
-    {
-        const string databaseName = "bootstrap-permissions-";
-        using var provider = TestServiceProviderFactory.Create(
-            databaseName + Guid.NewGuid(),
-            configureOptions: options =>
-            {
-                options.UseInMemoryDatabase = true;
                 options.ManagementBootstrap.Enabled = true;
                 options.ManagementBootstrap.ClientId = "bootstrap-client";
                 options.ManagementBootstrap.ClientSecret = "bootstrap-secret";
@@ -111,7 +79,6 @@ public sealed class ManagementBootstrapperTests
             Id = Guid.NewGuid(),
             ClientId = "bootstrap-client",
             ClientName = "Stale Bootstrap Client",
-            SecretHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes("bootstrap-secret"))),
             AllowedGrantTypesJson = JsonListSerializer.Serialize([OpenIddictConstants.GrantTypes.AuthorizationCode]),
             AllowedScopesJson = "[]",
             RedirectUrisJson = "[]",
@@ -120,16 +87,43 @@ public sealed class ManagementBootstrapperTests
         });
         await dbContext.SaveChangesAsync();
 
-        var initializer = new DatabaseInitializer(
-            provider,
-            scope.ServiceProvider.GetRequiredService<IOptions<ServiceOptions>>());
-
-        await initializer.StartAsync(CancellationToken.None);
+        var bootstrapper = CreateBootstrapper(scope);
+        await bootstrapper.InitializeAsync(CancellationToken.None);
 
         object application = (await applicationManager.FindByClientIdAsync("bootstrap-client"))!;
         var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
         permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.ClientCredentials);
         permissions.ShouldNotContain(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
+    }
+
+    [Fact]
+    public async Task InitializeAsync_WhenBootstrapApplicationSecretConflicts_FailsClearly()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            Guid.NewGuid().ToString(),
+            configureOptions: options =>
+            {
+                options.ManagementBootstrap.Enabled = true;
+                options.ManagementBootstrap.ClientId = "bootstrap-client";
+                options.ManagementBootstrap.ClientSecret = "configured-secret";
+            });
+
+        using var scope = provider.CreateScope();
+        var applicationManager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+        await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "bootstrap-client",
+            ClientSecret = "existing-secret",
+            ClientType = OpenIddictConstants.ClientTypes.Confidential,
+            ConsentType = OpenIddictConstants.ConsentTypes.Implicit
+        });
+
+        var bootstrapper = CreateBootstrapper(scope);
+
+        var exception = await Should.ThrowAsync<InvalidOperationException>(() => bootstrapper.InitializeAsync(CancellationToken.None));
+
+        exception.Message.ShouldContain("bootstrap application");
+        exception.Message.ShouldContain("secret");
     }
 
     [Fact]

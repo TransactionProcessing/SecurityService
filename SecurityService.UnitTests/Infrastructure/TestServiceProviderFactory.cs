@@ -8,7 +8,6 @@ using SecurityService.BusinessLogic;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
-using SecurityService.HostedServices;
 
 namespace SecurityService.UnitTests.Infrastructure;
 
@@ -51,7 +50,6 @@ public static class TestServiceProviderFactory
                 serverOptions.AddSigningKey(key);
             });
         services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(typeof(SecurityServiceCommands).Assembly));
-        services.AddScoped<ManagementBootstrapper>();
         services.AddSingleton<IMessagingServiceClient, TestMessagingServiceClient>();
         if (userManager != null)
             services.AddSingleton(userManager);
