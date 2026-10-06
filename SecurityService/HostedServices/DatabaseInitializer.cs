@@ -93,7 +93,7 @@ public sealed class DatabaseInitializer : IHostedService
 
             if (client.AllowOfflineAccess)
             {
-                descriptor.Permissions.Add(Permissions.Prefixes.Scope + Scopes.OfflineAccess);
+                descriptor.Permissions.Add(Permissions.GrantTypes.RefreshToken);
             }
 
             descriptor.Requirements.UnionWith(policy.Requirements);

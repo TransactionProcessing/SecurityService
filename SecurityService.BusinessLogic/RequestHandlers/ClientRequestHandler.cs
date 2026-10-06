@@ -73,7 +73,7 @@ public sealed class ClientRequestHandler :
 
         if (command.AllowOfflineAccess)
         {
-            descriptor.Permissions.Add(Permissions.Prefixes.Scope + Scopes.OfflineAccess);
+            descriptor.Permissions.Add(Permissions.GrantTypes.RefreshToken);
         }
 
         foreach (String redirectUri in command.ClientRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))

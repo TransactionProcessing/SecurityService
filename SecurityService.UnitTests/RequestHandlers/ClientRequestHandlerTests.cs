@@ -75,6 +75,35 @@ public class ClientRequestHandlerTests
     }
 
     [Fact]
+    public async Task CreateClient_WithOfflineAccess_AddsRefreshTokenPermission()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WithOfflineAccess_AddsRefreshTokenPermission));
+        var mediator = provider.GetRequiredService<IMediator>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+
+        var createResult = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "offline-client",
+            null,
+            "Offline Client",
+            null,
+            [OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.OfflineAccess],
+            [OpenIddictConstants.GrantTypes.AuthorizationCode],
+            null,
+            ["https://client.example/signin-oidc"],
+            [],
+            false,
+            true));
+
+        createResult.IsSuccess.ShouldBeTrue();
+
+        object application = (await applicationManager.FindByClientIdAsync("offline-client"))!;
+        var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
+
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
+    }
+
+    [Fact]
     public async Task CreateClient_WhenGrantTypeIsUnsupported_ReturnsInvalid()
     {
         using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WhenGrantTypeIsUnsupported_ReturnsInvalid));
