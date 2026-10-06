@@ -53,9 +53,10 @@ public sealed class DatabaseInitializer : IHostedService
                 }
             }
 
+            await this.SynchronizeApplicationPermissionsAsync(scope.ServiceProvider, dbContext, cancellationToken);
+
             ManagementBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ManagementBootstrapper>();
             await bootstrapper.InitializeAsync(cancellationToken);
-            await this.SynchronizeApplicationPermissionsAsync(scope.ServiceProvider, dbContext, cancellationToken);
 
             Logger.LogWarning("Database initialization complete.");
         }

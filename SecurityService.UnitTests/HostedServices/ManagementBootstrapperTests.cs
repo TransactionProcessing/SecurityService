@@ -3,6 +3,8 @@ using Microsoft.Extensions.Options;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic;
+using SecurityService.Database;
+using SecurityService.Database.Entities;
 using SecurityService.Database.DbContexts;
 using SecurityService.HostedServices;
 using SecurityService.UnitTests.Infrastructure;
@@ -70,6 +72,64 @@ public sealed class ManagementBootstrapperTests
 
         exception.Message.ShouldContain("bootstrap application");
         exception.Message.ShouldContain("secret");
+    }
+
+    [Fact]
+    public async Task DatabaseInitialization_WhenBootstrapDefinitionHasStaleGrants_LeavesClientCredentialsOnly()
+    {
+        const string databaseName = "bootstrap-permissions-";
+        using var provider = TestServiceProviderFactory.Create(
+            databaseName + Guid.NewGuid(),
+            configureOptions: options =>
+            {
+                options.UseInMemoryDatabase = true;
+                options.ManagementBootstrap.Enabled = true;
+                options.ManagementBootstrap.ClientId = "bootstrap-client";
+                options.ManagementBootstrap.ClientSecret = "bootstrap-secret";
+            });
+
+        using var scope = provider.CreateScope();
+        var applicationManager = scope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+        await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "bootstrap-client",
+            ClientSecret = "bootstrap-secret",
+            ClientType = OpenIddictConstants.ClientTypes.Confidential,
+            ConsentType = OpenIddictConstants.ConsentTypes.Implicit,
+            Permissions =
+            {
+                OpenIddictConstants.Permissions.Endpoints.Authorization,
+                OpenIddictConstants.Permissions.Endpoints.Token,
+                OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode,
+                OpenIddictConstants.Permissions.ResponseTypes.Code
+            }
+        });
+
+        var dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
+        await dbContext.ClientDefinitions.AddAsync(new ClientDefinition
+        {
+            Id = Guid.NewGuid(),
+            ClientId = "bootstrap-client",
+            ClientName = "Stale Bootstrap Client",
+            SecretHash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes("bootstrap-secret"))),
+            AllowedGrantTypesJson = JsonListSerializer.Serialize([OpenIddictConstants.GrantTypes.AuthorizationCode]),
+            AllowedScopesJson = "[]",
+            RedirectUrisJson = "[]",
+            PostLogoutRedirectUrisJson = "[]",
+            ClientType = OpenIddictConstants.ClientTypes.Confidential
+        });
+        await dbContext.SaveChangesAsync();
+
+        var initializer = new DatabaseInitializer(
+            provider,
+            scope.ServiceProvider.GetRequiredService<IOptions<ServiceOptions>>());
+
+        await initializer.StartAsync(CancellationToken.None);
+
+        object application = (await applicationManager.FindByClientIdAsync("bootstrap-client"))!;
+        var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.ClientCredentials);
+        permissions.ShouldNotContain(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
     }
 
     [Fact]
