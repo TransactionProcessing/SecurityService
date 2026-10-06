@@ -71,6 +71,11 @@ public sealed class ClientRequestHandler :
         descriptor.Permissions.UnionWith(permissions.Permissions);
         descriptor.Requirements.UnionWith(permissions.Requirements);
 
+        if (command.AllowOfflineAccess)
+        {
+            descriptor.Permissions.Add(Permissions.Prefixes.Scope + Scopes.OfflineAccess);
+        }
+
         foreach (String redirectUri in command.ClientRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
         {
             descriptor.RedirectUris.Add(new Uri(redirectUri, UriKind.Absolute));

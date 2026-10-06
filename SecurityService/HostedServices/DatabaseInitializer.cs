@@ -90,6 +90,12 @@ public sealed class DatabaseInitializer : IHostedService
 
             descriptor.Permissions.RemoveWhere(permission => permission.StartsWith(Permissions.Prefixes.GrantType, StringComparison.Ordinal));
             descriptor.Permissions.UnionWith(policy.Permissions);
+
+            if (client.AllowOfflineAccess)
+            {
+                descriptor.Permissions.Add(Permissions.Prefixes.Scope + Scopes.OfflineAccess);
+            }
+
             descriptor.Requirements.UnionWith(policy.Requirements);
 
             await applicationManager.UpdateAsync(application, descriptor, cancellationToken);
