@@ -287,21 +287,24 @@ builder.Services.AddOpenIddict()
         serverOptions.SetUserInfoEndpointUris("/connect/userinfo");
         serverOptions.SetIntrospectionEndpointUris("/connect/introspect");
         serverOptions.SetRevocationEndpointUris("/connect/revocation");
-        serverOptions.SetDeviceAuthorizationEndpointUris("/connect/device");
-        serverOptions.SetEndUserVerificationEndpointUris("/connect/verify");
 
         serverOptions.AllowAuthorizationCodeFlow()
                      .AllowClientCredentialsFlow()
-                     .AllowDeviceAuthorizationFlow()
-                     .AllowHybridFlow()
-                     .AllowImplicitFlow()
-                     .AllowPasswordFlow()
                      .AllowRefreshTokenFlow();
+
+         if (options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Password, out List<string>? passwordClients) && passwordClients.Count > 0)
+         {
+             serverOptions.AllowPasswordFlow();
+         }
+
+         if (options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Implicit, out List<string>? implicitClients) && implicitClients.Count > 0)
+         {
+             serverOptions.AllowImplicitFlow();
+         }
 
         serverOptions.RegisterScopes(OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.OfflineAccess, OpenIddictConstants.Scopes.Roles);
         serverOptions.DisableAccessTokenEncryption();
         serverOptions.IgnoreEndpointPermissions();
-        serverOptions.IgnoreGrantTypePermissions();
         serverOptions.IgnoreResponseTypePermissions();
         serverOptions.IgnoreScopePermissions();
         serverOptions.AddDevelopmentEncryptionCertificate();

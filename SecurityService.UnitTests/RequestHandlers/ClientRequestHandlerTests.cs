@@ -41,6 +41,69 @@ public class ClientRequestHandlerTests
     }
 
     [Fact]
+    public async Task CreateClient_PersistsGrantPermissionsAndPkceRequirement()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_PersistsGrantPermissionsAndPkceRequirement));
+        var mediator = provider.GetRequiredService<IMediator>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+
+        var createResult = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "pkce-client",
+            null,
+            "PKCE Client",
+            null,
+            [OpenIddictConstants.Scopes.OpenId],
+            [OpenIddictConstants.GrantTypes.AuthorizationCode, OpenIddictConstants.GrantTypes.RefreshToken],
+            null,
+            ["https://client.example/signin-oidc"],
+            [],
+            false,
+            true));
+
+        createResult.IsSuccess.ShouldBeTrue();
+
+        object application = (await applicationManager.FindByClientIdAsync("pkce-client"))!;
+        var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
+        var requirements = (await applicationManager.GetRequirementsAsync(application)).ToHashSet(StringComparer.Ordinal);
+
+        permissions.ShouldContain(OpenIddictConstants.Permissions.Endpoints.Authorization);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.Endpoints.Token);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
+        requirements.ShouldContain(OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange);
+    }
+
+    [Fact]
+    public async Task CreateClient_WithOfflineAccess_AddsRefreshTokenPermission()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WithOfflineAccess_AddsRefreshTokenPermission));
+        var mediator = provider.GetRequiredService<IMediator>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+
+        var createResult = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "offline-client",
+            null,
+            "Offline Client",
+            null,
+            [OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.OfflineAccess],
+            [OpenIddictConstants.GrantTypes.AuthorizationCode],
+            null,
+            ["https://client.example/signin-oidc"],
+            [],
+            false,
+            true));
+
+        createResult.IsSuccess.ShouldBeTrue();
+
+        object application = (await applicationManager.FindByClientIdAsync("offline-client"))!;
+        var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
+
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
+    }
+
+    [Fact]
     public async Task CreateClient_WhenGrantTypeIsUnsupported_ReturnsInvalid()
     {
         using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WhenGrantTypeIsUnsupported_ReturnsInvalid));

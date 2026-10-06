@@ -2,7 +2,9 @@ using System.Security.Cryptography;
 using System.Text;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
+using SecurityService.BusinessLogic.Oidc;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
@@ -18,24 +20,18 @@ public sealed class ClientRequestHandler :
     IRequestHandler<SecurityServiceQueries.GetClientQuery, Result<ClientDetails>>,
     IRequestHandler<SecurityServiceQueries.GetClientsQuery, Result<List<ClientDetails>>>
 {
-    private static readonly HashSet<string> SupportedGrantTypes = new(StringComparer.OrdinalIgnoreCase)
-    {
-        GrantTypes.AuthorizationCode,
-        GrantTypes.ClientCredentials,
-        GrantTypes.DeviceCode,
-        "hybrid",
-        GrantTypes.Implicit,
-        GrantTypes.Password,
-        GrantTypes.RefreshToken
-    };
-
     private readonly SecurityServiceDbContext DbContext;
     private readonly IOpenIddictApplicationManager ApplicationManager;
+    private readonly OAuthOptions OAuthOptions;
 
-    public ClientRequestHandler(SecurityServiceDbContext dbContext, IOpenIddictApplicationManager applicationManager)
+    public ClientRequestHandler(
+        SecurityServiceDbContext dbContext,
+        IOpenIddictApplicationManager applicationManager,
+        IOptions<ServiceOptions> options)
     {
         this.DbContext = dbContext;
         this.ApplicationManager = applicationManager;
+        this.OAuthOptions = options.Value.OAuth;
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.CreateClientCommand command, CancellationToken cancellationToken)
@@ -50,7 +46,7 @@ public sealed class ClientRequestHandler :
             return Result.Invalid("At least one grant type is required.");
         }
 
-        String[] invalidGrantTypes = command.AllowedGrantTypes.Where(grantType => SupportedGrantTypes.Contains(grantType) == false).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        String[] invalidGrantTypes = command.AllowedGrantTypes.Where(grantType => OAuthGrantPolicy.IsGrantAllowed(grantType, command.ClientId, this.OAuthOptions) == false).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         if (invalidGrantTypes.Length > 0)
         {
             return Result.Invalid($"Unsupported grant types: {string.Join(", ", invalidGrantTypes)}.");
@@ -61,6 +57,8 @@ public sealed class ClientRequestHandler :
             return Result.Conflict($"A client with id '{command.ClientId}' already exists.");
         }
 
+        OAuthGrantPolicyResult permissions = OAuthGrantPolicy.CreatePermissions(command.AllowedGrantTypes, command.ClientId, this.OAuthOptions);
+
         OpenIddictApplicationDescriptor descriptor = new OpenIddictApplicationDescriptor
         {
             ClientId = command.ClientId,
@@ -69,6 +67,14 @@ public sealed class ClientRequestHandler :
             ClientType = string.IsNullOrWhiteSpace(command.Secret) ? ClientTypes.Public : ClientTypes.Confidential,
             ClientSecret = string.IsNullOrWhiteSpace(command.Secret) ? null : command.Secret
         };
+
+        descriptor.Permissions.UnionWith(permissions.Permissions);
+        descriptor.Requirements.UnionWith(permissions.Requirements);
+
+        if (command.AllowOfflineAccess)
+        {
+            descriptor.Permissions.Add(Permissions.GrantTypes.RefreshToken);
+        }
 
         foreach (String redirectUri in command.ClientRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
         {
