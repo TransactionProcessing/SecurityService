@@ -224,7 +224,7 @@ namespace SecurityService.IntegrationTests.Token
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Token/Token.feature.ndjson", 3);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("Token/Token.feature.ndjson", 4);
         }
         
         [global::NUnit.Framework.TestAttribute()]
@@ -264,6 +264,41 @@ await this.FeatureBackgroundAsync();
 #line 37
  await testRunner.ThenAsync("my token is returned", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Password token is rejected when MFA is required")]
+        [global::NUnit.Framework.CategoryAttribute("mfa")]
+        public async global::System.Threading.Tasks.Task PasswordTokenIsRejectedWhenMFAIsRequired()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "mfa"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "1";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Password token is rejected when MFA is required", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 40
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 4
+await this.FeatureBackgroundAsync();
+#line hidden
+#line 41
+ await testRunner.WhenAsync("I require MFA for user \'merchantuser\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 42
+ await testRunner.ThenAsync("the MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
                 global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
                             "ClientId",
                             "ClientSecret",
@@ -274,10 +309,26 @@ await this.FeatureBackgroundAsync();
                             "Secret1",
                             "merchantuser",
                             "123456"});
-#line 38
+#line 43
  await testRunner.WhenAsync("I request a password token with the following values", ((string)(null)), table7, "When ");
 #line hidden
-#line 41
+#line 46
+ await testRunner.ThenAsync("the password token request fails", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+                global::Reqnroll.Table table8 = new global::Reqnroll.Table(new string[] {
+                            "ClientId",
+                            "ClientSecret",
+                            "Username",
+                            "Password"});
+                table8.AddRow(new string[] {
+                            "merchantClient",
+                            "Secret1",
+                            "merchantuser",
+                            "123456"});
+#line 47
+ await testRunner.WhenAsync("I request a password token with the following values", ((string)(null)), table8, "When ");
+#line hidden
+#line 50
  await testRunner.ThenAsync("my token is returned", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

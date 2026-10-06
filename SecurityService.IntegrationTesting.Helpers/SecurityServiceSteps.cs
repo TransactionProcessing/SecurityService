@@ -88,10 +88,13 @@ public class SecurityServiceSteps{
 
     public async Task<String> GetPasswordToken(String clientId, String secret, String userName, String password, CancellationToken cancellationToken)
     {
-        Result<TokenResponse>? tokenResponseResult = await this.SecurityServiceClient.GetToken(userName,password, clientId, secret, cancellationToken).ConfigureAwait(false);
+        Result<TokenResponse>? tokenResponseResult = await this.RequestPasswordToken(clientId, secret, userName, password, cancellationToken).ConfigureAwait(false);
         tokenResponseResult.IsSuccess.ShouldBeTrue();
         return tokenResponseResult.Data.AccessToken;
     }
+
+    public Task<Result<TokenResponse>> RequestPasswordToken(String clientId, String secret, String userName, String password, CancellationToken cancellationToken) =>
+        this.SecurityServiceClient.GetToken(userName, password, clientId, secret, cancellationToken);
 
     public async Task WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(List<ApiResourceResponse> expectedDetails, CancellationToken cancellationToken){
         Result<List<ApiResourceResponse>>? apiResourceDetailsListResult = await this.SecurityServiceClient.GetApiResources(cancellationToken).ConfigureAwait(false);

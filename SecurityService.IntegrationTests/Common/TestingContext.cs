@@ -57,6 +57,7 @@ namespace SecurityService.IntergrationTests.Common
         public TokenResponse TokenResponse;
         public String AccessToken;
         public Result LastMfaPolicyResult;
+        public Result<TokenResponse> LastTokenResult;
 
         public NlogLogger Logger;
 
