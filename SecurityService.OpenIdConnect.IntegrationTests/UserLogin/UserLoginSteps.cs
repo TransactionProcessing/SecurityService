@@ -9,6 +9,7 @@ namespace SecurityService.IntegrationTests.UserLogin
     using System.Net;
     using System.Net.Http;
     using System.Text;
+using System.Security.Cryptography;
     using System.Threading;
     using System.Threading.Tasks;
     using HtmlAgilityPack;
@@ -131,6 +132,92 @@ namespace SecurityService.IntegrationTests.UserLogin
                             });
             
             
+        }
+
+        [When(@"I open the hosted MFA management page")]
+        public async Task WhenIOpenTheHostedMfaManagementPage()
+        {
+            this.WebDriver.Navigate().GoToUrl($"{this.TestingContext.DockerHelper.securityServiceBaseAddressResolver("")}/Account/ManageMfa");
+            await Retry.For(async () => this.WebDriver.Title.ShouldContain("Manage MFA"));
+        }
+
+        [When(@"I begin MFA enrollment")]
+        public async Task WhenIBeginMfaEnrollment()
+        {
+            await this.WebDriver.ClickButton("Begin enrollment");
+        }
+
+        [Then(@"I am shown the MFA authenticator setup key")]
+        public void ThenIAmShownTheMfaAuthenticatorSetupKey()
+        {
+            String body = this.WebDriver.FindElement(By.TagName("body")).Text;
+            body.ShouldContain("Setup key:");
+            this.TestingContext.MfaAuthenticatorKey = body.Split("Setup key:", StringSplitOptions.None)[1].Split('\n')[0].Trim();
+            this.TestingContext.MfaAuthenticatorKey.ShouldNotBeNullOrWhiteSpace();
+        }
+
+        [When(@"I confirm MFA enrollment with the current authenticator code")]
+        public async Task WhenIConfirmMfaEnrollmentWithTheCurrentAuthenticatorCode()
+        {
+            this.WebDriver.FillIn("Input.Code", GenerateAuthenticatorCode(this.TestingContext.MfaAuthenticatorKey));
+            await this.WebDriver.ClickButton("Confirm enrollment");
+        }
+
+        [Then(@"MFA is enabled")]
+        public void ThenMfaIsEnabled()
+        {
+            this.WebDriver.FindElement(By.TagName("body")).Text.ShouldContain("MFA has been enabled.");
+        }
+
+        [When(@"I sign out of SecurityService")]
+        public async Task WhenISignOutOfSecurityService()
+        {
+            this.WebDriver.Navigate().GoToUrl($"{this.TestingContext.DockerHelper.securityServiceBaseAddressResolver("")}/Account/Logout");
+            await Retry.For(async () => this.WebDriver.Url.ShouldNotContain("/Account/Logout"));
+        }
+
+        [Then(@"I am presented with the MFA verification screen")]
+        public async Task ThenIAmPresentedWithTheMfaVerificationScreen()
+        {
+            await Retry.For(async () => this.WebDriver.FindElement(By.TagName("body")).Text.ShouldContain("MFA verification"));
+        }
+
+        [When(@"I complete MFA with the current authenticator code")]
+        public async Task WhenICompleteMfaWithTheCurrentAuthenticatorCode()
+        {
+            this.WebDriver.FillIn("Input.Code", GenerateAuthenticatorCode(this.TestingContext.MfaAuthenticatorKey));
+            await this.WebDriver.ClickButton("Verify");
+        }
+
+        private static String GenerateAuthenticatorCode(String key)
+        {
+            const String alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+            Int32 bits = 0;
+            Int32 bitCount = 0;
+            List<Byte> keyBytes = new List<Byte>();
+            foreach (Char character in key.TrimEnd('=').ToUpperInvariant())
+            {
+                bits = (bits << 5) | alphabet.IndexOf(character);
+                bitCount += 5;
+                if (bitCount >= 8)
+                {
+                    bitCount -= 8;
+                    keyBytes.Add((Byte)(bits >> bitCount));
+                    bits &= (1 << bitCount) - 1;
+                }
+            }
+
+            Int64 counter = DateTimeOffset.UtcNow.ToUnixTimeSeconds() / 30;
+            Byte[] counterBytes = BitConverter.GetBytes(counter);
+            if (BitConverter.IsLittleEndian) Array.Reverse(counterBytes);
+            using HMACSHA1 hmac = new HMACSHA1(keyBytes.ToArray());
+            Byte[] hash = hmac.ComputeHash(counterBytes);
+            Int32 offset = hash[^1] & 0x0f;
+            Int32 binaryCode = ((hash[offset] & 0x7f) << 24) |
+                               (hash[offset + 1] << 16) |
+                               (hash[offset + 2] << 8) |
+                               hash[offset + 3];
+            return (binaryCode % 1_000_000).ToString("D6");
         }
 
         [Then(@"I get an email with a confirm email address link")]
