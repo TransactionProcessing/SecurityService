@@ -66,7 +66,8 @@ namespace SecurityServiceTestUI
 
                                                   options.MetadataAddress = $"{Configuration.GetValue<String>("AppSettings:Authority")}/.well-known/openid-configuration";
 
-                                                  options.ResponseType = "code id_token";
+                                                  options.ResponseType = "code";
+                                                  options.UsePkce = true;
 
                                                   options.Scope.Clear();
                                                   options.Scope.Add("openid");

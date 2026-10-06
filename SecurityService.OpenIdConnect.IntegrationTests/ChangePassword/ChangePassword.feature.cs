@@ -176,7 +176,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
                         "Merchant Client",
                         "Secret1",
                         "transactionProcessor,openid,email,profile",
-                        "hybrid",
+                        "authorization_code",
                         "https://[url]:[port]/signin-oidc",
                         "https://[url]:[port]/signout-oidc",
                         "false",

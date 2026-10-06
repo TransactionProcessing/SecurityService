@@ -290,10 +290,6 @@ builder.Services.AddOpenIddict()
 
         serverOptions.AllowAuthorizationCodeFlow()
                      .AllowClientCredentialsFlow()
-                     // Hybrid flow is retained as a server capability for existing clients.
-                     // OAuthGrantPolicy still controls which clients may receive the required
-                     // authorization-code/response-type permissions.
-                     .AllowHybridFlow()
                      .AllowRefreshTokenFlow();
 
          if (options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Password, out List<string>? passwordClients) && passwordClients.Count > 0)

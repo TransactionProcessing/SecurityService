@@ -19,7 +19,7 @@ Background:
 
 	Given I create the following clients
 	| ClientId       | Name            | Secret  | Scopes                                | GrantTypes | RedirectUris                     | PostLogoutRedirectUris            | RequireConsent | AllowOfflineAccess | ClientUri            |
-	| estateUIClient | Merchant Client | Secret1 | transactionProcessor,openid,email,profile | hybrid     | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
+	| estateUIClient | Merchant Client | Secret1 | transactionProcessor,openid,email,profile | authorization_code | https://[url]:[port]/signin-oidc | https://[url]:[port]/signout-oidc | false          | true               | https://[url]:[port] |
 
 
 @PRTest
