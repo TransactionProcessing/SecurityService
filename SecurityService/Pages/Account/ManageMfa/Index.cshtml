@@ -1,0 +1,63 @@
+@page
+@model SecurityService.Pages.Account.ManageMfa.IndexModel
+@{
+    ViewData["Title"] = "Manage MFA";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Manage MFA</h1>
+        <p class="hero__subtitle">Protect your account with an authenticator app.</p>
+    </div>
+
+    @if (string.IsNullOrWhiteSpace(Model.StatusMessage) == false)
+    {
+        <div class="alert alert--info">@Model.StatusMessage</div>
+    }
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    <div class="card">
+        <div class="card__body">
+            @if (Model.IsMfaEnabled)
+            {
+                <h2 class="card__title">MFA is enabled</h2>
+                <p>Use your authenticator app or a recovery code when you sign in.</p>
+                <form method="post" asp-page-handler="remove">
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Input.CurrentPassword">Current password</label>
+                        <input class="form-control" asp-for="Input.CurrentPassword" type="password" autocomplete="current-password" />
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Input.Code">Authenticator code (optional)</label>
+                        <input class="form-control" asp-for="Input.Code" inputmode="numeric" autocomplete="one-time-code" />
+                    </div>
+                    <button class="btn btn-secondary" type="submit">Remove MFA</button>
+                </form>
+                <p class="section-spacer"><a asp-page="RecoveryCodes">Manage recovery codes</a></p>
+            }
+            else if (Model.Enrollment is null)
+            {
+                <h2 class="card__title">MFA is not enabled</h2>
+                <p>Set up an authenticator app to add a second factor to your account.</p>
+                <form method="post" asp-page-handler="begin-enrollment">
+                    <button class="btn btn-primary" type="submit">Begin enrollment</button>
+                </form>
+            }
+            else
+            {
+                <h2 class="card__title">Scan the QR code</h2>
+                <p>Add this account to your authenticator app, then enter the six-digit code it shows.</p>
+                <p><strong>Setup key:</strong> @Model.Enrollment.AuthenticatorKey</p>
+                <p><strong>Authenticator URI:</strong> @Model.Enrollment.OtpauthUri</p>
+                <form method="post" asp-page-handler="confirm-enrollment">
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Input.Code">Authenticator code</label>
+                        <input class="form-control" asp-for="Input.Code" inputmode="numeric" autocomplete="one-time-code" autofocus />
+                    </div>
+                    <button class="btn btn-primary" type="submit">Confirm enrollment</button>
+                </form>
+            }
+        </div>
+    </div>
+</div>

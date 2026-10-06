@@ -1,0 +1,46 @@
+@page
+@model SecurityService.Pages.Account.ManageMfa.RecoveryCodesModel
+@{
+    ViewData["Title"] = "Recovery codes";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">Recovery codes</h1>
+        <p class="hero__subtitle">Use a recovery code if you cannot access your authenticator app.</p>
+    </div>
+
+    @if (string.IsNullOrWhiteSpace(Model.StatusMessage) == false)
+    {
+        <div class="alert alert--info">@Model.StatusMessage</div>
+    }
+
+    <div class="card">
+        <div class="card__body">
+            @if (Model.RecoveryCodes.Count > 0)
+            {
+                <p><strong>Save these codes now.</strong> They will not be displayed again.</p>
+                <div class="recovery-codes">
+                    @foreach (var code in Model.RecoveryCodes)
+                    {
+                        <code>@code</code>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>Generating a new set revokes all previous recovery codes.</p>
+            }
+
+            <div class="actions">
+                <form method="post" asp-page-handler="generate">
+                    <button class="btn btn-primary" type="submit">Generate new codes</button>
+                </form>
+                <form method="post" asp-page-handler="revoke">
+                    <button class="btn btn-secondary" type="submit">Revoke codes</button>
+                </form>
+                <a class="btn btn-secondary" asp-page="Index">Back to MFA</a>
+            </div>
+        </div>
+    </div>
+</div>

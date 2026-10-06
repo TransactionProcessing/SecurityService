@@ -57,6 +57,7 @@ public sealed class SecurityServiceDbContext : IdentityDbContext<ApplicationUser
             entity.HasKey(code => code.Id);
             entity.Property(code => code.UserId).HasMaxLength(450).IsRequired();
             entity.Property(code => code.CodeHash).HasMaxLength(200).IsRequired();
+            entity.Property(code => code.ConcurrencyStamp).HasMaxLength(32).IsConcurrencyToken().IsRequired();
             entity.HasIndex(code => new { code.UserId, code.CodeHash }).IsUnique();
             entity.HasIndex(code => new { code.UserId, code.ConsumedUtc });
             entity.HasOne<ApplicationUser>()
