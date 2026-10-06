@@ -12,6 +12,7 @@ using NLog;
 using NLog.Extensions.Logging;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Mfa;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Common;
@@ -210,6 +211,7 @@ builder.Services.AddDataProtection();
 builder.Services.AddSingleton(serviceProvider => new ConsentTransactionProtector(
     serviceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector("SecurityService.Consent")));
 builder.Services.AddScoped<TenantContext>();
+builder.Services.AddScoped<MfaPolicyService>();
 
 if (builder.Environment.IsEnvironment("IntegrationTest"))
 {

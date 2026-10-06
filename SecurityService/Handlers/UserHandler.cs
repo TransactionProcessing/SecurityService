@@ -10,6 +10,22 @@ namespace SecurityService.Handlers;
 
 public static class UserHandler
 {
+    public static async Task<IResult> RequireMfa(IMediator mediator,
+                                                 string userId,
+                                                 CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new SecurityServiceCommands.RequireUserMfaCommand(userId), cancellationToken);
+        return ResponseFactory.FromResult(result);
+    }
+
+    public static async Task<IResult> RemoveMfa(IMediator mediator,
+                                                string userId,
+                                                CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new SecurityServiceCommands.RemoveUserMfaCommand(userId), cancellationToken);
+        return ResponseFactory.FromResult(result);
+    }
+
     public static async Task<IResult> CreateUser(IMediator mediator, CreateUserRequest request, CancellationToken cancellationToken) {
         SecurityServiceCommands.CreateUserCommand command = new(request.GivenName, request.MiddleName, request.FamilyName, request.UserName, request.Password, request.EmailAddress, request.PhoneNumber, request.Claims, request.Roles);
         

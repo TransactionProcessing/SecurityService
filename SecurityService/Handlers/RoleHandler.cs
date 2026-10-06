@@ -10,6 +10,22 @@ namespace SecurityService.Handlers;
 
 public static class RoleHandler
 {
+    public static async Task<IResult> RequireMfa(IMediator mediator,
+                                                 string roleId,
+                                                 CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new SecurityServiceCommands.RequireRoleMfaCommand(roleId), cancellationToken);
+        return ResponseFactory.FromResult(result);
+    }
+
+    public static async Task<IResult> RemoveMfa(IMediator mediator,
+                                                string roleId,
+                                                CancellationToken cancellationToken)
+    {
+        var result = await mediator.Send(new SecurityServiceCommands.RemoveRoleMfaCommand(roleId), cancellationToken);
+        return ResponseFactory.FromResult(result);
+    }
+
     public static async Task<IResult> CreateRole(IMediator mediator, CreateRoleRequest request, CancellationToken cancellationToken) {
         SecurityServiceCommands.CreateRoleCommand command = new(request.RoleName);
 

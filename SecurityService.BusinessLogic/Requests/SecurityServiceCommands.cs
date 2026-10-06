@@ -70,4 +70,9 @@ public static class SecurityServiceCommands
 
     public record LoginCommand(string Username, string Password, bool RememberLogin) : IRequest<Result>;
     public record RevokeGrantCommand(string UserId, string AuthorizationId) : IRequest<Result>;
+
+    public record RequireUserMfaCommand(String UserId) : IRequest<Result>;
+    public record RemoveUserMfaCommand(String UserId) : IRequest<Result>;
+    public record RequireRoleMfaCommand(String RoleId) : IRequest<Result>;
+    public record RemoveRoleMfaCommand(String RoleId) : IRequest<Result>;
 }
