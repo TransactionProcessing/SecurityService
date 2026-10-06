@@ -71,11 +71,58 @@ namespace SecurityService.IntegrationTests.UserLogin
         [Then(@"I am presented with a login screen")]
         public async Task ThenIAmPresentedWithALoginScreen()
         {
-            await Retry.For(async () =>
-                            {
-                                IWebElement loginButton = await this.WebDriver.FindButton("Login");
-                                loginButton.ShouldNotBeNull();
-                            });
+            try
+            {
+                await Retry.For(async () =>
+                                {
+                                    IWebElement loginButton = await this.WebDriver.FindButton("Login");
+                                    loginButton.ShouldNotBeNull();
+                                });
+            }
+            catch
+            {
+                this.LogLoginScreenDiagnostic();
+                throw;
+            }
+        }
+
+        private void LogLoginScreenDiagnostic()
+        {
+            string path = "<unavailable>";
+            string queryKeys = "<unavailable>";
+
+            try
+            {
+                if (Uri.TryCreate(this.WebDriver.Url, UriKind.Absolute, out Uri currentUri))
+                {
+                    path = currentUri.AbsolutePath;
+                    queryKeys = String.Join(",", currentUri.Query
+                                                               .TrimStart('?')
+                                                               .Split('&', StringSplitOptions.RemoveEmptyEntries)
+                                                               .Select(parameter => parameter.Split('=', 2)[0]));
+                }
+            }
+            catch
+            {
+                // Keep diagnostics best-effort so the original test failure is preserved.
+            }
+
+            string title = "<unavailable>";
+            string bodyText = "<unavailable>";
+
+            try
+            {
+                title = this.WebDriver.Title;
+                bodyText = this.WebDriver.FindElement(By.TagName("body")).Text;
+                bodyText = bodyText.Length > 2000 ? bodyText.Substring(0, 2000) : bodyText;
+            }
+            catch
+            {
+                // Keep diagnostics best-effort so the original test failure is preserved.
+            }
+
+            this.TestingContext.DockerHelper.Logger.LogInformation(
+                $"Login screen diagnostic: path=[{path}], queryKeys=[{queryKeys}], title=[{title}], body=[{bodyText}]");
         }
 
         [When(@"I login with the username '([^']*)' and the provided password")]
