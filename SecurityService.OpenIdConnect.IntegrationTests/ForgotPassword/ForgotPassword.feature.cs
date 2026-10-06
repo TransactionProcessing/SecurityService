@@ -175,7 +175,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
                         "estateUIClient",
                         "Merchant Client",
                         "Secret1",
-                        "transactionProcessor,openid,email,profile",
+                        "transactionProcessor,openid,email,profile,offline_access",
                         "authorization_code",
                         "https://[url]:[port]/signin-oidc",
                         "https://[url]:[port]/signout-oidc",
