@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using SimpleResults;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Collections.Generic;
 
 namespace SecurityService.BusinessLogic;
 
@@ -18,6 +19,7 @@ public class ServiceOptions
         this.SignInOptions = new SignInOptions();
         this.UserOptions = new UserOptions();
         this.ManagementBootstrap = new ManagementBootstrapOptions();
+        this.OAuth = new OAuthOptions();
     }
 
     #region Properties
@@ -48,7 +50,14 @@ public class ServiceOptions
 
     public ManagementBootstrapOptions ManagementBootstrap { get; set; }
 
+    public OAuthOptions OAuth { get; set; }
+
     #endregion
+}
+
+public sealed class OAuthOptions
+{
+    public Dictionary<string, List<string>> LegacyGrantTypeClients { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
 
 public sealed class ManagementBootstrapOptions

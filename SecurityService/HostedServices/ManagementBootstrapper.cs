@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
@@ -21,6 +22,7 @@ public sealed class ManagementBootstrapper
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
     private readonly ManagementBootstrapOptions _options;
+    private readonly OAuthOptions _oauthOptions;
 
     public ManagementBootstrapper(
         SecurityServiceDbContext dbContext,
@@ -34,6 +36,7 @@ public sealed class ManagementBootstrapper
         _userManager = userManager;
         _roleManager = roleManager;
         _options = options.Value.ManagementBootstrap;
+        _oauthOptions = options.Value.OAuth;
     }
 
     public async Task InitializeAsync(CancellationToken cancellationToken)
@@ -86,12 +89,18 @@ public sealed class ManagementBootstrapper
                 DisplayName = _options.ClientName
             };
 
+            OAuthGrantPolicyResult policy = OAuthGrantPolicy.CreatePermissions([GrantTypes.ClientCredentials], _options.ClientId, _oauthOptions);
+            descriptor.Permissions.UnionWith(policy.Permissions);
+            descriptor.Requirements.UnionWith(policy.Requirements);
+
             await _applicationManager.CreateAsync(descriptor, cancellationToken);
         }
         else if (await _applicationManager.ValidateClientSecretAsync(application, _options.ClientSecret, cancellationToken) == false)
         {
             throw new InvalidOperationException("The existing management bootstrap application has a different client secret.");
         }
+
+        await SynchronizeBootstrapClientPermissionsAsync(application, cancellationToken);
 
         ClientDefinition? definition = await _dbContext.ClientDefinitions
             .SingleOrDefaultAsync(client => client.ClientId == _options.ClientId, cancellationToken);
@@ -111,6 +120,22 @@ public sealed class ManagementBootstrapper
             }, cancellationToken);
             await _dbContext.SaveChangesAsync(cancellationToken);
         }
+    }
+
+    private async Task SynchronizeBootstrapClientPermissionsAsync(object? application, CancellationToken cancellationToken)
+    {
+        if (application is null)
+        {
+            return;
+        }
+
+        OpenIddictApplicationDescriptor descriptor = new();
+        await _applicationManager.PopulateAsync(descriptor, application, cancellationToken);
+        OAuthGrantPolicyResult policy = OAuthGrantPolicy.CreatePermissions([GrantTypes.ClientCredentials], _options.ClientId, _oauthOptions);
+        descriptor.Permissions.RemoveWhere(permission => permission.StartsWith(Permissions.Prefixes.GrantType, StringComparison.Ordinal));
+        descriptor.Permissions.UnionWith(policy.Permissions);
+        descriptor.Requirements.UnionWith(policy.Requirements);
+        await _applicationManager.UpdateAsync(application, descriptor, cancellationToken);
     }
 
     private async Task EnsureAdministratorAsync()

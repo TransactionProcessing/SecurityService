@@ -97,7 +97,7 @@ public sealed class OidcRequestHandler :
         var context = command.HttpContext;
         var request = context.GetOpenIddictServerRequest() ?? throw new InvalidOperationException("The OpenID Connect request cannot be retrieved.");
 
-        if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType() || request.IsDeviceCodeGrantType())
+        if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
         {
             return Result.Success<TokenCommandResult>(await this.HandleCodeOrRefreshToken(context, cancellationToken));
         }

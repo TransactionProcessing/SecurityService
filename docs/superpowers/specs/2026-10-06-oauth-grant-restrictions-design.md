@@ -8,8 +8,9 @@ The approved default flows are:
 
 - Authorization code with PKCE
 - Client credentials
-- Device authorization
 - Refresh token
+
+Device authorization is also excluded because no current supported client requires it.
 
 Implicit, hybrid, and resource-owner-password flows must not be available by default.
 
@@ -23,7 +24,7 @@ The OIDC token handler has an explicit password-grant branch. Authorization-code
 
 ### Server capabilities
 
-`Program.cs` will always enable the four approved flows. Legacy flow capabilities will only be enabled when the corresponding legacy exception configuration is present. The server will no longer call `IgnoreGrantTypePermissions()`.
+`Program.cs` will always enable the three approved flows. Legacy flow capabilities will only be enabled when the corresponding legacy exception configuration is present. The server will no longer call `IgnoreGrantTypePermissions()`.
 
 Authorization-code clients will receive the OpenIddict proof-key-for-code-exchange requirement. The authorization endpoint will therefore reject authorization-code requests that do not include a valid PKCE challenge and the token exchange will require the matching verifier.
 
@@ -33,7 +34,6 @@ Client creation will map each requested `AllowedGrantTypes` value to OpenIddict 
 
 - `authorization_code` → authorization-code grant and code response permissions
 - `client_credentials` → client-credentials grant permission
-- `urn:ietf:params:oauth:grant-type:device_code` → device-code grant permission
 - `refresh_token` → refresh-token grant permission
 - legacy `password` → password grant permission only when configured for that client
 - legacy `hybrid` → hybrid response permissions only when configured for that client
@@ -50,7 +50,7 @@ This keeps legacy support explicit and reviewable without making legacy grants p
 
 The existing password-grant handler remains only as a compatibility path. It will be unreachable unless both server legacy configuration and client permissions allow it. Unsupported or unauthorized grant requests will continue to return the OAuth `unsupported_grant_type`/permission error response produced by OpenIddict or the existing token handler.
 
-The normal authorization-code, client-credentials, device-code, and refresh-token paths remain unchanged apart from permission and PKCE enforcement.
+The normal authorization-code, client-credentials, and refresh-token paths remain unchanged apart from permission and PKCE enforcement. Device authorization endpoints and handling will be removed or disabled because no supported client requires them.
 
 ## Compatibility and rollout
 
@@ -82,6 +82,7 @@ Existing integration fixtures that use `hybrid` or `password` will either be con
 ## Out of scope
 
 - Migrating EstateManagementUI or TransactionMobile clients.
+- Supporting device authorization for future clients.
 - Redesigning the SecurityService login page.
 - Changing token claims, scopes, lifetimes, or API authorization semantics.
 - Removing the password handler immediately; it remains available only behind the controlled compatibility path.

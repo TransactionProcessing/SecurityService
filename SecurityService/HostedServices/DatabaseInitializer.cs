@@ -2,7 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Oidc;
+using SecurityService.Database;
 using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
 using Shared.Logger;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -52,6 +55,7 @@ public sealed class DatabaseInitializer : IHostedService
 
             ManagementBootstrapper bootstrapper = scope.ServiceProvider.GetRequiredService<ManagementBootstrapper>();
             await bootstrapper.InitializeAsync(cancellationToken);
+            await this.SynchronizeApplicationPermissionsAsync(scope.ServiceProvider, dbContext, cancellationToken);
 
             Logger.LogWarning("Database initialization complete.");
         }
@@ -62,4 +66,33 @@ public sealed class DatabaseInitializer : IHostedService
     }
 
     public Task StopAsync(CancellationToken cancellationToken) => Task.CompletedTask;
+
+    private async Task SynchronizeApplicationPermissionsAsync(IServiceProvider serviceProvider, SecurityServiceDbContext dbContext, CancellationToken cancellationToken)
+    {
+        IOpenIddictApplicationManager applicationManager = serviceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+        List<ClientDefinition> clients = await dbContext.ClientDefinitions.AsNoTracking().ToListAsync(cancellationToken);
+
+        foreach (ClientDefinition client in clients)
+        {
+            object? application = await applicationManager.FindByClientIdAsync(client.ClientId, cancellationToken);
+            if (application is null)
+            {
+                continue;
+            }
+
+            OpenIddictApplicationDescriptor descriptor = new();
+            await applicationManager.PopulateAsync(descriptor, application, cancellationToken);
+
+            OAuthGrantPolicyResult policy = OAuthGrantPolicy.CreatePermissions(
+                JsonListSerializer.Deserialize(client.AllowedGrantTypesJson),
+                client.ClientId,
+                this.Options.OAuth);
+
+            descriptor.Permissions.RemoveWhere(permission => permission.StartsWith(Permissions.Prefixes.GrantType, StringComparison.Ordinal));
+            descriptor.Permissions.UnionWith(policy.Permissions);
+            descriptor.Requirements.UnionWith(policy.Requirements);
+
+            await applicationManager.UpdateAsync(application, descriptor, cancellationToken);
+        }
+    }
 }

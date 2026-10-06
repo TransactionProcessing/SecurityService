@@ -275,6 +275,7 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add("ServiceOptions:ManagementBootstrap:Enabled", "true");
             environmentVariables.Add("ServiceOptions:ManagementBootstrap:ClientId", "management-bootstrap");
             environmentVariables.Add("ServiceOptions:ManagementBootstrap:ClientSecret", "management-bootstrap-secret");
+            environmentVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:hybrid:0", "estateUIClient");
 
             environmentVariables.Add("ConnectionStrings:PersistedGrantDbContext",this.SetConnectionString($"PersistedGrantStore-{this.TestId}", this.UseSecureSqlServerDatabase));
             environmentVariables.Add("ConnectionStrings:ConfigurationDbContext", this.SetConnectionString( $"Configuration-{this.TestId}", this.UseSecureSqlServerDatabase));
