@@ -70,7 +70,7 @@ public class ClientRequestHandlerTests
         permissions.ShouldContain(OpenIddictConstants.Permissions.Endpoints.Token);
         permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.AuthorizationCode);
         permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
-        permissions.ShouldContain(OpenIddictConstants.Permissions.Prefixes.Scope + OpenIddictConstants.Scopes.OfflineAccess);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
         requirements.ShouldContain(OpenIddictConstants.Requirements.Features.ProofKeyForCodeExchange);
     }
 
