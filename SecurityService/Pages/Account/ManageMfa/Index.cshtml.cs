@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using QRCoder;
 using SecurityService.BusinessLogic.Mfa;
 using SecurityService.Database.Entities;
 
@@ -26,6 +27,8 @@ public sealed class IndexModel : PageModel
 
     public bool IsMfaEnabled { get; private set; }
 
+    public string QrCodeDataUri { get; private set; } = string.Empty;
+
     public string StatusMessage { get; private set; } = string.Empty;
 
     public async Task<IActionResult> OnGetAsync(CancellationToken cancellationToken)
@@ -43,6 +46,7 @@ public sealed class IndexModel : PageModel
         }
 
         this.Enrollment = await _mfaAccountService.BeginEnrollmentAsync(user, "SecurityService", cancellationToken);
+        this.QrCodeDataUri = CreateQrCodeDataUri(this.Enrollment.OtpauthUri);
         await this.LoadStateAsync(cancellationToken);
         return Page();
     }
@@ -81,6 +85,14 @@ public sealed class IndexModel : PageModel
     {
         var user = await this.GetUserAsync();
         this.IsMfaEnabled = user is not null && await _userManager.GetTwoFactorEnabledAsync(user);
+    }
+
+    private static string CreateQrCodeDataUri(string value)
+    {
+        using var generator = new QRCodeGenerator();
+        using var qrCodeData = generator.CreateQrCode(value, QRCodeGenerator.ECCLevel.Q);
+        var png = new PngByteQRCode(qrCodeData).GetGraphic(12);
+        return $"data:image/png;base64,{Convert.ToBase64String(png)}";
     }
 
     public sealed class InputModel
