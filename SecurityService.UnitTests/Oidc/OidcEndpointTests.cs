@@ -2,11 +2,13 @@ using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.DataProtection;
 using Imposter.Abstractions;
 using OpenIddict.Validation.AspNetCore;
 using SecurityService.BusinessLogic.Oidc;
+using SecurityService.BusinessLogic.Mfa;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
@@ -63,7 +65,8 @@ public class OidcEndpointTests
             authManager.Instance(),
             scopeManager.Instance(),
             dbContext,
-            new ConsentTransactionProtector(new EphemeralDataProtectionProvider().CreateProtector("consent")));
+            new ConsentTransactionProtector(new EphemeralDataProtectionProvider().CreateProtector("consent")),
+            new MfaPolicyService(userManager.Instance(), scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>(), dbContext));
 
         var result = await handler.Handle(new OidcCommands.UserInfoCommand(context), CancellationToken.None);
 

@@ -13,6 +13,7 @@ using OpenIddict.Server.AspNetCore;
 using OpenIddict.Validation.AspNetCore;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
+using SecurityService.BusinessLogic.Mfa;
 using SimpleResults;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -31,6 +32,7 @@ public sealed class OidcRequestHandler :
     private readonly IOpenIddictScopeManager _scopeManager;
     private readonly SecurityServiceDbContext _dbContext;
     private readonly ConsentTransactionProtector _consentTransactionProtector;
+    private readonly IMfaPolicyService _mfaPolicyService;
 
     public OidcRequestHandler(
         UserManager<ApplicationUser> userManager,
@@ -39,7 +41,8 @@ public sealed class OidcRequestHandler :
         IOpenIddictAuthorizationManager authorizationManager,
         IOpenIddictScopeManager scopeManager,
          SecurityServiceDbContext dbContext,
-         ConsentTransactionProtector consentTransactionProtector)
+         ConsentTransactionProtector consentTransactionProtector,
+         IMfaPolicyService mfaPolicyService)
     {
         this._userManager = userManager;
         this._signInManager = signInManager;
@@ -48,6 +51,7 @@ public sealed class OidcRequestHandler :
         this._scopeManager = scopeManager;
         this._dbContext = dbContext;
         this._consentTransactionProtector = consentTransactionProtector;
+        this._mfaPolicyService = mfaPolicyService;
     }
 
     public async Task<Result<AuthorizeCommandResult>> Handle(OidcCommands.AuthorizeCommand command, CancellationToken cancellationToken)
@@ -268,6 +272,12 @@ public sealed class OidcRequestHandler :
         if (user is null)
         {
             return InvalidGrant();
+        }
+
+        if (await this._mfaPolicyService.IsMfaRequiredAsync(user, cancellationToken) ||
+            await this._userManager.GetTwoFactorEnabledAsync(user))
+        {
+            return InvalidGrant("MFA is required for this account. Use the interactive authorization-code flow.");
         }
 
         var signInResult = await this._signInManager.CheckPasswordSignInAsync(user, request.Password!, lockoutOnFailure: true);
