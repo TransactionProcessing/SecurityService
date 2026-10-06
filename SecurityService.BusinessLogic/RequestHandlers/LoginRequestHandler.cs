@@ -119,7 +119,7 @@ public sealed class LoginRequestHandler :
         }
 
         var user = await this.UserManager.FindByIdAsync(transaction.UserId);
-        if (user is null || await this.UserManager.GetTwoFactorEnabledAsync(user) == false)
+        if (user is null || await this.UserManager.GetTwoFactorEnabledAsync(user) == false || await this.UserManager.IsLockedOutAsync(user))
         {
             return Result.Success<LoginOutcome>(new LoginRejected("The MFA sign-in request is no longer valid."));
         }
@@ -128,6 +128,7 @@ public sealed class LoginRequestHandler :
                     || await this.MfaAccountService.RedeemRecoveryCodeAsync(user, command.Code, cancellationToken);
         if (valid == false)
         {
+            await this.UserManager.AccessFailedAsync(user);
             return Result.Success<LoginOutcome>(new LoginRejected("The authenticator or recovery code was invalid."));
         }
 
