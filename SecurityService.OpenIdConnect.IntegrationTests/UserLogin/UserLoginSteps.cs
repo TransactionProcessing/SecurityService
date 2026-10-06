@@ -176,6 +176,41 @@ using System.Security.Cryptography;
             await Retry.For(async () => this.WebDriver.Url.ShouldNotContain("/Account/Logout"));
         }
 
+        [When(@"I open the hosted recovery codes page")]
+        public async Task WhenIOpenTheHostedRecoveryCodesPage()
+        {
+            this.WebDriver.Navigate().GoToUrl($"{this.TestingContext.DockerHelper.securityServiceBaseAddressResolver("")}/Account/ManageMfa/RecoveryCodes");
+            await Retry.For(async () => this.WebDriver.Title.ShouldContain("Recovery codes"));
+        }
+
+        [When(@"I generate new recovery codes")]
+        public async Task WhenIGenerateNewRecoveryCodes()
+        {
+            await this.WebDriver.ClickButton("Generate new codes");
+        }
+
+        [Then(@"a recovery code is displayed once")]
+        public void ThenARecoveryCodeIsDisplayedOnce()
+        {
+            ReadOnlyCollection<IWebElement> codes = this.WebDriver.FindElements(By.CssSelector(".recovery-codes code"));
+            codes.ShouldNotBeEmpty();
+            this.TestingContext.MfaRecoveryCode = codes[0].Text;
+            this.TestingContext.MfaRecoveryCode.ShouldNotBeNullOrWhiteSpace();
+        }
+
+        [When(@"I complete MFA with the current recovery code")]
+        public async Task WhenICompleteMfaWithTheCurrentRecoveryCode()
+        {
+            this.WebDriver.FillIn("Input.Code", this.TestingContext.MfaRecoveryCode);
+            await this.WebDriver.ClickButton("Verify");
+        }
+
+        [Then(@"the MFA verification error is shown")]
+        public void ThenTheMfaVerificationErrorIsShown()
+        {
+            this.WebDriver.FindElement(By.TagName("body")).Text.ShouldContain("authenticator or recovery code was invalid");
+        }
+
         [Then(@"I am presented with the MFA verification screen")]
         public async Task ThenIAmPresentedWithTheMfaVerificationScreen()
         {

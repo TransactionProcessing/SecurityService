@@ -187,7 +187,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
         
         private static global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages InitializeCucumberMessages()
         {
-            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("UserLogin/UserLogin.feature.ndjson", 4);
+            return new global::Reqnroll.Formatters.RuntimeSupport.FeatureLevelCucumberMessages("UserLogin/UserLogin.feature.ndjson", 5);
         }
         
         [global::NUnit.Framework.TestAttribute()]
@@ -375,6 +375,156 @@ await this.FeatureBackgroundAsync();
 #line hidden
 #line 65
  await testRunner.ThenAsync("I am presented with the privacy screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+            }
+            await this.ScenarioCleanupAsync();
+        }
+        
+        [global::NUnit.Framework.TestAttribute()]
+        [global::NUnit.Framework.DescriptionAttribute("Recovery code is consumed once during MFA login")]
+        [global::NUnit.Framework.CategoryAttribute("mfa")]
+        public async global::System.Threading.Tasks.Task RecoveryCodeIsConsumedOnceDuringMFALogin()
+        {
+            string[] tagsOfScenario = new string[] {
+                    "mfa"};
+            global::System.Collections.Specialized.OrderedDictionary argumentsOfScenario = new global::System.Collections.Specialized.OrderedDictionary();
+            string pickleIndex = "2";
+            global::Reqnroll.ScenarioInfo scenarioInfo = new global::Reqnroll.ScenarioInfo("Recovery code is consumed once during MFA login", null, tagsOfScenario, argumentsOfScenario, featureTags, pickleIndex);
+            string[] tagsOfRule = ((string[])(null));
+            global::Reqnroll.RuleInfo ruleInfo = null;
+#line 68
+this.ScenarioInitialize(scenarioInfo, ruleInfo);
+#line hidden
+            if ((global::Reqnroll.TagHelper.ContainsIgnoreTag(scenarioInfo.CombinedTags) || global::Reqnroll.TagHelper.ContainsIgnoreTag(featureTags)))
+            {
+                await testRunner.SkipScenarioAsync();
+            }
+            else
+            {
+                await this.ScenarioStartAsync();
+#line 4
+await this.FeatureBackgroundAsync();
+#line hidden
+                global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
+                            "Email Address",
+                            "Phone Number",
+                            "Given Name",
+                            "Middle Name",
+                            "Family Name",
+                            "Claims",
+                            "Roles"});
+                table7.AddRow(new string[] {
+                            "recoveryuser@testestate1.co.uk",
+                            "123456789",
+                            "Test",
+                            "",
+                            "User 1",
+                            "EstateId:1",
+                            "Estate"});
+#line 69
+ await testRunner.GivenAsync("I create the following users", ((string)(null)), table7, "Given ");
+#line hidden
+#line 72
+ await testRunner.ThenAsync("I get an email with a confirm email address link", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 73
+ await testRunner.WhenAsync("I navigate to the confirm email address", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 74
+ await testRunner.ThenAsync("I am presented with the confirm email address successful screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 75
+ await testRunner.AndAsync("I get a welcome email with my login details", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 76
+ await testRunner.GivenAsync("I am on the application home page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 77
+ await testRunner.WhenAsync("I click the \'Privacy\' link", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 78
+ await testRunner.ThenAsync("I am presented with a login screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 79
+ await testRunner.WhenAsync("I login with the username \'recoveryuser@testestate1.co.uk\' and the provided passw" +
+                        "ord", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 80
+ await testRunner.ThenAsync("I am presented with the privacy screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 81
+ await testRunner.WhenAsync("I open the hosted MFA management page", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 82
+ await testRunner.AndAsync("I begin MFA enrollment", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 83
+ await testRunner.ThenAsync("I am shown the MFA authenticator setup key", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 84
+ await testRunner.WhenAsync("I confirm MFA enrollment with the current authenticator code", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 85
+ await testRunner.ThenAsync("MFA is enabled", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 86
+ await testRunner.WhenAsync("I open the hosted recovery codes page", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 87
+ await testRunner.AndAsync("I generate new recovery codes", ((string)(null)), ((global::Reqnroll.Table)(null)), "And ");
+#line hidden
+#line 88
+ await testRunner.ThenAsync("a recovery code is displayed once", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 89
+ await testRunner.WhenAsync("I sign out of SecurityService", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 90
+ await testRunner.GivenAsync("I am on the application home page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 91
+ await testRunner.WhenAsync("I click the \'Privacy\' link", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 92
+ await testRunner.ThenAsync("I am presented with a login screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 93
+ await testRunner.WhenAsync("I login with the username \'recoveryuser@testestate1.co.uk\' and the provided passw" +
+                        "ord", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 94
+ await testRunner.ThenAsync("I am presented with the MFA verification screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 95
+ await testRunner.WhenAsync("I complete MFA with the current recovery code", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 96
+ await testRunner.ThenAsync("I am presented with the privacy screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 97
+ await testRunner.WhenAsync("I sign out of SecurityService", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 98
+ await testRunner.GivenAsync("I am on the application home page", ((string)(null)), ((global::Reqnroll.Table)(null)), "Given ");
+#line hidden
+#line 99
+ await testRunner.WhenAsync("I click the \'Privacy\' link", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 100
+ await testRunner.ThenAsync("I am presented with a login screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 101
+ await testRunner.WhenAsync("I login with the username \'recoveryuser@testestate1.co.uk\' and the provided passw" +
+                        "ord", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 102
+ await testRunner.ThenAsync("I am presented with the MFA verification screen", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 103
+ await testRunner.WhenAsync("I complete MFA with the current recovery code", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 104
+ await testRunner.ThenAsync("the MFA verification error is shown", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
