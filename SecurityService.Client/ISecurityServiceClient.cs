@@ -33,6 +33,11 @@ namespace SecurityService.Client
         Task<Result> CreateUser(CreateUserRequest createUserRequest,
                                             CancellationToken cancellationToken);
 
+        Task<Result> RequireUserMfa(String userId, CancellationToken cancellationToken);
+        Task<Result> RemoveUserMfa(String userId, CancellationToken cancellationToken);
+        Task<Result> RequireRoleMfa(String roleId, CancellationToken cancellationToken);
+        Task<Result> RemoveRoleMfa(String roleId, CancellationToken cancellationToken);
+
         Task<Result<ApiResourceResponse>> GetApiResource(String apiResourceName,
                                                          CancellationToken cancellationToken);
 

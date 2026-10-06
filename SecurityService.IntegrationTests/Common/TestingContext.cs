@@ -1,5 +1,7 @@
 ﻿using SecurityService.DataTransferObjects;
 
+using SimpleResults;
+
 namespace SecurityService.IntergrationTests.Common
 {
     using System;
@@ -54,6 +56,7 @@ namespace SecurityService.IntergrationTests.Common
         /// </summary>
         public TokenResponse TokenResponse;
         public String AccessToken;
+        public Result LastMfaPolicyResult;
 
         public NlogLogger Logger;
 

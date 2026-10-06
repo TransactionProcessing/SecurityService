@@ -296,6 +296,12 @@ public class SecurityServiceSteps{
         return results;
     }
 
+    public Task<Result> RequireUserMfa(String userId, CancellationToken cancellationToken) =>
+        this.SecurityServiceClient.RequireUserMfa(userId, cancellationToken);
+
+    public Task<Result> RemoveUserMfa(String userId, CancellationToken cancellationToken) =>
+        this.SecurityServiceClient.RemoveUserMfa(userId, cancellationToken);
+
     public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(List<UserResponse> expectedDetails, CancellationToken cancellationToken)
     {
         Result<List<UserResponse>>? getUsersResult = await this.SecurityServiceClient.GetUsers(String.Empty, CancellationToken.None).ConfigureAwait(false);
