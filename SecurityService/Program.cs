@@ -313,6 +313,13 @@ builder.Services.AddOpenIddict()
              serverOptions.AllowImplicitFlow();
          }
 
+         if (options.OAuth.EnableHybridFlow &&
+             options.OAuth.LegacyGrantTypeClients.TryGetValue("hybrid", out List<string>? hybridClients) &&
+             hybridClients.Count > 0)
+         {
+             serverOptions.AllowHybridFlow();
+         }
+
         serverOptions.RegisterScopes(OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.OfflineAccess, OpenIddictConstants.Scopes.Roles);
         serverOptions.DisableAccessTokenEncryption();
         serverOptions.IgnoreEndpointPermissions();
