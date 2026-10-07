@@ -304,17 +304,21 @@ builder.Services.AddOpenIddict()
                      .AllowClientCredentialsFlow()
                      .AllowRefreshTokenFlow();
 
-         if (options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Password, out List<string>? passwordClients) && passwordClients.Count > 0)
+         if (options.OAuth.EnableLegacyGrantTypes &&
+             options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Password, out List<string>? passwordClients) &&
+             passwordClients.Count > 0)
          {
              serverOptions.AllowPasswordFlow();
          }
 
-         if (options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Implicit, out List<string>? implicitClients) && implicitClients.Count > 0)
+         if (options.OAuth.EnableLegacyGrantTypes &&
+             options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Implicit, out List<string>? implicitClients) &&
+             implicitClients.Count > 0)
          {
              serverOptions.AllowImplicitFlow();
          }
 
-         if (options.OAuth.EnableHybridFlow &&
+         if (options.OAuth.EnableLegacyGrantTypes &&
              options.OAuth.LegacyGrantTypeClients.TryGetValue("hybrid", out List<string>? hybridClients) &&
              hybridClients.Count > 0)
          {

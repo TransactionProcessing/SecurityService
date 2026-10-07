@@ -59,7 +59,7 @@ public sealed class OAuthGrantPolicyTests
     {
         var options = new OAuthOptions
         {
-            EnableHybridFlow = false,
+            EnableLegacyGrantTypes = false,
             LegacyGrantTypeClients = new(StringComparer.OrdinalIgnoreCase)
             {
                 ["hybrid"] = ["browser-client"]
@@ -70,11 +70,28 @@ public sealed class OAuthGrantPolicyTests
     }
 
     [Fact]
+    public void LegacyGrantTypes_AreRejectedWhenCompatibilitySwitchIsDisabled()
+    {
+        var options = new OAuthOptions
+        {
+            EnableLegacyGrantTypes = false,
+            LegacyGrantTypeClients = new(StringComparer.OrdinalIgnoreCase)
+            {
+                [GrantTypes.Password] = ["mobile-client"],
+                ["hybrid"] = ["browser-client"]
+            }
+        };
+
+        OAuthGrantPolicy.IsGrantAllowed(GrantTypes.Password, "mobile-client", options).ShouldBeFalse();
+        OAuthGrantPolicy.IsGrantAllowed("hybrid", "browser-client", options).ShouldBeFalse();
+    }
+
+    [Fact]
     public void HybridFlow_IsAllowedForConfiguredClientWhenFeatureIsEnabled()
     {
         var options = new OAuthOptions
         {
-            EnableHybridFlow = true,
+            EnableLegacyGrantTypes = true,
             LegacyGrantTypeClients = new(StringComparer.OrdinalIgnoreCase)
             {
                 ["hybrid"] = ["browser-client"]

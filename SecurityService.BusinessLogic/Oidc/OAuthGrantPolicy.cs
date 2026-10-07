@@ -31,7 +31,7 @@ public static class OAuthGrantPolicy
             return true;
         }
 
-        if (string.Equals(grantType, "hybrid", StringComparison.OrdinalIgnoreCase) && options.EnableHybridFlow == false)
+        if (LegacyGrantTypes.Contains(grantType) && options.EnableLegacyGrantTypes == false)
         {
             return false;
         }

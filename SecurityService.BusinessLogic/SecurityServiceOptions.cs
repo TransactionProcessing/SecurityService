@@ -59,7 +59,7 @@ public class ServiceOptions
 
 public sealed class OAuthOptions
 {
-    public bool EnableHybridFlow { get; set; }
+    public bool EnableLegacyGrantTypes { get; set; } = true;
 
     public Dictionary<string, List<string>> LegacyGrantTypeClients { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }
