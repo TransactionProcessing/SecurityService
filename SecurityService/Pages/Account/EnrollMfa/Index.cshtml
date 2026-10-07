@@ -1,0 +1,33 @@
+@page
+@model SecurityService.Pages.Account.EnrollMfa.IndexModel
+@{
+    ViewData["Title"] = "MFA enrollment";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">MFA enrollment</h1>
+        <p class="hero__subtitle">Your account must be protected with an authenticator app before you can continue.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    @if (Model.Enrollment is not null)
+    {
+        <div class="card">
+            <div class="card__body">
+                <p>Scan the QR code with your authenticator app, then enter the six-digit code it displays.</p>
+                <p><img src="@Model.QrCodeDataUri" alt="Authenticator setup QR code" width="240" height="240" /></p>
+                <p><strong>Setup key:</strong> @Model.Enrollment.AuthenticatorKey</p>
+                <form method="post">
+                    <input type="hidden" asp-for="Input.Transaction" />
+                    <div class="form-group">
+                        <label class="form-label" asp-for="Input.Code">Authenticator code</label>
+                        <input class="form-control" asp-for="Input.Code" inputmode="numeric" autocomplete="one-time-code" autofocus />
+                    </div>
+                    <button class="btn btn-primary" type="submit">Confirm enrollment</button>
+                </form>
+            </div>
+        </div>
+    }
+</div>

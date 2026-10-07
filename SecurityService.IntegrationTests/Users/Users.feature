@@ -24,6 +24,18 @@ Scenario: Get Users
 	When I get the user with user name 'testuser3@testing.co.uk' the user details are returned as follows
 	| Email Address           | Phone Number | Given Name | Middle Name | Family Name | Claims                                                            | Roles      |RegistrationDate |
 	| testuser3@testing.co.uk | 123456789    | Test       |             | User 3      | emailaddress:testuser3@testing.co.uk, givenname:Test, surname:User 3 | TestRole3 |Today            |
+
+@mfa
+Scenario: Require and remove MFA for a user
+	Given I create the following users
+	| Email Address         | Phone Number | Given Name | Middle Name | Family Name | Claims | Roles     |
+	| mfauser@testing.co.uk | 123456789    | MFA        |             | User        |        | TestRole1 |
+	When I require MFA for user 'mfauser@testing.co.uk'
+	Then the MFA policy operation succeeds
+	When I require MFA for user 'mfauser@testing.co.uk'
+	Then the MFA policy operation succeeds
+	When I remove MFA for user 'mfauser@testing.co.uk'
+	Then the MFA policy operation succeeds
 	When I get the users 3 users details are returned as follows
 	| Email Address           | Phone Number | Given Name | Middle Name | Family Name | Claims                                                             | Roles     |RegistrationDate |
 	| testuser1@testing.co.uk | 123456789    | Test       |             | User 1      | emailaddress:testuser1@testing.co.uk, givenname:Test, surname:User 1 | TestRole1 |Today            |

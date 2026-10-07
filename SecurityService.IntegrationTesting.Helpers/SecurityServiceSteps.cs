@@ -88,10 +88,13 @@ public class SecurityServiceSteps{
 
     public async Task<String> GetPasswordToken(String clientId, String secret, String userName, String password, CancellationToken cancellationToken)
     {
-        Result<TokenResponse>? tokenResponseResult = await this.SecurityServiceClient.GetToken(userName,password, clientId, secret, cancellationToken).ConfigureAwait(false);
+        Result<TokenResponse>? tokenResponseResult = await this.RequestPasswordToken(clientId, secret, userName, password, cancellationToken).ConfigureAwait(false);
         tokenResponseResult.IsSuccess.ShouldBeTrue();
         return tokenResponseResult.Data.AccessToken;
     }
+
+    public Task<Result<TokenResponse>> RequestPasswordToken(String clientId, String secret, String userName, String password, CancellationToken cancellationToken) =>
+        this.SecurityServiceClient.GetToken(userName, password, clientId, secret, cancellationToken);
 
     public async Task WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(List<ApiResourceResponse> expectedDetails, CancellationToken cancellationToken){
         Result<List<ApiResourceResponse>>? apiResourceDetailsListResult = await this.SecurityServiceClient.GetApiResources(cancellationToken).ConfigureAwait(false);
@@ -295,6 +298,18 @@ public class SecurityServiceSteps{
         }
         return results;
     }
+
+    public Task<Result> RequireUserMfa(String userId, CancellationToken cancellationToken) =>
+        this.SecurityServiceClient.RequireUserMfa(userId, cancellationToken);
+
+    public Task<Result> RemoveUserMfa(String userId, CancellationToken cancellationToken) =>
+        this.SecurityServiceClient.RemoveUserMfa(userId, cancellationToken);
+
+    public Task<Result> RequireRoleMfa(String roleId, CancellationToken cancellationToken) =>
+        this.SecurityServiceClient.RequireRoleMfa(roleId, cancellationToken);
+
+    public Task<Result> RemoveRoleMfa(String roleId, CancellationToken cancellationToken) =>
+        this.SecurityServiceClient.RemoveRoleMfa(roleId, cancellationToken);
 
     public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(List<UserResponse> expectedDetails, CancellationToken cancellationToken)
     {

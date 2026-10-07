@@ -32,5 +32,9 @@ public static class ManagementEndpoints
         management.MapPost("/users", Handlers.UserHandler.CreateUser).WithName("CreateUser");
         management.MapGet("/users/{userId}", Handlers.UserHandler.GetUser).WithName("GetUser");
         management.MapGet("/users", Handlers.UserHandler.GetUsers).WithName("GetUsers");
+        management.MapPut("/users/{userId}/mfa-policy", Handlers.UserHandler.RequireMfa).WithName("RequireUserMfa");
+        management.MapDelete("/users/{userId}/mfa-policy", Handlers.UserHandler.RemoveMfa).WithName("RemoveUserMfa");
+        management.MapPut("/roles/{roleId}/mfa-policy", Handlers.RoleHandler.RequireMfa).WithName("RequireRoleMfa");
+        management.MapDelete("/roles/{roleId}/mfa-policy", Handlers.RoleHandler.RemoveMfa).WithName("RemoveRoleMfa");
     }
 }

@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using SecurityService.BusinessLogic.Mfa;
 using SecurityService.BusinessLogic.Requests;
 
 namespace SecurityService.Pages.Account.Login;
@@ -52,13 +53,24 @@ public sealed class IndexModel : PageModel
             });
         }
 
-        var result = await this._mediator.Send(new SecurityServiceCommands.LoginCommand(this.Input.Username, this.Input.Password, this.Input.RememberLogin));
-        if (result.IsSuccess)
+        var result = await this._mediator.Send(new SecurityServiceCommands.BeginLoginCommand(this.Input.Username, this.Input.Password, this.Input.RememberLogin, this.Input.ReturnUrl));
+        if (result.IsSuccess && result.Data is LoginCompleted completed)
         {
-            return this.LocalRedirect(string.IsNullOrWhiteSpace(this.Input.ReturnUrl) ? "/" : this.Input.ReturnUrl);
+            return this.LocalRedirect(string.IsNullOrWhiteSpace(completed.ReturnUrl) ? "/" : completed.ReturnUrl);
         }
 
-        this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? result.Message ?? "Invalid username or password.");
+        if (result.IsSuccess && result.Data is LoginRequiresMfa requiresMfa)
+        {
+            return this.RedirectToPage("/Account/LoginWithMfa/Index", new { transaction = requiresMfa.Transaction });
+        }
+
+        if (result.IsSuccess && result.Data is LoginRequiresMfaEnrollment requiresMfaEnrollment)
+        {
+            return this.RedirectToPage("/Account/EnrollMfa/Index", new { transaction = requiresMfaEnrollment.Transaction });
+        }
+
+        var rejection = result.Data as LoginRejected;
+        this.ModelState.AddModelError(string.Empty, rejection?.Message ?? result.Errors.FirstOrDefault() ?? result.Message ?? "Invalid username or password.");
         return this.Page();
     }
 

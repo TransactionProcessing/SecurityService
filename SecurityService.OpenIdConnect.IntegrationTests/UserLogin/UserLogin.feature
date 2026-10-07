@@ -35,5 +35,72 @@ Scenario: Create User and Login
 	Then I am presented with a login screen
 	When I login with the username 'estateuser@testestate1.co.uk' and the provided password
 	Then I am presented with the privacy screen
+
+@mfa
+Scenario: Enroll MFA and complete an MFA login
+	Given I create the following users
+	| Email Address                | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles  |
+	| mfauser@testestate1.co.uk    | 123456789    | Test       |             | User 1      | EstateId:1 | Estate |
+	Then I get an email with a confirm email address link
+	When I navigate to the confirm email address
+	Then I am presented with the confirm email address successful screen
+	And I get a welcome email with my login details
+	Given I am on the application home page
+	When I click the 'Privacy' link
+	Then I am presented with a login screen
+	When I login with the username 'mfauser@testestate1.co.uk' and the provided password
+	Then I am presented with the privacy screen
+	When I open the hosted MFA management page
+	And I begin MFA enrollment
+	Then I am shown the MFA authenticator setup key
+	When I confirm MFA enrollment with the current authenticator code
+	Then MFA is enabled
+	When I sign out of SecurityService
+	Given I am on the application home page
+	When I click the 'Privacy' link
+	Then I am presented with a login screen
+	When I login with the username 'mfauser@testestate1.co.uk' and the provided password
+	Then I am presented with the MFA verification screen
+	When I complete MFA with the current authenticator code
+	Then I am presented with the privacy screen
+
+@mfa
+Scenario: Recovery code is consumed once during MFA login
+	Given I create the following users
+	| Email Address                | Phone Number | Given Name | Middle Name | Family Name | Claims     | Roles  |
+	| recoveryuser@testestate1.co.uk | 123456789  | Test       |             | User 1      | EstateId:1 | Estate |
+	Then I get an email with a confirm email address link
+	When I navigate to the confirm email address
+	Then I am presented with the confirm email address successful screen
+	And I get a welcome email with my login details
+	Given I am on the application home page
+	When I click the 'Privacy' link
+	Then I am presented with a login screen
+	When I login with the username 'recoveryuser@testestate1.co.uk' and the provided password
+	Then I am presented with the privacy screen
+	When I open the hosted MFA management page
+	And I begin MFA enrollment
+	Then I am shown the MFA authenticator setup key
+	When I confirm MFA enrollment with the current authenticator code
+	Then MFA is enabled
+	When I open the hosted recovery codes page
+	And I generate new recovery codes
+	Then a recovery code is displayed once
+	When I sign out of SecurityService
+	Given I am on the application home page
+	When I click the 'Privacy' link
+	Then I am presented with a login screen
+	When I login with the username 'recoveryuser@testestate1.co.uk' and the provided password
+	Then I am presented with the MFA verification screen
+	When I complete MFA with the current recovery code
+	Then I am presented with the privacy screen
+	When I sign out of SecurityService
+	Given I am on the application home page
+	When I click the 'Privacy' link
+	Then I am presented with a login screen
+	When I login with the username 'recoveryuser@testestate1.co.uk' and the provided password
+	Then I am presented with the MFA verification screen
+	When I complete MFA with the current recovery code
+	Then the MFA verification error is shown
 	
 

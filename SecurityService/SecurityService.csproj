@@ -36,6 +36,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Sentry.AspNetCore" />
     <PackageReference Include="NLog.Web.AspNetCore" />
+    <PackageReference Include="QRCoder" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityService.BusinessLogic\SecurityService.BusinessLogic.csproj" />

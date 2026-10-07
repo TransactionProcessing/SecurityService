@@ -86,6 +86,7 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add("ServiceOptions:ManagementBootstrap:ClientSecret", "management-bootstrap-secret");
             environmentVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:password:0", "merchantClient");
             environmentVariables.Add("ServiceOptions:OAuth:LegacyGrantTypeClients:hybrid:0", "testclient2");
+            environmentVariables.Add("ServiceOptions:OAuth:EnableHybridFlow", "true");
             environmentVariables.Add("ConnectionStrings:PersistedGrantDbContext", this.SetConnectionString($"PersistedGrantStore-{this.TestId}", this.UseSecureSqlServerDatabase));
             environmentVariables.Add("ConnectionStrings:ConfigurationDbContext", this.SetConnectionString($"Configuration-{this.TestId}", this.UseSecureSqlServerDatabase));
             environmentVariables.Add("ConnectionStrings:AuthenticationDbContext", this.SetConnectionString($"Authentication-{this.TestId}", this.UseSecureSqlServerDatabase));

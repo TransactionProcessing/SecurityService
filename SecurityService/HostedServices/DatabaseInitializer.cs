@@ -84,8 +84,16 @@ public sealed class DatabaseInitializer : IHostedService
             OpenIddictApplicationDescriptor descriptor = new();
             await applicationManager.PopulateAsync(descriptor, application, cancellationToken);
 
+            IReadOnlyCollection<string> allowedGrantTypes = JsonListSerializer.Deserialize(client.AllowedGrantTypesJson);
+            if (this.Options.OAuth.EnableHybridFlow == false)
+            {
+                allowedGrantTypes = allowedGrantTypes
+                    .Where(grantType => string.Equals(grantType, "hybrid", StringComparison.OrdinalIgnoreCase) == false)
+                    .ToArray();
+            }
+
             OAuthGrantPolicyResult policy = OAuthGrantPolicy.CreatePermissions(
-                JsonListSerializer.Deserialize(client.AllowedGrantTypesJson),
+                allowedGrantTypes,
                 client.ClientId,
                 this.Options.OAuth);
 

@@ -1,4 +1,5 @@
 using MediatR;
+using SecurityService.BusinessLogic.Mfa;
 using SecurityService.Models;
 using SimpleResults;
 
@@ -69,5 +70,12 @@ public static class SecurityServiceCommands
                                                           String ClientId) : IRequest<Result<String>>;
 
     public record LoginCommand(string Username, string Password, bool RememberLogin) : IRequest<Result>;
+    public record BeginLoginCommand(string Username, string Password, bool RememberLogin, string ReturnUrl) : IRequest<Result<LoginOutcome>>;
+    public record CompleteMfaLoginCommand(string Transaction, string Code) : IRequest<Result<LoginOutcome>>;
     public record RevokeGrantCommand(string UserId, string AuthorizationId) : IRequest<Result>;
+
+    public record RequireUserMfaCommand(String UserId) : IRequest<Result>;
+    public record RemoveUserMfaCommand(String UserId) : IRequest<Result>;
+    public record RequireRoleMfaCommand(String RoleId) : IRequest<Result>;
+    public record RemoveRoleMfaCommand(String RoleId) : IRequest<Result>;
 }

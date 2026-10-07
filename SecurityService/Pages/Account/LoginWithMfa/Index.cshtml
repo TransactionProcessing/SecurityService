@@ -1,0 +1,27 @@
+@page
+@model SecurityService.Pages.Account.LoginWithMfa.IndexModel
+@{
+    ViewData["Title"] = "MFA verification";
+}
+
+<div class="centered-card">
+    <div class="hero">
+        <h1 class="hero__title">MFA verification</h1>
+        <p class="hero__subtitle">Enter the code from your authenticator app or use a recovery code.</p>
+    </div>
+
+    <partial name="~/Pages/Shared/_ValidationSummary.cshtml" />
+
+    <div class="card">
+        <div class="card__body">
+            <form method="post">
+                <input type="hidden" asp-for="Input.Transaction" />
+                <div class="form-group">
+                    <label class="form-label" asp-for="Input.Code">Authenticator or recovery code</label>
+                    <input class="form-control" asp-for="Input.Code" autocomplete="one-time-code" autofocus />
+                </div>
+                <button class="btn btn-primary" type="submit">Verify</button>
+            </form>
+        </div>
+    </div>
+</div>

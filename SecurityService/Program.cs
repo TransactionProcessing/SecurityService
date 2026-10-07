@@ -12,6 +12,7 @@ using NLog;
 using NLog.Extensions.Logging;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.Mfa;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Common;
@@ -206,10 +207,21 @@ builder.Services.ConfigureApplicationCookie(cookieOptions =>
 });
 
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddDataProtection();
+var dataProtectionKeyDirectory = builder.Configuration["ServiceOptions:DataProtectionKeyDirectory"];
+var dataProtectionBuilder = builder.Services.AddDataProtection();
+if (string.IsNullOrWhiteSpace(dataProtectionKeyDirectory) == false)
+{
+    dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeyDirectory));
+}
 builder.Services.AddSingleton(serviceProvider => new ConsentTransactionProtector(
     serviceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector("SecurityService.Consent")));
 builder.Services.AddScoped<TenantContext>();
+builder.Services.AddScoped<MfaPolicyService>();
+builder.Services.AddScoped<IMfaPolicyService>(serviceProvider => serviceProvider.GetRequiredService<MfaPolicyService>());
+builder.Services.AddScoped<RecoveryCodeGenerator>();
+builder.Services.AddScoped<MfaAccountService>();
+builder.Services.AddSingleton<MfaSignInTransactionProtector>();
+builder.Services.AddSingleton<MfaEnrollmentTransactionProtector>();
 
 if (builder.Environment.IsEnvironment("IntegrationTest"))
 {
@@ -300,6 +312,13 @@ builder.Services.AddOpenIddict()
          if (options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Implicit, out List<string>? implicitClients) && implicitClients.Count > 0)
          {
              serverOptions.AllowImplicitFlow();
+         }
+
+         if (options.OAuth.EnableHybridFlow &&
+             options.OAuth.LegacyGrantTypeClients.TryGetValue("hybrid", out List<string>? hybridClients) &&
+             hybridClients.Count > 0)
+         {
+             serverOptions.AllowHybridFlow();
          }
 
         serverOptions.RegisterScopes(OpenIddictConstants.Scopes.OpenId, OpenIddictConstants.Scopes.Profile, OpenIddictConstants.Scopes.Email, OpenIddictConstants.Scopes.OfflineAccess, OpenIddictConstants.Scopes.Roles);

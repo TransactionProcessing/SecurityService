@@ -27,6 +27,8 @@ namespace SecurityService.IntergrationTests.Common
         public String ConfirmEmailAddressLink { get; set; }
         public String EmailAddress { get; set; }
         public String Password { get; set; }
+        public String MfaAuthenticatorKey { get; set; }
+        public String MfaRecoveryCode { get; set; }
 
         public TestingContext()
         {

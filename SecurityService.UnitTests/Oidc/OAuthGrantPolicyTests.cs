@@ -55,6 +55,36 @@ public sealed class OAuthGrantPolicyTests
     }
 
     [Fact]
+    public void HybridFlow_IsRejectedWhenFeatureIsDisabled()
+    {
+        var options = new OAuthOptions
+        {
+            EnableHybridFlow = false,
+            LegacyGrantTypeClients = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["hybrid"] = ["browser-client"]
+            }
+        };
+
+        OAuthGrantPolicy.IsGrantAllowed("hybrid", "browser-client", options).ShouldBeFalse();
+    }
+
+    [Fact]
+    public void HybridFlow_IsAllowedForConfiguredClientWhenFeatureIsEnabled()
+    {
+        var options = new OAuthOptions
+        {
+            EnableHybridFlow = true,
+            LegacyGrantTypeClients = new(StringComparer.OrdinalIgnoreCase)
+            {
+                ["hybrid"] = ["browser-client"]
+            }
+        };
+
+        OAuthGrantPolicy.IsGrantAllowed("hybrid", "browser-client", options).ShouldBeTrue();
+    }
+
+    [Fact]
     public void UnknownGrant_IsRejected()
     {
         OAuthGrantPolicy.IsGrantAllowed("custom-grant", "client", new OAuthOptions()).ShouldBeFalse();

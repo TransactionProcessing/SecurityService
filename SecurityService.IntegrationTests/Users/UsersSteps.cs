@@ -84,6 +84,27 @@
             List<UserResponse> userDetailsList = table.Rows.ToUserResponses();
             await this.SecurityServiceSteps.WhenIGetTheUserWithUserNameTheUserDetailsAreReturnedAsFollows(userDetailsList, userId, CancellationToken.None);
         }
+
+        [When(@"I require MFA for user '(.*)'")]
+        public async Task WhenIRequireMfaForUser(String userName)
+        {
+            String userId = this.TestingContext.Users.Single(u => u.Key == userName).Value;
+            this.TestingContext.LastMfaPolicyResult = await this.SecurityServiceSteps.RequireUserMfa(userId, CancellationToken.None);
+        }
+
+        [When(@"I remove MFA for user '(.*)'")]
+        public async Task WhenIRemoveMfaForUser(String userName)
+        {
+            String userId = this.TestingContext.Users.Single(u => u.Key == userName).Value;
+            this.TestingContext.LastMfaPolicyResult = await this.SecurityServiceSteps.RemoveUserMfa(userId, CancellationToken.None);
+        }
+
+        [Then(@"the MFA policy operation succeeds")]
+        public void ThenTheMfaPolicyOperationSucceeds()
+        {
+            this.TestingContext.LastMfaPolicyResult.ShouldNotBeNull();
+            this.TestingContext.LastMfaPolicyResult.IsSuccess.ShouldBeTrue(this.TestingContext.LastMfaPolicyResult.Message);
+        }
         
         #endregion
     }

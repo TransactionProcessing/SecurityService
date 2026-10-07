@@ -49,15 +49,24 @@ namespace SecurityService.IntegrationTests.Token
             String username = table.Rows[0]["Username"];
             String password = table.Rows[0]["Password"];
 
-            String tokenResponse = await this.SecurityServiceSteps.GetPasswordToken(clientId, clientSecret, username, password,CancellationToken.None);
-
-            this.TestingContext.AccessToken = tokenResponse;
+            this.TestingContext.LastTokenResult = await this.SecurityServiceSteps.RequestPasswordToken(clientId, clientSecret, username, password, CancellationToken.None);
+            if (this.TestingContext.LastTokenResult.IsSuccess)
+            {
+                this.TestingContext.AccessToken = this.TestingContext.LastTokenResult.Data.AccessToken;
+            }
         }
 
         [Then(@"my token is returned")]
         public void ThenMyTokenIsReturned()
         {
             this.TestingContext.AccessToken.ShouldNotBeNullOrEmpty();
+        }
+
+        [Then(@"the password token request fails")]
+        public void ThenThePasswordTokenRequestFails()
+        {
+            this.TestingContext.LastTokenResult.ShouldNotBeNull();
+            this.TestingContext.LastTokenResult.IsSuccess.ShouldBeFalse();
         }
 
     }

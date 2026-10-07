@@ -8,6 +8,15 @@ Scenario: Get Roles
 	| TestRole1 |
 	| TestRole2 |
 	| TestRole3 |
+
+@mfa
+Scenario: Require and remove MFA for a role
+	When I require MFA for role 'TestRole1'
+	Then the MFA policy operation succeeds
+	When I require MFA for role 'TestRole1'
+	Then the MFA policy operation succeeds
+	When I remove MFA for role 'TestRole1'
+	Then the MFA policy operation succeeds
 	When I get the role with name 'TestRole1' the role details are returned as follows
 	| Role Name |
 	| TestRole1 |

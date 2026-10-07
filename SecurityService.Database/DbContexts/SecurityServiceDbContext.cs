@@ -17,6 +17,10 @@ public sealed class SecurityServiceDbContext : IdentityDbContext<ApplicationUser
 
     public DbSet<ResourceDefinition> ResourceDefinitions => this.Set<ResourceDefinition>();
 
+    public DbSet<MfaPolicy> MfaPolicies => this.Set<MfaPolicy>();
+
+    public DbSet<RecoveryCode> RecoveryCodes => this.Set<RecoveryCode>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -38,6 +42,28 @@ public sealed class SecurityServiceDbContext : IdentityDbContext<ApplicationUser
             entity.HasIndex(resource => new { resource.Name, resource.Type }).IsUnique();
             entity.Property(resource => resource.Name).HasMaxLength(200);
             entity.Property(resource => resource.Type).HasConversion(new EnumToStringConverter<ResourceType>());
+        });
+
+        builder.Entity<MfaPolicy>(entity =>
+        {
+            entity.HasKey(policy => policy.Id);
+            entity.Property(policy => policy.TargetType).HasConversion<string>();
+            entity.Property(policy => policy.TargetId).HasMaxLength(450).IsRequired();
+            entity.HasIndex(policy => new { policy.TargetType, policy.TargetId }).IsUnique();
+        });
+
+        builder.Entity<RecoveryCode>(entity =>
+        {
+            entity.HasKey(code => code.Id);
+            entity.Property(code => code.UserId).HasMaxLength(450).IsRequired();
+            entity.Property(code => code.CodeHash).HasMaxLength(200).IsRequired();
+            entity.Property(code => code.ConcurrencyStamp).HasMaxLength(32).IsConcurrencyToken().IsRequired();
+            entity.HasIndex(code => new { code.UserId, code.CodeHash }).IsUnique();
+            entity.HasIndex(code => new { code.UserId, code.ConsumedUtc });
+            entity.HasOne<ApplicationUser>()
+                .WithMany()
+                .HasForeignKey(code => code.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

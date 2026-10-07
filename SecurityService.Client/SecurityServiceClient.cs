@@ -207,6 +207,26 @@ namespace SecurityService.Client
             }
         }
 
+        public async Task<Result> RequireUserMfa(String userId, CancellationToken cancellationToken)
+        {
+            return await this.Put(this.BuildRequestUrl($"/api/users/{userId}/mfa-policy"), new { }, cancellationToken);
+        }
+
+        public async Task<Result> RemoveUserMfa(String userId, CancellationToken cancellationToken)
+        {
+            return await this.Delete(this.BuildRequestUrl($"/api/users/{userId}/mfa-policy"), cancellationToken);
+        }
+
+        public async Task<Result> RequireRoleMfa(String roleId, CancellationToken cancellationToken)
+        {
+            return await this.Put(this.BuildRequestUrl($"/api/roles/{roleId}/mfa-policy"), new { }, cancellationToken);
+        }
+
+        public async Task<Result> RemoveRoleMfa(String roleId, CancellationToken cancellationToken)
+        {
+            return await this.Delete(this.BuildRequestUrl($"/api/roles/{roleId}/mfa-policy"), cancellationToken);
+        }
+
         public async Task<Result<ApiResourceResponse>> GetApiResource(String apiResourceName,
                                                                      CancellationToken cancellationToken)
         {
