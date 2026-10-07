@@ -81,7 +81,7 @@ public sealed class IndexModel : PageModel
 
     private async Task<ApplicationUser?> GetUserAsync() => await _userManager.GetUserAsync(this.User);
 
-    private async Task LoadStateAsync(CancellationToken cancellationToken)
+    private async Task LoadStateAsync(CancellationToken _)
     {
         var user = await this.GetUserAsync();
         this.IsMfaEnabled = user is not null && await _userManager.GetTwoFactorEnabledAsync(user);
