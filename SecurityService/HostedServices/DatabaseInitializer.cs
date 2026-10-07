@@ -85,16 +85,13 @@ public sealed class DatabaseInitializer : IHostedService
             await applicationManager.PopulateAsync(descriptor, application, cancellationToken);
 
             IReadOnlyCollection<string> allowedGrantTypes = JsonListSerializer.Deserialize(client.AllowedGrantTypesJson);
-            if (this.Options.OAuth.EnableLegacyGrantTypes == false || this.Options.OAuth.EnableHybridFlow == false)
+            if (this.Options.OAuth.EnableLegacyGrantTypes == false)
             {
                 allowedGrantTypes = allowedGrantTypes
                     .Where(grantType =>
-                        (this.Options.OAuth.EnableLegacyGrantTypes ||
-                         (string.Equals(grantType, "password", StringComparison.OrdinalIgnoreCase) == false &&
-                          string.Equals(grantType, "implicit", StringComparison.OrdinalIgnoreCase) == false &&
-                          string.Equals(grantType, "hybrid", StringComparison.OrdinalIgnoreCase) == false)) &&
-                        (this.Options.OAuth.EnableHybridFlow ||
-                         string.Equals(grantType, "hybrid", StringComparison.OrdinalIgnoreCase) == false))
+                        string.Equals(grantType, "password", StringComparison.OrdinalIgnoreCase) == false &&
+                        string.Equals(grantType, "implicit", StringComparison.OrdinalIgnoreCase) == false &&
+                        string.Equals(grantType, "hybrid", StringComparison.OrdinalIgnoreCase) == false)
                     .ToArray();
             }
 

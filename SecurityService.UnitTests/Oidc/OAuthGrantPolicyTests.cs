@@ -59,7 +59,7 @@ public sealed class OAuthGrantPolicyTests
     {
         var options = new OAuthOptions
         {
-            EnableHybridFlow = false,
+            EnableLegacyGrantTypes = false,
             LegacyGrantTypeClients = new(StringComparer.OrdinalIgnoreCase)
             {
                 ["hybrid"] = ["browser-client"]
@@ -91,7 +91,7 @@ public sealed class OAuthGrantPolicyTests
     {
         var options = new OAuthOptions
         {
-            EnableHybridFlow = true,
+            EnableLegacyGrantTypes = true,
             LegacyGrantTypeClients = new(StringComparer.OrdinalIgnoreCase)
             {
                 ["hybrid"] = ["browser-client"]

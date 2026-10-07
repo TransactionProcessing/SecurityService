@@ -317,7 +317,6 @@ builder.Services.AddOpenIddict()
          }
 
          if (options.OAuth.EnableLegacyGrantTypes &&
-             options.OAuth.EnableHybridFlow &&
              options.OAuth.LegacyGrantTypeClients.TryGetValue("hybrid", out List<string>? hybridClients) &&
              hybridClients.Count > 0)
          {
