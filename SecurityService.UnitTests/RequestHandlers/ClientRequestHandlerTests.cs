@@ -202,12 +202,13 @@ public class ClientRequestHandlerTests
 
         object application = (await applicationManager.FindByClientIdAsync("legacy-client"))!;
         var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
+        var expectedPermissions = new HashSet<string>(StringComparer.Ordinal)
+        {
+            OpenIddictConstants.Permissions.Endpoints.Token,
+            OpenIddictConstants.Permissions.GrantTypes.Password
+        };
 
-        permissions.ShouldContain(OpenIddictConstants.Permissions.Endpoints.Token);
-        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.Password);
-        permissions.ShouldNotContain(OpenIddictConstants.Permissions.GrantTypes.ClientCredentials);
-        permissions.ShouldNotContain(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
-        permissions.ShouldNotContain(OpenIddictConstants.Permissions.Endpoints.Authorization);
+        permissions.SetEquals(expectedPermissions).ShouldBeTrue();
     }
 
     [Fact]

@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using SecurityService.Configuration;
 using Shouldly;
 
 namespace SecurityService.UnitTests.Configuration;
@@ -14,11 +17,22 @@ public sealed class DataProtectionPersistenceTests : IDisposable
     {
         Directory.CreateDirectory(this._temporaryDirectory);
 
-        var firstProvider = DataProtectionProvider.Create(new DirectoryInfo(this._temporaryDirectory));
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ServiceOptions:DataProtectionKeyDirectory"] = this._temporaryDirectory
+            })
+            .Build();
+
+        var firstServices = new ServiceCollection();
+        DataProtectionRegistration.Add(firstServices, configuration);
+        var firstProvider = firstServices.BuildServiceProvider().GetRequiredService<IDataProtectionProvider>();
         var firstProtector = firstProvider.CreateProtector("SecurityService.Tests");
         var protectedValue = firstProtector.Protect("sensitive-value");
 
-        var secondProvider = DataProtectionProvider.Create(new DirectoryInfo(this._temporaryDirectory));
+        var secondServices = new ServiceCollection();
+        DataProtectionRegistration.Add(secondServices, configuration);
+        var secondProvider = secondServices.BuildServiceProvider().GetRequiredService<IDataProtectionProvider>();
         var secondProtector = secondProvider.CreateProtector("SecurityService.Tests");
 
         secondProtector.Unprotect(protectedValue).ShouldBe("sensitive-value");

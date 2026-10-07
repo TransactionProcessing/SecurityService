@@ -207,12 +207,7 @@ builder.Services.ConfigureApplicationCookie(cookieOptions =>
 });
 
 builder.Services.AddHttpContextAccessor();
-var dataProtectionKeyDirectory = builder.Configuration["ServiceOptions:DataProtectionKeyDirectory"];
-var dataProtectionBuilder = builder.Services.AddDataProtection();
-if (string.IsNullOrWhiteSpace(dataProtectionKeyDirectory) == false)
-{
-    dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeyDirectory));
-}
+DataProtectionRegistration.Add(builder.Services, builder.Configuration);
 builder.Services.AddSingleton(serviceProvider => new ConsentTransactionProtector(
     serviceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector("SecurityService.Consent")));
 builder.Services.AddScoped<TenantContext>();
