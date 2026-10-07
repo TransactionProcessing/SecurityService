@@ -217,6 +217,7 @@ builder.Services.AddSingleton(serviceProvider => new ConsentTransactionProtector
     serviceProvider.GetRequiredService<IDataProtectionProvider>().CreateProtector("SecurityService.Consent")));
 builder.Services.AddScoped<TenantContext>();
 builder.Services.AddScoped<MfaPolicyService>();
+builder.Services.AddScoped<IMfaPolicyService>(serviceProvider => serviceProvider.GetRequiredService<MfaPolicyService>());
 builder.Services.AddScoped<RecoveryCodeGenerator>();
 builder.Services.AddScoped<MfaAccountService>();
 builder.Services.AddSingleton<MfaSignInTransactionProtector>();
