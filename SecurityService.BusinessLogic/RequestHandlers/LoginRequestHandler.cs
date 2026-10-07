@@ -20,18 +20,21 @@ public sealed class LoginRequestHandler :
     private readonly IMfaPolicyService MfaPolicyService;
     private readonly MfaAccountService MfaAccountService;
     private readonly MfaSignInTransactionProtector TransactionProtector;
+    private readonly MfaEnrollmentTransactionProtector EnrollmentTransactionProtector;
 
     public LoginRequestHandler(SignInManager<ApplicationUser> signInManager,
                                UserManager<ApplicationUser> userManager,
                                IMfaPolicyService mfaPolicyService,
                                MfaAccountService mfaAccountService,
-                               MfaSignInTransactionProtector transactionProtector)
+                               MfaSignInTransactionProtector transactionProtector,
+                               MfaEnrollmentTransactionProtector enrollmentTransactionProtector)
     {
         this.SignInManager = signInManager;
         this.UserManager = userManager;
         this.MfaPolicyService = mfaPolicyService;
         this.MfaAccountService = mfaAccountService;
         this.TransactionProtector = transactionProtector;
+        this.EnrollmentTransactionProtector = enrollmentTransactionProtector;
     }
 
     public async Task<Result<List<ExternalProviderDetails>>> Handle(SecurityServiceQueries.GetExternalProvidersQuery query, CancellationToken cancellationToken)
@@ -81,10 +84,6 @@ public sealed class LoginRequestHandler :
 
         var policyRequiresMfa = await this.MfaPolicyService.IsMfaRequiredAsync(user, cancellationToken);
         var mfaEnabled = await this.UserManager.GetTwoFactorEnabledAsync(user);
-        if (policyRequiresMfa && mfaEnabled == false)
-        {
-            return Result.Success<LoginOutcome>(new LoginRejected("MFA enrollment is required before you can sign in."));
-        }
 
         if (mfaEnabled)
         {
@@ -129,6 +128,12 @@ public sealed class LoginRequestHandler :
             return Result.Success<LoginOutcome>(new LoginRejected("Invalid username or password."));
         }
 
+        if (policyRequiresMfa)
+        {
+            var transaction = this.EnrollmentTransactionProtector.Protect(user.Id, command.ReturnUrl);
+            return Result.Success<LoginOutcome>(new LoginRequiresMfaEnrollment(transaction));
+        }
+
         await this.SignInManager.SignInAsync(user, command.RememberLogin);
         return Result.Success<LoginOutcome>(new LoginCompleted(command.ReturnUrl));
     }
@@ -157,6 +162,7 @@ public sealed class LoginRequestHandler :
             return Result.Success<LoginOutcome>(new LoginRejected("The authenticator or recovery code was invalid."));
         }
 
+        await this.UserManager.ResetAccessFailedCountAsync(user);
         await this.SignInManager.Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
         await this.SignInManager.SignInAsync(user, transaction.RememberLogin);
         return Result.Success<LoginOutcome>(new LoginCompleted(transaction.ReturnUrl));

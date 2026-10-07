@@ -64,6 +64,11 @@ public sealed class IndexModel : PageModel
             return this.RedirectToPage("/Account/LoginWithMfa/Index", new { transaction = requiresMfa.Transaction });
         }
 
+        if (result.IsSuccess && result.Data is LoginRequiresMfaEnrollment requiresMfaEnrollment)
+        {
+            return this.RedirectToPage("/Account/EnrollMfa/Index", new { transaction = requiresMfaEnrollment.Transaction });
+        }
+
         var rejection = result.Data as LoginRejected;
         this.ModelState.AddModelError(string.Empty, rejection?.Message ?? result.Errors.FirstOrDefault() ?? result.Message ?? "Invalid username or password.");
         return this.Page();

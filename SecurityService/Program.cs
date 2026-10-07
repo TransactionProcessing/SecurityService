@@ -221,6 +221,7 @@ builder.Services.AddScoped<IMfaPolicyService>(serviceProvider => serviceProvider
 builder.Services.AddScoped<RecoveryCodeGenerator>();
 builder.Services.AddScoped<MfaAccountService>();
 builder.Services.AddSingleton<MfaSignInTransactionProtector>();
+builder.Services.AddSingleton<MfaEnrollmentTransactionProtector>();
 
 if (builder.Environment.IsEnvironment("IntegrationTest"))
 {

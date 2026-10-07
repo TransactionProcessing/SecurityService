@@ -36,6 +36,12 @@ public sealed class MfaAccountService
             throw new InvalidOperationException(string.Join("; ", resetResult.Errors.Select(error => error.Description)));
         }
 
+        return await GetEnrollmentAsync(user, issuer, cancellationToken);
+    }
+
+    public async Task<MfaEnrollment> GetEnrollmentAsync(ApplicationUser user, string issuer, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
         var key = await _userManager.GetAuthenticatorKeyAsync(user);
         if (string.IsNullOrWhiteSpace(key))
         {
@@ -104,6 +110,7 @@ public sealed class MfaAccountService
                 continue;
             }
 
+            candidate.ConcurrencyStamp = Guid.NewGuid().ToString("N");
             candidate.ConsumedUtc = DateTime.UtcNow;
             try
             {
