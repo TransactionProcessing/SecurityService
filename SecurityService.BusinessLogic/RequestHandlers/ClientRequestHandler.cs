@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
@@ -86,8 +87,6 @@ public sealed class ClientRequestHandler :
             descriptor.PostLogoutRedirectUris.Add(new Uri(postLogoutRedirectUri, UriKind.Absolute));
         }
 
-        await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
-
         ClientDefinition definition = new ClientDefinition
         {
             Id = Guid.NewGuid(),
@@ -105,8 +104,37 @@ public sealed class ClientRequestHandler :
             ClientType = descriptor.ClientType
         };
 
-        await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
-        await this.DbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            IExecutionStrategy executionStrategy = this.DbContext.Database.CreateExecutionStrategy();
+            await executionStrategy.ExecuteAsync(async () =>
+            {
+                await using IDbContextTransaction transaction = await this.DbContext.Database.BeginTransactionAsync(cancellationToken);
+                try
+                {
+                    await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
+                    await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
+                    await this.DbContext.SaveChangesAsync(cancellationToken);
+                    await transaction.CommitAsync(cancellationToken);
+                }
+                catch
+                {
+                    await transaction.RollbackAsync(CancellationToken.None);
+                    throw;
+                }
+            });
+        }
+        catch (DbUpdateException)
+        {
+            this.DbContext.ChangeTracker.Clear();
+            if (await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId, cancellationToken) ||
+                await this.ApplicationManager.FindByClientIdAsync(command.ClientId, cancellationToken) is not null)
+            {
+                return Result.Conflict($"A client with id '{command.ClientId}' already exists.");
+            }
+
+            throw;
+        }
 
         return Result.Success();
     }
