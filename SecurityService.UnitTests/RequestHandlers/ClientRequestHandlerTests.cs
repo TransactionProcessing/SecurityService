@@ -129,6 +129,88 @@ public class ClientRequestHandlerTests
     }
 
     [Fact]
+    public async Task CreateClient_WithLegacyGrantType_IsRejectedUnlessClientIsConfigured()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.CreateClient_WithLegacyGrantType_IsRejectedUnlessClientIsConfigured),
+            configureOptions: options =>
+            {
+                options.OAuth.EnableLegacyGrantTypes = true;
+                options.OAuth.LegacyGrantTypeClients[OpenIddictConstants.GrantTypes.Password] = ["legacy-client"];
+            });
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        var rejected = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "other-client",
+            "secret",
+            "Other Client",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.Password],
+            null,
+            [],
+            [],
+            false,
+            false));
+
+        rejected.IsFailed.ShouldBeTrue();
+        rejected.Status.ShouldBe(ResultStatus.Invalid);
+
+        var accepted = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "legacy-client",
+            "secret",
+            "Legacy Client",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.Password],
+            null,
+            [],
+            [],
+            false,
+            false));
+
+        accepted.IsSuccess.ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task CreateClient_WithPasswordGrant_PersistsOnlyPasswordGrantPermission()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.CreateClient_WithPasswordGrant_PersistsOnlyPasswordGrantPermission),
+            configureOptions: options =>
+            {
+                options.OAuth.EnableLegacyGrantTypes = true;
+                options.OAuth.LegacyGrantTypeClients[OpenIddictConstants.GrantTypes.Password] = ["legacy-client"];
+            });
+        var mediator = provider.GetRequiredService<IMediator>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "legacy-client",
+            "secret",
+            "Legacy Client",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.Password],
+            null,
+            [],
+            [],
+            false,
+            false));
+
+        result.IsSuccess.ShouldBeTrue();
+
+        object application = (await applicationManager.FindByClientIdAsync("legacy-client"))!;
+        var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
+
+        permissions.ShouldContain(OpenIddictConstants.Permissions.Endpoints.Token);
+        permissions.ShouldContain(OpenIddictConstants.Permissions.GrantTypes.Password);
+        permissions.ShouldNotContain(OpenIddictConstants.Permissions.GrantTypes.ClientCredentials);
+        permissions.ShouldNotContain(OpenIddictConstants.Permissions.GrantTypes.RefreshToken);
+        permissions.ShouldNotContain(OpenIddictConstants.Permissions.Endpoints.Authorization);
+    }
+
+    [Fact]
     public async Task CreateClient_WithInvalidRedirectUri_ReturnsInvalidWithoutPersisting()
     {
         using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WithInvalidRedirectUri_ReturnsInvalidWithoutPersisting));
