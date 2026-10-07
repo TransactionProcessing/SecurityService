@@ -311,7 +311,9 @@ builder.Services.AddOpenIddict()
              serverOptions.AllowPasswordFlow();
          }
 
-         if (options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Implicit, out List<string>? implicitClients) && implicitClients.Count > 0)
+         if (options.OAuth.EnableLegacyGrantTypes &&
+             options.OAuth.LegacyGrantTypeClients.TryGetValue(OpenIddictConstants.GrantTypes.Implicit, out List<string>? implicitClients) &&
+             implicitClients.Count > 0)
          {
              serverOptions.AllowImplicitFlow();
          }
