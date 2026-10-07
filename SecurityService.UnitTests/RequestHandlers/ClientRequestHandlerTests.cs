@@ -129,6 +129,62 @@ public class ClientRequestHandlerTests
     }
 
     [Fact]
+    public async Task CreateClient_WithInvalidRedirectUri_ReturnsInvalidWithoutPersisting()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WithInvalidRedirectUri_ReturnsInvalidWithoutPersisting));
+        var mediator = provider.GetRequiredService<IMediator>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+        var dbContext = provider.GetRequiredService<SecurityServiceDbContext>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "invalid-redirect-client",
+            "secret",
+            "Invalid Redirect Client",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.AuthorizationCode],
+            null,
+            ["http://client.example/signin-oidc"],
+            [],
+            false,
+            false));
+
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Message.ShouldContain("ClientRedirectUris");
+        (await applicationManager.FindByClientIdAsync("invalid-redirect-client")).ShouldBeNull();
+        (await dbContext.ClientDefinitions.AnyAsync(client => client.ClientId == "invalid-redirect-client")).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task CreateClient_WithInvalidPostLogoutRedirectUri_ReturnsInvalidWithoutPersisting()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WithInvalidPostLogoutRedirectUri_ReturnsInvalidWithoutPersisting));
+        var mediator = provider.GetRequiredService<IMediator>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+        var dbContext = provider.GetRequiredService<SecurityServiceDbContext>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "invalid-post-logout-client",
+            "secret",
+            "Invalid Post Logout Client",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.AuthorizationCode],
+            null,
+            [],
+            ["javascript:alert(1)"],
+            false,
+            false));
+
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Message.ShouldContain("ClientPostLogoutRedirectUris");
+        (await applicationManager.FindByClientIdAsync("invalid-post-logout-client")).ShouldBeNull();
+        (await dbContext.ClientDefinitions.AnyAsync(client => client.ClientId == "invalid-post-logout-client")).ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task CreateClient_WhenClientAlreadyExists_ReturnsConflict()
     {
         using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WhenClientAlreadyExists_ReturnsConflict));
