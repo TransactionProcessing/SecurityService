@@ -11,6 +11,7 @@ using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.Models;
+using SecurityService.BusinessLogic.Validation;
 using SimpleResults;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
@@ -53,6 +54,26 @@ public sealed class ClientRequestHandler :
             return Result.Invalid($"Unsupported grant types: {string.Join(", ", invalidGrantTypes)}.");
         }
 
+        List<string> redirectUris = command.ClientRedirectUris
+            .Where(uri => string.IsNullOrWhiteSpace(uri) == false)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        Result<List<Uri>> redirectUriValidation = ClientRedirectUriValidator.Validate(redirectUris, nameof(command.ClientRedirectUris));
+        if (redirectUriValidation.IsFailed)
+        {
+            return Result.Invalid(redirectUriValidation.Message);
+        }
+
+        List<string> postLogoutRedirectUris = command.ClientPostLogoutRedirectUris
+            .Where(uri => string.IsNullOrWhiteSpace(uri) == false)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        Result<List<Uri>> postLogoutRedirectUriValidation = ClientRedirectUriValidator.Validate(postLogoutRedirectUris, nameof(command.ClientPostLogoutRedirectUris));
+        if (postLogoutRedirectUriValidation.IsFailed)
+        {
+            return Result.Invalid(postLogoutRedirectUriValidation.Message);
+        }
+
         if (await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId, cancellationToken))
         {
             return Result.Conflict($"A client with id '{command.ClientId}' already exists.");
@@ -77,14 +98,14 @@ public sealed class ClientRequestHandler :
             descriptor.Permissions.Add(Permissions.GrantTypes.RefreshToken);
         }
 
-        foreach (String redirectUri in command.ClientRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (Uri redirectUri in redirectUriValidation.Data!)
         {
-            descriptor.RedirectUris.Add(new Uri(redirectUri, UriKind.Absolute));
+            descriptor.RedirectUris.Add(redirectUri);
         }
 
-        foreach (String postLogoutRedirectUri in command.ClientPostLogoutRedirectUris.Where(uri => string.IsNullOrWhiteSpace(uri) == false).Distinct(StringComparer.OrdinalIgnoreCase))
+        foreach (Uri postLogoutRedirectUri in postLogoutRedirectUriValidation.Data!)
         {
-            descriptor.PostLogoutRedirectUris.Add(new Uri(postLogoutRedirectUri, UriKind.Absolute));
+            descriptor.PostLogoutRedirectUris.Add(postLogoutRedirectUri);
         }
 
         ClientDefinition definition = new ClientDefinition
@@ -97,8 +118,8 @@ public sealed class ClientRequestHandler :
             SecretHash = string.IsNullOrWhiteSpace(command.Secret) ? null : Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(command.Secret))),
             AllowedScopesJson = JsonListSerializer.Serialize(command.AllowedScopes),
             AllowedGrantTypesJson = JsonListSerializer.Serialize(command.AllowedGrantTypes),
-            RedirectUrisJson = JsonListSerializer.Serialize(command.ClientRedirectUris),
-            PostLogoutRedirectUrisJson = JsonListSerializer.Serialize(command.ClientPostLogoutRedirectUris),
+            RedirectUrisJson = JsonListSerializer.Serialize(redirectUris),
+            PostLogoutRedirectUrisJson = JsonListSerializer.Serialize(postLogoutRedirectUris),
             RequireConsent = command.RequireConsent,
             AllowOfflineAccess = command.AllowOfflineAccess,
             ClientType = descriptor.ClientType
