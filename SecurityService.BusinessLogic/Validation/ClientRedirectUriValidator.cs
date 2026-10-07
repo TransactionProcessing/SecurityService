@@ -29,7 +29,8 @@ public static class ClientRedirectUriValidator
     {
         if (value.Contains('*', StringComparison.Ordinal) ||
             string.IsNullOrEmpty(uri.UserInfo) == false ||
-            string.IsNullOrEmpty(uri.Fragment) == false)
+            string.IsNullOrEmpty(uri.Fragment) == false ||
+            HasIssuerQueryParameter(uri))
         {
             return false;
         }
@@ -40,5 +41,15 @@ public static class ClientRedirectUriValidator
         }
 
         return uri.Scheme.Equals(Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase) && uri.IsLoopback;
+    }
+
+    private static bool HasIssuerQueryParameter(Uri uri)
+    {
+        return uri.Query
+            .TrimStart('?')
+            .Split('&', StringSplitOptions.RemoveEmptyEntries)
+            .Select(parameter => parameter.Split('=', 2)[0])
+            .Select(Uri.UnescapeDataString)
+            .Any(parameterName => parameterName.Equals("iss", StringComparison.OrdinalIgnoreCase));
     }
 }

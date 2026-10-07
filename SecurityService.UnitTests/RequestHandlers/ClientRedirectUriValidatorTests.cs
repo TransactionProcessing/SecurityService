@@ -47,6 +47,7 @@ public sealed class ClientRedirectUriValidatorTests
     [InlineData("https://*.client.example/signin-oidc")]
     [InlineData("https://user:password@client.example/signin-oidc")]
     [InlineData("https://client.example/signin-oidc#fragment")]
+    [InlineData("https://client.example/signin-oidc?iss=attacker")]
     [InlineData("not a uri")]
     public void Validate_RejectsMalformedOrUnsafeUri(string value)
     {
