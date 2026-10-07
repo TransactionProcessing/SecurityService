@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic;
@@ -76,6 +77,74 @@ public sealed class ManagementBootstrapper
     }
 
     private async Task EnsureBootstrapClientAsync(CancellationToken cancellationToken)
+    {
+        if (_dbContext.Database.IsRelational() == false)
+        {
+            await EnsureBootstrapClientWithoutTransactionAsync(cancellationToken);
+            return;
+        }
+
+        IExecutionStrategy executionStrategy = _dbContext.Database.CreateExecutionStrategy();
+        await executionStrategy.ExecuteAsync(async () =>
+        {
+            await using IDbContextTransaction transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                object? application = await _applicationManager.FindByClientIdAsync(_options.ClientId, cancellationToken);
+                if (application is null)
+                {
+                    var descriptor = new OpenIddictApplicationDescriptor
+                    {
+                        ClientId = _options.ClientId,
+                        ClientSecret = _options.ClientSecret,
+                        ClientType = ClientTypes.Confidential,
+                        ConsentType = ConsentTypes.Implicit,
+                        DisplayName = _options.ClientName
+                    };
+
+                    OAuthGrantPolicyResult policy = OAuthGrantPolicy.CreatePermissions([GrantTypes.ClientCredentials], _options.ClientId, _oauthOptions);
+                    descriptor.Permissions.UnionWith(policy.Permissions);
+                    descriptor.Requirements.UnionWith(policy.Requirements);
+
+                    await _applicationManager.CreateAsync(descriptor, cancellationToken);
+                }
+                else if (await _applicationManager.ValidateClientSecretAsync(application, _options.ClientSecret, cancellationToken) == false)
+                {
+                    throw new InvalidOperationException("The existing management bootstrap application has a different client secret.");
+                }
+
+                await SynchronizeBootstrapClientPermissionsAsync(application, cancellationToken);
+
+                ClientDefinition? definition = await _dbContext.ClientDefinitions
+                    .SingleOrDefaultAsync(client => client.ClientId == _options.ClientId, cancellationToken);
+                if (definition is null)
+                {
+                    await _dbContext.ClientDefinitions.AddAsync(new ClientDefinition
+                    {
+                        Id = Guid.NewGuid(),
+                        ClientId = _options.ClientId,
+                        ClientName = _options.ClientName,
+                        SecretHash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(_options.ClientSecret))),
+                        AllowedGrantTypesJson = JsonListSerializer.Serialize([GrantTypes.ClientCredentials]),
+                        AllowedScopesJson = "[]",
+                        RedirectUrisJson = "[]",
+                        PostLogoutRedirectUrisJson = "[]",
+                        ClientType = ClientTypes.Confidential
+                    }, cancellationToken);
+                    await _dbContext.SaveChangesAsync(cancellationToken);
+                }
+
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(CancellationToken.None);
+                throw;
+            }
+        });
+    }
+
+    private async Task EnsureBootstrapClientWithoutTransactionAsync(CancellationToken cancellationToken)
     {
         object? application = await _applicationManager.FindByClientIdAsync(_options.ClientId, cancellationToken);
         if (application is null)

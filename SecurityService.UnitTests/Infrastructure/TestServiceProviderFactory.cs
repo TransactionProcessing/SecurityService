@@ -2,6 +2,8 @@ using System.Security.Cryptography;
 using Microsoft.AspNetCore.DataProtection;
 using MessagingService.Client;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using SecurityService.BusinessLogic;
@@ -13,7 +15,14 @@ namespace SecurityService.UnitTests.Infrastructure;
 
 public static class TestServiceProviderFactory
 {
-    public static ServiceProvider Create(string databaseName, UserManager<ApplicationUser>? userManager = null, SignInManager<ApplicationUser>? signInManager = null, Action<ServiceOptions>? configureOptions = null, TimeSpan? passwordTokenLifespan = null)
+    public static ServiceProvider Create(
+        string databaseName,
+        UserManager<ApplicationUser>? userManager = null,
+        SignInManager<ApplicationUser>? signInManager = null,
+        Action<ServiceOptions>? configureOptions = null,
+        TimeSpan? passwordTokenLifespan = null,
+        bool useSqlite = false,
+        SaveChangesInterceptor? saveChangesInterceptor = null)
     {
         var rsa = RSA.Create(2048);
         var key = new RsaSecurityKey(rsa);
@@ -34,9 +43,30 @@ public static class TestServiceProviderFactory
         services.AddDataProtection().UseEphemeralDataProtectionProvider();
         if (passwordTokenLifespan.HasValue)
             services.Configure<DataProtectionTokenProviderOptions>(options => options.TokenLifespan = passwordTokenLifespan.Value);
+        SqliteConnection? sqliteConnection = null;
+        if (useSqlite)
+        {
+            sqliteConnection = new SqliteConnection($"Data Source=file:{databaseName};Mode=Memory;Cache=Shared");
+            sqliteConnection.Open();
+            services.AddSingleton(sqliteConnection);
+        }
+
         services.AddDbContext<SecurityServiceDbContext>(options =>
         {
-            options.UseInMemoryDatabase(databaseName);
+            if (useSqlite)
+            {
+                options.UseSqlite(sqliteConnection!);
+            }
+            else
+            {
+                options.UseInMemoryDatabase(databaseName);
+            }
+
+            if (saveChangesInterceptor is not null)
+            {
+                options.AddInterceptors(saveChangesInterceptor);
+            }
+
             options.UseOpenIddict();
         });
         services.AddIdentity<ApplicationUser, IdentityRole>()

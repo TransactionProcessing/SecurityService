@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
@@ -86,8 +87,6 @@ public sealed class ClientRequestHandler :
             descriptor.PostLogoutRedirectUris.Add(new Uri(postLogoutRedirectUri, UriKind.Absolute));
         }
 
-        await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
-
         ClientDefinition definition = new ClientDefinition
         {
             Id = Guid.NewGuid(),
@@ -105,10 +104,94 @@ public sealed class ClientRequestHandler :
             ClientType = descriptor.ClientType
         };
 
-        await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
-        await this.DbContext.SaveChangesAsync(cancellationToken);
+        try
+        {
+            await this.PersistClientAsync(descriptor, definition, command.ClientId, cancellationToken);
+        }
+        catch (DbUpdateException)
+        {
+            this.DbContext.ChangeTracker.Clear();
+            if (await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId, cancellationToken) ||
+                await this.ApplicationManager.FindByClientIdAsync(command.ClientId, cancellationToken) is not null)
+            {
+                return Result.Conflict($"A client with id '{command.ClientId}' already exists.");
+            }
+
+            throw;
+        }
 
         return Result.Success();
+    }
+
+    private async Task PersistClientAsync(
+        OpenIddictApplicationDescriptor descriptor,
+        ClientDefinition definition,
+        string clientId,
+        CancellationToken cancellationToken)
+    {
+        IExecutionStrategy executionStrategy = this.DbContext.Database.CreateExecutionStrategy();
+        await executionStrategy.ExecuteAsync(async () =>
+        {
+            if (this.DbContext.Database.IsRelational() == false)
+            {
+                await this.PersistClientWithoutTransactionAsync(descriptor, definition, clientId, cancellationToken);
+                return;
+            }
+
+            await using IDbContextTransaction transaction = await this.DbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                object? application = await this.ApplicationManager.FindByClientIdAsync(clientId, cancellationToken);
+                bool definitionExists = await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == clientId, cancellationToken);
+                if (application is not null && definitionExists)
+                {
+                    return;
+                }
+
+                if (application is null)
+                {
+                    await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
+                }
+
+                if (definitionExists == false)
+                {
+                    await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
+                    await this.DbContext.SaveChangesAsync(cancellationToken);
+                }
+
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(CancellationToken.None);
+                throw;
+            }
+        });
+    }
+
+    private async Task PersistClientWithoutTransactionAsync(
+        OpenIddictApplicationDescriptor descriptor,
+        ClientDefinition definition,
+        string clientId,
+        CancellationToken cancellationToken)
+    {
+        object? application = await this.ApplicationManager.FindByClientIdAsync(clientId, cancellationToken);
+        bool definitionExists = await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == clientId, cancellationToken);
+        if (application is not null && definitionExists)
+        {
+            return;
+        }
+
+        if (application is null)
+        {
+            await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
+        }
+
+        if (definitionExists == false)
+        {
+            await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
+            await this.DbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public async Task<Result<ClientDetails>> Handle(SecurityServiceQueries.GetClientQuery query, CancellationToken cancellationToken)

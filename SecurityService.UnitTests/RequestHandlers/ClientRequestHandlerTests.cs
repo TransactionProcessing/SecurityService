@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OpenIddict.Abstractions;
+using SecurityService.Database.DbContexts;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
@@ -152,6 +153,68 @@ public class ClientRequestHandlerTests
 
         duplicateResult.IsFailed.ShouldBeTrue();
         duplicateResult.Status.ShouldBe(ResultStatus.Conflict);
+    }
+
+    [Fact]
+    public async Task CreateClient_WhenMetadataSaveFails_DoesNotLeaveOpenIddictApplication()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.CreateClient_WhenMetadataSaveFails_DoesNotLeaveOpenIddictApplication),
+            useSqlite: true,
+            saveChangesInterceptor: new ThrowOnClientDefinitionSaveInterceptor());
+        var mediator = provider.GetRequiredService<IMediator>();
+        var dbContext = provider.GetRequiredService<SecurityServiceDbContext>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+
+        await Should.ThrowAsync<InvalidOperationException>(() => mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "atomic-client",
+            "secret",
+            "Atomic Client",
+            null,
+            [OpenIddictConstants.Scopes.OpenId],
+            [OpenIddictConstants.GrantTypes.ClientCredentials],
+            null,
+            [],
+            [],
+            false,
+            false)));
+
+        dbContext.ChangeTracker.Clear();
+        using IServiceScope verificationScope = provider.CreateScope();
+        var verificationApplicationManager = verificationScope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+        var verificationDbContext = verificationScope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
+        (await verificationApplicationManager.FindByClientIdAsync("atomic-client")).ShouldBeNull();
+        (await verificationDbContext.ClientDefinitions.AnyAsync(client => client.ClientId == "atomic-client")).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task CreateClient_WhenOpenIddictApplicationAlreadyExists_CompletesMetadataRegistration()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WhenOpenIddictApplicationAlreadyExists_CompletesMetadataRegistration));
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+        await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "retry-client",
+            ClientSecret = "secret",
+            ClientType = OpenIddictConstants.ClientTypes.Confidential,
+            ConsentType = OpenIddictConstants.ConsentTypes.Implicit
+        });
+
+        var mediator = provider.GetRequiredService<IMediator>();
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "retry-client",
+            "secret",
+            "Retry Client",
+            null,
+            [OpenIddictConstants.Scopes.OpenId],
+            [OpenIddictConstants.GrantTypes.ClientCredentials],
+            null,
+            [],
+            [],
+            false,
+            false));
+
+        result.IsSuccess.ShouldBeTrue();
     }
 
     [Fact]

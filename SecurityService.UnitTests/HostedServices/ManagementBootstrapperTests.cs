@@ -45,6 +45,33 @@ public sealed class ManagementBootstrapperTests
     }
 
     [Fact]
+    public async Task InitializeAsync_WhenMetadataSaveFails_DoesNotLeaveOpenIddictApplication()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            Guid.NewGuid().ToString(),
+            configureOptions: options =>
+            {
+                options.ManagementBootstrap.Enabled = true;
+                options.ManagementBootstrap.ClientId = "bootstrap-client";
+                options.ManagementBootstrap.ClientSecret = "bootstrap-secret";
+            },
+            useSqlite: true,
+            saveChangesInterceptor: new ThrowOnClientDefinitionSaveInterceptor());
+
+        using var scope = provider.CreateScope();
+        var bootstrapper = CreateBootstrapper(scope);
+
+        await Should.ThrowAsync<InvalidOperationException>(() => bootstrapper.InitializeAsync(CancellationToken.None));
+
+        using IServiceScope verificationScope = provider.CreateScope();
+        var applicationManager = verificationScope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+        var dbContext = verificationScope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
+
+        (await applicationManager.FindByClientIdAsync("bootstrap-client")).ShouldBeNull();
+        (await dbContext.ClientDefinitions.AnyAsync(client => client.ClientId == "bootstrap-client")).ShouldBeFalse();
+    }
+
+    [Fact]
     public async Task InitializeAsync_WhenExistingBootstrapClientHasStaleGrants_RestoresClientCredentialsOnly()
     {
         using var provider = TestServiceProviderFactory.Create(
