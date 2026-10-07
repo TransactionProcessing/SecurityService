@@ -106,23 +106,7 @@ public sealed class ClientRequestHandler :
 
         try
         {
-            IExecutionStrategy executionStrategy = this.DbContext.Database.CreateExecutionStrategy();
-            await executionStrategy.ExecuteAsync(async () =>
-            {
-                await using IDbContextTransaction transaction = await this.DbContext.Database.BeginTransactionAsync(cancellationToken);
-                try
-                {
-                    await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
-                    await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
-                    await this.DbContext.SaveChangesAsync(cancellationToken);
-                    await transaction.CommitAsync(cancellationToken);
-                }
-                catch
-                {
-                    await transaction.RollbackAsync(CancellationToken.None);
-                    throw;
-                }
-            });
+            await this.PersistClientAsync(descriptor, definition, command.ClientId, cancellationToken);
         }
         catch (DbUpdateException)
         {
@@ -137,6 +121,77 @@ public sealed class ClientRequestHandler :
         }
 
         return Result.Success();
+    }
+
+    private async Task PersistClientAsync(
+        OpenIddictApplicationDescriptor descriptor,
+        ClientDefinition definition,
+        string clientId,
+        CancellationToken cancellationToken)
+    {
+        IExecutionStrategy executionStrategy = this.DbContext.Database.CreateExecutionStrategy();
+        await executionStrategy.ExecuteAsync(async () =>
+        {
+            if (this.DbContext.Database.IsRelational() == false)
+            {
+                await this.PersistClientWithoutTransactionAsync(descriptor, definition, clientId, cancellationToken);
+                return;
+            }
+
+            await using IDbContextTransaction transaction = await this.DbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                object? application = await this.ApplicationManager.FindByClientIdAsync(clientId, cancellationToken);
+                bool definitionExists = await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == clientId, cancellationToken);
+                if (application is not null && definitionExists)
+                {
+                    return;
+                }
+
+                if (application is null)
+                {
+                    await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
+                }
+
+                if (definitionExists == false)
+                {
+                    await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
+                    await this.DbContext.SaveChangesAsync(cancellationToken);
+                }
+
+                await transaction.CommitAsync(cancellationToken);
+            }
+            catch
+            {
+                await transaction.RollbackAsync(CancellationToken.None);
+                throw;
+            }
+        });
+    }
+
+    private async Task PersistClientWithoutTransactionAsync(
+        OpenIddictApplicationDescriptor descriptor,
+        ClientDefinition definition,
+        string clientId,
+        CancellationToken cancellationToken)
+    {
+        object? application = await this.ApplicationManager.FindByClientIdAsync(clientId, cancellationToken);
+        bool definitionExists = await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == clientId, cancellationToken);
+        if (application is not null && definitionExists)
+        {
+            return;
+        }
+
+        if (application is null)
+        {
+            await this.ApplicationManager.CreateAsync(descriptor, cancellationToken);
+        }
+
+        if (definitionExists == false)
+        {
+            await this.DbContext.ClientDefinitions.AddAsync(definition, cancellationToken);
+            await this.DbContext.SaveChangesAsync(cancellationToken);
+        }
     }
 
     public async Task<Result<ClientDetails>> Handle(SecurityServiceQueries.GetClientQuery query, CancellationToken cancellationToken)

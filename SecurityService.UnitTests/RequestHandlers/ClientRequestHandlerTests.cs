@@ -188,6 +188,36 @@ public class ClientRequestHandlerTests
     }
 
     [Fact]
+    public async Task CreateClient_WhenOpenIddictApplicationAlreadyExists_CompletesMetadataRegistration()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WhenOpenIddictApplicationAlreadyExists_CompletesMetadataRegistration));
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+        await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "retry-client",
+            ClientSecret = "secret",
+            ClientType = OpenIddictConstants.ClientTypes.Confidential,
+            ConsentType = OpenIddictConstants.ConsentTypes.Implicit
+        });
+
+        var mediator = provider.GetRequiredService<IMediator>();
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "retry-client",
+            "secret",
+            "Retry Client",
+            null,
+            [OpenIddictConstants.Scopes.OpenId],
+            [OpenIddictConstants.GrantTypes.ClientCredentials],
+            null,
+            [],
+            [],
+            false,
+            false));
+
+        result.IsSuccess.ShouldBeTrue();
+    }
+
+    [Fact]
     public async Task CreateClient_WhenSecretIsMissing_PersistsPublicClientType()
     {
         using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WhenSecretIsMissing_PersistsPublicClientType));

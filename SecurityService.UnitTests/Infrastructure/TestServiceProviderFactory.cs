@@ -60,7 +60,6 @@ public static class TestServiceProviderFactory
             else
             {
                 options.UseInMemoryDatabase(databaseName);
-                options.ConfigureWarnings(warnings => warnings.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             }
 
             if (saveChangesInterceptor is not null)
