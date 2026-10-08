@@ -56,21 +56,22 @@ namespace SecurityService.Client
 
         #endregion
 
-        public void SetAccessToken(String accessToken)
-        {
-            this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-        }
+        //public void SetAccessToken(String accessToken)
+        //{
+        //    this.HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        //}
 
         #region Methods
 
-        public async Task<Result> CreateApiResource(CreateApiResourceRequest createApiResourceRequest,
+        public async Task<Result> CreateApiResource(String accessToken,
+            CreateApiResourceRequest createApiResourceRequest,
                                                     CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/apiresources");
 
             try
             {
-                Result result = await this.Post(requestUri, createApiResourceRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createApiResourceRequest, accessToken, cancellationToken);
 
                 if(result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -86,14 +87,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result> CreateApiScope(CreateApiScopeRequest createApiScopeRequest,
+        public async Task<Result> CreateApiScope(String accessToken, CreateApiScopeRequest createApiScopeRequest,
                                                  CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/apiscopes");
 
             try
             {
-                Result result = await this.Post(requestUri, createApiScopeRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createApiScopeRequest, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -109,14 +110,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result> CreateClient(CreateClientRequest createClientRequest,
+        public async Task<Result> CreateClient(String accessToken, CreateClientRequest createClientRequest,
                                                CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/clients");
 
             try
             {
-                Result result = await this.Post(requestUri, createClientRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createClientRequest, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -132,14 +133,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result> CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
+        public async Task<Result> CreateIdentityResource(String accessToken, CreateIdentityResourceRequest createIdentityResourceRequest,
                                                          CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/identityresources");
 
             try
             {
-                Result result = await this.Post(requestUri, createIdentityResourceRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createIdentityResourceRequest, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -155,14 +156,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result> CreateRole(CreateRoleRequest createRoleRequest,
+        public async Task<Result> CreateRole(String accessToken, CreateRoleRequest createRoleRequest,
                                              CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/roles");
 
             try
             {
-                Result result = await this.Post(requestUri, createRoleRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createRoleRequest, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -184,14 +185,14 @@ namespace SecurityService.Client
         /// <param name="createUserRequest">The create user request.</param>
         /// <param name="cancellationToken">The cancellation token.</param>
         /// <returns></returns>
-        public async Task<Result> CreateUser(CreateUserRequest createUserRequest,
+        public async Task<Result> CreateUser(String accessToken, CreateUserRequest createUserRequest,
                                                                  CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/users");
 
             try
             {
-                Result result = await this.Post(requestUri, createUserRequest, cancellationToken);
+                Result result = await this.Post(requestUri, createUserRequest, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -207,33 +208,33 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result> RequireUserMfa(String userId, CancellationToken cancellationToken)
+        public async Task<Result> RequireUserMfa(String accessToken, String userId, CancellationToken cancellationToken)
         {
-            return await this.Put(this.BuildRequestUrl($"/api/users/{userId}/mfa-policy"), new { }, cancellationToken);
+            return await this.Put(this.BuildRequestUrl($"/api/users/{userId}/mfa-policy"), new { }, accessToken, cancellationToken);
         }
 
-        public async Task<Result> RemoveUserMfa(String userId, CancellationToken cancellationToken)
+        public async Task<Result> RemoveUserMfa(String accessToken, String userId, CancellationToken cancellationToken)
         {
-            return await this.Delete(this.BuildRequestUrl($"/api/users/{userId}/mfa-policy"), cancellationToken);
+            return await this.Delete(this.BuildRequestUrl($"/api/users/{userId}/mfa-policy"), accessToken, cancellationToken);
         }
 
-        public async Task<Result> RequireRoleMfa(String roleId, CancellationToken cancellationToken)
+        public async Task<Result> RequireRoleMfa(String accessToken, String roleId, CancellationToken cancellationToken)
         {
-            return await this.Put(this.BuildRequestUrl($"/api/roles/{roleId}/mfa-policy"), new { }, cancellationToken);
+            return await this.Put(this.BuildRequestUrl($"/api/roles/{roleId}/mfa-policy"), new { }, accessToken, cancellationToken);
         }
 
-        public async Task<Result> RemoveRoleMfa(String roleId, CancellationToken cancellationToken)
+        public async Task<Result> RemoveRoleMfa(String accessToken, String roleId, CancellationToken cancellationToken)
         {
-            return await this.Delete(this.BuildRequestUrl($"/api/roles/{roleId}/mfa-policy"), cancellationToken);
+            return await this.Delete(this.BuildRequestUrl($"/api/roles/{roleId}/mfa-policy"), accessToken, cancellationToken);
         }
 
-        public async Task<Result<ApiResourceResponse>> GetApiResource(String apiResourceName,
+        public async Task<Result<ApiResourceResponse>> GetApiResource(String accessToken, String apiResourceName,
                                                                      CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/apiresources/{apiResourceName}");
 
             try {
-                Result<ApiResourceResponse> result = await this.Get<ApiResourceResponse>(requestUri, cancellationToken);
+                Result<ApiResourceResponse> result = await this.Get<ApiResourceResponse>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -249,13 +250,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<ApiResourceResponse>>> GetApiResources(CancellationToken cancellationToken)
+        public async Task<Result<List<ApiResourceResponse>>> GetApiResources(String accessToken, CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/apiresources");
 
             try
             {
-                Result<List<ApiResourceResponse>> result = await this.Get<List<ApiResourceResponse>>(requestUri, cancellationToken);
+                Result<List<ApiResourceResponse>> result = await this.Get<List<ApiResourceResponse>>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -271,14 +272,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<ApiScopeResponse>> GetApiScope(String apiScopeName,
+        public async Task<Result<ApiScopeResponse>> GetApiScope(String accessToken, String apiScopeName,
                                                                CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/apiscopes/{apiScopeName}");
 
             try
             {
-                var result = await this.Get<ApiScopeResponse>(requestUri, cancellationToken);
+                var result = await this.Get<ApiScopeResponse>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -294,13 +295,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<ApiScopeResponse>>> GetApiScopes(CancellationToken cancellationToken)
+        public async Task<Result<List<ApiScopeResponse>>> GetApiScopes(String accessToken, CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/apiscopes");
 
             try
             {
-                var result = await this.Get<List<ApiScopeResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<ApiScopeResponse>>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -316,14 +317,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<ClientResponse>> GetClient(String clientId,
+        public async Task<Result<ClientResponse>> GetClient(String accessToken, String clientId,
                                                            CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/clients/{clientId}");
 
             try
             {
-                var result = await this.Get<ClientResponse>(requestUri, cancellationToken);
+                var result = await this.Get<ClientResponse>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -339,13 +340,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<ClientResponse>>> GetClients(CancellationToken cancellationToken)
+        public async Task<Result<List<ClientResponse>>> GetClients(String accessToken, CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/clients");
 
             try
             {
-                var result = await this.Get<List<ClientResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<ClientResponse>>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -361,14 +362,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<IdentityResourceResponse>> GetIdentityResource(String identityResourceName,
+        public async Task<Result<IdentityResourceResponse>> GetIdentityResource(String accessToken, String identityResourceName,
                                                                                CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/identityresources/{identityResourceName}");
 
             try
             {
-                var result = await this.Get<IdentityResourceResponse>(requestUri, cancellationToken);
+                var result = await this.Get<IdentityResourceResponse>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -384,13 +385,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<IdentityResourceResponse>>> GetIdentityResources(CancellationToken cancellationToken)
+        public async Task<Result<List<IdentityResourceResponse>>> GetIdentityResources(String accessToken, CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/identityresources");
 
             try
             {
-                var result = await this.Get<List<IdentityResourceResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<IdentityResourceResponse>>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -406,14 +407,14 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<RoleResponse>> GetRole(String roleId,
+        public async Task<Result<RoleResponse>> GetRole(String accessToken, String roleId,
                                                         CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/roles/{roleId}");
 
             try
             {
-                var result = await this.Get<RoleResponse>(requestUri, cancellationToken);
+                var result = await this.Get<RoleResponse>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -429,13 +430,13 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<RoleResponse>>> GetRoles(CancellationToken cancellationToken)
+        public async Task<Result<List<RoleResponse>>> GetRoles(String accessToken, CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/roles");
 
             try
             {
-                var result = await this.Get<List<RoleResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<RoleResponse>>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -496,14 +497,14 @@ namespace SecurityService.Client
             return await this.GetToken(queryString.ToString(), cancellationToken);
         }
 
-        public async Task<Result<UserResponse>> GetUser(String userId,
+        public async Task<Result<UserResponse>> GetUser(String accessToken, String userId,
                                                         CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl($"/api/users/{userId}");
 
             try
             {
-                Result<UserResponse> result = await this.Get<UserResponse>(requestUri, cancellationToken);
+                Result<UserResponse> result = await this.Get<UserResponse>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);
@@ -519,7 +520,7 @@ namespace SecurityService.Client
             }
         }
 
-        public async Task<Result<List<UserResponse>>> GetUsers(String userName,
+        public async Task<Result<List<UserResponse>>> GetUsers(String accessToken, String userName,
                                                               CancellationToken cancellationToken)
         {
             String requestUri = this.BuildRequestUrl("/api/users");
@@ -531,7 +532,7 @@ namespace SecurityService.Client
                     requestUri = $"{requestUri}?username={userName}";
                 }
 
-                var result = await this.Get<List<UserResponse>>(requestUri, cancellationToken);
+                var result = await this.Get<List<UserResponse>>(requestUri, accessToken, cancellationToken);
 
                 if (result.IsFailed)
                     return ResultHelpers.CreateFailure(result);

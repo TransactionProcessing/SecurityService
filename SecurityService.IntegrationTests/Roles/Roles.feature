@@ -11,12 +11,17 @@ Scenario: Get Roles
 
 @mfa
 Scenario: Require and remove MFA for a role
+	Given I create the following roles
+	| Role Name |
+	| TestRole1 |
+	| TestRole2 |
+	| TestRole3 |
 	When I require MFA for role 'TestRole1'
-	Then the MFA policy operation succeeds
+	Then the role MFA policy operation succeeds
 	When I require MFA for role 'TestRole1'
-	Then the MFA policy operation succeeds
+	Then the role MFA policy operation succeeds
 	When I remove MFA for role 'TestRole1'
-	Then the MFA policy operation succeeds
+	Then the role MFA policy operation succeeds
 	When I get the role with name 'TestRole1' the role details are returned as follows
 	| Role Name |
 	| TestRole1 |
