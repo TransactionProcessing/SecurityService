@@ -295,6 +295,30 @@ await this.FeatureBackgroundAsync();
                             "Claims",
                             "Roles"});
                 table6.AddRow(new string[] {
+                            "testuser1@testing.co.uk",
+                            "123456789",
+                            "Test",
+                            "",
+                            "User 1",
+                            "",
+                            "TestRole1"});
+                table6.AddRow(new string[] {
+                            "testuser2@testing.co.uk",
+                            "123456789",
+                            "Test",
+                            "",
+                            "User 2",
+                            "",
+                            "TestRole2"});
+                table6.AddRow(new string[] {
+                            "testuser3@testing.co.uk",
+                            "123456789",
+                            "Test",
+                            "",
+                            "User 3",
+                            "",
+                            "TestRole3"});
+                table6.AddRow(new string[] {
                             "mfauser@testing.co.uk",
                             "123456789",
                             "MFA",
@@ -305,23 +329,23 @@ await this.FeatureBackgroundAsync();
 #line 30
  await testRunner.GivenAsync("I create the following users", ((string)(null)), table6, "Given ");
 #line hidden
-#line 33
- await testRunner.WhenAsync("I require MFA for user \'mfauser@testing.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
-#line 34
- await testRunner.ThenAsync("the MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
-#line hidden
-#line 35
- await testRunner.WhenAsync("I require MFA for user \'mfauser@testing.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
-#line hidden
 #line 36
- await testRunner.ThenAsync("the MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+ await testRunner.WhenAsync("I require MFA for user \'mfauser@testing.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 37
- await testRunner.WhenAsync("I remove MFA for user \'mfauser@testing.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+ await testRunner.ThenAsync("the user MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
 #line 38
- await testRunner.ThenAsync("the MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+ await testRunner.WhenAsync("I require MFA for user \'mfauser@testing.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 39
+ await testRunner.ThenAsync("the user MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
+#line 40
+ await testRunner.WhenAsync("I remove MFA for user \'mfauser@testing.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 41
+ await testRunner.ThenAsync("the user MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
                 global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
@@ -359,7 +383,7 @@ await this.FeatureBackgroundAsync();
                             "emailaddress:testuser3@testing.co.uk, givenname:Test, surname:User 3",
                             "TestRole3",
                             "Today"});
-#line 39
+#line 42
  await testRunner.WhenAsync("I get the users 3 users details are returned as follows", ((string)(null)), table7, "When ");
 #line hidden
             }

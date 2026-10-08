@@ -40,7 +40,7 @@ namespace SecurityService.IntergrationTests.Common
         public ISecurityServiceClient SecurityServiceClient;
         public HttpClient httpClient = new HttpClient();
         private IntegrationTestCertificate? _integrationTestCertificate;
-
+        public String AccessToken;
         /// <summary>
         /// The security service test UI container name
         /// </summary>
@@ -119,7 +119,7 @@ namespace SecurityService.IntergrationTests.Common
                     throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
                 }
 
-                this.SecurityServiceClient.SetAccessToken(bootstrapToken.Data.AccessToken);
+                this.AccessToken = bootstrapToken.Data.AccessToken;
 
                 DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
                 DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);

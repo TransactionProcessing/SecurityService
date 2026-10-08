@@ -297,7 +297,7 @@ await this.FeatureBackgroundAsync();
  await testRunner.WhenAsync("I require MFA for user \'merchantuser\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
 #line hidden
 #line 42
- await testRunner.ThenAsync("the MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+ await testRunner.ThenAsync("the user MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
                 global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
                             "ClientId",
@@ -315,6 +315,12 @@ await this.FeatureBackgroundAsync();
 #line 46
  await testRunner.ThenAsync("the password token request fails", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
+#line 47
+ await testRunner.WhenAsync("I remove MFA for user \'merchantuser\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
+#line hidden
+#line 48
+ await testRunner.ThenAsync("the user MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
+#line hidden
                 global::Reqnroll.Table table8 = new global::Reqnroll.Table(new string[] {
                             "ClientId",
                             "ClientSecret",
@@ -325,10 +331,10 @@ await this.FeatureBackgroundAsync();
                             "Secret1",
                             "merchantuser",
                             "123456"});
-#line 47
+#line 49
  await testRunner.WhenAsync("I request a password token with the following values", ((string)(null)), table8, "When ");
 #line hidden
-#line 50
+#line 52
  await testRunner.ThenAsync("my token is returned", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
             }

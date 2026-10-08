@@ -40,7 +40,7 @@
         public UsersSteps(TestingContext testingContext)
         {
             this.TestingContext = testingContext;
-            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient);
+            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient, this.TestingContext.DockerHelper.AccessToken);
         }
 
         #endregion
@@ -99,8 +99,8 @@
             this.TestingContext.LastMfaPolicyResult = await this.SecurityServiceSteps.RemoveUserMfa(userId, CancellationToken.None);
         }
 
-        [Then(@"the MFA policy operation succeeds")]
-        public void ThenTheMfaPolicyOperationSucceeds()
+        [Then(@"the user MFA policy operation succeeds")]
+        public void ThenTheUserMfaPolicyOperationSucceeds()
         {
             this.TestingContext.LastMfaPolicyResult.ShouldNotBeNull();
             this.TestingContext.LastMfaPolicyResult.IsSuccess.ShouldBeTrue(this.TestingContext.LastMfaPolicyResult.Message);

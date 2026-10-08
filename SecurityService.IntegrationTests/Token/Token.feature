@@ -39,11 +39,13 @@ Scenario: Get Tokens
 @mfa
 Scenario: Password token is rejected when MFA is required
 	When I require MFA for user 'merchantuser'
-	Then the MFA policy operation succeeds
+	Then the user MFA policy operation succeeds
 	When I request a password token with the following values
 	| ClientId      | ClientSecret | Username     | Password |
 	| merchantClient | Secret1      | merchantuser | 123456   |
 	Then the password token request fails
+	When I remove MFA for user 'merchantuser'
+	Then the user MFA policy operation succeeds
 	When I request a password token with the following values
 	| ClientId       | ClientSecret | Username                         | Password |
 	| merchantClient | Secret1      | merchantuser                    | 123456   |

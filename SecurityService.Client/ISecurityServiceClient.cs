@@ -12,56 +12,41 @@ namespace SecurityService.Client
     /// 
     /// </summary>
     public interface ISecurityServiceClient
-    {
-        #region Methods
+    {        
+        Task<Result> CreateApiResource(String accessToken, CreateApiResourceRequest createApiResourceRequest, CancellationToken cancellationToken);
+        Task<Result> CreateApiScope(String accessToken, CreateApiScopeRequest createApiScopeRequest,CancellationToken cancellationToken);
 
-        void SetAccessToken(String accessToken);
+        Task<Result> CreateClient(String accessToken, CreateClientRequest createClientRequest,CancellationToken cancellationToken);
 
-        Task<Result> CreateApiResource(CreateApiResourceRequest createApiResourceRequest,
-                                                                  CancellationToken cancellationToken);
-        Task<Result> CreateApiScope(CreateApiScopeRequest createApiScopeRequest,
-                                                           CancellationToken cancellationToken);
+        Task<Result> CreateIdentityResource(String accessToken, CreateIdentityResourceRequest createIdentityResourceRequest,CancellationToken cancellationToken);
+        Task<Result> CreateRole(String accessToken, CreateRoleRequest createRoleRequest,CancellationToken cancellationToken);
 
-        Task<Result> CreateClient(CreateClientRequest createClientRequest,
-                                                       CancellationToken cancellationToken);
+        Task<Result> CreateUser(String accessToken, CreateUserRequest createUserRequest, CancellationToken cancellationToken);
 
-        Task<Result> CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
-                                                                    CancellationToken cancellationToken);
-        Task<Result> CreateRole(CreateRoleRequest createRoleRequest,
-                                            CancellationToken cancellationToken);
+        Task<Result> RequireUserMfa(String accessToken, String userId, CancellationToken cancellationToken);
+        Task<Result> RemoveUserMfa(String accessToken, String userId, CancellationToken cancellationToken);
+        Task<Result> RequireRoleMfa(String accessToken, String roleId, CancellationToken cancellationToken);
+        Task<Result> RemoveRoleMfa(String accessToken, String roleId, CancellationToken cancellationToken);
 
-        Task<Result> CreateUser(CreateUserRequest createUserRequest,
-                                            CancellationToken cancellationToken);
+        Task<Result<ApiResourceResponse>> GetApiResource(String accessToken, String apiResourceName,CancellationToken cancellationToken);
 
-        Task<Result> RequireUserMfa(String userId, CancellationToken cancellationToken);
-        Task<Result> RemoveUserMfa(String userId, CancellationToken cancellationToken);
-        Task<Result> RequireRoleMfa(String roleId, CancellationToken cancellationToken);
-        Task<Result> RemoveRoleMfa(String roleId, CancellationToken cancellationToken);
+        Task<Result<ApiScopeResponse>> GetApiScope(String accessToken, String apiScopeName,CancellationToken cancellationToken);
 
-        Task<Result<ApiResourceResponse>> GetApiResource(String apiResourceName,
-                                                         CancellationToken cancellationToken);
+        Task<Result<List<ApiResourceResponse>>> GetApiResources(String accessToken, CancellationToken cancellationToken);
 
-        Task<Result<ApiScopeResponse>> GetApiScope(String apiScopeName,
-                                                   CancellationToken cancellationToken);
+        Task<Result<List<ApiScopeResponse>>> GetApiScopes(String accessToken, CancellationToken cancellationToken);
 
-        Task<Result<List<ApiResourceResponse>>> GetApiResources(CancellationToken cancellationToken);
+        Task<Result<ClientResponse>> GetClient(String accessToken, String clientId,CancellationToken cancellationToken);
 
-        Task<Result<List<ApiScopeResponse>>> GetApiScopes(CancellationToken cancellationToken);
+        Task<Result<List<ClientResponse>>> GetClients(String accessToken, CancellationToken cancellationToken);
 
-        Task<Result<ClientResponse>> GetClient(String clientId,
-                                               CancellationToken cancellationToken);
+        Task<Result<IdentityResourceResponse>> GetIdentityResource(String accessToken, String identityResourceName,CancellationToken cancellationToken);
 
-        Task<Result<List<ClientResponse>>> GetClients(CancellationToken cancellationToken);
+        Task<Result<List<IdentityResourceResponse>>> GetIdentityResources(String accessToken, CancellationToken cancellationToken);
 
-        Task<Result<IdentityResourceResponse>> GetIdentityResource(String identityResourceName,
-                                                                   CancellationToken cancellationToken);
+        Task<Result<RoleResponse>> GetRole(String accessToken, String roleId,CancellationToken cancellationToken);
 
-        Task<Result<List<IdentityResourceResponse>>> GetIdentityResources(CancellationToken cancellationToken);
-
-        Task<Result<RoleResponse>> GetRole(String roleId,
-                                           CancellationToken cancellationToken);
-
-        Task<Result<List<RoleResponse>>> GetRoles(CancellationToken cancellationToken);
+        Task<Result<List<RoleResponse>>> GetRoles(String accessToken, CancellationToken cancellationToken);
 
         Task<Result<TokenResponse>> GetToken(String username,
                                             String password,
@@ -78,11 +63,7 @@ namespace SecurityService.Client
                                             String refreshToken,
                                             CancellationToken cancellationToken);
 
-        Task<Result<UserResponse>> GetUser(String userId,
-                                           CancellationToken cancellationToken);
-        Task<Result<List<UserResponse>>> GetUsers(String userName,
-                                                CancellationToken cancellationToken);
-
-        #endregion
+        Task<Result<UserResponse>> GetUser(String accessToken, String userId,CancellationToken cancellationToken);
+        Task<Result<List<UserResponse>>> GetUsers(String accessToken, String userName,CancellationToken cancellationToken);
     }
 }

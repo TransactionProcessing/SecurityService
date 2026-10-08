@@ -113,52 +113,52 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
         {
 #line 4
 #line hidden
-            global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table11 = new global::Reqnroll.Table(new string[] {
                         "Role Name"});
-            table1.AddRow(new string[] {
+            table11.AddRow(new string[] {
                         "Estate"});
 #line 6
- await testRunner.GivenAsync("I create the following roles", ((string)(null)), table1, "Given ");
+ await testRunner.GivenAsync("I create the following roles", ((string)(null)), table11, "Given ");
 #line hidden
-            global::Reqnroll.Table table2 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table12 = new global::Reqnroll.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Secret",
                         "Scopes",
                         "UserClaims"});
-            table2.AddRow(new string[] {
+            table12.AddRow(new string[] {
                         "transactionProcessor",
                         "Transaction Processor REST",
                         "Secret1",
                         "transactionProcessor",
                         "MerchantId,EstateId,role"});
 #line 10
- await testRunner.GivenAsync("I create the following api resources", ((string)(null)), table2, "Given ");
+ await testRunner.GivenAsync("I create the following api resources", ((string)(null)), table12, "Given ");
 #line hidden
-            global::Reqnroll.Table table3 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table13 = new global::Reqnroll.Table(new string[] {
                         "Name",
                         "DisplayName",
                         "Description",
                         "UserClaims"});
-            table3.AddRow(new string[] {
+            table13.AddRow(new string[] {
                         "openid",
                         "Your user identifier",
                         "",
                         "sub"});
-            table3.AddRow(new string[] {
+            table13.AddRow(new string[] {
                         "profile",
                         "User profile",
                         "Your user profile information (first name, last name, etc.)",
                         "name,role,email,given_name,middle_name,family_name,EstateId,MerchantId"});
-            table3.AddRow(new string[] {
+            table13.AddRow(new string[] {
                         "email",
                         "Email",
                         "Email and Email Verified Flags",
                         "email_verified,email"});
 #line 14
- await testRunner.GivenAsync("I create the following identity resources", ((string)(null)), table3, "Given ");
+ await testRunner.GivenAsync("I create the following identity resources", ((string)(null)), table13, "Given ");
 #line hidden
-            global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table14 = new global::Reqnroll.Table(new string[] {
                         "ClientId",
                         "Name",
                         "Secret",
@@ -169,7 +169,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "RequireConsent",
                         "AllowOfflineAccess",
                         "ClientUri"});
-            table4.AddRow(new string[] {
+            table14.AddRow(new string[] {
                         "estateUIClient",
                         "Merchant Client",
                         "Secret1",
@@ -181,7 +181,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.UserLogin
                         "true",
                         "https://[url]:[port]"});
 #line 20
- await testRunner.GivenAsync("I create the following clients", ((string)(null)), table4, "Given ");
+ await testRunner.GivenAsync("I create the following clients", ((string)(null)), table14, "Given ");
 #line hidden
         }
         
@@ -215,7 +215,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-                global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table15 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -223,7 +223,7 @@ await this.FeatureBackgroundAsync();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table5.AddRow(new string[] {
+                table15.AddRow(new string[] {
                             "estateuser@testestate1.co.uk",
                             "123456789",
                             "Test",
@@ -232,7 +232,7 @@ await this.FeatureBackgroundAsync();
                             "EstateId:1",
                             "Estate"});
 #line 26
- await testRunner.GivenAsync("I create the following users", ((string)(null)), table5, "Given ");
+ await testRunner.GivenAsync("I create the following users", ((string)(null)), table15, "Given ");
 #line hidden
 #line 29
  await testRunner.ThenAsync("I get an email with a confirm email address link", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -291,7 +291,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-                global::Reqnroll.Table table6 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table16 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -299,7 +299,7 @@ await this.FeatureBackgroundAsync();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table6.AddRow(new string[] {
+                table16.AddRow(new string[] {
                             "mfauser@testestate1.co.uk",
                             "123456789",
                             "Test",
@@ -308,7 +308,7 @@ await this.FeatureBackgroundAsync();
                             "EstateId:1",
                             "Estate"});
 #line 41
- await testRunner.GivenAsync("I create the following users", ((string)(null)), table6, "Given ");
+ await testRunner.GivenAsync("I create the following users", ((string)(null)), table16, "Given ");
 #line hidden
 #line 44
  await testRunner.ThenAsync("I get an email with a confirm email address link", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
@@ -405,7 +405,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-                global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table17 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -413,7 +413,7 @@ await this.FeatureBackgroundAsync();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table7.AddRow(new string[] {
+                table17.AddRow(new string[] {
                             "recoveryuser@testestate1.co.uk",
                             "123456789",
                             "Test",
@@ -422,7 +422,7 @@ await this.FeatureBackgroundAsync();
                             "EstateId:1",
                             "Estate"});
 #line 69
- await testRunner.GivenAsync("I create the following users", ((string)(null)), table7, "Given ");
+ await testRunner.GivenAsync("I create the following users", ((string)(null)), table17, "Given ");
 #line hidden
 #line 72
  await testRunner.ThenAsync("I get an email with a confirm email address link", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");

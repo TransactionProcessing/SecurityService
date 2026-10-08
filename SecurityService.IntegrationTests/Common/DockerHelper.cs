@@ -6,6 +6,7 @@ using Shared.Serialisation;
 namespace SecurityService.IntergrationTests.Common
 {
     using Client;
+    using NLog.Config;
     using SecurityService.IntegrationTesting.Helpers;
     using Shared.IntegrationTesting;
     using System;
@@ -30,6 +31,7 @@ namespace SecurityService.IntergrationTests.Common
         {
             return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         }
+        public String AccessToken;
 
         public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
         {
@@ -48,8 +50,7 @@ namespace SecurityService.IntergrationTests.Common
                 {
                     throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
                 }
-
-                this.SecurityServiceClient.SetAccessToken(bootstrapToken.Data.AccessToken);
+                this.AccessToken = bootstrapToken.Data.AccessToken;
 
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
             }

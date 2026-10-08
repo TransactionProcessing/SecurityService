@@ -25,7 +25,8 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         public SharedSteps(TestingContext testingContext)
         {
             this.TestingContext = testingContext;
-            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient);
+            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient,
+                this.TestingContext.DockerHelper.AccessToken);
         }
 
         [Given(@"I create the following roles")]
@@ -74,11 +75,11 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
         private async Task CreateIdentityResource(CreateIdentityResourceRequest createIdentityResourceRequest,
                                                                              CancellationToken cancellationToken)
         {
-            Result<List<IdentityResourceResponse>> identityResourceListResult = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(cancellationToken);
+            Result<List<IdentityResourceResponse>> identityResourceListResult = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(this.TestingContext.DockerHelper.AccessToken,cancellationToken);
             identityResourceListResult.IsSuccess.ShouldBeTrue();
             List<IdentityResourceResponse> identityResourceList = identityResourceListResult.Data;
             if (identityResourceList == null || identityResourceList.Any() == false) {
-                Result result = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateIdentityResource(createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
+                Result result = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateIdentityResource(this.TestingContext.DockerHelper.AccessToken,createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
                 result.IsSuccess.ShouldBeTrue();
 
                 this.TestingContext.IdentityResources.Add(createIdentityResourceRequest.Name);
@@ -92,7 +93,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
 
                 Result result = await this
                                                        .TestingContext.DockerHelper.SecurityServiceClient
-                                                       .CreateIdentityResource(createIdentityResourceRequest, cancellationToken)
+                                                       .CreateIdentityResource(this.TestingContext.DockerHelper.AccessToken,createIdentityResourceRequest, cancellationToken)
                                                        .ConfigureAwait(false);
                 result.IsSuccess.ShouldBeTrue();
                 

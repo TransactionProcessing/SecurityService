@@ -36,7 +36,7 @@ namespace SecurityService.IntegrationTests.Roles
         public RolesSteps(TestingContext testingContext)
         {
             this.TestingContext = testingContext;
-            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient);
+            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient, this.TestingContext.DockerHelper.AccessToken);
         }
 
         #endregion
@@ -80,7 +80,7 @@ namespace SecurityService.IntegrationTests.Roles
             this.TestingContext.LastMfaPolicyResult = await this.SecurityServiceSteps.RemoveRoleMfa(roleId, CancellationToken.None);
         }
 
-        [Then(@"the MFA policy operation succeeds")]
+        [Then(@"the role MFA policy operation succeeds")]
         public void ThenTheMfaPolicyOperationSucceeds()
         {
             this.TestingContext.LastMfaPolicyResult.ShouldNotBeNull();

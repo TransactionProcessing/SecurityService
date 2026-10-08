@@ -29,13 +29,16 @@ Scenario: Get Users
 Scenario: Require and remove MFA for a user
 	Given I create the following users
 	| Email Address         | Phone Number | Given Name | Middle Name | Family Name | Claims | Roles     |
+	| testuser1@testing.co.uk | 123456789    | Test       |             | User 1      |        | TestRole1 |
+	| testuser2@testing.co.uk | 123456789    | Test       |             | User 2      |        | TestRole2 |
+	| testuser3@testing.co.uk | 123456789    | Test       |             | User 3      |        | TestRole3 |
 	| mfauser@testing.co.uk | 123456789    | MFA        |             | User        |        | TestRole1 |
 	When I require MFA for user 'mfauser@testing.co.uk'
-	Then the MFA policy operation succeeds
+	Then the user MFA policy operation succeeds
 	When I require MFA for user 'mfauser@testing.co.uk'
-	Then the MFA policy operation succeeds
+	Then the user MFA policy operation succeeds
 	When I remove MFA for user 'mfauser@testing.co.uk'
-	Then the MFA policy operation succeeds
+	Then the user MFA policy operation succeeds
 	When I get the users 3 users details are returned as follows
 	| Email Address           | Phone Number | Given Name | Middle Name | Family Name | Claims                                                             | Roles     |RegistrationDate |
 	| testuser1@testing.co.uk | 123456789    | Test       |             | User 1      | emailaddress:testuser1@testing.co.uk, givenname:Test, surname:User 1 | TestRole1 |Today            |

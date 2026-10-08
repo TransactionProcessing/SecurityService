@@ -39,7 +39,7 @@
         public ClientsSteps(TestingContext testingContext)
         {
             this.TestingContext = testingContext;
-            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient);
+            this.SecurityServiceSteps = new SecurityServiceSteps(this.TestingContext.DockerHelper.SecurityServiceClient, this.TestingContext.DockerHelper.AccessToken);
         }
 
         #endregion
