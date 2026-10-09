@@ -109,6 +109,8 @@ public class UserOptions
 
     public Boolean RequireUniqueEmail { get; set; }
 
+    public Boolean UseProvidedPasswordForEmailUsers { get; set; }
+
     #endregion
 }
 

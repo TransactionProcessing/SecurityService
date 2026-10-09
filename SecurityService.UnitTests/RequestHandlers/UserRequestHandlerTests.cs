@@ -37,6 +37,48 @@ public class UserRequestHandlerTests
     }
 
     [Fact]
+    public async Task CreateUser_WithEmailAddressInIntegrationTestMode_UsesProvidedPasswordWhenEnabled()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.CreateUser_WithEmailAddressInIntegrationTestMode_UsesProvidedPasswordWhenEnabled),
+            configureOptions: options => options.UserOptions.UseProvidedPasswordForEmailUsers = true,
+            environmentName: "IntegrationTest");
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateUserCommand(
+            "Alice", null, "Tester", "alice", "SuppliedPassword1!", "alice@example.com", null,
+            new Dictionary<string, string>(), new List<string>()));
+
+        result.IsSuccess.ShouldBeTrue();
+        using var scope = provider.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var user = await userManager.FindByNameAsync("alice");
+        user.ShouldNotBeNull();
+        (await userManager.CheckPasswordAsync(user, "SuppliedPassword1!")).ShouldBeTrue();
+    }
+
+    [Fact]
+    public async Task CreateUser_WithEmailAddressOutsideIntegrationTestMode_IgnoresProvidedPassword()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.CreateUser_WithEmailAddressOutsideIntegrationTestMode_IgnoresProvidedPassword),
+            configureOptions: options => options.UserOptions.UseProvidedPasswordForEmailUsers = true,
+            environmentName: "Development");
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateUserCommand(
+            "Alice", null, "Tester", "alice", "SuppliedPassword1!", "alice@example.com", null,
+            new Dictionary<string, string>(), new List<string>()));
+
+        result.IsSuccess.ShouldBeTrue();
+        using var scope = provider.CreateScope();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+        var user = await userManager.FindByNameAsync("alice");
+        user.ShouldNotBeNull();
+        user.PasswordHash.ShouldBeNull();
+    }
+
+    [Fact]
     public async Task UserLifecycle_CreateGetAndList_Works()
     {
         using var provider = TestServiceProviderFactory.Create(nameof(this.UserLifecycle_CreateGetAndList_Works));

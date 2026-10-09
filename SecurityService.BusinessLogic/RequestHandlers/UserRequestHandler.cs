@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
@@ -43,12 +44,14 @@ public sealed class UserRequestHandler :
     private readonly IMessagingServiceClient MessagingServiceClient;
     private readonly IClientJwtService ClientJwtService;
     private readonly SecurityServiceDbContext DbContext;
+    private readonly IHostEnvironment HostEnvironment;
 
 
     public UserRequestHandler(UserManager<ApplicationUser> userManager, IPasswordHasher<ApplicationUser> passwordHasher,
                               IOptions<ServiceOptions> options, IMessagingServiceClient messagingServiceClient,
                               IClientJwtService clientJwtService,
-                              SecurityServiceDbContext dbContext) {
+                              SecurityServiceDbContext dbContext,
+                              IHostEnvironment hostEnvironment) {
 
         
 
@@ -58,6 +61,7 @@ public sealed class UserRequestHandler :
         this.MessagingServiceClient = messagingServiceClient;
         this.ClientJwtService = clientJwtService;
         this.DbContext = dbContext;
+        this.HostEnvironment = hostEnvironment;
     }
 
     private TokenResponse TokenResponse;
@@ -180,7 +184,10 @@ public sealed class UserRequestHandler :
         };
 
         bool hasEmailAddress = String.IsNullOrWhiteSpace(command.EmailAddress) == false;
-        if (hasEmailAddress == false)
+        bool shouldUseProvidedPassword = hasEmailAddress == false ||
+                                          (this.HostEnvironment.IsEnvironment("IntegrationTest") &&
+                                           this.Options.Value.UserOptions.UseProvidedPasswordForEmailUsers);
+        if (shouldUseProvidedPassword)
         {
             Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password) ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions) : command.Password;
 
