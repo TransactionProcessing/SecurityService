@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting.Internal;
 using Microsoft.IdentityModel.Tokens;
 using SecurityService.BusinessLogic;
 using SecurityService.BusinessLogic.Requests;
@@ -22,7 +24,8 @@ public static class TestServiceProviderFactory
         Action<ServiceOptions>? configureOptions = null,
         TimeSpan? passwordTokenLifespan = null,
         bool useSqlite = false,
-        SaveChangesInterceptor? saveChangesInterceptor = null)
+        SaveChangesInterceptor? saveChangesInterceptor = null,
+        string environmentName = "UnitTest")
     {
         var rsa = RSA.Create(2048);
         var key = new RsaSecurityKey(rsa);
@@ -39,6 +42,11 @@ public static class TestServiceProviderFactory
             configureOptions?.Invoke(options);
         });
         services.AddSingleton<IClientJwtService, ClientJwtService>();
+        services.AddSingleton<IHostEnvironment>(new HostingEnvironment
+        {
+            EnvironmentName = environmentName,
+            ApplicationName = typeof(TestServiceProviderFactory).Assembly.GetName().Name
+        });
         services.AddLogging();
         services.AddDataProtection().UseEphemeralDataProtectionProvider();
         if (passwordTokenLifespan.HasValue)

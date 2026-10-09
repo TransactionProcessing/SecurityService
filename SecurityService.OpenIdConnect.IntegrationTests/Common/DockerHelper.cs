@@ -271,6 +271,7 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireDigit","false");
             environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireUpperCase","false");
             environmentVariables.Add($"ServiceOptions:UserOptions:RequireUniqueEmail","false");
+            environmentVariables.Add("ServiceOptions:UserOptions:UseProvidedPasswordForEmailUsers", "true");
             environmentVariables.Add($"ServiceOptions:SignInOptions:RequireConfirmedEmail","false");
             environmentVariables.Add("ServiceOptions:ManagementBootstrap:Enabled", "true");
             environmentVariables.Add("ServiceOptions:ManagementBootstrap:ClientId", "management-bootstrap");
