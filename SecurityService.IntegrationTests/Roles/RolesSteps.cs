@@ -62,6 +62,7 @@ namespace SecurityService.IntegrationTests.Roles
         [When(@"I get the roles (.*) roles details are returned as follows")]
         public async Task WhenIGetTheRolesRolesDetailsAreReturnedAsFollows(Int32 numberOfRoles, Table table)
         {
+            table.Rows.Count.ShouldBe(numberOfRoles);
             List<RoleResponse> requests = table.Rows.ToRoleResponses();
             await this.SecurityServiceSteps.WhenIGetTheRolesRolesDetailsAreReturnedAsFollows(requests, CancellationToken.None);
         }

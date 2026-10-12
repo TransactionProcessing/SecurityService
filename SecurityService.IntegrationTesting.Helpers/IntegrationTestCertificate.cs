@@ -40,36 +40,47 @@ public sealed class IntegrationTestCertificate : IDisposable
     public static IntegrationTestCertificate Create()
     {
         string certificateDirectory = Path.Combine(Path.GetTempPath(), $"securityservice-cert-{Guid.NewGuid():N}");
-        Directory.CreateDirectory(certificateDirectory);
+        IntegrationTestCertificate? result = null;
 
-        using RSA rsa = RSA.Create(2048);
-        CertificateRequest request = new CertificateRequest(RootSubjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
-        request.CertificateExtensions.Add(new X509BasicConstraintsExtension(false, false, 0, true));
-        request.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment, true));
+        try
+        {
+            Directory.CreateDirectory(certificateDirectory);
 
-        OidCollection enhancedKeyUsages = new OidCollection();
-        enhancedKeyUsages.Add(new Oid("1.3.6.1.5.5.7.3.1"));
-        request.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension(enhancedKeyUsages, false));
+            using RSA rsa = RSA.Create(2048);
+            CertificateRequest request = new CertificateRequest(RootSubjectName, rsa, HashAlgorithmName.SHA256, RSASignaturePadding.Pkcs1);
+            request.CertificateExtensions.Add(new X509BasicConstraintsExtension(false, false, 0, true));
+            request.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature | X509KeyUsageFlags.KeyEncipherment, true));
 
-        SubjectAlternativeNameBuilder subjectAlternativeNames = new SubjectAlternativeNameBuilder();
-        subjectAlternativeNames.AddDnsName(LocalhostName);
-        subjectAlternativeNames.AddIpAddress(IPAddress.Parse(LoopbackAddress));
-        request.CertificateExtensions.Add(subjectAlternativeNames.Build());
+            OidCollection enhancedKeyUsages = new OidCollection();
+            enhancedKeyUsages.Add(new Oid("1.3.6.1.5.5.7.3.1"));
+            request.CertificateExtensions.Add(new X509EnhancedKeyUsageExtension(enhancedKeyUsages, false));
 
-        request.CertificateExtensions.Add(new X509SubjectKeyIdentifierExtension(request.PublicKey, false));
+            SubjectAlternativeNameBuilder subjectAlternativeNames = new SubjectAlternativeNameBuilder();
+            subjectAlternativeNames.AddDnsName(LocalhostName);
+            subjectAlternativeNames.AddIpAddress(IPAddress.Parse(LoopbackAddress));
+            request.CertificateExtensions.Add(subjectAlternativeNames.Build());
 
-        using X509Certificate2 certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(30));
-        byte[] pfxBytes = certificate.Export(X509ContentType.Pfx, PasswordValue);
-        byte[] certificateBytes = certificate.Export(X509ContentType.Cert);
+            request.CertificateExtensions.Add(new X509SubjectKeyIdentifierExtension(request.PublicKey, false));
 
-        string serverCertificatePath = Path.Combine(certificateDirectory, ServerCertificateFileName);
-        string rootCertificatePath = Path.Combine(certificateDirectory, RootCertificateFileName);
-        File.WriteAllBytes(serverCertificatePath, pfxBytes);
-        File.WriteAllBytes(rootCertificatePath, certificateBytes);
+            using X509Certificate2 certificate = request.CreateSelfSigned(DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(30));
+            byte[] pfxBytes = certificate.Export(X509ContentType.Pfx, PasswordValue);
+            byte[] certificateBytes = certificate.Export(X509ContentType.Cert);
 
-        var result = new IntegrationTestCertificate(certificateDirectory, X509CertificateLoader.LoadPkcs12(pfxBytes, PasswordValue, X509KeyStorageFlags.EphemeralKeySet));
-        result.InstallTrustedRoot();
-        return result;
+            string serverCertificatePath = Path.Combine(certificateDirectory, ServerCertificateFileName);
+            string rootCertificatePath = Path.Combine(certificateDirectory, RootCertificateFileName);
+            File.WriteAllBytes(serverCertificatePath, pfxBytes);
+            File.WriteAllBytes(rootCertificatePath, certificateBytes);
+
+            result = new IntegrationTestCertificate(certificateDirectory, X509CertificateLoader.LoadPkcs12(pfxBytes, PasswordValue, X509KeyStorageFlags.EphemeralKeySet));
+            result.InstallTrustedRoot();
+            return result;
+        }
+        catch
+        {
+            result?.Dispose();
+            TryDeleteDirectory(certificateDirectory);
+            throw;
+        }
     }
 
     public void InstallTrustedRoot()
@@ -94,18 +105,23 @@ public sealed class IntegrationTestCertificate : IDisposable
             return;
         }
 
-        if (_trustedRootInstalled)
+        try
         {
-            RemoveTrustedRoot();
+            if (_trustedRootInstalled)
+            {
+                RemoveTrustedRoot();
+            }
         }
-
-        if (Directory.Exists(_certificateDirectory))
+        catch
         {
-            Directory.Delete(_certificateDirectory, recursive: true);
+            // Cleanup must not mask the original test failure.
         }
-
-        _certificate.Dispose();
-        _disposed = true;
+        finally
+        {
+            TryDeleteDirectory(_certificateDirectory);
+            _certificate.Dispose();
+            _disposed = true;
+        }
     }
 
     private void RemoveTrustedRoot()
@@ -119,6 +135,21 @@ public sealed class IntegrationTestCertificate : IDisposable
         }
 
         _trustedRootInstalled = false;
+    }
+
+    private static void TryDeleteDirectory(string directory)
+    {
+        try
+        {
+            if (Directory.Exists(directory))
+            {
+                Directory.Delete(directory, recursive: true);
+            }
+        }
+        catch
+        {
+            // Cleanup must not mask the original test failure.
+        }
     }
 
     private void ThrowIfDisposed()

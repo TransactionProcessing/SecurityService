@@ -383,8 +383,17 @@ await this.FeatureBackgroundAsync();
                             "emailaddress:testuser3@testing.co.uk, givenname:Test, surname:User 3",
                             "TestRole3",
                             "Today"});
+                table7.AddRow(new string[] {
+                            "mfauser@testing.co.uk",
+                            "123456789",
+                            "MFA",
+                            "",
+                            "User",
+                            "emailaddress:mfauser@testing.co.uk, givenname:MFA, surname:User",
+                            "TestRole1",
+                            "Today"});
 #line 42
- await testRunner.WhenAsync("I get the users 3 users details are returned as follows", ((string)(null)), table7, "When ");
+ await testRunner.WhenAsync("I get the users 4 users details are returned as follows", ((string)(null)), table7, "When ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

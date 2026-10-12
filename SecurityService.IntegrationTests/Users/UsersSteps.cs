@@ -65,6 +65,7 @@
         [When(@"I get the users (.*) users details are returned as follows")]
         public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(Int32 numberOfUsers,
                                                                            DataTable table){
+            table.Rows.Count.ShouldBe(numberOfUsers);
             List<UserResponse> userDetailsList = table.Rows.ToUserResponses();
             await this.SecurityServiceSteps.WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(userDetailsList, CancellationToken.None);
         }

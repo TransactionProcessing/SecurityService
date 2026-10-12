@@ -76,6 +76,7 @@ namespace SecurityService.IntegrationTests.ApiScopes
         [When(@"I get the api scopes (.*) api scope details are returned as follows")]
         public async Task WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(Int32 numberOfApiScopes, DataTable table)
         {
+            table.Rows.Count.ShouldBe(numberOfApiScopes);
             List<ApiScopeResponse> expectedDetails = table.Rows.ToApiScopeResponses();
             await this.SecurityServiceSteps.WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(expectedDetails, CancellationToken.None);
         }
