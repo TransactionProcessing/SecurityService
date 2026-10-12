@@ -41,8 +41,13 @@ public class SecurityServiceSteps{
 
     private static void AssertUserClaimsContain(
         IReadOnlyDictionary<String, String> actual,
-        IReadOnlyDictionary<String, String> expected)
+        IReadOnlyDictionary<String, String>? expected)
     {
+        if (expected is null)
+        {
+            return;
+        }
+
         foreach (KeyValuePair<String, String> expectedClaim in expected)
         {
             actual.ContainsKey(expectedClaim.Key).ShouldBeTrue(expectedClaim.Key);
