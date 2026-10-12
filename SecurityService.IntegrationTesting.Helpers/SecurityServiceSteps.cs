@@ -7,6 +7,7 @@ using DataTransferObjects;
 using Shared.IntegrationTesting;
 using Shouldly;
 using System.Collections.Generic;
+using System.Security.Claims;
 using System.Threading;
 using Reqnroll;
 
@@ -50,10 +51,20 @@ public class SecurityServiceSteps{
 
         foreach (KeyValuePair<String, String> expectedClaim in expected)
         {
-            actual.ContainsKey(expectedClaim.Key).ShouldBeTrue(expectedClaim.Key);
-            actual[expectedClaim.Key].ShouldBe(expectedClaim.Value);
+            String claimType = GetClaimType(expectedClaim.Key);
+            actual.ContainsKey(claimType).ShouldBeTrue(expectedClaim.Key);
+            actual[claimType].ShouldBe(expectedClaim.Value);
         }
     }
+
+    private static String GetClaimType(String claimName) => claimName.ToLowerInvariant() switch
+    {
+        "emailaddress" => ClaimTypes.Email,
+        "givenname" => ClaimTypes.GivenName,
+        "surname" => ClaimTypes.Surname,
+        "role" => ClaimTypes.Role,
+        _ => claimName
+    };
 
     private async Task<UserResponse> GetAndVerifyUser(CreateUserRequest request, CancellationToken cancellationToken)
     {
@@ -443,8 +454,9 @@ public class SecurityServiceSteps{
             }
 
             foreach (KeyValuePair<String, String> expectedRecordClaim in expectedRecord.Claims){
-                foundRecord.Claims.ContainsKey(expectedRecordClaim.Key).ShouldBeTrue(expectedRecordClaim.Key);
-                String? claim = foundRecord.Claims[expectedRecordClaim.Key];
+                String claimType = GetClaimType(expectedRecordClaim.Key);
+                foundRecord.Claims.ContainsKey(claimType).ShouldBeTrue(expectedRecordClaim.Key);
+                String? claim = foundRecord.Claims[claimType];
                 claim.ShouldBe(expectedRecordClaim.Value);
             }
         }
@@ -464,8 +476,9 @@ public class SecurityServiceSteps{
         }
 
         foreach (KeyValuePair<String, String> expectedRecordClaim in expectedRecord.Claims){
-            userDetails.Data.Claims.ContainsKey(expectedRecordClaim.Key).ShouldBeTrue(expectedRecordClaim.Key);
-            String? claim = userDetails.Data.Claims[expectedRecordClaim.Key];
+            String claimType = GetClaimType(expectedRecordClaim.Key);
+            userDetails.Data.Claims.ContainsKey(claimType).ShouldBeTrue(expectedRecordClaim.Key);
+            String? claim = userDetails.Data.Claims[claimType];
             claim.ShouldBe(expectedRecordClaim.Value);
         }
         // TODO: Add back in

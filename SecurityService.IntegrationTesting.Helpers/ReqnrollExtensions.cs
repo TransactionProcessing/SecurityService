@@ -316,6 +316,10 @@
         private static List<String> SplitString(this String stringToSplit){
             List<string> result = new List<string>();
 
+            if (String.IsNullOrWhiteSpace(stringToSplit)){
+                return result;
+            }
+
             List<String> splitString = stringToSplit.Split(",").ToList();
             foreach (String split in splitString){
                 result.Add(split.Trim());
