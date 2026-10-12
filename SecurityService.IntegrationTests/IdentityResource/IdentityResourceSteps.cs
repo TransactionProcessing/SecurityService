@@ -61,6 +61,7 @@ namespace SecurityService.IntegrationTests.IdentityResource
         [When(@"I get the identity resources (.*) identity resource details are returned as follows")]
         public async Task WhenIGetTheIdentityResourcesIdentityResourceDetailsAreReturnedAsFollows(Int32 numberOfIdentityResources, DataTable table)
         {
+            table.Rows.Count.ShouldBe(numberOfIdentityResources);
             List<IdentityResourceResponse> expectedIdentityResourceDetailsList = table.Rows.ToIdentityResourceResponses();
             await this.SecurityServiceSteps.WhenIGetTheIdentityResourcesIdentityResourceDetailsAreReturnedAsFollows(expectedIdentityResourceDetailsList, CancellationToken.None);
         }

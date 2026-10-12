@@ -68,6 +68,7 @@ namespace SecurityService.IntegrationTests.ApiResource
         [When(@"I get the api resources (.*) api resource details are returned as follows")]
         public async Task WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(Int32 numberOfApiResources,
                                                                                         Table table){
+            table.Rows.Count.ShouldBe(numberOfApiResources);
             List<ApiResourceResponse> expectedDetails = table.Rows.ToApiResourceResponses();
             await this.SecurityServiceSteps.WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(expectedDetails, CancellationToken.None);
         }

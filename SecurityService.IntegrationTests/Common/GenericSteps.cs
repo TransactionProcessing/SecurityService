@@ -4,17 +4,18 @@ using System.Text;
 
 namespace SecurityService.IntergrationTests.Common
 {
-    using NLog;
-    using Shared.IntegrationTesting;
-    using Shared.Logger;
-    using System.Threading.Tasks;
-    using Ductus.FluentDocker.Services;
-    using Ductus.FluentDocker.Model.Builders;
-    using Ductus.FluentDocker.Services.Extensions;
-    using System.IO;
     using Ductus.FluentDocker.Builders;
     using Ductus.FluentDocker.Common;
+    using Ductus.FluentDocker.Model.Builders;
+    using Ductus.FluentDocker.Services;
+    using Ductus.FluentDocker.Services.Extensions;
+    using NLog;
     using Reqnroll;
+    using Shared.IntegrationTesting;
+    using Shared.Logger;
+    using System.IO;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     [Binding]
     [Scope(Tag = "base")]
@@ -58,7 +59,8 @@ namespace SecurityService.IntergrationTests.Common
             
             this.TestingContext.Logger = logger;
             this.TestingContext.Logger.LogInformation("About to Start Containers for Scenario Run");
-            await this.TestingContext.DockerHelper.StartContainersForScenarioRun(scenarioName, dockerServices).ConfigureAwait(false);
+            await this.TestingContext.DockerHelper.StartContainersForScenarioRun(scenarioName, dockerServices,
+            CancellationToken.None).ConfigureAwait(false);
             this.TestingContext.Logger.LogInformation("Containers for Scenario Run Started");
         }
 

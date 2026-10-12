@@ -39,7 +39,6 @@ namespace SecurityService.IntergrationTests.Common
         /// </summary>
         public ISecurityServiceClient SecurityServiceClient;
         public HttpClient httpClient = new HttpClient();
-        private IntegrationTestCertificate? _integrationTestCertificate;
         public String AccessToken;
         /// <summary>
         /// The security service test UI container name
@@ -79,7 +78,8 @@ namespace SecurityService.IntergrationTests.Common
             this.SecurityServiceTestUIContainerName = $"securityservicetestui{this.TestId:N}";
         }
 
-        public override async Task CreateSubscriptions(){
+        public override async Task CreateSubscriptions(CancellationToken cancellationToken)
+        {
             // Nothing to set up here
         }
 
@@ -97,14 +97,13 @@ namespace SecurityService.IntergrationTests.Common
         /// Starts the containers for scenario run.
         /// </summary>
         /// <param name="scenarioName">Name of the scenario.</param>
-        public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices)
+        public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices, CancellationToken cancellationToken)
         {
             this.Trace($"Test Id is {this.TestId} and Scenario {scenarioName}");
-            this._integrationTestCertificate = IntegrationTestCertificate.Create();
 
             try
             {
-                await base.StartContainersForScenarioRun(scenarioName,dockerServices);
+                await base.StartContainersForScenarioRun(scenarioName,dockerServices, cancellationToken);
 
                 await StartContainer(SetupSecurityServiceTestUIContainer, this.TestNetworks);
 
@@ -254,7 +253,7 @@ namespace SecurityService.IntergrationTests.Common
         {
             this.Trace("About to Start Security Container");
 
-            if (this._integrationTestCertificate is null)
+            if (this.IntegrationTestCertificate is null)
             {
                 throw new InvalidOperationException("Integration test certificate was not initialised before container setup.");
             }
@@ -264,8 +263,8 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add($"ServiceOptions:IssuerUrl",$"https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
             environmentVariables.Add("ASPNETCORE_ENVIRONMENT","IntegrationTest");
             environmentVariables.Add($"urls",$"https://*:{DockerPorts.SecurityServiceDockerPort}");
-            environmentVariables.Add("ServiceOptions:KestrelOptions:Path", this._integrationTestCertificate.GetContainerCertificatePath());
-            environmentVariables.Add("ServiceOptions:KestrelOptions:Password", this._integrationTestCertificate.Password);
+            environmentVariables.Add("ServiceOptions:KestrelOptions:Path", this.IntegrationTestCertificate.GetContainerCertificatePath());
+            environmentVariables.Add("ServiceOptions:KestrelOptions:Password", this.IntegrationTestCertificate.Password);
 
             environmentVariables.Add($"ServiceOptions:PasswordOptions:RequiredLength","6");
             environmentVariables.Add($"ServiceOptions:PasswordOptions:RequireDigit","false");
@@ -298,21 +297,15 @@ namespace SecurityService.IntergrationTests.Common
                 .WithName(this.SecurityServiceContainerName)
                 .WithEnvironment(environmentVariables)
                 .WithPortBinding(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
-                .WithBindMount(this._integrationTestCertificate.CertificateDirectory, this._integrationTestCertificate.ContainerCertificateDirectory, AccessMode.ReadOnly)
-                .MountHostFolder(this.DockerPlatform, this.HostTraceFolder);
+                .WithBindMount(this.IntegrationTestCertificate.CertificateDirectory, this.IntegrationTestCertificate.ContainerCertificateDirectory, AccessMode.ReadOnly)
+                .MountHostFolder(this.HostTraceFolder);
 
             return securityServiceContainer;
         }
 
-        public void DisposeIntegrationTestCertificate()
-        {
-            this._integrationTestCertificate?.Dispose();
-            this._integrationTestCertificate = null;
-        }
-
         private HttpClient CreatePinnedHttpClient()
         {
-            if (this._integrationTestCertificate is null)
+            if (this.IntegrationTestCertificate is null)
             {
                 throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
             }
@@ -321,7 +314,7 @@ namespace SecurityService.IntergrationTests.Common
             {
                 ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
                     certificate is X509Certificate2 certificate2 &&
-                    String.Equals(certificate2.Thumbprint, this._integrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
+                    String.Equals(certificate2.Thumbprint, this.IntegrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
             };
 
             return new HttpClient(handler, disposeHandler: true);

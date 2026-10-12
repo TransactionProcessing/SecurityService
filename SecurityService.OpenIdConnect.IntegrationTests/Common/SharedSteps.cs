@@ -78,28 +78,30 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
             Result<List<IdentityResourceResponse>> identityResourceListResult = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(this.TestingContext.DockerHelper.AccessToken,cancellationToken);
             identityResourceListResult.IsSuccess.ShouldBeTrue();
             List<IdentityResourceResponse> identityResourceList = identityResourceListResult.Data;
-            if (identityResourceList == null || identityResourceList.Any() == false) {
-                Result result = await this.TestingContext.DockerHelper.SecurityServiceClient.CreateIdentityResource(this.TestingContext.DockerHelper.AccessToken,createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
-                result.IsSuccess.ShouldBeTrue();
+            IdentityResourceResponse existingIdentityResource = identityResourceList?
+                .SingleOrDefault(identityResource => identityResource.Name == createIdentityResourceRequest.Name);
 
-                this.TestingContext.IdentityResources.Add(createIdentityResourceRequest.Name);
-            }
-            else
+            if (existingIdentityResource is not null)
             {
-                if (identityResourceList.Any(i => i.Name == createIdentityResourceRequest.Name))
-                {
-                    return;
-                }
+                existingIdentityResource.DisplayName.ShouldBe(createIdentityResourceRequest.DisplayName);
+                existingIdentityResource.Description.ShouldBe(createIdentityResourceRequest.Description);
 
-                Result result = await this
-                                                       .TestingContext.DockerHelper.SecurityServiceClient
-                                                       .CreateIdentityResource(this.TestingContext.DockerHelper.AccessToken,createIdentityResourceRequest, cancellationToken)
-                                                       .ConfigureAwait(false);
-                result.IsSuccess.ShouldBeTrue();
-                
+                List<String> expectedClaims = createIdentityResourceRequest.Claims ?? new List<String>();
+                existingIdentityResource.Claims
+                    .OrderBy(claim => claim)
+                    .ShouldBe(expectedClaims.OrderBy(claim => claim));
 
                 this.TestingContext.IdentityResources.Add(createIdentityResourceRequest.Name);
+                return;
             }
+
+            Result result = await this
+                                                   .TestingContext.DockerHelper.SecurityServiceClient
+                                                   .CreateIdentityResource(this.TestingContext.DockerHelper.AccessToken,createIdentityResourceRequest, cancellationToken)
+                                                   .ConfigureAwait(false);
+            result.IsSuccess.ShouldBeTrue(result.Message);
+
+            this.TestingContext.IdentityResources.Add(createIdentityResourceRequest.Name);
         }
 
         [Given(@"I create the following clients")]

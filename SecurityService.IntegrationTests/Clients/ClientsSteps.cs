@@ -11,6 +11,7 @@
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Reqnroll;
+    using Shouldly;
 
     /// <summary>
     /// 
@@ -69,6 +70,7 @@
         [When(@"I get the clients (.*) clients details are returned as follows")]
         public async Task WhenIGetTheClientsClientsDetailsAreReturnedAsFollows(Int32 numberOfClients,
                                                                                DataTable table){
+            table.Rows.Count.ShouldBe(numberOfClients);
             List<ClientResponse> expectedClientDetails = table.Rows.ToClientResponses();
             await this.SecurityServiceSteps.WhenIGetTheClientsClientsDetailsAreReturnedAsFollows(expectedClientDetails, CancellationToken.None);
         }
