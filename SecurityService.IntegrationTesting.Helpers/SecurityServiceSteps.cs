@@ -45,9 +45,8 @@ public class SecurityServiceSteps{
     {
         foreach (KeyValuePair<String, String> expectedClaim in expected)
         {
-            String claimName = $"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{expectedClaim.Key}";
-            actual.ContainsKey(claimName).ShouldBeTrue(claimName);
-            actual[claimName].ShouldBe(expectedClaim.Value);
+            actual.ContainsKey(expectedClaim.Key).ShouldBeTrue(expectedClaim.Key);
+            actual[expectedClaim.Key].ShouldBe(expectedClaim.Value);
         }
     }
 
@@ -439,9 +438,8 @@ public class SecurityServiceSteps{
             }
 
             foreach (KeyValuePair<String, String> expectedRecordClaim in expectedRecord.Claims){
-                var claimName = $"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{expectedRecordClaim.Key}";
-                foundRecord.Claims.ContainsKey(claimName).ShouldBeTrue(claimName);
-                String? claim = foundRecord.Claims[claimName];
+                foundRecord.Claims.ContainsKey(expectedRecordClaim.Key).ShouldBeTrue(expectedRecordClaim.Key);
+                String? claim = foundRecord.Claims[expectedRecordClaim.Key];
                 claim.ShouldBe(expectedRecordClaim.Value);
             }
         }
@@ -461,9 +459,8 @@ public class SecurityServiceSteps{
         }
 
         foreach (KeyValuePair<String, String> expectedRecordClaim in expectedRecord.Claims){
-            var claimName = $"http://schemas.xmlsoap.org/ws/2005/05/identity/claims/{expectedRecordClaim.Key}";
-            userDetails.Data.Claims.ContainsKey(claimName).ShouldBeTrue(claimName);
-            String? claim = userDetails.Data.Claims[claimName];
+            userDetails.Data.Claims.ContainsKey(expectedRecordClaim.Key).ShouldBeTrue(expectedRecordClaim.Key);
+            String? claim = userDetails.Data.Claims[expectedRecordClaim.Key];
             claim.ShouldBe(expectedRecordClaim.Value);
         }
         // TODO: Add back in

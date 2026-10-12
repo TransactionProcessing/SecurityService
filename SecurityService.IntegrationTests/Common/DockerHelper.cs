@@ -30,35 +30,38 @@ namespace SecurityService.IntergrationTests.Common
         {
             return StringSerialiser.DeserializeObject<Object>(arg, type, new SerialiserOptions(SerialiserPropertyFormat.SnakeCase));
         }
+
         public String AccessToken;
 
-        //public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices, )
-        //{
-        //    this._integrationTestCertificate = IntegrationTestCertificate.Create();
+        public override async Task StartContainersForScenarioRun(String scenarioName, DockerServices dockerServices, CancellationToken cancellationToken)
+        {
+            try
+            {
+                await base.StartContainersForScenarioRun(scenarioName, dockerServices, cancellationToken).ConfigureAwait(false);
 
-        //    try
-        //    {
-        //        await base.StartContainersForScenarioRun(scenarioName, dockerServices);
+                Func<String, String> securityServiceBaseAddressResolver = _ => $"https://localhost:{this.SecurityServicePort}";
+                HttpClient httpClient = this.CreatePinnedHttpClient();
+                this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
 
-        //        Func<String, String> securityServiceBaseAddressResolver = _ => $"https://localhost:{this.SecurityServicePort}";
-        //        HttpClient httpClient = this.CreatePinnedHttpClient();
-        //        this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
+                SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken =
+                    await this.SecurityServiceClient
+                        .GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None)
+                        .ConfigureAwait(false);
 
-        //        SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
-        //        if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
-        //        {
-        //            throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
-        //        }
-        //        this.AccessToken = bootstrapToken.Data.AccessToken;
+                if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
+                {
+                    throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
+                }
 
-        //        ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
-        //    }
-        //    catch
-        //    {
-        //        this.DisposeIntegrationTestCertificate();
-        //        throw;
-        //    }
-        //}
+                this.AccessToken = bootstrapToken.Data.AccessToken;
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
+            }
+            catch
+            {
+                this.DisposeIntegrationTestCertificate();
+                throw;
+            }
+        }
 
         public override ContainerBuilder SetupSecurityServiceContainer()
         {
@@ -130,21 +133,21 @@ namespace SecurityService.IntergrationTests.Common
             return Task.CompletedTask;
         }
 
-        //private HttpClient CreatePinnedHttpClient()
-        //{
-        //    if (this.IntegrationTestCertificate is null)
-        //    {
-        //        throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
-        //    }
+        private HttpClient CreatePinnedHttpClient()
+        {
+            if (this.IntegrationTestCertificate is null)
+            {
+                throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
+            }
 
-        //    HttpClientHandler handler = new HttpClientHandler
-        //    {
-        //        ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
-        //            certificate is X509Certificate2 certificate2 &&
-        //            String.Equals(certificate2.Thumbprint, this.IntegrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
-        //    };
+            HttpClientHandler handler = new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
+                    certificate is X509Certificate2 certificate2 &&
+                    String.Equals(certificate2.Thumbprint, this.IntegrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
+            };
 
-        //    return new HttpClient(handler, disposeHandler: true);
-        //}
+            return new HttpClient(handler, disposeHandler: true);
+        }
     }
 }
