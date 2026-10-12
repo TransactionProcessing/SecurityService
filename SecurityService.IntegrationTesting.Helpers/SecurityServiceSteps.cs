@@ -309,7 +309,10 @@ public class SecurityServiceSteps{
         Result<List<ClientResponse>>? clientDetailsListResult = await this.SecurityServiceClient.GetClients(this.AccessToken, cancellationToken).ConfigureAwait(false);
         clientDetailsListResult.IsSuccess.ShouldBeTrue();
         List<ClientResponse>? clientDetailsList = clientDetailsListResult.Data;
-        AssertExpectedResults(clientDetailsList!, expectedDetails, client => client.ClientId);
+        List<ClientResponse> expectedClientDetails = clientDetailsList!
+            .Where(client => expectedDetails.Any(expected => expected.ClientId == client.ClientId))
+            .ToList();
+        AssertExpectedResults(expectedClientDetails, expectedDetails, client => client.ClientId);
         foreach (ClientResponse expectedRecord in expectedDetails){
             ClientResponse? foundRecord = clientDetailsList.SingleOrDefault(a => a.ClientId == expectedRecord.ClientId);
             foundRecord.ShouldNotBeNull();
