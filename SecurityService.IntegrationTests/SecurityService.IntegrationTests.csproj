@@ -26,6 +26,10 @@
     <PackageReference Include="Reqnroll.NUnit" />
 
     <PackageReference Include="Shared.IntegrationTesting" />
+
+    <PackageReference Include="SharpCompress" />
+
+    <PackageReference Include="SSH.NET" />
     <PackageReference Include="System.Data.SqlClient" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
     

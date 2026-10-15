@@ -11,6 +11,7 @@
 	<PackageReference Include="Microsoft.EntityFrameworkCore.Relational" />
 	<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
 	<PackageReference Include="Shared.IntegrationTesting" />
+	<PackageReference Include="SSH.NET" />
   </ItemGroup>
 
   <ItemGroup>
