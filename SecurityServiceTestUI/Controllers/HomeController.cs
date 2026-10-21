@@ -14,6 +14,12 @@ namespace SecurityServiceTestUI.Controllers
 
     public class HomeController : Controller
     {
+        private readonly IConfiguration _configuration;
+
+        public HomeController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
         public IActionResult Index()
         {
             return View();
@@ -27,7 +33,7 @@ namespace SecurityServiceTestUI.Controllers
 
         [Authorize]
         public IActionResult ChangePassword() {
-            String redirectUri = $"{Startup.Configuration.GetValue<String>("AppSettings:Authority")}/Account/ChangePassword?clientId={Startup.Configuration.GetValue<String>("AppSettings:ClientId")}";
+            String redirectUri = $"{_configuration.GetValue<String>("AppSettings:Authority")}/Account/ChangePassword?clientId={_configuration.GetValue<String>("AppSettings:ClientId")}";
 
             return this.Redirect(redirectUri);
         }

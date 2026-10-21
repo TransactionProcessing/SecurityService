@@ -113,16 +113,16 @@ namespace SecurityService.IntegrationTests.Users
         {
 #line 4
 #line hidden
-            global::Reqnroll.Table table1 = new global::Reqnroll.Table(new string[] {
+            global::Reqnroll.Table table31 = new global::Reqnroll.Table(new string[] {
                         "Role Name"});
-            table1.AddRow(new string[] {
+            table31.AddRow(new string[] {
                         "TestRole1"});
-            table1.AddRow(new string[] {
+            table31.AddRow(new string[] {
                         "TestRole2"});
-            table1.AddRow(new string[] {
+            table31.AddRow(new string[] {
                         "TestRole3"});
 #line 5
- await testRunner.GivenAsync("I create the following roles", ((string)(null)), table1, "Given ");
+ await testRunner.GivenAsync("I create the following roles", ((string)(null)), table31, "Given ");
 #line hidden
         }
         
@@ -156,7 +156,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-                global::Reqnroll.Table table2 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table32 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -164,7 +164,7 @@ await this.FeatureBackgroundAsync();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table2.AddRow(new string[] {
+                table32.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
                             "Test",
@@ -172,7 +172,7 @@ await this.FeatureBackgroundAsync();
                             "User 1",
                             "",
                             "TestRole1"});
-                table2.AddRow(new string[] {
+                table32.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456789",
                             "Test",
@@ -180,7 +180,7 @@ await this.FeatureBackgroundAsync();
                             "User 2",
                             "",
                             "TestRole2"});
-                table2.AddRow(new string[] {
+                table32.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456789",
                             "Test",
@@ -189,9 +189,9 @@ await this.FeatureBackgroundAsync();
                             "",
                             "TestRole3"});
 #line 13
- await testRunner.GivenAsync("I create the following users", ((string)(null)), table2, "Given ");
+ await testRunner.GivenAsync("I create the following users", ((string)(null)), table32, "Given ");
 #line hidden
-                global::Reqnroll.Table table3 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table33 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -200,7 +200,7 @@ await this.FeatureBackgroundAsync();
                             "Claims",
                             "Roles",
                             "RegistrationDate"});
-                table3.AddRow(new string[] {
+                table33.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
                             "Test",
@@ -211,9 +211,9 @@ await this.FeatureBackgroundAsync();
                             "Today"});
 #line 18
  await testRunner.WhenAsync("I get the user with user name \'testuser1@testing.co.uk\' the user details are retu" +
-                        "rned as follows", ((string)(null)), table3, "When ");
+                        "rned as follows", ((string)(null)), table33, "When ");
 #line hidden
-                global::Reqnroll.Table table4 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table34 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -222,7 +222,7 @@ await this.FeatureBackgroundAsync();
                             "Claims",
                             "Roles",
                             "RegistrationDate"});
-                table4.AddRow(new string[] {
+                table34.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456789",
                             "Test",
@@ -233,9 +233,9 @@ await this.FeatureBackgroundAsync();
                             "Today"});
 #line 21
  await testRunner.WhenAsync("I get the user with user name \'testuser2@testing.co.uk\' the user details are retu" +
-                        "rned as follows", ((string)(null)), table4, "When ");
+                        "rned as follows", ((string)(null)), table34, "When ");
 #line hidden
-                global::Reqnroll.Table table5 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table35 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -244,7 +244,7 @@ await this.FeatureBackgroundAsync();
                             "Claims",
                             "Roles",
                             "RegistrationDate"});
-                table5.AddRow(new string[] {
+                table35.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456789",
                             "Test",
@@ -255,7 +255,7 @@ await this.FeatureBackgroundAsync();
                             "Today"});
 #line 24
  await testRunner.WhenAsync("I get the user with user name \'testuser3@testing.co.uk\' the user details are retu" +
-                        "rned as follows", ((string)(null)), table5, "When ");
+                        "rned as follows", ((string)(null)), table35, "When ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();
@@ -286,7 +286,7 @@ this.ScenarioInitialize(scenarioInfo, ruleInfo);
 #line 4
 await this.FeatureBackgroundAsync();
 #line hidden
-                global::Reqnroll.Table table6 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table36 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -294,7 +294,7 @@ await this.FeatureBackgroundAsync();
                             "Family Name",
                             "Claims",
                             "Roles"});
-                table6.AddRow(new string[] {
+                table36.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
                             "Test",
@@ -302,7 +302,7 @@ await this.FeatureBackgroundAsync();
                             "User 1",
                             "",
                             "TestRole1"});
-                table6.AddRow(new string[] {
+                table36.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456789",
                             "Test",
@@ -310,7 +310,7 @@ await this.FeatureBackgroundAsync();
                             "User 2",
                             "",
                             "TestRole2"});
-                table6.AddRow(new string[] {
+                table36.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456789",
                             "Test",
@@ -318,7 +318,7 @@ await this.FeatureBackgroundAsync();
                             "User 3",
                             "",
                             "TestRole3"});
-                table6.AddRow(new string[] {
+                table36.AddRow(new string[] {
                             "mfauser@testing.co.uk",
                             "123456789",
                             "MFA",
@@ -327,7 +327,7 @@ await this.FeatureBackgroundAsync();
                             "",
                             "TestRole1"});
 #line 30
- await testRunner.GivenAsync("I create the following users", ((string)(null)), table6, "Given ");
+ await testRunner.GivenAsync("I create the following users", ((string)(null)), table36, "Given ");
 #line hidden
 #line 36
  await testRunner.WhenAsync("I require MFA for user \'mfauser@testing.co.uk\'", ((string)(null)), ((global::Reqnroll.Table)(null)), "When ");
@@ -347,7 +347,7 @@ await this.FeatureBackgroundAsync();
 #line 41
  await testRunner.ThenAsync("the user MFA policy operation succeeds", ((string)(null)), ((global::Reqnroll.Table)(null)), "Then ");
 #line hidden
-                global::Reqnroll.Table table7 = new global::Reqnroll.Table(new string[] {
+                global::Reqnroll.Table table37 = new global::Reqnroll.Table(new string[] {
                             "Email Address",
                             "Phone Number",
                             "Given Name",
@@ -356,7 +356,7 @@ await this.FeatureBackgroundAsync();
                             "Claims",
                             "Roles",
                             "RegistrationDate"});
-                table7.AddRow(new string[] {
+                table37.AddRow(new string[] {
                             "testuser1@testing.co.uk",
                             "123456789",
                             "Test",
@@ -365,7 +365,7 @@ await this.FeatureBackgroundAsync();
                             "emailaddress:testuser1@testing.co.uk, givenname:Test, surname:User 1",
                             "TestRole1",
                             "Today"});
-                table7.AddRow(new string[] {
+                table37.AddRow(new string[] {
                             "testuser2@testing.co.uk",
                             "123456789",
                             "Test",
@@ -374,7 +374,7 @@ await this.FeatureBackgroundAsync();
                             "emailaddress:testuser2@testing.co.uk, givenname:Test, surname:User 2",
                             "TestRole2",
                             "Today"});
-                table7.AddRow(new string[] {
+                table37.AddRow(new string[] {
                             "testuser3@testing.co.uk",
                             "123456789",
                             "Test",
@@ -383,7 +383,7 @@ await this.FeatureBackgroundAsync();
                             "emailaddress:testuser3@testing.co.uk, givenname:Test, surname:User 3",
                             "TestRole3",
                             "Today"});
-                table7.AddRow(new string[] {
+                table37.AddRow(new string[] {
                             "mfauser@testing.co.uk",
                             "123456789",
                             "MFA",
@@ -393,7 +393,7 @@ await this.FeatureBackgroundAsync();
                             "TestRole1",
                             "Today"});
 #line 42
- await testRunner.WhenAsync("I get the users 4 users details are returned as follows", ((string)(null)), table7, "When ");
+ await testRunner.WhenAsync("I get the users 4 users details are returned as follows", ((string)(null)), table37, "When ");
 #line hidden
             }
             await this.ScenarioCleanupAsync();

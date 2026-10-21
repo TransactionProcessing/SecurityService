@@ -33,6 +33,7 @@ using Shared.Middleware;
 using Shared.Serialisation;
 using System.Reflection;
 using System.Security.Cryptography;
+using TransactionProcessing.ApiDefaults;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Logger = Shared.Logger.Logger;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
@@ -272,6 +273,11 @@ builder.Services.AddHttpLogging(loggingOptions =>
                                    HttpLoggingFields.RequestPath |
                                    HttpLoggingFields.ResponseStatusCode |
                                    HttpLoggingFields.Duration;
+});
+builder.Services.AddApiDefaults(options =>
+{
+    options.Title = "Security Service";
+    options.Description = "API to manage all aspects of application identity and security";
 });
 
 var rsa = RSA.Create(2048);

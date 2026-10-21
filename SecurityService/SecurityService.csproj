@@ -37,6 +37,7 @@
     <PackageReference Include="Sentry.AspNetCore" />
     <PackageReference Include="NLog.Web.AspNetCore" />
     <PackageReference Include="QRCoder" />
+    <PackageReference Include="TransactionProcessing.ApiDefaults" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityService.BusinessLogic\SecurityService.BusinessLogic.csproj" />
