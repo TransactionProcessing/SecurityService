@@ -12,29 +12,47 @@ public sealed class DtoXmlSchemaTransformer : IOpenApiSchemaTransformer
 
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {
-        Type? dtoType = context.JsonTypeInfo?.Type;
-        MemberInfo? property = context.JsonPropertyInfo?.AttributeProvider as MemberInfo;
-        string? memberName = property is not null
-            ? $"P:{property.DeclaringType?.FullName}.{property.Name}"
-            : dtoType is not null ? $"T:{dtoType.FullName}" : null;
-
-        if (memberName is null)
+        XmlDocument? documentation = XmlDocumentation.Value;
+        string? memberName = GetMemberName(context);
+        if (documentation is null || memberName is null)
         {
             return Task.CompletedTask;
         }
 
-        XmlNode? member = XmlDocumentation.Value?.SelectSingleNode($"/doc/members/member[@name='{memberName}']");
+        XmlNode? member = documentation.SelectSingleNode($"/doc/members/member[@name='{memberName}']");
         if (member is null)
         {
             return Task.CompletedTask;
         }
 
+        ApplyDescription(schema, member);
+        ApplyExample(schema, member);
+        return Task.CompletedTask;
+    }
+
+    private static string? GetMemberName(OpenApiSchemaTransformerContext context)
+    {
+        MemberInfo? property = context.JsonPropertyInfo?.AttributeProvider as MemberInfo;
+        if (property is not null)
+        {
+            return $"P:{property.DeclaringType?.FullName}.{property.Name}";
+        }
+
+        Type? dtoType = context.JsonTypeInfo?.Type;
+        return dtoType is null ? null : $"T:{dtoType.FullName}";
+    }
+
+    private static void ApplyDescription(OpenApiSchema schema, XmlNode member)
+    {
         string? description = Normalize(member.SelectSingleNode("summary")?.InnerText);
         if (!string.IsNullOrWhiteSpace(description))
         {
             schema.Description = description;
         }
+    }
 
+    private static void ApplyExample(OpenApiSchema schema, XmlNode member)
+    {
         string? example = Normalize(member.SelectSingleNode("example")?.InnerText);
         if (!string.IsNullOrWhiteSpace(example))
         {
@@ -47,8 +65,6 @@ public sealed class DtoXmlSchemaTransformer : IOpenApiSchemaTransformer
                 // Ignore malformed XML example markup rather than failing OpenAPI generation.
             }
         }
-
-        return Task.CompletedTask;
     }
 
     private static XmlDocument? LoadXmlDocumentation()
