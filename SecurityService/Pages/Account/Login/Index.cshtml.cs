@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using SecurityService.BusinessLogic.Mfa;
 using SecurityService.BusinessLogic.Requests;
+using SimpleResults;
 
 namespace SecurityService.Pages.Account.Login;
 
@@ -38,39 +39,37 @@ public sealed class IndexModel : PageModel
     {
         await this.LoadProvidersAsync();
 
-        if (this.Input.Button == "cancel")
-        {
+        if (this.Input.Button == "cancel") {
             return this.LocalRedirect("/");
         }
 
         // the user clicked the "cancel" button
-        if (Input.Button == "forgotpassword")
-        {
-            return this.RedirectToPage("/Account/ForgotPassword/Index", new
-            {
-                returnUrl = this.Input.ReturnUrl,
-                clientId = this.Input.ClientId
-            });
+        if (Input.Button == "forgotpassword") {
+            return this.RedirectToPage("/Account/ForgotPassword/Index", new { returnUrl = this.Input.ReturnUrl, clientId = this.Input.ClientId });
         }
 
-        var result = await this._mediator.Send(new SecurityServiceCommands.BeginLoginCommand(this.Input.Username, this.Input.Password, this.Input.RememberLogin, this.Input.ReturnUrl));
-        if (result.IsSuccess && result.Data is LoginCompleted completed)
-        {
-            return this.LocalRedirect(string.IsNullOrWhiteSpace(completed.ReturnUrl) ? "/" : completed.ReturnUrl);
+        Result<LoginOutcome> result = await this._mediator.Send(new SecurityServiceCommands.BeginLoginCommand(this.Input.Username, this.Input.Password, this.Input.RememberLogin, this.Input.ReturnUrl));
+
+        if (result.Data is LoginRejected rejection) {
+            this.ModelState.AddModelError(string.Empty, rejection.Message);
+            return this.Page();
         }
 
-        if (result.IsSuccess && result.Data is LoginRequiresMfa requiresMfa)
-        {
-            return this.RedirectToPage("/Account/LoginWithMfa/Index", new { transaction = requiresMfa.Transaction });
+        if (result.IsFailed) {
+            this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? result.Message ?? "Invalid username or password.");
+            return this.Page();
         }
 
-        if (result.IsSuccess && result.Data is LoginRequiresMfaEnrollment requiresMfaEnrollment)
-        {
-            return this.RedirectToPage("/Account/EnrollMfa/Index", new { transaction = requiresMfaEnrollment.Transaction });
-        }
+        return result.Data switch {
+                   LoginCompleted completed => this.LocalRedirect(string.IsNullOrWhiteSpace(completed.ReturnUrl) ? "/" : completed.ReturnUrl),
+                   LoginRequiresMfa requiresMfa => this.RedirectToPage("/Account/LoginWithMfa/Index", new { transaction = requiresMfa.Transaction }),
+                   LoginRequiresMfaEnrollment requiresMfaEnrollment => this.RedirectToPage("/Account/EnrollMfa/Index", new { transaction = requiresMfaEnrollment.Transaction }),
+                   _ => this.Error("Unsupported Login Success Type")
+               };
+    }
 
-        var rejection = result.Data as LoginRejected;
-        this.ModelState.AddModelError(string.Empty, rejection?.Message ?? result.Errors.FirstOrDefault() ?? result.Message ?? "Invalid username or password.");
+    private PageResult Error(String message) {
+        this.ModelState.AddModelError(string.Empty, message);
         return this.Page();
     }
 
