@@ -17,6 +17,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
     private const string StateParameter = "state";
     private const string GrantTypeParameter = "grant_type";
     private const string RefreshTokenParameter = "refresh_token";
+    private const string SampleWebClientId = "orders-web";
     private const string RedirectUri = "https://orders.example.com/signin-oidc";
     private const string CodeVerifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
     private const string CodeChallenge = "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM";
@@ -41,6 +42,8 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
                 operation.OperationId = HttpMethods.IsPost(method) ? "UserInfoPost" : "UserInfoGet";
                 AddBearerAuthentication(operation, context.Document);
                 break;
+            default:
+                break;
         }
 
         return Task.CompletedTask;
@@ -49,7 +52,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
     private static void ConfigureAuthorization(OpenApiOperation operation, string method)
     {
         operation.OperationId = HttpMethods.IsPost(method) ? "AuthorizePost" : "AuthorizeGet";
-        AddParameter(operation, ClientIdParameter, "Registered OAuth client identifier.", "orders-web", required: true);
+        AddParameter(operation, ClientIdParameter, "Registered OAuth client identifier.", SampleWebClientId, required: true);
         AddParameter(operation, RedirectUriParameter, "Must exactly match a callback URI registered for the client.", RedirectUri, required: true);
         AddParameter(operation, "response_type", "Use `code` for the authorization-code flow.", "code", required: true);
         AddParameter(operation, ScopeParameter, "Space-separated OIDC scopes and API permissions.", "openid profile orders.read", required: true);
@@ -61,7 +64,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
         {
             SetFormRequest(operation, "Authorization request (form POST)", new Dictionary<string, string>
             {
-                [ClientIdParameter] = "orders-web",
+                [ClientIdParameter] = SampleWebClientId,
                 [RedirectUriParameter] = RedirectUri,
                 ["response_type"] = "code",
                 [ScopeParameter] = "openid profile orders.read",
@@ -135,7 +138,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
                 ["authorization_code"] = FormExample("Authorization code with PKCE", new Dictionary<string, string>
                 {
                     [GrantTypeParameter] = "authorization_code",
-                    [ClientIdParameter] = "orders-web",
+                    [ClientIdParameter] = SampleWebClientId,
                     ["code"] = "authorization-code-from-callback",
                     [RedirectUriParameter] = RedirectUri,
                     ["code_verifier"] = CodeVerifier
@@ -150,7 +153,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
                 [RefreshTokenParameter] = FormExample("Refresh an access token", new Dictionary<string, string>
                 {
                     [GrantTypeParameter] = "refresh_token",
-                    [ClientIdParameter] = "orders-web",
+                    [ClientIdParameter] = SampleWebClientId,
                     [RefreshTokenParameter] = "replace-with-refresh-token"
                 })
             }
