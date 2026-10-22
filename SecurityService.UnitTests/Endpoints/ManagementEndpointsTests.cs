@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Routing;
+using Imposter.Abstractions;
 using MediatR;
-using SecurityService.BusinessLogic.Requests;
 using SecurityService.Authorization;
 using SecurityService.Endpoints;
+using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
 
 namespace SecurityService.UnitTests.Endpoints;
@@ -17,8 +17,7 @@ public sealed class ManagementEndpointsTests
     public async Task MapManagementEndpoints_AppliesManagementPolicyToEveryRoute()
     {
         var builder = WebApplication.CreateBuilder();
-        builder.Services.AddMediatR(configuration =>
-            configuration.RegisterServicesFromAssembly(typeof(SecurityServiceCommands).Assembly));
+        builder.Services.AddSingleton<IMediator>(new IMediatorImposter().Instance());
         using var app = builder.Build();
 
         app.MapManagementEndpoints();
