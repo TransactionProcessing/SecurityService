@@ -23,6 +23,7 @@ using SecurityService.Endpoints;
 using SecurityService.HealthChecks;
 using SecurityService.HostedServices;
 using SecurityService.Authorization;
+using SecurityService.OpenApi;
 using Sentry.Extensibility;
 using Shared.EntityFramework;
 using Shared.Extensions;
@@ -252,7 +253,7 @@ builder.Services.AddMediatR(configuration =>
 builder.Services.ConfigureHttpJsonOptions(jsonOptions => SecurityService.Configuration.JsonSerializerConfiguration.ConfigureMinimalApi(jsonOptions.SerializerOptions));
 builder.Services.AddRazorPages();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<ManagementBootstrapper>();
 builder.Services.AddHostedService<DatabaseInitializer>();
 
@@ -278,6 +279,13 @@ builder.Services.AddApiDefaults(options =>
 {
     options.Title = "Security Service";
     options.Description = "API to manage all aspects of application identity and security";
+});
+// Scalar reads the ASP.NET Core OpenAPI document at /openapi/v1.json.
+builder.Services.AddOpenApi("v1", options =>
+{
+    options.AddSchemaTransformer<DtoXmlSchemaTransformer>();
+    options.AddOperationTransformer<EndpointExampleOpenApiTransformer>();
+    options.AddOperationTransformer<OidcRequestDocumentationTransformer>();
 });
 
 var rsa = RSA.Create(2048);
@@ -386,8 +394,6 @@ app.AddExceptionHandler();
 
 app.UseStatusCodePagesWithReExecute("/Home/Error");
 app.UseHttpLogging();
-app.UseSwagger();
-app.UseSwaggerUI();
 app.UseStaticFiles();
 app.UseRouting();
 app.UseAuthentication();
@@ -402,7 +408,15 @@ if (app.Environment.IsEnvironment("IntegrationTest"))
 }
 app.MapManagementEndpoints();
 app.MapOidcEndpoints();
-app.MapHealthChecks("health", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse });
-app.MapHealthChecks("healthui", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse });
+app.MapHealthChecks("health", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse })
+    .WithMetadata(new Microsoft.AspNetCore.Http.EndpointSummaryAttribute("Check service health"),
+        new Microsoft.AspNetCore.Http.EndpointDescriptionAttribute("Runs the configured database, issuer, and messaging health checks and returns the service health result. Example: `GET /health` with `Accept: application/json`. A failing dependency is reflected in the returned health status."),
+        new Microsoft.AspNetCore.Http.TagsAttribute(["Health"]));
+app.MapHealthChecks("healthui", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse })
+    .WithMetadata(new Microsoft.AspNetCore.Http.EndpointSummaryAttribute("Check service health for the health UI"),
+        new Microsoft.AspNetCore.Http.EndpointDescriptionAttribute("Runs the same configured health checks and returns the JSON format consumed by the Health Checks UI. Example: `GET /healthui` with `Accept: application/json`."),
+        new Microsoft.AspNetCore.Http.TagsAttribute(["Health"]));
+
+app.UseApiDefaults();
 
 app.Run();

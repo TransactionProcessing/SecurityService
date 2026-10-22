@@ -11,7 +11,7 @@ namespace SecurityService.Handlers;
 public static class UserHandler
 {
     public static async Task<IResult> RequireMfa(IMediator mediator,
-                                                 string userId,
+                                                 [System.ComponentModel.Description("Stable identity ID of the user whose MFA requirement is changed.")] string userId,
                                                  CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new SecurityServiceCommands.RequireUserMfaCommand(userId), cancellationToken);
@@ -19,7 +19,7 @@ public static class UserHandler
     }
 
     public static async Task<IResult> RemoveMfa(IMediator mediator,
-                                                string userId,
+                                                [System.ComponentModel.Description("Stable identity ID of the user whose MFA requirement is removed.")] string userId,
                                                 CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new SecurityServiceCommands.RemoveUserMfaCommand(userId), cancellationToken);
@@ -35,7 +35,7 @@ public static class UserHandler
     }
 
     public static async Task<IResult> GetUser(IMediator mediator,
-                                              string userId,
+                                              [System.ComponentModel.Description("Stable identity ID of the user to retrieve.")] string userId,
                                               CancellationToken cancellationToken) {
         SecurityServiceQueries.GetUserQuery query = new(userId);
 
@@ -48,7 +48,7 @@ public static class UserHandler
         return Results.Ok(ModelFactory.ConvertFrom(result.Data));
     }
 
-    public static async Task<IResult> GetUsers(IMediator mediator, string? userName, CancellationToken cancellationToken) {
+    public static async Task<IResult> GetUsers(IMediator mediator, [System.ComponentModel.Description("Optional exact sign-in name to filter by; omit or leave empty to list all users.")] string? userName, CancellationToken cancellationToken) {
         SecurityServiceQueries.GetUsersQuery query = new(userName);
 
         Result<List<UserDetails>> result = await mediator.Send(query, cancellationToken);

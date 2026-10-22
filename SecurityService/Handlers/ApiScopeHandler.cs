@@ -19,7 +19,7 @@ public static class ApiScopeHandler
     }
 
     public static async Task<IResult> GetApiScope(IMediator mediator,
-                                                  string name,
+                                                  [System.ComponentModel.Description("Exact configured API scope name, for example orders.read.")] string name,
                                                   CancellationToken cancellationToken) {
         SecurityServiceQueries.GetApiScopeQuery query = new(name);
 

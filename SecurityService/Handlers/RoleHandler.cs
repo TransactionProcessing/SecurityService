@@ -11,7 +11,7 @@ namespace SecurityService.Handlers;
 public static class RoleHandler
 {
     public static async Task<IResult> RequireMfa(IMediator mediator,
-                                                 string roleId,
+                                                 [System.ComponentModel.Description("Stable identity ID of the role to update.")] string roleId,
                                                  CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new SecurityServiceCommands.RequireRoleMfaCommand(roleId), cancellationToken);
@@ -19,7 +19,7 @@ public static class RoleHandler
     }
 
     public static async Task<IResult> RemoveMfa(IMediator mediator,
-                                                string roleId,
+                                                [System.ComponentModel.Description("Stable identity ID of the role to update.")] string roleId,
                                                 CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new SecurityServiceCommands.RemoveRoleMfaCommand(roleId), cancellationToken);
@@ -35,7 +35,7 @@ public static class RoleHandler
     }
 
     public static async Task<IResult> GetRole(IMediator mediator,
-                                              string roleId,
+                                              [System.ComponentModel.Description("Stable identity ID of the role to retrieve.")] string roleId,
                                               CancellationToken cancellationToken) {
         SecurityServiceQueries.GetRoleQuery query = new(roleId);
 

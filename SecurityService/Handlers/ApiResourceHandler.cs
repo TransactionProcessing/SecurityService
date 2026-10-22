@@ -19,7 +19,7 @@ public static class ApiResourceHandler
     }
 
     public static async Task<IResult> GetApiResource(IMediator mediator,
-                                                     string name,
+                                                     [System.ComponentModel.Description("Exact configured API resource name, for example orders-api.")] string name,
                                                      CancellationToken cancellationToken) {
 
         SecurityServiceQueries.GetApiResourceQuery query = new(name);
