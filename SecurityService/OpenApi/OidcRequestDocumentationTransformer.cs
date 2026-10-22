@@ -18,6 +18,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
 
         if (path.Equals("connect/authorize", StringComparison.OrdinalIgnoreCase))
         {
+            operation.OperationId = HttpMethods.IsPost(method) ? "AuthorizePost" : "AuthorizeGet";
             AddParameter(operation, "client_id", "Registered OAuth client identifier.", "orders-web", required: true);
             AddParameter(operation, "redirect_uri", "Must exactly match a callback URI registered for the client.", RedirectUri, required: true);
             AddParameter(operation, "response_type", "Use `code` for the authorization-code flow.", "code", required: true);
@@ -46,6 +47,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
         }
         else if (path.Equals("connect/logout", StringComparison.OrdinalIgnoreCase))
         {
+            operation.OperationId = HttpMethods.IsPost(method) ? "LogoutPost" : "LogoutGet";
             AddParameter(operation, "id_token_hint", "Previously issued ID token for the session being ended.", "eyJhbGciOi...", required: false);
             AddParameter(operation, "post_logout_redirect_uri", "Must exactly match a post-logout URI registered for the client.", "https://orders.example.com/signed-out", required: false);
             AddParameter(operation, "state", "Opaque value returned unchanged to the post-logout redirect URI.", "logout-4c82", required: false);
@@ -62,6 +64,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
         }
         else if (path.Equals("connect/userinfo", StringComparison.OrdinalIgnoreCase))
         {
+            operation.OperationId = HttpMethods.IsPost(method) ? "UserInfoPost" : "UserInfoGet";
             AddBearerAuthentication(operation, context.Document);
         }
 
@@ -159,7 +162,6 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
                 ["application/x-www-form-urlencoded"] = new OpenApiMediaType
                 {
                     Schema = schema,
-                    Example = example.Value is JsonNode value ? value.DeepClone() : null,
                     Examples = new Dictionary<string, IOpenApiExample> { ["Example"] = example }
                 }
             }

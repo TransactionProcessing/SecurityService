@@ -54,7 +54,6 @@ public sealed class EndpointExampleOpenApiTransformer : IOpenApiOperationTransfo
             }
 
             JsonNode? json = JsonNode.Parse(example.Json);
-            mediaType.Example = json?.DeepClone();
             mediaType.Examples ??= new Dictionary<string, IOpenApiExample>();
             mediaType.Examples["Example"] = new OpenApiExample
             {
