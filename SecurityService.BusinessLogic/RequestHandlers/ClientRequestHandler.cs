@@ -140,10 +140,10 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
                                                     JsonListSerializer.Serialize(command.AllowedGrantTypes),
                                                 RedirectUrisJson =
                                                     JsonListSerializer.Serialize(validateResult.Data.RedirectUris
-                                                                                               .Select(uri => uri.ToString()).ToList()),
+                                                                                               .Select(uri => uri.OriginalString).ToList()),
                                                 PostLogoutRedirectUrisJson =
                                                     JsonListSerializer.Serialize(validateResult.Data
-                                                                                               .PostLogoutRedirectUris.Select(uri => uri.ToString()).ToList()),
+                                                                                               .PostLogoutRedirectUris.Select(uri => uri.OriginalString).ToList()),
                                                 RequireConsent = command.RequireConsent,
                                                 AllowOfflineAccess = command.AllowOfflineAccess,
                                                 ClientType = descriptor.ClientType

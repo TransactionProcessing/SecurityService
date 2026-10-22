@@ -48,6 +48,36 @@ public class ClientRequestHandlerTests
     }
 
     [Fact]
+    public async Task CreateClient_WithEscapedRedirectUris_PreservesOriginalUriStrings()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.CreateClient_WithEscapedRedirectUris_PreservesOriginalUriStrings));
+        var mediator = provider.GetRequiredService<IMediator>();
+        const string redirectUri = "https://client.example/callback?name=a%20b";
+        const string postLogoutRedirectUri = "https://client.example/logout?name=a%20b";
+
+        var createResult = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "escaped-uri-client",
+            "secret",
+            "Escaped URI Client",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.ClientCredentials],
+            null,
+            [redirectUri],
+            [postLogoutRedirectUri],
+            false,
+            false));
+
+        createResult.IsSuccess.ShouldBeTrue();
+        var getResult = await mediator.Send(new SecurityServiceQueries.GetClientQuery("escaped-uri-client"));
+
+        getResult.IsSuccess.ShouldBeTrue();
+        getResult.Data!.RedirectUris.ShouldContain(redirectUri);
+        getResult.Data.PostLogoutRedirectUris.ShouldContain(postLogoutRedirectUri);
+    }
+
+    [Fact]
     public async Task CreateClient_PersistsGrantPermissionsAndPkceRequirement()
     {
         using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_PersistsGrantPermissionsAndPkceRequirement));
