@@ -1,7 +1,13 @@
+using System.Reflection;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using OpenIddict.Abstractions;
+using SecurityService.BusinessLogic;
+using SecurityService.BusinessLogic.RequestHandlers;
 using SecurityService.Database.DbContexts;
+using SecurityService.Database.Entities;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
@@ -126,6 +132,62 @@ public class ClientRequestHandlerTests
         result.IsFailed.ShouldBeTrue();
         result.Status.ShouldBe(ResultStatus.Invalid);
         result.Message.ShouldContain("Unsupported grant types");
+    }
+
+    [Fact]
+    public async Task CreateClient_WhenClientIdIsBlank_ReturnsInvalidWithoutPersisting()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WhenClientIdIsBlank_ReturnsInvalidWithoutPersisting));
+        var mediator = provider.GetRequiredService<IMediator>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+        var dbContext = provider.GetRequiredService<SecurityServiceDbContext>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            " ",
+            "secret",
+            "Blank Client Id",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.ClientCredentials],
+            null,
+            [],
+            [],
+            false,
+            false));
+
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Message.ShouldContain("Client id is required");
+        (await applicationManager.FindByClientIdAsync(" ")).ShouldBeNull();
+        (await dbContext.ClientDefinitions.AnyAsync()).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task CreateClient_WhenNoGrantTypesAreProvided_ReturnsInvalidWithoutPersisting()
+    {
+        using var provider = TestServiceProviderFactory.Create(nameof(this.CreateClient_WhenNoGrantTypesAreProvided_ReturnsInvalidWithoutPersisting));
+        var mediator = provider.GetRequiredService<IMediator>();
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+        var dbContext = provider.GetRequiredService<SecurityServiceDbContext>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "no-grants-client",
+            "secret",
+            "No Grants Client",
+            null,
+            [],
+            [],
+            null,
+            [],
+            [],
+            false,
+            false));
+
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Message.ShouldContain("At least one grant type is required");
+        (await applicationManager.FindByClientIdAsync("no-grants-client")).ShouldBeNull();
+        (await dbContext.ClientDefinitions.AnyAsync()).ShouldBeFalse();
     }
 
     [Fact]
@@ -324,6 +386,124 @@ public class ClientRequestHandlerTests
         var verificationDbContext = verificationScope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
         (await verificationApplicationManager.FindByClientIdAsync("atomic-client")).ShouldBeNull();
         (await verificationDbContext.ClientDefinitions.AnyAsync(client => client.ClientId == "atomic-client")).ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task CreateClient_WhenMetadataSaveThrowsDbUpdateExceptionAndApplicationExists_ReturnsConflict()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.CreateClient_WhenMetadataSaveThrowsDbUpdateExceptionAndApplicationExists_ReturnsConflict),
+            useSqlite: true,
+            saveChangesInterceptor: new ThrowOnClientDefinitionSaveInterceptor(new DbUpdateException("Injected duplicate.")));
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+        await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "duplicate-after-save-failure",
+            ClientSecret = "secret",
+            ClientType = OpenIddictConstants.ClientTypes.Confidential,
+            ConsentType = OpenIddictConstants.ConsentTypes.Implicit
+        });
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        var result = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "duplicate-after-save-failure",
+            "secret",
+            "Duplicate Client",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.ClientCredentials],
+            null,
+            [],
+            [],
+            false,
+            false));
+
+        result.IsFailed.ShouldBeTrue();
+        result.Status.ShouldBe(ResultStatus.Conflict);
+    }
+
+    [Fact]
+    public async Task CreateClient_WhenOpenIddictApplicationSaveThrowsDbUpdateExceptionWithoutDuplicate_RethrowsAndRollsBack()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.CreateClient_WhenOpenIddictApplicationSaveThrowsDbUpdateExceptionWithoutDuplicate_RethrowsAndRollsBack),
+            useSqlite: true,
+            saveChangesInterceptor: new ThrowOnClientDefinitionSaveInterceptor(
+                new DbUpdateException("Injected database failure."), throwOnOpenIddictApplicationSave: true));
+        var mediator = provider.GetRequiredService<IMediator>();
+
+        await Should.ThrowAsync<DbUpdateException>(() => mediator.Send(new SecurityServiceCommands.CreateClientCommand(
+            "database-failure-client",
+            "secret",
+            "Database Failure Client",
+            null,
+            [],
+            [OpenIddictConstants.GrantTypes.ClientCredentials],
+            null,
+            [],
+            [],
+            false,
+            false)));
+
+        using IServiceScope verificationScope = provider.CreateScope();
+        var verificationApplicationManager = verificationScope.ServiceProvider.GetRequiredService<IOpenIddictApplicationManager>();
+        var verificationDbContext = verificationScope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
+        (await verificationApplicationManager.FindByClientIdAsync("database-failure-client")).ShouldBeNull();
+        (await verificationDbContext.ClientDefinitions.AnyAsync(client => client.ClientId == "database-failure-client"))
+            .ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task PersistClient_WhenApplicationAndDefinitionAlreadyExist_ReturnsWithoutDuplicatingThem()
+    {
+        using var provider = TestServiceProviderFactory.Create(
+            nameof(this.PersistClient_WhenApplicationAndDefinitionAlreadyExist_ReturnsWithoutDuplicatingThem),
+            useSqlite: true);
+        var applicationManager = provider.GetRequiredService<IOpenIddictApplicationManager>();
+        await applicationManager.CreateAsync(new OpenIddictApplicationDescriptor
+        {
+            ClientId = "concurrent-client",
+            ClientSecret = "secret",
+            ClientType = OpenIddictConstants.ClientTypes.Confidential,
+            ConsentType = OpenIddictConstants.ConsentTypes.Implicit
+        });
+        var dbContext = provider.GetRequiredService<SecurityServiceDbContext>();
+        dbContext.ClientDefinitions.Add(new ClientDefinition
+        {
+            Id = Guid.NewGuid(),
+            ClientId = "concurrent-client",
+            ClientName = "Concurrent Client",
+            AllowedScopesJson = "[]",
+            AllowedGrantTypesJson = "[]",
+            RedirectUrisJson = "[]",
+            PostLogoutRedirectUrisJson = "[]",
+            ClientType = OpenIddictConstants.ClientTypes.Confidential
+        });
+        await dbContext.SaveChangesAsync();
+        var handler = new ClientRequestHandler(
+            dbContext,
+            applicationManager,
+            provider.GetRequiredService<IOptions<ServiceOptions>>());
+        var definition = await dbContext.ClientDefinitions.SingleAsync(client => client.ClientId == "concurrent-client");
+        var persistClient = typeof(ClientRequestHandler).GetMethod("PersistClientAsync", BindingFlags.Instance | BindingFlags.NonPublic)!;
+
+        await (Task)persistClient.Invoke(handler,
+        [
+            new OpenIddictApplicationDescriptor
+            {
+                ClientId = "concurrent-client",
+                ClientSecret = "secret",
+                ClientType = OpenIddictConstants.ClientTypes.Confidential,
+                ConsentType = OpenIddictConstants.ConsentTypes.Implicit
+            },
+            definition,
+            "concurrent-client",
+            CancellationToken.None
+        ])!;
+
+        (await applicationManager.FindByClientIdAsync("concurrent-client")).ShouldNotBeNull();
+        (await dbContext.ClientDefinitions.CountAsync(client => client.ClientId == "concurrent-client"))
+            .ShouldBe(1);
     }
 
     [Fact]
