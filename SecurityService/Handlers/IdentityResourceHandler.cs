@@ -18,7 +18,7 @@ public static class IdentityResourceHandler
         return ResponseFactory.FromResult(result);
     }
 
-    public static async Task<IResult> GetIdentityResource(IMediator mediator, string name, CancellationToken cancellationToken) {
+    public static async Task<IResult> GetIdentityResource(IMediator mediator, [System.ComponentModel.Description("Exact configured identity resource name, for example profile or email.")] string name, CancellationToken cancellationToken) {
         SecurityServiceQueries.GetIdentityResourceQuery query = new(name);
 
         Result<IdentityResourceDetails> result = await mediator.Send(query, cancellationToken);

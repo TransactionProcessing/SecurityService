@@ -5,6 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
 	  <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	  <UserSecretsId>66711dd1-58c4-40cb-9a4c-2119de1f1d56</UserSecretsId>
+	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
+	  <NoWarn>$(NoWarn);1591</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Pages\Account\ExternalLogin\Index.cshtml.cs" />
@@ -33,7 +35,6 @@
     <PackageReference Include="OpenIddict.Validation.AspNetCore" />
     <PackageReference Include="Shared" />
     <PackageReference Include="Shared.Results.Web" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
     <PackageReference Include="Sentry.AspNetCore" />
     <PackageReference Include="NLog.Web.AspNetCore" />
     <PackageReference Include="QRCoder" />

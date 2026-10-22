@@ -30,7 +30,7 @@ namespace SecurityService.IntergrationTests.Common
         public async Task StartSystem()
         {
             // Initialise a logger
-            String scenarioName = this.ScenarioContext.ScenarioInfo.Title.Replace(" ", "");
+            String scenarioName = this.ScenarioContext.ScenarioInfo.Title.Replace(" ", String.Empty);
             NlogLogger logger = new NlogLogger();
             logger.Initialise(LogManager.GetLogger(scenarioName), scenarioName);
             LogManager.AddHiddenAssembly(typeof(NlogLogger).Assembly);

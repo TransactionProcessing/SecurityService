@@ -30,7 +30,7 @@ public static class ClientHandler
     }
 
     public static async Task<IResult> GetClient(IMediator mediator,
-                                                string clientId,
+                                                [System.ComponentModel.Description("OAuth client identifier assigned when the client registration was created.")] string clientId,
                                                 CancellationToken cancellationToken) {
         SecurityServiceQueries.GetClientQuery query = new(clientId);
 
