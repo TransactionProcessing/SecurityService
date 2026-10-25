@@ -107,7 +107,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
             In = ParameterLocation.Query,
             Description = description,
             Required = required,
-            Schema = new OpenApiSchema { Type = JsonSchemaType.String, Example = JsonValue.Create(value) },
+            Schema = new OpenApiSchema { Type = JsonSchemaType.String, Examples = [JsonValue.Create(value)] },
             Example = JsonValue.Create(value)
         });
     }

@@ -9,6 +9,7 @@ namespace SecurityService.IntergrationTests.Common
     using NLog.Config;
     using SecurityService.IntegrationTesting.Helpers;
     using Shared.IntegrationTesting;
+    using Shared.IntegrationTesting.TestContainers;
     using System;
     using System.Collections.Generic;
     using System.Net;
@@ -113,7 +114,8 @@ namespace SecurityService.IntergrationTests.Common
             ContainerBuilder securityServiceContainer = new ContainerBuilder(imageDetailsResult.Data.imageName)
                 .WithName(this.SecurityServiceContainerName)
                 .WithEnvironment(environmentVariables)
-                .WithBindMount(this.IntegrationTestCertificate.CertificateDirectory, this.IntegrationTestCertificate.ContainerCertificateDirectory, AccessMode.ReadOnly);
+                .MountHostFolder(this.HostTraceFolder)
+                .WithResourceMapping(this.IntegrationTestCertificate.CertificateDirectory, this.IntegrationTestCertificate.ContainerCertificateDirectory);
 
             Int32? hostPort = this.GetHostPort(ContainerType.SecurityService);
             if (hostPort is null || hostPort <= 0)

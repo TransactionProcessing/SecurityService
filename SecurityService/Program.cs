@@ -379,14 +379,12 @@ builder.Host.ConfigureLogging(loggingBuilder =>
 
 var app = builder.Build();
 
-if (builder.Environment.IsDevelopment())
-{
+if (builder.Environment.IsDevelopment()) {
     app.UseDeveloperExceptionPage();
 }
 
-ILogger logger = builder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>().CreateLogger("Security Service");
-
-Logger.Initialise(logger);
+NLog.Logger logger = LogManager.GetLogger("Security Service");
+Shared.Logger.Logger.Initialise(logger, "securityservice");
 builder.Configuration.LogConfiguration(Logger.LogWarning);
 app.UseMiddleware<TenantMiddleware>();
 app.AddRequestResponseLogging();

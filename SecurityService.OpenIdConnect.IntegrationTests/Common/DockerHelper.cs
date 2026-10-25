@@ -297,7 +297,7 @@ namespace SecurityService.IntergrationTests.Common
                 .WithName(this.SecurityServiceContainerName)
                 .WithEnvironment(environmentVariables)
                 .WithPortBinding(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)
-                .WithBindMount(this.IntegrationTestCertificate.CertificateDirectory, this.IntegrationTestCertificate.ContainerCertificateDirectory, AccessMode.ReadOnly)
+                .WithResourceMapping(this.IntegrationTestCertificate.CertificateDirectory, this.IntegrationTestCertificate.ContainerCertificateDirectory)
                 .MountHostFolder(this.HostTraceFolder);
 
             return securityServiceContainer;
