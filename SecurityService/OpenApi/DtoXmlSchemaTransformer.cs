@@ -1,7 +1,8 @@
-using System.Reflection;
-using System.Xml;
 using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
+using System.Reflection;
+using System.Text.Json.Nodes;
+using System.Xml;
 
 namespace SecurityService.OpenApi;
 
@@ -58,7 +59,7 @@ public sealed class DtoXmlSchemaTransformer : IOpenApiSchemaTransformer
         {
             try
             {
-                schema.Example = System.Text.Json.Nodes.JsonNode.Parse(example);
+                schema.Examples = [JsonNode.Parse(example)!];
             }
             catch (System.Text.Json.JsonException)
             {

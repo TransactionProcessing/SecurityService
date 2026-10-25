@@ -90,7 +90,7 @@ public sealed class UserRequestHandler :
         SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
         Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (sendEmailResult.IsFailed) {
-            Logger.LogWarning($"Error sending email to {newIdentityUser.Email} as part of user creation {sendEmailResult}");
+            Logger.LogWarning("Error sending email to {emailaddress} as part of user creation {result}", newIdentityUser.Email, sendEmailResult);
             return ResultHelpers.CreateFailure(sendEmailResult);
         }
 

@@ -30,7 +30,7 @@ public sealed class DatabaseInitializer : IHostedService
 
             SecurityServiceDbContext dbContext = scope.ServiceProvider.GetRequiredService<SecurityServiceDbContext>();
             if (this.Options.UseInMemoryDatabase) {
-                Logger.LogInformation($"Using in-memory database '{this.Options.InMemoryDatabaseName}'.");
+                Logger.LogInformation("Using in-memory database '{databaseName}'.", this.Options.InMemoryDatabaseName);
                 await dbContext.Database.EnsureCreatedAsync(cancellationToken);
             }
             else {
@@ -47,7 +47,7 @@ public sealed class DatabaseInitializer : IHostedService
 
                 foreach ((string name, string displayName, string description) in defaultScopes) {
                     if (await scopeManager.FindByNameAsync(name, cancellationToken) is null) {
-                        Logger.LogInformation($"Creating default scope {name}.");
+                        Logger.LogInformation("Creating default scope {scopeName}.", name);
                         await scopeManager.CreateAsync(new OpenIddictScopeDescriptor { Name = name, DisplayName = displayName, Description = description }, cancellationToken);
                     }
                 }
@@ -61,7 +61,7 @@ public sealed class DatabaseInitializer : IHostedService
             Logger.LogWarning("Database initialization complete.");
         }
         catch (Exception ex) {
-            Logger.LogError(new Exception("An error occurred during database initialization.", ex));
+            Logger.LogError(ex, "An error occurred during database initialization.");
             throw;
         }
     }

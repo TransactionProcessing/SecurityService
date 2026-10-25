@@ -31,9 +31,10 @@ namespace SecurityService.IntergrationTests.Common
         {
             // Initialise a logger
             String scenarioName = this.ScenarioContext.ScenarioInfo.Title.Replace(" ", String.Empty);
-            NlogLogger logger = new NlogLogger();
+            NlogLogger logger = new();
             logger.Initialise(LogManager.GetLogger(scenarioName), scenarioName);
-            LogManager.AddHiddenAssembly(typeof(NlogLogger).Assembly);
+            LogManager.Setup().SetupLogFactory(setup =>
+                setup.AddCallSiteHiddenAssembly(typeof(NlogLogger).Assembly));
 
             DockerServices dockerServices = DockerServices.SecurityService | DockerServices.SqlServer | DockerServices.MessagingService | DockerServices.KurrentDb;
 

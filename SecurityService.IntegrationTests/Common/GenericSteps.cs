@@ -36,11 +36,12 @@ namespace SecurityService.IntergrationTests.Common
         public async Task StartSystem()
         {
             // Initialise a logger
-            String scenarioName = this.ScenarioContext.ScenarioInfo.Title.Replace(" ", "");
-            NlogLogger logger = new NlogLogger();
+            String scenarioName = this.ScenarioContext.ScenarioInfo.Title.Replace(" ", String.Empty);
+            NlogLogger logger = new();
             logger.Initialise(LogManager.GetLogger(scenarioName), scenarioName);
-            LogManager.AddHiddenAssembly(typeof(NlogLogger).Assembly);
-            
+            LogManager.Setup().SetupLogFactory(setup =>
+                setup.AddCallSiteHiddenAssembly(typeof(NlogLogger).Assembly));
+
             DockerServices dockerServices = DockerServices.SecurityService | DockerServices.SqlServer;
 
             this.TestingContext.DockerHelper = new DockerHelper();
