@@ -4,6 +4,7 @@ namespace SecurityService.IntegrationTests.Token
 {
     using System;
     using System.Collections.Generic;
+    using System.IdentityModel.Tokens.Jwt;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -60,6 +61,14 @@ namespace SecurityService.IntegrationTests.Token
         public void ThenMyTokenIsReturned()
         {
             this.TestingContext.AccessToken.ShouldNotBeNullOrEmpty();
+        }
+
+        [Then(@"the access token has client type '([^']*)'")]
+        public void ThenTheAccessTokenHasClientType(String expectedClientType)
+        {
+            this.TestingContext.AccessToken.ShouldNotBeNullOrEmpty();
+            JwtSecurityToken token = new JwtSecurityTokenHandler().ReadJwtToken(this.TestingContext.AccessToken);
+            token.Claims.ShouldContain(claim => claim.Type == "client_type" && claim.Value == expectedClientType);
         }
 
         [Then(@"the password token request fails")]

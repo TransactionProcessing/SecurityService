@@ -259,7 +259,8 @@ public sealed class OidcRequestHandler :
         var grantedScopes = await OidcHelpers.ResolveClientCredentialsScopes(request, this._dbContext, cancellationToken);
         var identity = new ClaimsIdentity(TokenValidationParameters.DefaultAuthenticationType, Claims.Name, Claims.Role);
         identity.SetClaim(Claims.Subject, request.ClientId!)
-                .SetClaim(Claims.Name, request.ClientId!);
+                .SetClaim(Claims.Name, request.ClientId!)
+                .SetClaim(OidcHelpers.ClientTypeClaim, OidcHelpers.ServiceClientType);
         identity.SetScopes(grantedScopes);
         identity.SetResources(await this._scopeManager.ListResourcesAsync(ImmutableArray.CreateRange(grantedScopes), cancellationToken).ToListAsync(cancellationToken));
         identity.SetDestinations(OidcHelpers.GetDestinations);
