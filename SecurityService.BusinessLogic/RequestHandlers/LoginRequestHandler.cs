@@ -27,8 +27,7 @@ public sealed class LoginRequestHandler :
                                IMfaPolicyService mfaPolicyService,
                                MfaAccountService mfaAccountService,
                                MfaSignInTransactionProtector transactionProtector,
-                               MfaEnrollmentTransactionProtector enrollmentTransactionProtector)
-    {
+                               MfaEnrollmentTransactionProtector enrollmentTransactionProtector) {
         this.SignInManager = signInManager;
         this.UserManager = userManager;
         this.MfaPolicyService = mfaPolicyService;
@@ -37,100 +36,94 @@ public sealed class LoginRequestHandler :
         this.EnrollmentTransactionProtector = enrollmentTransactionProtector;
     }
 
-    public async Task<Result<List<ExternalProviderDetails>>> Handle(SecurityServiceQueries.GetExternalProvidersQuery query, CancellationToken cancellationToken)
-    {
-        var providers = (await this.SignInManager.GetExternalAuthenticationSchemesAsync())
-            .Select(scheme => new ExternalProviderDetails(scheme.Name, scheme.DisplayName ?? scheme.Name))
-            .OrderBy(provider => provider.DisplayName, StringComparer.OrdinalIgnoreCase)
-            .ToList();
+    public async Task<Result<List<ExternalProviderDetails>>> Handle(SecurityServiceQueries.GetExternalProvidersQuery query, CancellationToken cancellationToken) {
+        List<ExternalProviderDetails> providers = (await this.SignInManager.GetExternalAuthenticationSchemesAsync())
+                                                  .Select(scheme => new ExternalProviderDetails(scheme.Name, scheme.DisplayName ?? scheme.Name))
+                                                  .OrderBy(provider => provider.DisplayName, StringComparer.OrdinalIgnoreCase)
+                                                  .ToList();
 
         return Result.Success(providers);
     }
 
-    public async Task<Result> Handle(SecurityServiceCommands.LoginCommand command, CancellationToken cancellationToken)
-    {
-        var result = await this.SignInManager.PasswordSignInAsync(command.Username, command.Password, command.RememberLogin, lockoutOnFailure: true);
+    public async Task<Result> Handle(SecurityServiceCommands.LoginCommand command, CancellationToken cancellationToken) {
+        SignInResult result = await this.SignInManager.PasswordSignInAsync(command.Username, command.Password, command.RememberLogin, lockoutOnFailure: true);
 
-        if (result.Succeeded)
-        {
+        if (result.Succeeded) {
             return Result.Success();
         }
 
-        if (result.IsLockedOut)
-        {
-            return Result.Failure("Your account has been locked. Please try again later or contact support.");
+        if (result.IsLockedOut) {
+            return Result.Failure(AuthenticationErrors.AccountLocked);
         }
 
-        if (result.IsNotAllowed)
-        {
-            return Result.Failure("You are not allowed to sign in. Please confirm your email address.");
+        if (result.IsNotAllowed) {
+            return Result.Failure(AuthenticationErrors.EmailNotConfirmed);
         }
 
-        if (result.RequiresTwoFactor)
-        {
-            return Result.Failure("Two-factor authentication is required.");
+        if (result.RequiresTwoFactor) {
+            return Result.Failure(AuthenticationErrors.TwoFactorRequired);
         }
 
-        return Result.Failure("Invalid username or password.");
+        return Result.Failure(AuthenticationErrors.InvalidUserNameOrPassword);
     }
 
-    public async Task<Result<LoginOutcome>> Handle(SecurityServiceCommands.BeginLoginCommand command, CancellationToken cancellationToken)
-    {
-        var user = await this.UserManager.FindByNameAsync(command.Username);
-        if (user is null)
-        {
-            return Result.Success<LoginOutcome>(new LoginRejected("Invalid username or password."));
+    public class AuthenticationErrors {
+        public const String InvalidUserNameOrPassword = "Invalid username or password.";
+        public const String AccountLocked = "Your account has been locked. Please try again later or contact support";
+        public const String EmailNotConfirmed = "You are not allowed to sign in. Please confirm your email address.";
+        public const String TwoFactorRequired = "Two-factor authentication is required.";
+
+        public const String MFAExpired = "The MFA sign-in request has expired. Start signing in again.";
+        public const String MFANoLongerValid = "The MFA sign-in request is no longer valid.";
+        public const String AuthenticatorOrRecoverCodeInvalid = "The authenticator or recovery code was invalid.";
+    }
+
+    public async Task<Result<LoginOutcome>> Handle(SecurityServiceCommands.BeginLoginCommand command, CancellationToken cancellationToken) {
+        ApplicationUser? user = await this.UserManager.FindByNameAsync(command.Username);
+        if (user is null) {
+            return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.InvalidUserNameOrPassword));
         }
 
-        var policyRequiresMfa = await this.MfaPolicyService.IsMfaRequiredAsync(user, cancellationToken);
-        var mfaEnabled = await this.UserManager.GetTwoFactorEnabledAsync(user);
+        Boolean policyRequiresMfa = await this.MfaPolicyService.IsMfaRequiredAsync(user, cancellationToken);
+        Boolean mfaEnabled = await this.UserManager.GetTwoFactorEnabledAsync(user);
 
-        if (mfaEnabled)
-        {
-            var passwordResult = await this.SignInManager.PasswordSignInAsync(user, command.Password, command.RememberLogin, lockoutOnFailure: true);
-            if (passwordResult.Succeeded)
-            {
+        if (mfaEnabled) {
+            SignInResult passwordResult = await this.SignInManager.PasswordSignInAsync(user, command.Password, command.RememberLogin, lockoutOnFailure: true);
+            if (passwordResult.Succeeded) {
                 return Result.Success<LoginOutcome>(new LoginCompleted(command.ReturnUrl));
             }
 
-            if (passwordResult.IsLockedOut)
-            {
-                return Result.Success<LoginOutcome>(new LoginRejected("Your account has been locked. Please try again later or contact support."));
+            if (passwordResult.IsLockedOut) {
+                return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.AccountLocked));
             }
 
-            if (passwordResult.IsNotAllowed)
-            {
-                return Result.Success<LoginOutcome>(new LoginRejected("You are not allowed to sign in. Please confirm your email address."));
+            if (passwordResult.IsNotAllowed) {
+                return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.EmailNotConfirmed));
             }
 
-            if (passwordResult.RequiresTwoFactor)
-            {
-                var transaction = this.TransactionProtector.Protect(user.Id, command.ReturnUrl, command.RememberLogin);
+            if (passwordResult.RequiresTwoFactor) {
+                String transaction = this.TransactionProtector.Protect(user.Id, command.ReturnUrl, command.RememberLogin);
                 return Result.Success<LoginOutcome>(new LoginRequiresMfa(transaction));
             }
 
-            return Result.Success<LoginOutcome>(new LoginRejected("Invalid username or password."));
+            return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.InvalidUserNameOrPassword));
         }
 
-        var passwordCheck = await this.SignInManager.CheckPasswordSignInAsync(user, command.Password, lockoutOnFailure: true);
-        if (passwordCheck.Succeeded == false)
-        {
-            if (passwordCheck.IsLockedOut)
-            {
-                return Result.Success<LoginOutcome>(new LoginRejected("Your account has been locked. Please try again later or contact support."));
+        SignInResult passwordCheck = await this.SignInManager.CheckPasswordSignInAsync(user, command.Password, lockoutOnFailure: true);
+        if (passwordCheck.Succeeded == false) {
+            if (passwordCheck.IsLockedOut) {
+                return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.AccountLocked));
             }
 
-            if (passwordCheck.IsNotAllowed)
-            {
-                return Result.Success<LoginOutcome>(new LoginRejected("You are not allowed to sign in. Please confirm your email address."));
+            if (passwordCheck.IsNotAllowed) {
+                return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.EmailNotConfirmed));
             }
 
-            return Result.Success<LoginOutcome>(new LoginRejected("Invalid username or password."));
+            return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.InvalidUserNameOrPassword));
         }
 
-        if (policyRequiresMfa)
-        {
-            var transaction = this.EnrollmentTransactionProtector.Protect(user.Id, command.ReturnUrl);
+        if (policyRequiresMfa) {
+            String transaction = this.EnrollmentTransactionProtector.Protect(user.Id, command.ReturnUrl);
             return Result.Success<LoginOutcome>(new LoginRequiresMfaEnrollment(transaction));
         }
 
@@ -138,28 +131,24 @@ public sealed class LoginRequestHandler :
         return Result.Success<LoginOutcome>(new LoginCompleted(command.ReturnUrl));
     }
 
-    public async Task<Result<LoginOutcome>> Handle(SecurityServiceCommands.CompleteMfaLoginCommand command, CancellationToken cancellationToken)
-    {
-        if (this.TransactionProtector.TryUnprotect(command.Transaction, out var transaction) == false || transaction is null)
-        {
-            return Result.Success<LoginOutcome>(new LoginRejected("The MFA sign-in request has expired. Start signing in again."));
+    public async Task<Result<LoginOutcome>> Handle(SecurityServiceCommands.CompleteMfaLoginCommand command, CancellationToken cancellationToken) {
+        if (this.TransactionProtector.TryUnprotect(command.Transaction, out MfaSignInTransaction? transaction) == false || transaction is null) {
+            return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.MFAExpired));
         }
 
-        var user = await this.SignInManager.GetTwoFactorAuthenticationUserAsync();
-        if (user is null || !string.Equals(user.Id, transaction.UserId, StringComparison.Ordinal) || await this.UserManager.GetTwoFactorEnabledAsync(user) == false || await this.UserManager.IsLockedOutAsync(user))
-        {
-            return Result.Success<LoginOutcome>(new LoginRejected("The MFA sign-in request is no longer valid."));
+        ApplicationUser? user = await this.SignInManager.GetTwoFactorAuthenticationUserAsync();
+        if (user is null || !string.Equals(user.Id, transaction.UserId, StringComparison.Ordinal) || await this.UserManager.GetTwoFactorEnabledAsync(user) == false || await this.UserManager.IsLockedOutAsync(user)) {
+            return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.MFANoLongerValid));
         }
 
-        var valid = await this.UserManager.VerifyTwoFactorTokenAsync(user, "Authenticator", command.Code);
-        if (valid == false)
-        {
+        Boolean valid = await this.UserManager.VerifyTwoFactorTokenAsync(user, "Authenticator", command.Code);
+        if (valid == false) {
             valid = await this.MfaAccountService.RedeemRecoveryCodeAsync(user, command.Code, cancellationToken);
         }
-        if (valid == false)
-        {
+
+        if (valid == false) {
             await this.UserManager.AccessFailedAsync(user);
-            return Result.Success<LoginOutcome>(new LoginRejected("The authenticator or recovery code was invalid."));
+            return Result.Success<LoginOutcome>(new LoginRejected(AuthenticationErrors.AuthenticatorOrRecoverCodeInvalid));
         }
 
         await this.UserManager.ResetAccessFailedCountAsync(user);
