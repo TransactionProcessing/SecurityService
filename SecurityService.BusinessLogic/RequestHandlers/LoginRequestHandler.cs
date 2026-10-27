@@ -67,7 +67,7 @@ public sealed class LoginRequestHandler :
         return Result.Failure(AuthenticationErrors.InvalidUserNameOrPassword);
     }
 
-    protected class AuthenticationErrors {
+    protected static class AuthenticationErrors {
         public static readonly String InvalidUserNameOrPassword = "Invalid username or password.";
         public static readonly String AccountLocked = "Your account has been locked. Please try again later or contact support";
         public static readonly String EmailNotConfirmed = "You are not allowed to sign in. Please confirm your email address.";
