@@ -67,7 +67,7 @@ public sealed class LoginRequestHandler :
         return Result.Failure(AuthenticationErrors.InvalidUserNameOrPassword);
     }
 
-    public class AuthenticationErrors {
+    protected class AuthenticationErrors {
         public const String InvalidUserNameOrPassword = "Invalid username or password.";
         public const String AccountLocked = "Your account has been locked. Please try again later or contact support";
         public const String EmailNotConfirmed = "You are not allowed to sign in. Please confirm your email address.";
