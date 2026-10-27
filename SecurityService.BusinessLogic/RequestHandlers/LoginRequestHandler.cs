@@ -68,14 +68,14 @@ public sealed class LoginRequestHandler :
     }
 
     protected class AuthenticationErrors {
-        public const String InvalidUserNameOrPassword = "Invalid username or password.";
-        public const String AccountLocked = "Your account has been locked. Please try again later or contact support";
-        public const String EmailNotConfirmed = "You are not allowed to sign in. Please confirm your email address.";
-        public const String TwoFactorRequired = "Two-factor authentication is required.";
+        public static readonly String InvalidUserNameOrPassword = "Invalid username or password.";
+        public static readonly String AccountLocked = "Your account has been locked. Please try again later or contact support";
+        public static readonly String EmailNotConfirmed = "You are not allowed to sign in. Please confirm your email address.";
+        public static readonly String TwoFactorRequired = "Two-factor authentication is required.";
 
-        public const String MFAExpired = "The MFA sign-in request has expired. Start signing in again.";
-        public const String MFANoLongerValid = "The MFA sign-in request is no longer valid.";
-        public const String AuthenticatorOrRecoverCodeInvalid = "The authenticator or recovery code was invalid.";
+        public static readonly String MFAExpired = "The MFA sign-in request has expired. Start signing in again.";
+        public static readonly String MFANoLongerValid = "The MFA sign-in request is no longer valid.";
+        public static readonly String AuthenticatorOrRecoverCodeInvalid = "The authenticator or recovery code was invalid.";
     }
 
     public async Task<Result<LoginOutcome>> Handle(SecurityServiceCommands.BeginLoginCommand command, CancellationToken cancellationToken) {
