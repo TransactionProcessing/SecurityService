@@ -18,7 +18,7 @@ public static class OidcEndpoints
             .WithName("Token")
             .WithTags(OpenIdConnectTag)
             .WithSummary("Exchange an OAuth grant for tokens")
-            .WithDescription("OAuth 2.0 token endpoint. Submit one grant as `application/x-www-form-urlencoded`; authenticate the client as required by its registration. Successful responses follow OAuth token response conventions (`access_token`, `token_type`, `expires_in`, and, when issued, `refresh_token`). Invalid grants return an OAuth error response such as `invalid_grant`.")
+            .WithDescription("OAuth 2.0 token endpoint. Submit one grant as `application/x-www-form-urlencoded`; authenticate the client as required by its registration. Successful responses follow OAuth token response conventions (`access_token`, `token_type`, `expires_in`, and, when issued, `refresh_token`). Access tokens include a `client_type` claim with value `user` for user tokens or `client` for client-credentials tokens; see the token claims contract. Invalid grants return an OAuth error response such as `invalid_grant`.")
             .Produces(200, contentType: "application/json").Produces(400, contentType: "application/json").Produces(401)
             .WithResponseExample("""{"access_token":"eyJhbGciOi...","token_type":"Bearer","expires_in":3600,"refresh_token":"def50200..."}""");
         endpoints.MapMethods("/connect/logout", [HttpMethods.Get, HttpMethods.Post], Handlers.LogoutHandler.LogoutAsync)

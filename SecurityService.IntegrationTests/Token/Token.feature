@@ -35,6 +35,7 @@ Scenario: Get Tokens
 	| ClientId      | ClientSecret |
 	| serviceClient | Secret1      |
 	Then my token is returned
+	And the access token has client type 'client'
 
 @mfa
 Scenario: Password token is rejected when MFA is required
@@ -50,5 +51,6 @@ Scenario: Password token is rejected when MFA is required
 	| ClientId       | ClientSecret | Username                         | Password |
 	| merchantClient | Secret1      | merchantuser                    | 123456   |
 	Then my token is returned
+	And the access token has client type 'user'
 
 

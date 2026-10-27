@@ -14,6 +14,10 @@ namespace SecurityService.BusinessLogic.Oidc;
 
 public static class OidcHelpers
 {
+    public static string ClientTypeClaim { get; } = "client_type";
+    public static string UserClientType { get; } = "user";
+    public static string ServiceClientType { get; } = "client";
+
     public static string BuildCurrentRequestUrl(HttpRequest request)
     {
         var path = request.PathBase + request.Path;
@@ -49,6 +53,7 @@ public static class OidcHelpers
         var identity = new ClaimsIdentity(TokenValidationParameters.DefaultAuthenticationType, Claims.Name, Claims.Role);
 
         identity.SetClaim(Claims.Subject, user.Id)
+                .SetClaim(ClientTypeClaim, UserClientType)
                 .SetClaim(Claims.Email, user.Email)
                 .SetClaim(Claims.Name, user.UserName)
                 .SetClaim(Claims.PreferredUsername, user.UserName)
@@ -76,6 +81,11 @@ public static class OidcHelpers
 
         foreach (var claim in await userManager.GetClaimsAsync(user))
         {
+            if (string.Equals(claim.Type, ClientTypeClaim, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
             AddClaimIfMissing(identity, claim.Type, claim.Value);
         }
 
@@ -107,6 +117,11 @@ public static class OidcHelpers
 
     public static IEnumerable<string> GetDestinations(Claim claim)
     {
+        if (string.Equals(claim.Type, ClientTypeClaim, StringComparison.Ordinal))
+        {
+            return [Destinations.AccessToken];
+        }
+
         return claim.Type switch
         {
             Claims.Name or Claims.PreferredUsername or Claims.Email or Claims.GivenName or Claims.FamilyName or "middle_name" =>

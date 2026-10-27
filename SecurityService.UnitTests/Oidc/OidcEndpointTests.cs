@@ -148,6 +148,25 @@ public class OidcEndpointTests
         principal.Claims.Count(claim => claim.Type == OpenIddictConstants.Claims.Role && claim.Value == "Merchant").ShouldBe(1);
     }
 
+    [Fact]
+    public async Task CreatePrincipal_AddsUserClientTypeToAccessTokenOnly()
+    {
+        var userManager = IdentityMocks.CreateUserManager();
+        var user = new ApplicationUser { Id = "user-1", UserName = "alice" };
+        userManager.GetRolesAsync(user).ReturnsAsync([]);
+        userManager.GetClaimsAsync(user).ReturnsAsync([new Claim(OidcHelpers.ClientTypeClaim, "client")]);
+
+        var principal = await OidcHelpers.CreatePrincipal(
+            user,
+            userManager.Instance(),
+            [],
+            [],
+            authorizationId: null);
+
+        principal.FindAll(OidcHelpers.ClientTypeClaim).Select(claim => claim.Value).ShouldBe([OidcHelpers.UserClientType]);
+        OidcHelpers.GetDestinations(principal.FindFirst(OidcHelpers.ClientTypeClaim)!).ShouldBe([OpenIddictConstants.Destinations.AccessToken]);
+    }
+
     private sealed class FakeAuthenticationService : IAuthenticationService
     {
         private readonly AuthenticateResult _authenticateResult;
