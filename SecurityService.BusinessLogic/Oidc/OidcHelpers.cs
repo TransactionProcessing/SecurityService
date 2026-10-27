@@ -14,9 +14,9 @@ namespace SecurityService.BusinessLogic.Oidc;
 
 public static class OidcHelpers
 {
-    public const string ClientTypeClaim = "client_type";
-    public const string UserClientType = "user";
-    public const string ServiceClientType = "client";
+    public static string ClientTypeClaim { get; } = "client_type";
+    public static string UserClientType { get; } = "user";
+    public static string ServiceClientType { get; } = "client";
 
     public static string BuildCurrentRequestUrl(HttpRequest request)
     {
@@ -117,13 +117,17 @@ public static class OidcHelpers
 
     public static IEnumerable<string> GetDestinations(Claim claim)
     {
+        if (string.Equals(claim.Type, ClientTypeClaim, StringComparison.Ordinal))
+        {
+            return [Destinations.AccessToken];
+        }
+
         return claim.Type switch
         {
             Claims.Name or Claims.PreferredUsername or Claims.Email or Claims.GivenName or Claims.FamilyName or "middle_name" =>
                 [Destinations.AccessToken, Destinations.IdentityToken],
             Claims.Role => [Destinations.AccessToken, Destinations.IdentityToken],
             Claims.Subject => [Destinations.AccessToken, Destinations.IdentityToken],
-            ClientTypeClaim => [Destinations.AccessToken],
             _ => [Destinations.AccessToken]
         };
     }
