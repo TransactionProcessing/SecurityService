@@ -50,13 +50,13 @@ public sealed class IndexModel : PageModel
 
         Result<LoginOutcome> result = await this._mediator.Send(new SecurityServiceCommands.BeginLoginCommand(this.Input.Username, this.Input.Password, this.Input.RememberLogin, this.Input.ReturnUrl));
 
-        if (result.Data is LoginRejected rejection) {
-            this.ModelState.AddModelError(string.Empty, rejection.Message);
+        if (result.IsFailed) {
+            this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault()?.Message ?? result.Message ?? "Invalid username or password.");
             return this.Page();
         }
 
-        if (result.IsFailed) {
-            this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault()?.Message ?? result.Message ?? "Invalid username or password.");
+        if (result.Data is LoginRejected rejection) {
+            this.ModelState.AddModelError(string.Empty, rejection.Message);
             return this.Page();
         }
 
