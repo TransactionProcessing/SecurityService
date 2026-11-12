@@ -34,6 +34,7 @@
     <PackageReference Include="OpenIddict.Server.AspNetCore" />
     <PackageReference Include="OpenIddict.Validation.AspNetCore" />
     <PackageReference Include="TransactionProcessing.Shared" />
+    <PackageReference Include="TransactionProcessing.ClientProxyBase" />
     <PackageReference Include="TransactionProcessing.UnionResults.AspNetCore" />
     <PackageReference Include="Sentry.AspNetCore" />
     <PackageReference Include="NLog.Web.AspNetCore" />

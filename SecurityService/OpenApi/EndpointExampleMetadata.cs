@@ -41,21 +41,21 @@ public sealed class EndpointExampleOpenApiTransformer : IOpenApiOperationTransfo
 
         foreach (EndpointExampleMetadata example in examples)
         {
-            OpenApiMediaType? mediaType = example.Location switch
+            IOpenApiMediaType? mediaType = example.Location switch
             {
-                EndpointExampleLocation.Request when operation.RequestBody?.Content.TryGetValue(example.ContentType, out OpenApiMediaType? requestContent) == true => requestContent,
+                EndpointExampleLocation.Request when operation.RequestBody?.Content.TryGetValue(example.ContentType, out IOpenApiMediaType? requestContent) == true => requestContent,
                 EndpointExampleLocation.Response when operation.Responses.TryGetValue(example.StatusCode, out IOpenApiResponse? response) => GetOrAddResponseContent(response, example.ContentType),
                 _ => null
             };
 
-            if (mediaType is null)
+            if (mediaType is not OpenApiMediaType mutableMediaType)
             {
                 continue;
             }
 
             JsonNode? json = JsonNode.Parse(example.Json);
-            mediaType.Examples ??= new Dictionary<string, IOpenApiExample>();
-            mediaType.Examples["Example"] = new OpenApiExample
+            mutableMediaType.Examples ??= new Dictionary<string, IOpenApiExample>();
+            mutableMediaType.Examples["Example"] = new OpenApiExample
             {
                 Summary = example.Summary,
                 Value = json?.DeepClone()
@@ -65,9 +65,9 @@ public sealed class EndpointExampleOpenApiTransformer : IOpenApiOperationTransfo
         return Task.CompletedTask;
     }
 
-    private static OpenApiMediaType GetOrAddResponseContent(IOpenApiResponse response, string contentType)
+    private static IOpenApiMediaType GetOrAddResponseContent(IOpenApiResponse response, string contentType)
     {
-        if (response.Content.TryGetValue(contentType, out OpenApiMediaType? content))
+        if (response.Content.TryGetValue(contentType, out IOpenApiMediaType? content))
         {
             return content;
         }

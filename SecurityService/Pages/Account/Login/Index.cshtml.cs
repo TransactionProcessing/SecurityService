@@ -56,7 +56,7 @@ public sealed class IndexModel : PageModel
         }
 
         if (result.IsFailed) {
-            this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault() ?? result.Message ?? "Invalid username or password.");
+            this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault()?.Message ?? result.Message ?? "Invalid username or password.");
             return this.Page();
         }
 

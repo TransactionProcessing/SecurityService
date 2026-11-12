@@ -1,6 +1,7 @@
 using MediatR;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.DataTransferObjects;
+using SecurityService.Factories;
 using SecurityService.Models;
 using TransactionProcessing.UnionResults.AspNetCore;
 using TransactionProcessing.UnionResults;

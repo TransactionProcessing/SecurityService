@@ -140,7 +140,7 @@ public class LoginPageModelTests
         if (loginResult is not null)
         {
             mediator.Send(Arg<IRequest<Result<LoginOutcome>>>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(loginResult);
+                .ReturnsAsync(loginResult.Value);
         }
 
         return mediator;

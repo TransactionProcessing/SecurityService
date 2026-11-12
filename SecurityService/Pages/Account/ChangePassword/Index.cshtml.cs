@@ -43,7 +43,7 @@ public sealed class IndexModel : PageModel
         }
 
         SecurityServiceCommands.ChangeUserPasswordCommand command = new(this.Input.EmailAddress, this.Input.CurrentPassword, this.Input.NewPassword, this.Input.ClientId);
-        Result<ChangeUserPasswordResult>? result = await this._mediator.Send(command, cancellationToken);
+        Result<ChangeUserPasswordResult> result = await this._mediator.Send(command, cancellationToken);
 
         if (result.IsFailed)
         {

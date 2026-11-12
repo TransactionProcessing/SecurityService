@@ -9,6 +9,7 @@ using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
 

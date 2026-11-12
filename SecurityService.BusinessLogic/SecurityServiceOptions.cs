@@ -6,6 +6,7 @@ using TransactionProcessing.UnionResults;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Collections.Generic;
+using MessagingResult = SimpleResults.Result;
 
 namespace SecurityService.BusinessLogic;
 
@@ -147,11 +148,12 @@ public class TestMessagingServiceClient : IMessagingServiceClient
     public SendEmailRequest LastEmailRequest { get; private set; }
     public SendSMSRequest LastSMSRequest { get; private set; }
 
-    public async Task<Result> ResendEmail(string accessToken, ResendEmailRequest request, CancellationToken cancellationToken) => Result.Success();
+    public Task<MessagingResult> ResendEmail(string accessToken, ResendEmailRequest request, CancellationToken cancellationToken) =>
+        Task.FromResult(MessagingResult.Success());
 
-    public async Task<Result> SendEmail(String accessToken,
-                                        SendEmailRequest request,
-                                        CancellationToken cancellationToken)
+    public Task<MessagingResult> SendEmail(String accessToken,
+                                           SendEmailRequest request,
+                                           CancellationToken cancellationToken)
     {
         this.LastEmailRequest = new SendEmailRequest() {
             Body = request.Body,
@@ -163,15 +165,15 @@ public class TestMessagingServiceClient : IMessagingServiceClient
             Subject = request.Subject,
             ToAddresses = request.ToAddresses
         };
-        return Result.Success();
+        return Task.FromResult(MessagingResult.Success());
     }
 
-    public async Task<Result> SendSMS(String accessToken,
-                                      SendSMSRequest request,
-                                      CancellationToken cancellationToken)
+    public Task<MessagingResult> SendSMS(String accessToken,
+                                         SendSMSRequest request,
+                                         CancellationToken cancellationToken)
     {
         this.LastSMSRequest = request;
-        return Result.Success();
+        return Task.FromResult(MessagingResult.Success());
     }
 }
 

@@ -163,7 +163,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
         {
             Description = "Submit one of the grant-specific form examples. Client authentication requirements depend on the client registration.",
             Required = true,
-            Content = new Dictionary<string, OpenApiMediaType> { ["application/x-www-form-urlencoded"] = content }
+            Content = new Dictionary<string, IOpenApiMediaType> { ["application/x-www-form-urlencoded"] = content }
         };
     }
 
@@ -179,7 +179,7 @@ public sealed class OidcRequestDocumentationTransformer : IOpenApiOperationTrans
         {
             Description = description,
             Required = true,
-            Content = new Dictionary<string, OpenApiMediaType>
+            Content = new Dictionary<string, IOpenApiMediaType>
             {
                 ["application/x-www-form-urlencoded"] = new OpenApiMediaType
                 {

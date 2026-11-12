@@ -84,8 +84,7 @@ namespace SecurityService.IntegrationTests.Roles
         [Then(@"the role MFA policy operation succeeds")]
         public void ThenTheMfaPolicyOperationSucceeds()
         {
-            this.TestingContext.LastMfaPolicyResult.ShouldNotBeNull();
-            this.TestingContext.LastMfaPolicyResult.IsSuccess.ShouldBeTrue(this.TestingContext.LastMfaPolicyResult.Message);
+            this.TestingContext.LastMfaPolicyResult.IsFailed.ShouldBeFalse();
         }
 
     }

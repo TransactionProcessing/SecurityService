@@ -54,7 +54,7 @@ public sealed class IndexModel : PageModel
 
         // process the password change
         SecurityServiceCommands.ProcessPasswordResetConfirmationCommand command = new(Input.Username, Input.Token, Input.Password, Input.ClientId);
-        Result<String>? result = await this.Mediator.Send(command, cancellationToken);
+        Result<String> result = await this.Mediator.Send(command, cancellationToken);
 
         if (result.IsFailed)
         {
@@ -62,7 +62,7 @@ public sealed class IndexModel : PageModel
             {
                 Username = Input.Username,
                 Token = Input.Token,
-                UserMessage = $"Failed processing password reset for username {Input.Username}: {result.Message}"
+                UserMessage = $"Failed processing password reset for username {Input.Username}: {result.Errors.FirstOrDefault()?.Message ?? "Unknown error"}"
             };
             return Page();
         }

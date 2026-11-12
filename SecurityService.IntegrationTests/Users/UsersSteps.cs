@@ -103,8 +103,7 @@
         [Then(@"the user MFA policy operation succeeds")]
         public void ThenTheUserMfaPolicyOperationSucceeds()
         {
-            this.TestingContext.LastMfaPolicyResult.ShouldNotBeNull();
-            this.TestingContext.LastMfaPolicyResult.IsSuccess.ShouldBeTrue(this.TestingContext.LastMfaPolicyResult.Message);
+            this.TestingContext.LastMfaPolicyResult.IsFailed.ShouldBeFalse();
         }
         
         #endregion
