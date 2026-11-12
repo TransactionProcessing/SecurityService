@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Shared.Serialisation;
+using TransactionProcessing.Shared.Serialisation;
 
 namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
 {
@@ -15,7 +15,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ForgotPassword
     using OpenQA.Selenium;
     using Reqnroll;
     using SecurityService.IntegrationTests.UserLogin;
-    using Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.IntegrationTesting;
     using Shouldly;
 
     [Binding]

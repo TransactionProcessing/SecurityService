@@ -2,7 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SecurityService.BusinessLogic.Requests;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Pages.Account.ConfirmEmail;
 
@@ -31,7 +31,7 @@ public sealed class IndexModel : PageModel
         }
 
         SecurityServiceCommands.ConfirmUserEmailAddressCommand confirmUserEmailAddressCommand = new(this.Input.Username, this.Input.Token);
-        Result? confirmUserEmailAddressResult = await this._mediator.Send(confirmUserEmailAddressCommand, cancellationToken);
+        Result confirmUserEmailAddressResult = await this._mediator.Send(confirmUserEmailAddressCommand, cancellationToken);
 
         if (confirmUserEmailAddressResult.IsFailed)
         {

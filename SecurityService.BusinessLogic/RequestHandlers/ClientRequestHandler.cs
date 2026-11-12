@@ -12,8 +12,7 @@ using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.Models;
 using SecurityService.BusinessLogic.Validation;
-using Shared.Results;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
@@ -82,7 +81,7 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
             this.ValidateCommand(command);
 
         if (validateResult.IsFailed) {
-            return ResultHelpers.CreateFailure(validateResult);
+            return validateResult.ToResult();
         }
 
         if (await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId,

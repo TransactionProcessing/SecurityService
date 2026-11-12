@@ -4,7 +4,7 @@ namespace SecurityService.IntergrationTests.Common
 {
     using System;
     using System.Collections.Generic;
-    using Shared.Logger;
+    using TransactionProcessing.Shared.Logger;
 
     public class TestingContext
     {

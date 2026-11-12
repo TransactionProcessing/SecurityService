@@ -3,52 +3,52 @@ using SecurityService.BusinessLogic.Requests;
 using SecurityService.DataTransferObjects;
 using SecurityService.Factories;
 using SecurityService.Models;
-using Shared.Results.Web;
-using SimpleResults;
+using TransactionProcessing.UnionResults.AspNetCore;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Handlers;
 
 public static class RoleHandler
 {
-    public static async Task<IResult> RequireMfa(IMediator mediator,
+    public static async Task<Result> RequireMfa(IMediator mediator,
                                                  [System.ComponentModel.Description("Stable identity ID of the role to update.")] string roleId,
                                                  CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new SecurityServiceCommands.RequireRoleMfaCommand(roleId), cancellationToken);
-        return ResponseFactory.FromResult(result);
+        return result;
     }
 
-    public static async Task<IResult> RemoveMfa(IMediator mediator,
+    public static async Task<Result> RemoveMfa(IMediator mediator,
                                                 [System.ComponentModel.Description("Stable identity ID of the role to update.")] string roleId,
                                                 CancellationToken cancellationToken)
     {
         var result = await mediator.Send(new SecurityServiceCommands.RemoveRoleMfaCommand(roleId), cancellationToken);
-        return ResponseFactory.FromResult(result);
+        return result;
     }
 
-    public static async Task<IResult> CreateRole(IMediator mediator, CreateRoleRequest request, CancellationToken cancellationToken) {
+    public static async Task<Result> CreateRole(IMediator mediator, CreateRoleRequest request, CancellationToken cancellationToken) {
         SecurityServiceCommands.CreateRoleCommand command = new(request.RoleName);
 
         Result result = await mediator.Send(command, cancellationToken);
         
-        return ResponseFactory.FromResult(result);
+        return result;
     }
 
-    public static async Task<IResult> GetRole(IMediator mediator,
+    public static async Task<Result<RoleResponse>> GetRole(IMediator mediator,
                                               [System.ComponentModel.Description("Stable identity ID of the role to retrieve.")] string roleId,
                                               CancellationToken cancellationToken) {
         SecurityServiceQueries.GetRoleQuery query = new(roleId);
 
         Result<RoleDetails> result = await mediator.Send(query, cancellationToken);
 
-        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        return result.Map(ModelFactory.ConvertFrom);
     }
-    public static async Task<IResult> GetRoles(IMediator mediator, CancellationToken cancellationToken)
+    public static async Task<Result<List<RoleResponse>>> GetRoles(IMediator mediator, CancellationToken cancellationToken)
     {
         SecurityServiceQueries.GetRolesQuery query = new();
 
         Result<List<RoleDetails>> result = await mediator.Send(query, cancellationToken);
 
-        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        return result.Map(ModelFactory.ConvertFrom);
     }
 }

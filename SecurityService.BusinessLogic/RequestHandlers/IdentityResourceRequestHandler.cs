@@ -6,7 +6,7 @@ using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.Models;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using ResourceType = SecurityService.Database.Entities.ResourceType;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;

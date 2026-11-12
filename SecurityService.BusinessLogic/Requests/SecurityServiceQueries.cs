@@ -1,6 +1,6 @@
 using MediatR;
 using SecurityService.Models;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.BusinessLogic.Requests;
 

@@ -2,7 +2,7 @@ using MediatR;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;

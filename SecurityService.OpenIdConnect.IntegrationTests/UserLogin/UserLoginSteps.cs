@@ -1,5 +1,5 @@
 ﻿using System;
-using Shared.Serialisation;
+using TransactionProcessing.Shared.Serialisation;
 
 namespace SecurityService.IntegrationTests.UserLogin
 {
@@ -16,7 +16,7 @@ using System.Security.Cryptography;
     using IntergrationTests.Common;
     using OpenQA.Selenium;
     using Reqnroll;
-    using Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.IntegrationTesting;
     using Shouldly;
     
     [Binding]

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.OpenIdConnect.IntegrationTests.Common
 {
@@ -11,7 +11,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
     using IntegrationTesting.Helpers;
     using IntergrationTests.Common;
     using Reqnroll;
-    using Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.IntegrationTesting;
     using Shouldly;
 
     [Binding]

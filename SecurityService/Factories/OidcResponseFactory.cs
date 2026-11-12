@@ -1,9 +1,8 @@
 using Microsoft.AspNetCore.Authentication;
 using SecurityService.BusinessLogic.Oidc;
-using SimpleResults;
-using System.Net;
+using TransactionProcessing.UnionResults;
 using System.Security.Claims;
-using Shared.Results.Web;
+using TransactionProcessing.UnionResults.AspNetCore;
 
 namespace SecurityService.Factories;
 
@@ -12,7 +11,7 @@ public static class OidcResponseFactory
     public static IResult FromResult<T>(Result<T> result)
     {
         if (result.IsSuccess == false) {
-            return TranslateResultStatus(result);
+            return TranslateResultError(result);
         }
 
         return result.Data switch
@@ -33,27 +32,24 @@ public static class OidcResponseFactory
         };
     }
 
-    internal static IResult TranslateResultStatus(ResultBase result)
+    internal static IResult TranslateResultError(IResultOutcome result)
     {
-        ErrorResponse errorResponse = new()
-        {
-            Errors = result.Errors.Any() switch
-            {
-                true => result.Errors.ToList(),
-                _ => [result.Message],
-            }
-        };
+        ResultOutcome outcome = result.GetOutcome();
+        ErrorType errorType = outcome.Error?.ErrorType ?? outcome.Errors?.ErrorType ?? ErrorType.Unknown;
+        string[] messages = outcome.Error is not null
+            ? [outcome.Error.Message]
+            : outcome.Errors?.Select(error => error.Message).ToArray() ?? [];
+        object errorResponse = new { Errors = messages };
 
-        return result.Status switch
+        return errorType switch
         {
-            ResultStatus.Invalid => Microsoft.AspNetCore.Http.Results.BadRequest(errorResponse),
-            ResultStatus.NotFound => Microsoft.AspNetCore.Http.Results.NotFound(errorResponse),
-            ResultStatus.Unauthorized => Microsoft.AspNetCore.Http.Results.Unauthorized(),
-            ResultStatus.Conflict => Microsoft.AspNetCore.Http.Results.Conflict(errorResponse),
-            ResultStatus.Failure => Microsoft.AspNetCore.Http.Results.InternalServerError(errorResponse),
-            ResultStatus.CriticalError => Microsoft.AspNetCore.Http.Results.InternalServerError(errorResponse),
-            ResultStatus.Forbidden => Microsoft.AspNetCore.Http.Results.Forbid(),
-            _ => Microsoft.AspNetCore.Http.Results.StatusCode((int)HttpStatusCode.NotImplemented)
+            ErrorType.Validation => Microsoft.AspNetCore.Http.Results.BadRequest(errorResponse),
+            ErrorType.NotFound => Microsoft.AspNetCore.Http.Results.NotFound(errorResponse),
+            ErrorType.Unauthorized => Microsoft.AspNetCore.Http.Results.Unauthorized(),
+            ErrorType.Conflict => Microsoft.AspNetCore.Http.Results.Conflict(errorResponse),
+            ErrorType.Failure or ErrorType.Critical => Microsoft.AspNetCore.Http.Results.InternalServerError(errorResponse),
+            ErrorType.Forbidden => Microsoft.AspNetCore.Http.Results.Forbid(),
+            _ => Microsoft.AspNetCore.Http.Results.StatusCode(501)
         };
     }
 }

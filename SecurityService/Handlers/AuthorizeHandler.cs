@@ -1,7 +1,7 @@
 using MediatR;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Factories;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Handlers;
 

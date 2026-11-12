@@ -3,14 +3,14 @@ using SecurityService.BusinessLogic.Requests;
 using SecurityService.DataTransferObjects;
 using SecurityService.Factories;
 using SecurityService.Models;
-using Shared.Results.Web;
-using SimpleResults;
+using TransactionProcessing.UnionResults.AspNetCore;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Handlers;
 
 public static class ClientHandler
 {
-    public static async Task<IResult> CreateClient(IMediator mediator, CreateClientRequest request, CancellationToken cancellationToken)
+    public static async Task<Result> CreateClient(IMediator mediator, CreateClientRequest request, CancellationToken cancellationToken)
     {
         SecurityServiceCommands.CreateClientCommand command = new(request.ClientId,
             request.Secret,
@@ -26,25 +26,25 @@ public static class ClientHandler
 
         Result result = await mediator.Send(command, cancellationToken);
 
-        return ResponseFactory.FromResult(result);
+        return result;
     }
 
-    public static async Task<IResult> GetClient(IMediator mediator,
+    public static async Task<Result<ClientResponse>> GetClient(IMediator mediator,
                                                 [System.ComponentModel.Description("OAuth client identifier assigned when the client registration was created.")] string clientId,
                                                 CancellationToken cancellationToken) {
         SecurityServiceQueries.GetClientQuery query = new(clientId);
 
         Result<ClientDetails> result = await mediator.Send(query, cancellationToken);
         
-        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        return result.Map(ModelFactory.ConvertFrom);
     }
 
-    public static async Task<IResult> GetClients(IMediator mediator,
+    public static async Task<Result<List<ClientResponse>>> GetClients(IMediator mediator,
                                                  CancellationToken cancellationToken) {
         SecurityServiceQueries.GetClientsQuery query = new();
 
         Result<List<ClientDetails>> result = await mediator.Send(query, cancellationToken);
 
-        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        return result.Map(ModelFactory.ConvertFrom);
     }
 }

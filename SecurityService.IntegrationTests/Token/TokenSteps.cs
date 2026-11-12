@@ -74,8 +74,7 @@ namespace SecurityService.IntegrationTests.Token
         [Then(@"the password token request fails")]
         public void ThenThePasswordTokenRequestFails()
         {
-            this.TestingContext.LastTokenResult.ShouldNotBeNull();
-            this.TestingContext.LastTokenResult.IsSuccess.ShouldBeFalse();
+            this.TestingContext.LastTokenResult.IsFailed.ShouldBeTrue();
         }
 
     }

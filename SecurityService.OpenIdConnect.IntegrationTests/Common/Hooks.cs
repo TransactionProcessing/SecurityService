@@ -10,7 +10,7 @@ namespace SecurityService.IntergrationTests.Common
     using OpenQA.Selenium.Firefox;
     using OpenQA.Selenium.Remote;
     using Reqnroll;
-    using Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.IntegrationTesting;
 
     /// <summary>
     /// 

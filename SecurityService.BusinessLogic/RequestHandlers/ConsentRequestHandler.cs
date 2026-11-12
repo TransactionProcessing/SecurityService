@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database.DbContexts;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
 

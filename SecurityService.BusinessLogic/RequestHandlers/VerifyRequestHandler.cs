@@ -8,7 +8,7 @@ using OpenIddict.Server.AspNetCore;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;

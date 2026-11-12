@@ -4,7 +4,7 @@ using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
 
@@ -51,7 +51,7 @@ public class IdentityResourceRequestHandlerTests
             [OpenIddictConstants.Claims.GivenName]));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.Failure);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Failure);
     }
 
     [Fact]
@@ -73,7 +73,7 @@ public class IdentityResourceRequestHandlerTests
         var duplicateResult = await mediator.Send(command);
 
         duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Status.ShouldBe(ResultStatus.Conflict);
+        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -85,6 +85,6 @@ public class IdentityResourceRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceQueries.GetIdentityResourceQuery("missing-resource"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.NotFound);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 }

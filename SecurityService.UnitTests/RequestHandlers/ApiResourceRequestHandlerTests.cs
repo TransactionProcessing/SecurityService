@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
 
@@ -50,7 +50,7 @@ public class ApiResourceRequestHandlerTests
             ["merchant_id"]));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     [Fact]
@@ -71,7 +71,7 @@ public class ApiResourceRequestHandlerTests
         var duplicateResult = await mediator.Send(command);
 
         duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Status.ShouldBe(ResultStatus.Conflict);
+        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -83,7 +83,7 @@ public class ApiResourceRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceQueries.GetApiResourceQuery("missing-api-resource"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.NotFound);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 
     [Fact]

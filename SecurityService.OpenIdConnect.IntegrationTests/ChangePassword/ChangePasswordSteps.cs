@@ -10,7 +10,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.ChangePassword
     using OpenQA.Selenium;
     using Reqnroll;
     using SecurityService.IntegrationTests.UserLogin;
-    using Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.IntegrationTesting;
     using Shouldly;
 
     [Binding]

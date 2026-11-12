@@ -8,7 +8,7 @@ using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.Pages;
 
@@ -140,7 +140,7 @@ public class LoginPageModelTests
         if (loginResult is not null)
         {
             mediator.Send(Arg<IRequest<Result<LoginOutcome>>>.Any(), Arg<CancellationToken>.Any())
-                .ReturnsAsync(loginResult);
+                .ReturnsAsync(loginResult.Value);
         }
 
         return mediator;

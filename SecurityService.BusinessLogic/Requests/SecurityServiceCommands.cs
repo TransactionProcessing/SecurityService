@@ -1,7 +1,7 @@
 using MediatR;
 using SecurityService.BusinessLogic.Mfa;
 using SecurityService.Models;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.BusinessLogic.Requests;
 

@@ -14,7 +14,7 @@ using OpenIddict.Validation.AspNetCore;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.BusinessLogic.Mfa;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.BusinessLogic.Oidc;

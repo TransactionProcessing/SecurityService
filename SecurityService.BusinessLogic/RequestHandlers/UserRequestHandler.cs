@@ -15,15 +15,15 @@ using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.DataTransferObjects;
 using SecurityService.Models;
-using Shared.Results;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
-using Shared.Logger;
+using TransactionProcessing.Shared.Logger;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using MessagingResult = SimpleResults.Result;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
 
@@ -88,10 +88,10 @@ public sealed class UserRequestHandler :
 
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
-        Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+        MessagingResult sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (sendEmailResult.IsFailed) {
             Logger.LogWarning("Error sending email to {emailaddress} as part of user creation {result}", newIdentityUser.Email, sendEmailResult);
-            return ResultHelpers.CreateFailure(sendEmailResult);
+            return Result.Failure(sendEmailResult.Message);
         }
 
         return Result.Success();
@@ -189,10 +189,12 @@ public sealed class UserRequestHandler :
                                            this.Options.Value.UserOptions.UseProvidedPasswordForEmailUsers);
         if (shouldUseProvidedPassword)
         {
-            Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password) ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions) : command.Password;
+            Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password)
+                ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions)
+                : Result.Success(command.Password);
 
             if (passwordValueResult.IsFailed)
-                return ResultHelpers.CreateFailure(passwordValueResult);
+                return Result.Failure(passwordValueResult.Errors.FirstOrDefault()?.Message ?? "Unable to generate password.");
 
             newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValueResult.Data);
 
@@ -418,9 +420,9 @@ public sealed class UserRequestHandler :
 
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildActivationEmail(emailAddress, uri);
-        Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+        MessagingResult sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (sendEmailResult.IsFailed)
-            return ResultHelpers.CreateFailure(sendEmailResult);
+            return Result.Failure(sendEmailResult.Message);
 
         return Result.Success();
     }
@@ -430,7 +432,7 @@ public sealed class UserRequestHandler :
     {
         ApplicationUser? user = await this.UserManager.FindByNameAsync(command.Username);
         if (user == null)
-            return Result.NotFound();
+            return Result.NotFound($"User '{command.Username}' was not found.");
 
         IdentityResult result = await this.UserManager.ResetPasswordAsync(user, command.Token, command.Password);
         if (result.Succeeded == false)
@@ -449,7 +451,7 @@ public sealed class UserRequestHandler :
             var categories = BuildCategories(opts);
             var result = ValidateUniqueCharRequirement(opts, categories);
             if (result.IsFailed)
-                return ResultHelpers.CreateFailure(result);
+                return Result<string>.FromFailure(result);
 
             var chars = new List<char>();
 
@@ -519,7 +521,7 @@ public sealed class UserRequestHandler :
 
         if (user == null) {
             // this prevents giving away info to a potential hacker...
-            return Result.NotFound();
+            return Result.NotFound($"User '{command.UserName}' was not found.");
         }
 
         IdentityResult result = await this.UserManager.ChangePasswordAsync(user,
@@ -571,9 +573,9 @@ public sealed class UserRequestHandler :
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
 
-        Result result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+        MessagingResult result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (result.IsFailed)
-            return ResultHelpers.CreateFailure(result);
+            return Result.Failure(result.Message);
 
         return Result.Success();
     }
