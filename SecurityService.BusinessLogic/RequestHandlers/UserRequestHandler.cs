@@ -15,14 +15,13 @@ using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.DataTransferObjects;
 using SecurityService.Models;
-using Shared.Results;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
-using Shared.Logger;
+using TransactionProcessing.Shared.Logger;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
@@ -91,7 +90,7 @@ public sealed class UserRequestHandler :
         Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (sendEmailResult.IsFailed) {
             Logger.LogWarning("Error sending email to {emailaddress} as part of user creation {result}", newIdentityUser.Email, sendEmailResult);
-            return ResultHelpers.CreateFailure(sendEmailResult);
+            return sendEmailResult;
         }
 
         return Result.Success();
@@ -192,7 +191,7 @@ public sealed class UserRequestHandler :
             Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password) ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions) : command.Password;
 
             if (passwordValueResult.IsFailed)
-                return ResultHelpers.CreateFailure(passwordValueResult);
+                return Result<String>.FromFailure(passwordValueResult);
 
             newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValueResult.Data);
 
@@ -420,7 +419,7 @@ public sealed class UserRequestHandler :
         SendEmailRequest emailRequest = this.BuildActivationEmail(emailAddress, uri);
         Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (sendEmailResult.IsFailed)
-            return ResultHelpers.CreateFailure(sendEmailResult);
+            return sendEmailResult;
 
         return Result.Success();
     }
@@ -449,7 +448,7 @@ public sealed class UserRequestHandler :
             var categories = BuildCategories(opts);
             var result = ValidateUniqueCharRequirement(opts, categories);
             if (result.IsFailed)
-                return ResultHelpers.CreateFailure(result);
+                return result;
 
             var chars = new List<char>();
 
@@ -573,7 +572,7 @@ public sealed class UserRequestHandler :
 
         Result result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (result.IsFailed)
-            return ResultHelpers.CreateFailure(result);
+            return result;
 
         return Result.Success();
     }

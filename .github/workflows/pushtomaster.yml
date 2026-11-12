@@ -16,6 +16,11 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2.3.4 
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 11.0.x
       with:
         fetch-depth: 0
 

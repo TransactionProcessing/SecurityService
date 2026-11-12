@@ -1,6 +1,6 @@
 using SecurityService.BusinessLogic.Validation;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
 
@@ -39,7 +39,7 @@ public sealed class ClientRedirectUriValidatorTests
         var result = ClientRedirectUriValidator.Validate([value], "ClientRedirectUris");
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     [Theory]
@@ -54,7 +54,7 @@ public sealed class ClientRedirectUriValidatorTests
         var result = ClientRedirectUriValidator.Validate([value], "ClientPostLogoutRedirectUris");
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
         result.Message.ShouldContain("ClientPostLogoutRedirectUris");
     }
 

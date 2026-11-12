@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using SecurityService.BusinessLogic.Mfa;
 using SecurityService.BusinessLogic.Requests;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Pages.Account.Login;
 

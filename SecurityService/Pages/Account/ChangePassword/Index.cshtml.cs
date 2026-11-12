@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using System.ComponentModel.DataAnnotations;
 
 namespace SecurityService.Pages.Account.ChangePassword;

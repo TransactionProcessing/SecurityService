@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
 

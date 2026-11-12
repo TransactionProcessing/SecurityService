@@ -131,7 +131,7 @@ public class UserRequestHandlerTests
         var duplicateResult = await mediator.Send(command);
 
         duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Status.ShouldBe(SimpleResults.ResultStatus.Conflict);
+        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -196,7 +196,7 @@ public class UserRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.ConfirmUserEmailAddressCommand("alice", "token-123"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(SimpleResults.ResultStatus.NotFound);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 
     [Fact]
@@ -220,7 +220,7 @@ public class UserRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.ConfirmUserEmailAddressCommand("alice", "token-123"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(SimpleResults.ResultStatus.Failure);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Failure);
     }
 
     [Fact]
@@ -267,7 +267,7 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice"));
 
-        result.Status.ShouldBe(SimpleResults.ResultStatus.NotFound);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
         userManager.GeneratePasswordResetTokenAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
     }
 
@@ -404,7 +404,7 @@ public class UserRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "test-client-id"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(SimpleResults.ResultStatus.NotFound);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
         userManager.ResetPasswordAsync(Arg<ApplicationUser>.Any(), Arg<string>.Any(), Arg<string>.Any()).Called(Count.Never());
     }
 
@@ -429,7 +429,7 @@ public class UserRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "test-client-id"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(SimpleResults.ResultStatus.Failure);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Failure);
     }
 
     [Fact]
@@ -453,7 +453,7 @@ public class UserRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "missing-client-id"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(SimpleResults.ResultStatus.Invalid);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     private static async Task SeedClientAsync(ServiceProvider provider, string clientId, string clientUri)

@@ -1,6 +1,6 @@
 ﻿namespace SecurityService.IntegrationTesting.Helpers{
     using Microsoft.EntityFrameworkCore.Metadata.Internal;
-    using Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.IntegrationTesting;
     using Shouldly;
     using System.Collections.Generic;
     using DataTransferObjects;

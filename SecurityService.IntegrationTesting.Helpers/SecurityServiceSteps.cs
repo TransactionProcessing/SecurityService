@@ -1,10 +1,10 @@
-﻿using SimpleResults;
+﻿using TransactionProcessing.UnionResults;
 
 namespace SecurityService.IntegrationTesting.Helpers;
 
 using Client;
 using DataTransferObjects;
-using Shared.IntegrationTesting;
+using TransactionProcessing.Shared.IntegrationTesting;
 using Shouldly;
 using System.Collections.Generic;
 using System.Security.Claims;

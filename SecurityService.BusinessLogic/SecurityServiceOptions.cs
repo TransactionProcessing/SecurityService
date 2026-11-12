@@ -2,7 +2,7 @@ using MessagingService.Client;
 using MessagingService.DataTransferObjects;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Collections.Generic;

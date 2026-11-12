@@ -6,8 +6,8 @@ namespace SecurityService.IntergrationTests.Common
 {
     using NLog;
     using Reqnroll;
-    using Shared.IntegrationTesting;
-    using Shared.Logger;
+    using TransactionProcessing.Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.Logger;
     using System.Threading;
     using System.Threading.Tasks;
 

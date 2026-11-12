@@ -1,4 +1,4 @@
-using Shared.Serialisation;
+using TransactionProcessing.Shared.Serialisation;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 

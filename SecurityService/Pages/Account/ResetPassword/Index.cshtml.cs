@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Database;
 using SecurityService.Pages.Account.ConfirmEmail;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 using System.Collections.Specialized;
 using System.ComponentModel.DataAnnotations;
 using System.Text;

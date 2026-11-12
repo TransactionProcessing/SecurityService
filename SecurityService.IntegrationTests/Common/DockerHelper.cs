@@ -1,15 +1,15 @@
 #nullable enable
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
-using Shared.Serialisation;
+using TransactionProcessing.Shared.Serialisation;
 
 namespace SecurityService.IntergrationTests.Common
 {
     using Client;
     using NLog.Config;
     using SecurityService.IntegrationTesting.Helpers;
-    using Shared.IntegrationTesting;
-    using Shared.IntegrationTesting.TestContainers;
+    using TransactionProcessing.Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.IntegrationTesting.TestContainers;
     using System;
     using System.Collections.Generic;
     using System.Net;
@@ -18,7 +18,7 @@ namespace SecurityService.IntergrationTests.Common
     using System.Threading;
     using System.Threading.Tasks;
 
-    public class DockerHelper : Shared.IntegrationTesting.TestContainers.DockerHelper
+    public class DockerHelper : TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper
     {
         public ISecurityServiceClient? SecurityServiceClient;
 
@@ -44,7 +44,7 @@ namespace SecurityService.IntergrationTests.Common
                 HttpClient httpClient = this.CreatePinnedHttpClient();
                 this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
 
-                SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken =
+                TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken =
                     await this.SecurityServiceClient
                         .GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None)
                         .ConfigureAwait(false);
@@ -105,7 +105,7 @@ namespace SecurityService.IntergrationTests.Common
                 }
             }
 
-            SimpleResults.Result<(String imageName, Boolean useLatest)> imageDetailsResult = this.GetImageDetails(ContainerType.SecurityService);
+            TransactionProcessing.UnionResults.Result<(String imageName, Boolean useLatest)> imageDetailsResult = this.GetImageDetails(ContainerType.SecurityService);
             if (imageDetailsResult.IsFailed)
             {
                 throw new Exception($"Image details not found for {ContainerType.SecurityService}");

@@ -103,7 +103,7 @@ app.MapDefaultControllerRoute();
 app.MapHealthChecks("health", new HealthCheckOptions
 {
     Predicate = _ => true,
-    ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse
+    ResponseWriter = TransactionProcessing.Shared.HealthChecks.HealthCheckMiddleware.WriteResponse
 });
 app.MapHealthChecks("healthui", new HealthCheckOptions
 {

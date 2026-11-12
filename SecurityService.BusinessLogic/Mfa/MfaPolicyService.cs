@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.BusinessLogic.Mfa;
 

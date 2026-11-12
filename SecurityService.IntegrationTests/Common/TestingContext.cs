@@ -1,13 +1,13 @@
 ﻿using SecurityService.DataTransferObjects;
 
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.IntergrationTests.Common
 {
     using System;
     using System.Collections.Generic;
     using Microsoft.EntityFrameworkCore.Query.Internal;
-    using Shared.Logger;
+    using TransactionProcessing.Shared.Logger;
 
     /// <summary>
     /// 

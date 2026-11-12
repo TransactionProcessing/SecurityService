@@ -11,8 +11,8 @@ namespace SecurityService.IntergrationTests.Common
     using Ductus.FluentDocker.Services.Extensions;
     using NLog;
     using Reqnroll;
-    using Shared.IntegrationTesting;
-    using Shared.Logger;
+    using TransactionProcessing.Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.Logger;
     using System.IO;
     using System.Threading;
     using System.Threading.Tasks;

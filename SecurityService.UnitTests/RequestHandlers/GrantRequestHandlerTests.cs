@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
 
@@ -31,6 +31,6 @@ public class GrantRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.RevokeGrantCommand("user-1", "nonexistent-authorization-id"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.NotFound);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 }

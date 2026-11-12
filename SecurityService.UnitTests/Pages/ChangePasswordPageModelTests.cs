@@ -6,7 +6,7 @@ using Imposter.Abstractions;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.Pages;
 

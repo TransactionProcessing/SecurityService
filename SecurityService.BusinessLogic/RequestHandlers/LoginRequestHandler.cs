@@ -5,7 +5,7 @@ using SecurityService.BusinessLogic.Mfa;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Database.Entities;
 using SecurityService.Models;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
 

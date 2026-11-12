@@ -1,24 +1,23 @@
 using MediatR;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.DataTransferObjects;
-using SecurityService.Factories;
 using SecurityService.Models;
-using Shared.Results.Web;
-using SimpleResults;
+using TransactionProcessing.UnionResults.AspNetCore;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Handlers;
 
 public static class ApiResourceHandler
 {
-    public static async Task<IResult> CreateApiResource(IMediator mediator, CreateApiResourceRequest request, CancellationToken cancellationToken) {
+    public static async Task<Result> CreateApiResource(IMediator mediator, CreateApiResourceRequest request, CancellationToken cancellationToken) {
         SecurityServiceCommands.CreateApiResourceCommand command = new(request.Name, request.DisplayName, request.Description, request.Secret, request.Scopes, request.UserClaims);
 
         Result result = await mediator.Send(command, cancellationToken);
 
-        return ResponseFactory.FromResult(result);
+        return result;
     }
 
-    public static async Task<IResult> GetApiResource(IMediator mediator,
+    public static async Task<Result<ApiResourceResponse>> GetApiResource(IMediator mediator,
                                                      [System.ComponentModel.Description("Exact configured API resource name, for example orders-api.")] string name,
                                                      CancellationToken cancellationToken) {
 
@@ -26,10 +25,10 @@ public static class ApiResourceHandler
 
         Result<ApiResourceDetails> result = await mediator.Send(query, cancellationToken);
 
-        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        return result.Map(ModelFactory.ConvertFrom);
     }
 
-    public static async Task<IResult> GetApiResources(IMediator mediator,
+    public static async Task<Result<List<ApiResourceResponse>>> GetApiResources(IMediator mediator,
                                                       CancellationToken cancellationToken)
     {
 
@@ -37,6 +36,6 @@ public static class ApiResourceHandler
 
         Result<List<ApiResourceDetails>> result = await mediator.Send(query, cancellationToken);
 
-        return ResponseFactory.FromResult(result, ModelFactory.ConvertFrom);
+        return result.Map(ModelFactory.ConvertFrom);
     }
 }

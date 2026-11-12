@@ -1,6 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Http;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.BusinessLogic.Oidc;
 

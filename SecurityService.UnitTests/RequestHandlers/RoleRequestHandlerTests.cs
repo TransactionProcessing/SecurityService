@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
 
@@ -35,7 +35,7 @@ public class RoleRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.CreateRoleCommand(string.Empty));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.Invalid);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     [Fact]
@@ -48,7 +48,7 @@ public class RoleRequestHandlerTests
         var duplicateResult = await mediator.Send(new SecurityServiceCommands.CreateRoleCommand("admin"));
 
         duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Status.ShouldBe(ResultStatus.Conflict);
+        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -60,6 +60,6 @@ public class RoleRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceQueries.GetRoleQuery("missing-role-id"));
 
         result.IsFailed.ShouldBeTrue();
-        result.Status.ShouldBe(ResultStatus.NotFound);
+        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 }

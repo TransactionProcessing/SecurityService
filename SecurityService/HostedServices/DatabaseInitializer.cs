@@ -6,7 +6,7 @@ using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
-using Shared.Logger;
+using TransactionProcessing.Shared.Logger;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.HostedServices;

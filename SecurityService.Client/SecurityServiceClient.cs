@@ -1,5 +1,4 @@
-﻿using Shared.Results;
-using SimpleResults;
+﻿using TransactionProcessing.UnionResults;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -10,7 +9,7 @@ using SecurityService.DataTransferObjects;
 
 namespace SecurityService.Client;
 
-public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityServiceClient {
+public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.ClientProxyBase, ISecurityServiceClient {
     private String BaseAddress;
 
     private readonly Func<String, String> BaseAddressResolver;
@@ -32,7 +31,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result result = await this.Post(requestUri, createApiResourceRequest, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success();
@@ -53,7 +52,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result result = await this.Post(requestUri, createApiScopeRequest, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success();
@@ -74,7 +73,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result result = await this.Post(requestUri, createClientRequest, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success();
@@ -95,7 +94,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result result = await this.Post(requestUri, createIdentityResourceRequest, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success();
@@ -116,7 +115,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result result = await this.Post(requestUri, createRoleRequest, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success();
@@ -137,7 +136,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result result = await this.Post(requestUri, createUserRequest, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success();
@@ -166,7 +165,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<ApiResourceResponse> result = await this.Get<ApiResourceResponse>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -186,7 +185,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<List<ApiResourceResponse>> result = await this.Get<List<ApiResourceResponse>>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -207,7 +206,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<ApiScopeResponse> result = await this.Get<ApiScopeResponse>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -227,7 +226,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<List<ApiScopeResponse>> result = await this.Get<List<ApiScopeResponse>>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -248,7 +247,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<ClientResponse> result = await this.Get<ClientResponse>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -268,7 +267,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<List<ClientResponse>> result = await this.Get<List<ClientResponse>>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -289,7 +288,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<IdentityResourceResponse> result = await this.Get<IdentityResourceResponse>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -309,7 +308,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<List<IdentityResourceResponse>> result = await this.Get<List<IdentityResourceResponse>>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -330,7 +329,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<RoleResponse> result = await this.Get<RoleResponse>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -350,7 +349,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<List<RoleResponse>> result = await this.Get<List<RoleResponse>>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -413,7 +412,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<UserResponse> result = await this.Get<UserResponse>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -438,7 +437,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
             Result<List<UserResponse>> result = await this.Get<List<UserResponse>>(requestUri, accessToken, cancellationToken);
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return result;
             }
 
             return Result.Success(result.Data);
@@ -472,7 +471,7 @@ public class SecurityServiceClient : ClientProxyBase.ClientProxyBase, ISecurityS
 
 
             if (result.IsFailed) {
-                return ResultHelpers.CreateFailure(result);
+                return Result<TokenResponse>.FromFailure(result);
             }
 
             // call was successful so now deserialise the body to the response object

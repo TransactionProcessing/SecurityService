@@ -7,7 +7,7 @@ using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
-using SimpleResults;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.Pages;
 

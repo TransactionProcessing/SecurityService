@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
@@ -14,9 +14,8 @@
     <PackageReference Include="OpenIddict.Server" />
     <PackageReference Include="OpenIddict.Server.AspNetCore" />
     <PackageReference Include="OpenIddict.Validation.AspNetCore" />
-    <PackageReference Include="Shared.Logger" />
-    <PackageReference Include="Shared.Results" />
-    <PackageReference Include="SimpleResults" />
+    <PackageReference Include="TransactionProcessing.Shared.Logger" />
+    <PackageReference Include="TransactionProcessing.UnionResults" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\SecurityService.Database\SecurityService.Database.csproj" />

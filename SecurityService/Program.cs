@@ -1,4 +1,4 @@
-using ClientProxyBase;
+using TransactionProcessing.ClientProxyBase;
 using HealthChecks.UI.Client;
 using HealthMonitoring.Client;
 using MessagingService.Client;
@@ -25,18 +25,19 @@ using SecurityService.HostedServices;
 using SecurityService.Authorization;
 using SecurityService.OpenApi;
 using Sentry.Extensibility;
-using Shared.EntityFramework;
-using Shared.Extensions;
-using Shared.General;
-using Shared.Logger;
-using Shared.Logger.TennantContext;
-using Shared.Middleware;
-using Shared.Serialisation;
+using TransactionProcessing.UnionResults.AspNetCore;
+using TransactionProcessing.Shared.EntityFramework;
+using TransactionProcessing.Shared.Extensions;
+using TransactionProcessing.Shared.General;
+using TransactionProcessing.Shared.Logger;
+using TransactionProcessing.Shared.Logger.TennantContext;
+using TransactionProcessing.Shared.Middleware;
+using TransactionProcessing.Shared.Serialisation;
 using System.Reflection;
 using System.Security.Cryptography;
 using TransactionProcessing.ApiDefaults;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
-using Logger = Shared.Logger.Logger;
+using Logger = TransactionProcessing.Shared.Logger.Logger;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -44,6 +45,7 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
     Args = args,
     ContentRootPath = AppContext.BaseDirectory
 });
+builder.Services.AddUnionResults();
 builder.Host.UseWindowsService();
 
 builder.WebHost.ConfigureAppConfiguration((context, configBuilder) =>
@@ -366,7 +368,7 @@ LogManager.Setup(b =>
     b.SetupLogFactory(setup =>
     {
         setup.AddCallSiteHiddenAssembly(typeof(NlogLogger).Assembly);
-        setup.AddCallSiteHiddenAssembly(typeof(Shared.Logger.Logger).Assembly);
+        setup.AddCallSiteHiddenAssembly(typeof(TransactionProcessing.Shared.Logger.Logger).Assembly);
         setup.AddCallSiteHiddenAssembly(typeof(TenantMiddleware).Assembly);
     });
     b.LoadConfigurationFromFile(nlogConfigPath);
@@ -384,7 +386,7 @@ if (builder.Environment.IsDevelopment()) {
 }
 
 NLog.Logger logger = LogManager.GetLogger("Security Service");
-Shared.Logger.Logger.Initialise(logger, "securityservice");
+TransactionProcessing.Shared.Logger.Logger.Initialise(logger, "securityservice");
 builder.Configuration.LogConfiguration(Logger.LogWarning);
 app.UseMiddleware<TenantMiddleware>();
 app.AddRequestResponseLogging();
@@ -406,7 +408,7 @@ if (app.Environment.IsEnvironment("IntegrationTest"))
 }
 app.MapManagementEndpoints();
 app.MapOidcEndpoints();
-app.MapHealthChecks("health", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = Shared.HealthChecks.HealthCheckMiddleware.WriteResponse })
+app.MapHealthChecks("health", new HealthCheckOptions { Predicate = _ => true, ResponseWriter = TransactionProcessing.Shared.HealthChecks.HealthCheckMiddleware.WriteResponse })
     .WithMetadata(new Microsoft.AspNetCore.Http.EndpointSummaryAttribute("Check service health"),
         new Microsoft.AspNetCore.Http.EndpointDescriptionAttribute("Runs the configured database, issuer, and messaging health checks and returns the service health result. Example: `GET /health` with `Accept: application/json`. A failing dependency is reflected in the returned health status."),
         new Microsoft.AspNetCore.Http.TagsAttribute(["Health"]));

@@ -2,7 +2,7 @@
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
-using Shared.IntegrationTesting.TestContainers;
+using TransactionProcessing.Shared.IntegrationTesting.TestContainers;
 using System.Runtime.InteropServices;
 using System.Text.Json;
 
@@ -10,10 +10,10 @@ namespace SecurityService.IntergrationTests.Common
 {
     using Client;
     using SecurityService.IntegrationTesting.Helpers;
-    using Shared.HealthChecks;
-    using Shared.IntegrationTesting;
-    using Shared.Logger;
-    using Shared.Serialisation;
+    using TransactionProcessing.Shared.HealthChecks;
+    using TransactionProcessing.Shared.IntegrationTesting;
+    using TransactionProcessing.Shared.Logger;
+    using TransactionProcessing.Shared.Serialisation;
     using Shouldly;
     using System;
     using System.Collections.Generic;
@@ -29,8 +29,8 @@ namespace SecurityService.IntergrationTests.Common
     /// <summary>
     /// 
     /// </summary>
-    /// <seealso cref="Shared.IntegrationTesting.DockerHelper" />
-    public class DockerHelper : Shared.IntegrationTesting.TestContainers.DockerHelper
+    /// <seealso cref="TransactionProcessing.Shared.IntegrationTesting.DockerHelper" />
+    public class DockerHelper : TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper
     {
         #region Fields
 
@@ -112,7 +112,7 @@ namespace SecurityService.IntergrationTests.Common
                 this.httpClient = this.CreatePinnedHttpClient();
                 this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, this.httpClient, Serialise, Deserialise);
 
-                SimpleResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
+                TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
                 if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
                 {
                     throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
@@ -135,7 +135,7 @@ namespace SecurityService.IntergrationTests.Common
             await Retry.For(async () => {
                                 this.Trace($"About to do health check for Test UI");
 
-                                SimpleResults.Result<String> healthCheck =
+                                TransactionProcessing.UnionResults.Result<String> healthCheck =
                                     await this.HealthCheckClient.PerformHealthCheck("https", "127.0.0.1", this.SecurityServiceTestUIPort, CancellationToken.None);
 
                                 healthCheck.IsSuccess.ShouldBeTrue($"Health check for Test UI failed with [{healthCheck.Message}]");
