@@ -9,21 +9,17 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OpenIddict.Abstractions;
-using OpenIddict.Server;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.DataTransferObjects;
 using SecurityService.Models;
 using TransactionProcessing.UnionResults;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Encodings.Web;
 using TransactionProcessing.Shared.Logger;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
-using MessagingResult = SimpleResults.Result;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
 
@@ -88,7 +84,7 @@ public sealed class UserRequestHandler :
 
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
-        MessagingResult sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+        Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (sendEmailResult.IsFailed) {
             Logger.LogWarning("Error sending email to {emailaddress} as part of user creation {result}", newIdentityUser.Email, sendEmailResult);
             return Result.Failure(sendEmailResult.Message);
@@ -420,7 +416,7 @@ public sealed class UserRequestHandler :
 
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildActivationEmail(emailAddress, uri);
-        MessagingResult sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+        Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (sendEmailResult.IsFailed)
             return Result.Failure(sendEmailResult.Message);
 
@@ -573,7 +569,7 @@ public sealed class UserRequestHandler :
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
 
-        MessagingResult result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
+        Result result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
         if (result.IsFailed)
             return Result.Failure(result.Message);
 
