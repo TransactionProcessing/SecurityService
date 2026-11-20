@@ -9,6 +9,7 @@ using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using SecurityService.Models;
 using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
@@ -25,7 +26,7 @@ public class UserRequestHandlerTests
             "Alice", null, "Tester", "alice", "SuppliedPassword1!", "alice@example.com", null,
             new Dictionary<string, string>(), new List<string>()));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
         var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
         messagingClient.LastEmailRequest.ShouldNotBeNull();
         messagingClient.LastEmailRequest.Body.ShouldNotContain("SuppliedPassword1!");
@@ -50,7 +51,7 @@ public class UserRequestHandlerTests
             "Alice", null, "Tester", "alice", "SuppliedPassword1!", "alice@example.com", null,
             new Dictionary<string, string>(), new List<string>()));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
         using var scope = provider.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var user = await userManager.FindByNameAsync("alice");
@@ -71,7 +72,7 @@ public class UserRequestHandlerTests
             "Alice", null, "Tester", "alice", "SuppliedPassword1!", "alice@example.com", null,
             new Dictionary<string, string>(), new List<string>()));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
         using var scope = provider.CreateScope();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var user = await userManager.FindByNameAsync("alice");
@@ -98,14 +99,14 @@ public class UserRequestHandlerTests
             new Dictionary<string, string> { ["merchant_id"] = "1234" },
             ["admin"]));
 
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
 
         var listResult = await mediator.Send(new SecurityServiceQueries.GetUsersQuery("ali"));
-        listResult.Data.ShouldHaveSingleItem();
+        listResult.Value.ShouldBeOfType<Success<List<UserDetails>>>().Value.ShouldHaveSingleItem();
 
-        var getResult = await mediator.Send(new SecurityServiceQueries.GetUserQuery(listResult.Data.First().UserId));
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.Claims["merchant_id"].ShouldBe("1234");
+        var getResult = await mediator.Send(new SecurityServiceQueries.GetUserQuery(listResult.Value.ShouldBeOfType<Success<List<UserDetails>>>().Value.First().UserId));
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<UserDetails>>().Value.Claims["merchant_id"].ShouldBe("1234");
 
         
     }
@@ -128,11 +129,11 @@ public class UserRequestHandlerTests
             new Dictionary<string, string> { ["merchant_id"] = "1234" },
             ["admin"]);
 
-        (await mediator.Send(command)).IsSuccess.ShouldBeTrue();
+        (await mediator.Send(command)).IsSuccess().ShouldBeTrue();
         var duplicateResult = await mediator.Send(command);
 
-        duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
+        duplicateResult.IsSuccess().ShouldBeFalse();
+        duplicateResult.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -152,10 +153,10 @@ public class UserRequestHandlerTests
             new Dictionary<string, string> { ["merchant_id"] = "1234" },
             ["missing-role"]));
 
-        createResult.IsFailed.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeFalse();
 
         var listResult = await mediator.Send(new SecurityServiceQueries.GetUsersQuery("alice"));
-        listResult.Data.ShouldBeEmpty();
+        listResult.Value.ShouldBeOfType<Success<List<UserDetails>>>().Value.ShouldBeEmpty();
     }
 
     [Fact]
@@ -178,7 +179,7 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ConfirmUserEmailAddressCommand("alice", "token-123"));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
         userManager.FindByNameAsync("alice").Called(Count.Once());
         userManager.ConfirmEmailAsync(user, "token-123").Called(Count.Once());
     }
@@ -196,8 +197,8 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ConfirmUserEmailAddressCommand("alice", "token-123"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 
     [Fact]
@@ -220,8 +221,8 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ConfirmUserEmailAddressCommand("alice", "token-123"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Failure);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Failure);
     }
 
     [Fact]
@@ -245,7 +246,7 @@ public class UserRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice+ops@example.com"));
         var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
         userManager.FindByNameAsync("alice+ops@example.com").Called(Count.Once());
         userManager.GeneratePasswordResetTokenAsync(user).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
@@ -268,7 +269,7 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.SendWelcomeEmailCommand("alice"));
 
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
         userManager.GeneratePasswordResetTokenAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
     }
 
@@ -292,7 +293,7 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessAccountActivationCommand("alice", "activation-token", "NewPassword1!"));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
         userManager.ResetPasswordAsync(user, "activation-token", "NewPassword1!").Called(Count.Once());
     }
 
@@ -311,8 +312,8 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessAccountActivationCommand("alice", "invalid-token", "NewPassword1!"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Message.ShouldBe("The account activation link is invalid or has expired.");
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrorMessage().ShouldBe("The account activation link is invalid or has expired.");
     }
 
     [Fact]
@@ -336,7 +337,7 @@ public class UserRequestHandlerTests
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetRequestCommand("alice+ops@example.com", "alice", "test-client-id"));
         var messagingClient = provider.GetRequiredService<IMessagingServiceClient>().ShouldBeOfType<TestMessagingServiceClient>();
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
         userManager.FindByNameAsync("alice+ops@example.com").Called(Count.Once());
         userManager.GeneratePasswordResetTokenAsync(user).Called(Count.Once());
         messagingClient.LastEmailRequest.ShouldNotBeNull();
@@ -359,7 +360,7 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetRequestCommand("alice", "alice", "test-client-id"));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
         userManager.GeneratePasswordResetTokenAsync(Arg<ApplicationUser>.Any()).Called(Count.Never());
         messagingClient.LastEmailRequest.ShouldBeNull();
     }
@@ -385,8 +386,8 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "test-client-id"));
 
-        result.IsSuccess.ShouldBeTrue();
-        result.Data.ShouldBe("http://localhost/app");
+        result.IsSuccess().ShouldBeTrue();
+        result.Value.ShouldBeOfType<Success<string>>().Value.ShouldBe("http://localhost/app");
         userManager.FindByNameAsync("alice").Called(Count.Once());
         userManager.ResetPasswordAsync(user, "token-123", "NewPassword1!").Called(Count.Once());
     }
@@ -404,8 +405,8 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "test-client-id"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
         userManager.ResetPasswordAsync(Arg<ApplicationUser>.Any(), Arg<string>.Any(), Arg<string>.Any()).Called(Count.Never());
     }
 
@@ -429,8 +430,8 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "test-client-id"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Failure);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Failure);
     }
 
     [Fact]
@@ -453,8 +454,8 @@ public class UserRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.ProcessPasswordResetConfirmationCommand("alice", "token-123", "NewPassword1!", "missing-client-id"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     private static async Task SeedClientAsync(ServiceProvider provider, string clientId, string clientUri)

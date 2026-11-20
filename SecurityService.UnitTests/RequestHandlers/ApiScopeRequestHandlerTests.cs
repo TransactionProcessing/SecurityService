@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using SecurityService.Models;
 using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
@@ -16,14 +17,14 @@ public class ApiScopeRequestHandlerTests
         var mediator = provider.GetRequiredService<IMediator>();
 
         var createResult = await mediator.Send(new SecurityServiceCommands.CreateApiScopeCommand("payments", "Payments", "Payments API scope"));
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
 
         var getResult = await mediator.Send(new SecurityServiceQueries.GetApiScopeQuery("payments"));
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.DisplayName.ShouldBe("Payments");
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<ApiScopeDetails>>().Value.DisplayName.ShouldBe("Payments");
 
         var listResult = await mediator.Send(new SecurityServiceQueries.GetApiScopesQuery());
-        listResult.Data.ShouldHaveSingleItem();
+        listResult.Value.ShouldBeOfType<Success<List<ApiScopeDetails>>>().Value.ShouldHaveSingleItem();
     }
 
     [Fact]
@@ -34,8 +35,8 @@ public class ApiScopeRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.CreateApiScopeCommand(string.Empty, "Payments", "Payments API scope"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     [Fact]
@@ -44,11 +45,11 @@ public class ApiScopeRequestHandlerTests
         using var provider = TestServiceProviderFactory.Create(nameof(this.CreateApiScope_WhenDuplicate_ReturnsConflict));
         var mediator = provider.GetRequiredService<IMediator>();
 
-        (await mediator.Send(new SecurityServiceCommands.CreateApiScopeCommand("payments", "Payments", "Payments API scope"))).IsSuccess.ShouldBeTrue();
+        (await mediator.Send(new SecurityServiceCommands.CreateApiScopeCommand("payments", "Payments", "Payments API scope"))).IsSuccess().ShouldBeTrue();
         var duplicateResult = await mediator.Send(new SecurityServiceCommands.CreateApiScopeCommand("payments", "Payments", "Payments API scope"));
 
-        duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
+        duplicateResult.IsSuccess().ShouldBeFalse();
+        duplicateResult.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -59,7 +60,7 @@ public class ApiScopeRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceQueries.GetApiScopeQuery("missing-scope"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 }

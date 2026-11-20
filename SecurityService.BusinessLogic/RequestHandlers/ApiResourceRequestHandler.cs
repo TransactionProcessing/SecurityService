@@ -30,11 +30,11 @@ public sealed class ApiResourceRequestHandler :
     public async Task<Result> Handle(SecurityServiceCommands.CreateApiResourceCommand command, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(command.Name)) {
-            return Result.Invalid("API resource name is required.");
+            return Results.Validation("API resource name is required.");
         }
 
         if (await this.DbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.ApiResource, cancellationToken)) {
-            return Result.Conflict($"An API resource named '{command.Name}' already exists.");
+            return Results.Conflict($"An API resource named '{command.Name}' already exists.");
         }
 
         foreach (String scopeName in command.Scopes.Distinct(StringComparer.OrdinalIgnoreCase)) {
@@ -65,22 +65,22 @@ public sealed class ApiResourceRequestHandler :
         await this.DbContext.ResourceDefinitions.AddAsync(resource, cancellationToken);
         await this.DbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result<ApiResourceDetails>> Handle(SecurityServiceQueries.GetApiResourceQuery query, CancellationToken cancellationToken)
     {
         ResourceDefinition? resource = await this.DbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.ApiResource, cancellationToken);
         return resource switch {
-            null => Result.NotFound($"No API resource named '{query.Name}' was found."),
-            _ => Result.Success(Factory.ConvertFrom(resource))
+            null => new Error(ErrorType.NotFound, $"No API resource named '{query.Name}' was found."),
+            _ => Results.Ok(Factory.ConvertFrom(resource))
         };
     }
 
     public async Task<Result<List<ApiResourceDetails>>> Handle(SecurityServiceQueries.GetApiResourcesQuery query, CancellationToken cancellationToken)
     {
         List<ResourceDefinition> resources = await this.DbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.ApiResource).OrderBy(definition => definition.Name).ToListAsync(cancellationToken);
-        return Result.Success(Factory.ConvertFrom(resources));
+        return Results.Ok(Factory.ConvertFrom(resources));
     }
 }
 

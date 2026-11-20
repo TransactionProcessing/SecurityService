@@ -55,7 +55,7 @@ public sealed class MfaPolicyService : IMfaPolicyService
     {
         if (await _userManager.FindByIdAsync(userId) is null)
         {
-            return Result.NotFound($"No user found with id '{userId}'.");
+            return Results.NotFound($"No user found with id '{userId}'.");
         }
 
         return await RequireAsync(MfaPolicyTargetType.User, userId, cancellationToken);
@@ -68,7 +68,7 @@ public sealed class MfaPolicyService : IMfaPolicyService
     {
         if (await _roleManager.FindByIdAsync(roleId) is null)
         {
-            return Result.NotFound($"No role found with id '{roleId}'.");
+            return Results.NotFound($"No role found with id '{roleId}'.");
         }
 
         return await RequireAsync(MfaPolicyTargetType.Role, roleId, cancellationToken);
@@ -84,7 +84,7 @@ public sealed class MfaPolicyService : IMfaPolicyService
             cancellationToken);
         if (exists)
         {
-            return Result.Success();
+            return Results.Ok();
         }
 
         _dbContext.MfaPolicies.Add(new MfaPolicy
@@ -95,7 +95,7 @@ public sealed class MfaPolicyService : IMfaPolicyService
             CreatedUtc = DateTime.UtcNow
         });
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return Result.Success();
+        return Results.Ok();
     }
 
     private async Task<Result> RemoveAsync(MfaPolicyTargetType targetType, string targetId, CancellationToken cancellationToken)
@@ -105,11 +105,11 @@ public sealed class MfaPolicyService : IMfaPolicyService
             .ToListAsync(cancellationToken);
         if (policies.Count == 0)
         {
-            return Result.Success();
+            return Results.Ok();
         }
 
         _dbContext.MfaPolicies.RemoveRange(policies);
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return Result.Success();
+        return Results.Ok();
     }
 }

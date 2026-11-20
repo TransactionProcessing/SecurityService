@@ -7,6 +7,7 @@ using SecurityService.BusinessLogic.Requests;
 using SecurityService.Models;
 using Shouldly;
 using TransactionProcessing.UnionResults;
+using UnionResults = TransactionProcessing.UnionResults.Results;
 
 namespace SecurityService.UnitTests.Pages;
 
@@ -57,7 +58,7 @@ public class ChangePasswordPageModelTests
         mediator.Send(
                 Arg<IRequest<Result<ChangeUserPasswordResult>>>.Any(),
                 Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Failure("boom"));
+            .ReturnsAsync(new Error(ErrorType.Failure, "boom"));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Account.ChangePassword.IndexInputModel
@@ -84,7 +85,7 @@ public class ChangePasswordPageModelTests
         mediator.Send(
                 Arg<IRequest<Result<ChangeUserPasswordResult>>>.Any(),
                 Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success(new ChangeUserPasswordResult
+            .ReturnsAsync(UnionResults.Ok(new ChangeUserPasswordResult
             {
                 IsSuccessful = true,
                 RedirectUri = "http://localhost/app"

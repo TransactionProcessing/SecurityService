@@ -1,3 +1,4 @@
+using TransactionProcessing.UnionResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +36,7 @@ public sealed class MfaPolicyServiceTests
         (await userManager.CreateAsync(user)).Succeeded.ShouldBeTrue();
         var service = CreateService(scope);
 
-        (await service.RequireUserAsync(user.Id, CancellationToken.None)).IsSuccess.ShouldBeTrue();
+        (await service.RequireUserAsync(user.Id, CancellationToken.None)).IsSuccess().ShouldBeTrue();
 
         (await service.IsMfaRequiredAsync(user, CancellationToken.None)).ShouldBeTrue();
     }
@@ -54,7 +55,7 @@ public sealed class MfaPolicyServiceTests
         var service = CreateService(scope);
 
         var role = await roleManager.FindByNameAsync("Estate");
-        (await service.RequireRoleAsync(role!.Id, CancellationToken.None)).IsSuccess.ShouldBeTrue();
+        (await service.RequireRoleAsync(role!.Id, CancellationToken.None)).IsSuccess().ShouldBeTrue();
 
         (await service.IsMfaRequiredAsync(user, CancellationToken.None)).ShouldBeTrue();
     }
@@ -69,10 +70,10 @@ public sealed class MfaPolicyServiceTests
         (await userManager.CreateAsync(user)).Succeeded.ShouldBeTrue();
         var service = CreateService(scope);
 
-        (await service.RequireUserAsync(user.Id, CancellationToken.None)).IsSuccess.ShouldBeTrue();
-        (await service.RequireUserAsync(user.Id, CancellationToken.None)).IsSuccess.ShouldBeTrue();
-        (await service.RemoveUserAsync(user.Id, CancellationToken.None)).IsSuccess.ShouldBeTrue();
-        (await service.RemoveUserAsync(user.Id, CancellationToken.None)).IsSuccess.ShouldBeTrue();
+        (await service.RequireUserAsync(user.Id, CancellationToken.None)).IsSuccess().ShouldBeTrue();
+        (await service.RequireUserAsync(user.Id, CancellationToken.None)).IsSuccess().ShouldBeTrue();
+        (await service.RemoveUserAsync(user.Id, CancellationToken.None)).IsSuccess().ShouldBeTrue();
+        (await service.RemoveUserAsync(user.Id, CancellationToken.None)).IsSuccess().ShouldBeTrue();
 
         (await service.IsMfaRequiredAsync(user, CancellationToken.None)).ShouldBeFalse();
     }

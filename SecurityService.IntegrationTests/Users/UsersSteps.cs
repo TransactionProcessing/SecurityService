@@ -1,5 +1,6 @@
 ﻿namespace SecurityService.IntergrationTests.Users
 {
+    using TransactionProcessing.UnionResults;
     using System;
     using System.Collections.Generic;
     using System.Linq;
@@ -103,7 +104,7 @@
         [Then(@"the user MFA policy operation succeeds")]
         public void ThenTheUserMfaPolicyOperationSucceeds()
         {
-            this.TestingContext.LastMfaPolicyResult.IsFailed.ShouldBeFalse();
+            this.TestingContext.LastMfaPolicyResult.IsSuccess().ShouldBeTrue();
         }
         
         #endregion

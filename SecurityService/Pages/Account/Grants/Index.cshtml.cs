@@ -6,6 +6,7 @@ using SecurityService.BusinessLogic.Oidc;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.Database.Entities;
 using SecurityService.Models;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Pages.Account.Grants;
 
@@ -33,7 +34,7 @@ public sealed class IndexModel : PageModel
         }
 
         var result = await this._mediator.Send(new SecurityServiceQueries.GetUserGrantsQuery(user.Id), cancellationToken);
-        this.Grants = result.Data ?? new List<GrantDetails>();
+        this.Grants = (result.Value as Success<List<GrantDetails>>)?.Value ?? [];
         return this.Page();
     }
 
@@ -46,11 +47,11 @@ public sealed class IndexModel : PageModel
         }
 
         var result = await this._mediator.Send(new SecurityServiceCommands.RevokeGrantCommand(user.Id, authorizationId), cancellationToken);
-        if (result.IsSuccess == false)
+        if (!result.IsSuccess())
         {
-            this.StatusMessage = result.Message ?? "The grant could not be revoked.";
+            this.StatusMessage = result.GetErrorMessage() ?? "The grant could not be revoked.";
             var grantsResult = await this._mediator.Send(new SecurityServiceQueries.GetUserGrantsQuery(user.Id), cancellationToken);
-            this.Grants = grantsResult.Data ?? new List<GrantDetails>();
+            this.Grants = (grantsResult.Value as Success<List<GrantDetails>>)?.Value ?? [];
             return this.Page();
         }
 

@@ -156,16 +156,16 @@ public class TestMessagingServiceClient : IMessagingServiceClient
                                                            Subject = request.Subject,
                                                            ToAddresses = request.ToAddresses
                                                        };
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result> ResendEmail(String accessToken, ResendEmailRequest request, CancellationToken cancellationToken) {
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result> SendSMS(String accessToken, SendSMSRequest request, CancellationToken cancellationToken) {
         this.LastSMSRequest = request;
-        return Result.Success();
+        return Results.Ok();
     }
 }
 

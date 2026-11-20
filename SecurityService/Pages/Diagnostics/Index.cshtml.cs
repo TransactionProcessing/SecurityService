@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SecurityService.BusinessLogic.Oidc;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Pages.Diagnostics;
 
@@ -22,11 +23,11 @@ public sealed class IndexModel : PageModel
     {
         var result = await this._mediator.Send(new OidcCommands.DiagnosticsQuery(this.HttpContext), cancellationToken);
 
-        return result.Data switch
+        return result.Value switch
         {
-            DiagnosticsNotFoundResult => this.NotFound(),
-            DiagnosticsChallengeResult challenge => this.Challenge(challenge.AuthenticationScheme),
-            DiagnosticsPageResult page => this.ApplyPageResult(page),
+            Success<DiagnosticsQueryResult> { Value: DiagnosticsNotFoundResult } => this.NotFound(),
+            Success<DiagnosticsQueryResult> { Value: DiagnosticsChallengeResult challenge } => this.Challenge(challenge.AuthenticationScheme),
+            Success<DiagnosticsQueryResult> { Value: DiagnosticsPageResult page } => this.ApplyPageResult(page),
             _ => this.Page()
         };
     }

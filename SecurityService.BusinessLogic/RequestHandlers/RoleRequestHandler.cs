@@ -23,35 +23,35 @@ public sealed class RoleRequestHandler :
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
-            return Result.Invalid("Role name is required.");
+            return Results.Validation("Role name is required.");
         }
 
         if (await this.RoleManager.RoleExistsAsync(command.Name))
         {
-            return Result.Conflict($"A role named '{command.Name}' already exists.");
+            return Results.Conflict($"A role named '{command.Name}' already exists.");
         }
 
         var role = new IdentityRole(command.Name);
         var result = await this.RoleManager.CreateAsync(role);
         if (result.Succeeded == false)
         {
-            return Result.Invalid(string.Join("; ", result.Errors.Select(error => error.Description)));
+            return Results.Validation(string.Join("; ", result.Errors.Select(error => error.Description)));
         }
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result<RoleDetails>> Handle(SecurityServiceQueries.GetRoleQuery query, CancellationToken cancellationToken)
     {
         var role = await this.RoleManager.Roles.SingleOrDefaultAsync(item => item.Id == query.RoleId, cancellationToken);
         return role is null
-            ? Result.NotFound($"No role found with id '{query.RoleId}'.")
-            : Result.Success(new RoleDetails(role.Id, role.Name!));
+            ? new Error(ErrorType.NotFound, $"No role found with id '{query.RoleId}'.")
+            : Results.Ok(new RoleDetails(role.Id, role.Name!));
     }
 
     public async Task<Result<List<RoleDetails>>> Handle(SecurityServiceQueries.GetRolesQuery query, CancellationToken cancellationToken)
     {
         var roles = await this.RoleManager.Roles.OrderBy(role => role.Name).Select(role => new RoleDetails(role.Id, role.Name!)).ToArrayAsync(cancellationToken);
-        return Result.Success(roles.ToList());
+        return Results.Ok(roles.ToList());
     }
 }

@@ -6,6 +6,7 @@ using Imposter.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
 using Shouldly;
 using TransactionProcessing.UnionResults;
+using UnionResults = TransactionProcessing.UnionResults.Results;
 
 namespace SecurityService.UnitTests.Pages;
 
@@ -16,7 +17,7 @@ public class ConsentPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<ConsentGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetInvalidResult("invalid")));
+            .ReturnsAsync(UnionResults.Ok<ConsentGetQueryResult>(new ConsentGetInvalidResult("invalid")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel { TransactionId = "token" };
@@ -34,7 +35,7 @@ public class ConsentPageModelTests
         var apiScopes = new[] { new ScopeDisplayItem("api", "API", null, false, false) };
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<ConsentGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetPageResult("My App", identityScopes, apiScopes)));
+            .ReturnsAsync(UnionResults.Ok<ConsentGetQueryResult>(new ConsentGetPageResult("My App", identityScopes, apiScopes)));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
 
@@ -53,7 +54,7 @@ public class ConsentPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<ConsentGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<ConsentGetQueryResult>(new ConsentGetPageResult(string.Empty, [], [])))
+            .ReturnsAsync(UnionResults.Ok<ConsentGetQueryResult>(new ConsentGetPageResult(string.Empty, [], [])))
             .Callback((req, _) =>
             {
                 capturedQuery = req.ShouldBeOfType<OidcCommands.ConsentGetQuery>();
@@ -72,7 +73,7 @@ public class ConsentPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<ConsentPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<ConsentPostCommandResult>(new ConsentPostRedirectResult("/return?consent=denied")));
+            .ReturnsAsync(UnionResults.Ok<ConsentPostCommandResult>(new ConsentPostRedirectResult("/return?consent=denied")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel
@@ -93,7 +94,7 @@ public class ConsentPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<ConsentPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<ConsentPostCommandResult>(new ConsentPostPageResult("Select at least one scope to continue.")));
+            .ReturnsAsync(UnionResults.Ok<ConsentPostCommandResult>(new ConsentPostPageResult("Select at least one scope to continue.")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Consent.IndexModel.InputModel
@@ -116,7 +117,7 @@ public class ConsentPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<ConsentPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<ConsentPostCommandResult>(new ConsentPostRedirectResult("/return?consent=accepted")))
+            .ReturnsAsync(UnionResults.Ok<ConsentPostCommandResult>(new ConsentPostRedirectResult("/return?consent=accepted")))
             .Callback((req, _) =>
             {
                 capturedCommand = req.ShouldBeOfType<OidcCommands.ConsentPostCommand>();

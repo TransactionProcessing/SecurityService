@@ -1,4 +1,6 @@
 #nullable enable
+using TransactionProcessing.UnionResults;
+using SecurityService.DataTransferObjects;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using TransactionProcessing.Shared.Serialisation;
@@ -49,12 +51,12 @@ namespace SecurityService.IntergrationTests.Common
                         .GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None)
                         .ConfigureAwait(false);
 
-                if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
+                if (bootstrapToken.Value is not Success<TokenResponse> { Value.AccessToken: { } accessToken } || String.IsNullOrWhiteSpace(accessToken))
                 {
                     throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
                 }
 
-                this.AccessToken = bootstrapToken.Data.AccessToken;
+                this.AccessToken = accessToken;
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.SystemDefault;
             }
             catch
@@ -106,12 +108,12 @@ namespace SecurityService.IntergrationTests.Common
             }
 
             TransactionProcessing.UnionResults.Result<(String imageName, Boolean useLatest)> imageDetailsResult = this.GetImageDetails(ContainerType.SecurityService);
-            if (imageDetailsResult.IsFailed)
+            if (imageDetailsResult.Value is not Success<(String imageName, Boolean useLatest)> imageDetails)
             {
                 throw new Exception($"Image details not found for {ContainerType.SecurityService}");
             }
 
-            ContainerBuilder securityServiceContainer = new ContainerBuilder(imageDetailsResult.Data.imageName)
+            ContainerBuilder securityServiceContainer = new ContainerBuilder(imageDetails.Value.imageName)
                 .WithName(this.SecurityServiceContainerName)
                 .WithEnvironment(environmentVariables)
                 .MountHostFolder(this.HostTraceFolder)

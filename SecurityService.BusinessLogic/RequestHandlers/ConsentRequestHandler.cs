@@ -7,6 +7,7 @@ using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database.DbContexts;
 using TransactionProcessing.UnionResults;
+using UnionResults = TransactionProcessing.UnionResults.Results;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
 
@@ -33,7 +34,7 @@ public sealed class ConsentRequestHandler :
         var userId = await GetUserId(query.HttpContext);
         if (transaction is null || userId is null || !string.Equals(transaction.UserId, userId, StringComparison.Ordinal))
         {
-            return Result.Success<ConsentGetQueryResult>(new ConsentGetInvalidResult("The consent request is missing, invalid, or expired."));
+            return UnionResults.Ok<ConsentGetQueryResult>(new ConsentGetInvalidResult("The consent request is missing, invalid, or expired."));
         }
 
         var application = await this.ApplicationManager.FindByClientIdAsync(transaction.ClientId, cancellationToken);
@@ -43,7 +44,7 @@ public sealed class ConsentRequestHandler :
 
         var scopes = await OidcHelpers.BuildScopeDisplay(transaction.RequestedScopes, this.DbContext, cancellationToken);
 
-        return Result.Success<ConsentGetQueryResult>(new ConsentGetPageResult(clientName, scopes.IdentityScopes, scopes.ApiScopes));
+        return UnionResults.Ok<ConsentGetQueryResult>(new ConsentGetPageResult(clientName, scopes.IdentityScopes, scopes.ApiScopes));
     }
 
     public async Task<Result<ConsentPostCommandResult>> Handle(OidcCommands.ConsentPostCommand command, CancellationToken cancellationToken)
@@ -52,12 +53,12 @@ public sealed class ConsentRequestHandler :
         var userId = await GetUserId(command.HttpContext);
         if (transaction is null || userId is null || !string.Equals(transaction.UserId, userId, StringComparison.Ordinal))
         {
-            return Result.Success<ConsentPostCommandResult>(new ConsentPostInvalidResult("The consent request is missing, invalid, or expired."));
+            return UnionResults.Ok<ConsentPostCommandResult>(new ConsentPostInvalidResult("The consent request is missing, invalid, or expired."));
         }
 
         if (string.Equals(command.Button, "deny", StringComparison.OrdinalIgnoreCase))
         {
-            return Result.Success<ConsentPostCommandResult>(
+            return UnionResults.Ok<ConsentPostCommandResult>(
                 new ConsentPostRedirectResult(this.BuildDecisionUrl(transaction, "denied", Array.Empty<string>())));
         }
 
@@ -67,11 +68,11 @@ public sealed class ConsentRequestHandler :
             .ToArray();
         if (grantedScopes.Length == 0)
         {
-            return Result.Success<ConsentPostCommandResult>(
+            return UnionResults.Ok<ConsentPostCommandResult>(
                 new ConsentPostPageResult("Select at least one scope to continue."));
         }
 
-        return Result.Success<ConsentPostCommandResult>(new ConsentPostRedirectResult(
+        return UnionResults.Ok<ConsentPostCommandResult>(new ConsentPostRedirectResult(
             this.BuildDecisionUrl(transaction, "accepted", grantedScopes)));
     }
 

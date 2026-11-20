@@ -16,13 +16,13 @@ public static class ClientRedirectUriValidator
         {
             if (Uri.TryCreate(value, UriKind.Absolute, out Uri? uri) == false || IsAllowed(uri, value) == false)
             {
-                return Result.Invalid($"{propertyName} contains an invalid or unsafe URI.");
+                return new Error(ErrorType.Validation, $"{propertyName} contains an invalid or unsafe URI.");
             }
 
             uris.Add(uri);
         }
 
-        return Result.Success(uris);
+        return Results.Ok(uris);
     }
 
     private static bool IsAllowed(Uri uri, string value)

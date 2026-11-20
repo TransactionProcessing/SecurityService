@@ -46,7 +46,7 @@ public sealed class IndexModel : PageModel
 
         this.View = new ViewModel
         {
-            UserMessage = result.IsSuccess
+            UserMessage = result.IsSuccess()
                 ? "Your account has been activated. You can now log in."
                 : "The account activation link is invalid or has expired."
         };

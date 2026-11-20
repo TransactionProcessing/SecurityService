@@ -18,9 +18,9 @@ public sealed class MfaLoginPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<List<ExternalProviderDetails>>> >.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success(new List<ExternalProviderDetails>()));
+            .ReturnsAsync(Results.Ok(new List<ExternalProviderDetails>()));
         mediator.Send(Arg<IRequest<Result<LoginOutcome>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<LoginOutcome>(new LoginRequiresMfa("protected-transaction")));
+            .ReturnsAsync(Results.Ok<LoginOutcome>(new LoginRequiresMfa("protected-transaction")));
 
         var model = new SecurityService.Pages.Account.Login.IndexModel(mediator.Instance())
         {
@@ -44,7 +44,7 @@ public sealed class MfaLoginPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<LoginOutcome>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<LoginOutcome>(new LoginRejected("The authenticator or recovery code was invalid.")));
+            .ReturnsAsync(Results.Ok<LoginOutcome>(new LoginRejected("The authenticator or recovery code was invalid.")));
 
         var model = new SecurityService.Pages.Account.LoginWithMfa.IndexModel(mediator.Instance())
         {
@@ -66,7 +66,7 @@ public sealed class MfaLoginPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<LoginOutcome>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<LoginOutcome>(new LoginCompleted("/connect/authorize?client_id=client")));
+            .ReturnsAsync(Results.Ok<LoginOutcome>(new LoginCompleted("/connect/authorize?client_id=client")));
 
         var model = new SecurityService.Pages.Account.LoginWithMfa.IndexModel(mediator.Instance())
         {

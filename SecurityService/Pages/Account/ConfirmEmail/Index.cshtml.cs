@@ -33,7 +33,7 @@ public sealed class IndexModel : PageModel
         SecurityServiceCommands.ConfirmUserEmailAddressCommand confirmUserEmailAddressCommand = new(this.Input.Username, this.Input.Token);
         Result confirmUserEmailAddressResult = await this._mediator.Send(confirmUserEmailAddressCommand, cancellationToken);
 
-        if (confirmUserEmailAddressResult.IsFailed)
+        if (!confirmUserEmailAddressResult.IsSuccess())
         {
             this.View.UserMessage = $"Failed confirming user email address for username {this.Input.Username}";
         }

@@ -4,6 +4,7 @@ using OpenIddict.Abstractions;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using SecurityService.Models;
 using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
@@ -25,14 +26,14 @@ public class IdentityResourceRequestHandlerTests
             true,
             [OpenIddictConstants.Claims.GivenName, OpenIddictConstants.Claims.FamilyName]));
 
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
 
         var getResult = await mediator.Send(new SecurityServiceQueries.GetIdentityResourceQuery("profile"));
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.Claims.ShouldContain(OpenIddictConstants.Claims.GivenName);
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<IdentityResourceDetails>>().Value.Claims.ShouldContain(OpenIddictConstants.Claims.GivenName);
 
         var listResult = await mediator.Send(new SecurityServiceQueries.GetIdentityResourcesQuery());
-        listResult.Data.ShouldHaveSingleItem();
+        listResult.Value.ShouldBeOfType<Success<List<IdentityResourceDetails>>>().Value.ShouldHaveSingleItem();
     }
 
     [Fact]
@@ -50,8 +51,8 @@ public class IdentityResourceRequestHandlerTests
             true,
             [OpenIddictConstants.Claims.GivenName]));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Failure);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Failure);
     }
 
     [Fact]
@@ -69,11 +70,11 @@ public class IdentityResourceRequestHandlerTests
             true,
             [OpenIddictConstants.Claims.GivenName]);
 
-        (await mediator.Send(command)).IsSuccess.ShouldBeTrue();
+        (await mediator.Send(command)).IsSuccess().ShouldBeTrue();
         var duplicateResult = await mediator.Send(command);
 
-        duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
+        duplicateResult.IsSuccess().ShouldBeFalse();
+        duplicateResult.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -84,7 +85,7 @@ public class IdentityResourceRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceQueries.GetIdentityResourceQuery("missing-resource"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 }

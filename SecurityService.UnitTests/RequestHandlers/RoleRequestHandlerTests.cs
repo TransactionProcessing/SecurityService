@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using SecurityService.Models;
 using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
@@ -16,14 +17,14 @@ public class RoleRequestHandlerTests
         var mediator = provider.GetRequiredService<IMediator>();
 
         var createResult = await mediator.Send(new SecurityServiceCommands.CreateRoleCommand("admin"));
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
         
         var listResult = await mediator.Send(new SecurityServiceQueries.GetRolesQuery());
-        listResult.Data.ShouldHaveSingleItem();
+        listResult.Value.ShouldBeOfType<Success<List<RoleDetails>>>().Value.ShouldHaveSingleItem();
 
-        var getResult = await mediator.Send(new SecurityServiceQueries.GetRoleQuery(listResult.Data.First().RoleId));
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.Name.ShouldBe("admin");
+        var getResult = await mediator.Send(new SecurityServiceQueries.GetRoleQuery(listResult.Value.ShouldBeOfType<Success<List<RoleDetails>>>().Value.First().RoleId));
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<RoleDetails>>().Value.Name.ShouldBe("admin");
     }
 
     [Fact]
@@ -34,8 +35,8 @@ public class RoleRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.CreateRoleCommand(string.Empty));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     [Fact]
@@ -44,11 +45,11 @@ public class RoleRequestHandlerTests
         using var provider = TestServiceProviderFactory.Create(nameof(this.CreateRole_WhenDuplicate_ReturnsConflict));
         var mediator = provider.GetRequiredService<IMediator>();
 
-        (await mediator.Send(new SecurityServiceCommands.CreateRoleCommand("admin"))).IsSuccess.ShouldBeTrue();
+        (await mediator.Send(new SecurityServiceCommands.CreateRoleCommand("admin"))).IsSuccess().ShouldBeTrue();
         var duplicateResult = await mediator.Send(new SecurityServiceCommands.CreateRoleCommand("admin"));
 
-        duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
+        duplicateResult.IsSuccess().ShouldBeFalse();
+        duplicateResult.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -59,7 +60,7 @@ public class RoleRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceQueries.GetRoleQuery("missing-role-id"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 }

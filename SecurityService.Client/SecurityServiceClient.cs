@@ -28,13 +28,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/apiresources");
 
         try {
-            Result result = await this.Post(requestUri, createApiResourceRequest, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success();
+            return await this.Post(requestUri, createApiResourceRequest, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -49,13 +43,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/apiscopes");
 
         try {
-            Result result = await this.Post(requestUri, createApiScopeRequest, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success();
+            return await this.Post(requestUri, createApiScopeRequest, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -70,13 +58,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/clients");
 
         try {
-            Result result = await this.Post(requestUri, createClientRequest, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success();
+            return await this.Post(requestUri, createClientRequest, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -91,13 +73,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/identityresources");
 
         try {
-            Result result = await this.Post(requestUri, createIdentityResourceRequest, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success();
+            return await this.Post(requestUri, createIdentityResourceRequest, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -112,13 +88,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/roles");
 
         try {
-            Result result = await this.Post(requestUri, createRoleRequest, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success();
+            return await this.Post(requestUri, createRoleRequest, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -133,13 +103,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/users");
 
         try {
-            Result result = await this.Post(requestUri, createUserRequest, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success();
+            return await this.Post(requestUri, createUserRequest, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -162,13 +126,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl($"/api/apiresources/{apiResourceName}");
 
         try {
-            Result<ApiResourceResponse> result = await this.Get<ApiResourceResponse>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<ApiResourceResponse>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -182,13 +140,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/apiresources");
 
         try {
-            Result<List<ApiResourceResponse>> result = await this.Get<List<ApiResourceResponse>>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<List<ApiResourceResponse>>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -203,13 +155,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl($"/api/apiscopes/{apiScopeName}");
 
         try {
-            Result<ApiScopeResponse> result = await this.Get<ApiScopeResponse>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<ApiScopeResponse>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -223,13 +169,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/apiscopes");
 
         try {
-            Result<List<ApiScopeResponse>> result = await this.Get<List<ApiScopeResponse>>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<List<ApiScopeResponse>>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -244,13 +184,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl($"/api/clients/{clientId}");
 
         try {
-            Result<ClientResponse> result = await this.Get<ClientResponse>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<ClientResponse>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -264,13 +198,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/clients");
 
         try {
-            Result<List<ClientResponse>> result = await this.Get<List<ClientResponse>>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<List<ClientResponse>>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -285,13 +213,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl($"/api/identityresources/{identityResourceName}");
 
         try {
-            Result<IdentityResourceResponse> result = await this.Get<IdentityResourceResponse>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<IdentityResourceResponse>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -305,13 +227,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/identityresources");
 
         try {
-            Result<List<IdentityResourceResponse>> result = await this.Get<List<IdentityResourceResponse>>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<List<IdentityResourceResponse>>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -326,13 +242,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl($"/api/roles/{roleId}");
 
         try {
-            Result<RoleResponse> result = await this.Get<RoleResponse>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<RoleResponse>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -346,13 +256,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl("/api/roles");
 
         try {
-            Result<List<RoleResponse>> result = await this.Get<List<RoleResponse>>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<List<RoleResponse>>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -409,13 +313,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
         String requestUri = this.BuildRequestUrl($"/api/users/{userId}");
 
         try {
-            Result<UserResponse> result = await this.Get<UserResponse>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<UserResponse>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -434,13 +332,7 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
                 requestUri = $"{requestUri}?username={userName}";
             }
 
-            Result<List<UserResponse>> result = await this.Get<List<UserResponse>>(requestUri, accessToken, cancellationToken);
-
-            if (result.IsFailed) {
-                return result;
-            }
-
-            return Result.Success(result.Data);
+            return await this.Get<List<UserResponse>>(requestUri, accessToken, cancellationToken);
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message
@@ -468,16 +360,12 @@ public class SecurityServiceClient : TransactionProcessing.ClientProxyBase.Clien
 
             // Make the Http Call here
             Result<String> result = await this.Post<String>(requestUri, httpContent, cancellationToken);
-
-
-            if (result.IsFailed) {
-                return Result<TokenResponse>.FromFailure(result);
-            }
-
-            // call was successful so now deserialise the body to the response object
-            TokenResponse responseData = TokenResponse.Create(result.Data);
-
-            return Result.Success(responseData);
+            return result.Value switch {
+                Success<String> success => Results.Ok(TokenResponse.Create(success.Value)),
+                Error error => error,
+                ErrorList errors => errors,
+                _ => result.GetErrors()[0]
+            };
         }
         catch (Exception ex) {
             // An exception has occurred, add some additional information to the message

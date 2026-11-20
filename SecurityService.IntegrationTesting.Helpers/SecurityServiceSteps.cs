@@ -72,8 +72,8 @@ public class SecurityServiceSteps{
             .GetUsers(this.AccessToken, request.EmailAddress, cancellationToken)
             .ConfigureAwait(false);
 
-        response.IsFailed.ShouldBeFalse();
-        UserResponse user = response.Data.Single();
+        var responseValue = response.Value.ShouldBeOfType<Success<List<UserResponse>>>().Value;
+        UserResponse user = responseValue.Single();
         String expectedUserName = String.IsNullOrWhiteSpace(request.UserName)
             ? request.EmailAddress ?? String.Empty
             : request.UserName;
@@ -96,11 +96,11 @@ public class SecurityServiceSteps{
             .GetApiScope(this.AccessToken, request.Name, CancellationToken.None)
             .ConfigureAwait(false);
 
-        response.IsFailed.ShouldBeFalse();
-        response.Data.ShouldNotBeNull();
-        response.Data.Name.ShouldBe(request.Name);
-        response.Data.DisplayName.ShouldBe(request.DisplayName);
-        response.Data.Description.ShouldBe(request.Description);
+        var responseValue = response.Value.ShouldBeOfType<Success<ApiScopeResponse>>().Value;
+        responseValue.ShouldNotBeNull();
+        responseValue.Name.ShouldBe(request.Name);
+        responseValue.DisplayName.ShouldBe(request.DisplayName);
+        responseValue.Description.ShouldBe(request.Description);
     }
 
     private async Task VerifyApiResource(CreateApiResourceRequest request)
@@ -109,13 +109,13 @@ public class SecurityServiceSteps{
             .GetApiResource(this.AccessToken, request.Name, CancellationToken.None)
             .ConfigureAwait(false);
 
-        response.IsFailed.ShouldBeFalse();
-        response.Data.ShouldNotBeNull();
-        response.Data.Name.ShouldBe(request.Name);
-        response.Data.DisplayName.ShouldBe(request.DisplayName);
-        response.Data.Description.ShouldBe(request.Description);
-        AssertStringCollectionsMatch(response.Data.Scopes, request.Scopes);
-        AssertStringCollectionsMatch(response.Data.UserClaims, request.UserClaims);
+        var responseValue = response.Value.ShouldBeOfType<Success<ApiResourceResponse>>().Value;
+        responseValue.ShouldNotBeNull();
+        responseValue.Name.ShouldBe(request.Name);
+        responseValue.DisplayName.ShouldBe(request.DisplayName);
+        responseValue.Description.ShouldBe(request.Description);
+        AssertStringCollectionsMatch(responseValue.Scopes, request.Scopes);
+        AssertStringCollectionsMatch(responseValue.UserClaims, request.UserClaims);
     }
 
     private async Task VerifyClient(CreateClientRequest request)
@@ -124,18 +124,18 @@ public class SecurityServiceSteps{
             .GetClient(this.AccessToken, request.ClientId, CancellationToken.None)
             .ConfigureAwait(false);
 
-        response.IsFailed.ShouldBeFalse();
-        response.Data.ShouldNotBeNull();
-        response.Data.ClientId.ShouldBe(request.ClientId);
-        response.Data.ClientName.ShouldBe(request.ClientName);
-        response.Data.Description.ShouldBe(request.ClientDescription);
-        response.Data.ClientUri.ShouldBe(request.ClientUri);
-        response.Data.RequireConsent.ShouldBe(request.RequireConsent);
-        response.Data.AllowOfflineAccess.ShouldBe(request.AllowOfflineAccess);
-        AssertStringCollectionsMatch(response.Data.AllowedScopes, request.AllowedScopes);
-        AssertStringCollectionsMatch(response.Data.AllowedGrantTypes, request.AllowedGrantTypes);
-        AssertStringCollectionsMatch(response.Data.ClientRedirectUris, request.ClientRedirectUris);
-        AssertStringCollectionsMatch(response.Data.ClientPostLogoutRedirectUris, request.ClientPostLogoutRedirectUris);
+        var responseValue = response.Value.ShouldBeOfType<Success<ClientResponse>>().Value;
+        responseValue.ShouldNotBeNull();
+        responseValue.ClientId.ShouldBe(request.ClientId);
+        responseValue.ClientName.ShouldBe(request.ClientName);
+        responseValue.Description.ShouldBe(request.ClientDescription);
+        responseValue.ClientUri.ShouldBe(request.ClientUri);
+        responseValue.RequireConsent.ShouldBe(request.RequireConsent);
+        responseValue.AllowOfflineAccess.ShouldBe(request.AllowOfflineAccess);
+        AssertStringCollectionsMatch(responseValue.AllowedScopes, request.AllowedScopes);
+        AssertStringCollectionsMatch(responseValue.AllowedGrantTypes, request.AllowedGrantTypes);
+        AssertStringCollectionsMatch(responseValue.ClientRedirectUris, request.ClientRedirectUris);
+        AssertStringCollectionsMatch(responseValue.ClientPostLogoutRedirectUris, request.ClientPostLogoutRedirectUris);
     }
 
     private async Task VerifyIdentityResource(CreateIdentityResourceRequest request)
@@ -144,12 +144,12 @@ public class SecurityServiceSteps{
             .GetIdentityResource(this.AccessToken, request.Name, CancellationToken.None)
             .ConfigureAwait(false);
 
-        response.IsFailed.ShouldBeFalse();
-        response.Data.ShouldNotBeNull();
-        response.Data.Name.ShouldBe(request.Name);
-        response.Data.DisplayName.ShouldBe(request.DisplayName);
-        response.Data.Description.ShouldBe(request.Description);
-        AssertStringCollectionsMatch(response.Data.Claims, request.Claims ?? Enumerable.Empty<String>());
+        var responseValue = response.Value.ShouldBeOfType<Success<IdentityResourceResponse>>().Value;
+        responseValue.ShouldNotBeNull();
+        responseValue.Name.ShouldBe(request.Name);
+        responseValue.DisplayName.ShouldBe(request.DisplayName);
+        responseValue.Description.ShouldBe(request.Description);
+        AssertStringCollectionsMatch(responseValue.Claims, request.Claims ?? Enumerable.Empty<String>());
     }
 
     public SecurityServiceSteps(ISecurityServiceClient securityServiceClient, String accessToken){
@@ -160,7 +160,7 @@ public class SecurityServiceSteps{
     private async Task CreateApiScope(String accessToken, CreateApiScopeRequest createApiScopeRequest,
                                                               CancellationToken cancellationToken){
         Result result = await this.SecurityServiceClient.CreateApiScope(this.AccessToken, createApiScopeRequest, cancellationToken).ConfigureAwait(false);
-        result.IsFailed.ShouldBeFalse();
+        result.IsSuccess().ShouldBeTrue();
     }
 
     public async Task GivenICreateTheFollowingApiScopes(List<CreateApiScopeRequest> createApiScopeRequests){
@@ -193,7 +193,7 @@ public class SecurityServiceSteps{
             splitUserClaims.ForEach(a => { createApiResourceRequest.UserClaims.Add(a.Trim()); });
 
             Result result = await this.SecurityServiceClient.CreateApiResource(this.AccessToken, createApiResourceRequest, CancellationToken.None).ConfigureAwait(false);
-            result.IsFailed.ShouldBeFalse();
+            result.IsSuccess().ShouldBeTrue();
             await this.VerifyApiResource(createApiResourceRequest).ConfigureAwait(false);
         }
     }
@@ -202,7 +202,7 @@ public class SecurityServiceSteps{
         List<(String clientId, String secret, List<String> allowedGrantTypes)> clients = new List<(String clientId, String secret, List<String> allowedGrantTypes)>();
         foreach (CreateClientRequest createClientRequest in createClientRequests){
             Result result = await this.SecurityServiceClient.CreateClient(this.AccessToken, createClientRequest, CancellationToken.None).ConfigureAwait(false);
-            result.IsFailed.ShouldBeFalse();
+            result.IsSuccess().ShouldBeTrue();
             await this.VerifyClient(createClientRequest).ConfigureAwait(false);
 
             clients.Add((createClientRequest.ClientId, createClientRequest.Secret, createClientRequest.AllowedGrantTypes));
@@ -214,23 +214,23 @@ public class SecurityServiceSteps{
     public async Task GivenTheFollowingApiResourcesExist(List<CreateApiResourceRequest> requests){
         foreach (CreateApiResourceRequest createApiResourceRequest in requests){
             Result result = await this.SecurityServiceClient.CreateApiResource(this.AccessToken, createApiResourceRequest, CancellationToken.None).ConfigureAwait(false);
-            result.IsFailed.ShouldBeFalse();
+            result.IsSuccess().ShouldBeTrue();
             await this.VerifyApiResource(createApiResourceRequest).ConfigureAwait(false);
         }
     }
 
     public async Task<String> GetClientToken(String clientId, String secret, CancellationToken cancellationToken){
         Result<TokenResponse> tokenResponseResult = await this.SecurityServiceClient.GetToken(clientId, secret, cancellationToken).ConfigureAwait(false);
-        tokenResponseResult.IsFailed.ShouldBeFalse();
+        var tokenResponseResultValue = tokenResponseResult.Value.ShouldBeOfType<Success<TokenResponse>>().Value;
 
-        return tokenResponseResult.Data.AccessToken;
+        return tokenResponseResultValue.AccessToken;
     }
 
     public async Task<String> GetPasswordToken(String clientId, String secret, String userName, String password, CancellationToken cancellationToken)
     {
         Result<TokenResponse> tokenResponseResult = await this.RequestPasswordToken(clientId, secret, userName, password, cancellationToken).ConfigureAwait(false);
-        tokenResponseResult.IsFailed.ShouldBeFalse();
-        return tokenResponseResult.Data.AccessToken;
+        var tokenResponseResultValue = tokenResponseResult.Value.ShouldBeOfType<Success<TokenResponse>>().Value;
+        return tokenResponseResultValue.AccessToken;
     }
 
     public Task<Result<TokenResponse>> RequestPasswordToken(String clientId, String secret, String userName, String password, CancellationToken cancellationToken) =>
@@ -238,8 +238,8 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheApiResourcesApiResourceDetailsAreReturnedAsFollows(List<ApiResourceResponse> expectedDetails, CancellationToken cancellationToken){
         Result<List<ApiResourceResponse>> apiResourceDetailsListResult = await this.SecurityServiceClient.GetApiResources(this.AccessToken, cancellationToken).ConfigureAwait(false);
-        apiResourceDetailsListResult.IsFailed.ShouldBeFalse();
-        List<ApiResourceResponse> apiResourceDetailsList = apiResourceDetailsListResult.Data;
+        var apiResourceDetailsListResultValue = apiResourceDetailsListResult.Value.ShouldBeOfType<Success<List<ApiResourceResponse>>>().Value;
+        List<ApiResourceResponse> apiResourceDetailsList = apiResourceDetailsListResultValue;
         AssertExpectedResults(apiResourceDetailsList, expectedDetails, resource => resource.Name);
         foreach (ApiResourceResponse apiResourceDetails in expectedDetails){
             ApiResourceResponse? foundRecord = apiResourceDetailsList.SingleOrDefault(a => a.Name == apiResourceDetails.Name);
@@ -253,9 +253,9 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheApiResourceWithNameTheApiResourceDetailsAreReturnedAsFollows(List<ApiResourceResponse> expectedDetails, String apiResourceName, CancellationToken cancellationToken){
         Result<ApiResourceResponse> apiResourceDetailsResult = await this.SecurityServiceClient.GetApiResource(this.AccessToken, apiResourceName, cancellationToken).ConfigureAwait(false);
-        apiResourceDetailsResult.IsFailed.ShouldBeFalse();
+        var apiResourceDetailsResultValue = apiResourceDetailsResult.Value.ShouldBeOfType<Success<ApiResourceResponse>>().Value;
 
-        ApiResourceResponse? apiResourceDetails = apiResourceDetailsResult.Data;
+        ApiResourceResponse? apiResourceDetails = apiResourceDetailsResultValue;
         ApiResourceResponse expectedRecord = expectedDetails.Single();
 
         apiResourceDetails.ShouldNotBeNull();
@@ -267,9 +267,9 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheApiScopesApiScopeDetailsAreReturnedAsFollows(List<ApiScopeResponse> expectedDetails, CancellationToken cancellationToken){
         Result<List<ApiScopeResponse>> apiScopeDetailsListResult = await this.SecurityServiceClient.GetApiScopes(this.AccessToken, cancellationToken).ConfigureAwait(false);
-        apiScopeDetailsListResult.IsFailed.ShouldBeFalse();
+        var apiScopeDetailsListResultValue = apiScopeDetailsListResult.Value.ShouldBeOfType<Success<List<ApiScopeResponse>>>().Value;
 
-        List<ApiScopeResponse>? apiScopeDetailsList = apiScopeDetailsListResult.Data;
+        List<ApiScopeResponse>? apiScopeDetailsList = apiScopeDetailsListResultValue;
         AssertExpectedResults(apiScopeDetailsList!, expectedDetails, scope => scope.Name);
         foreach (ApiScopeResponse apiScopeDetails in expectedDetails){
             ApiScopeResponse? foundRecord = apiScopeDetailsList.SingleOrDefault(a => a.Name == apiScopeDetails.Name);
@@ -281,8 +281,8 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheApiScopeWithNameTheApiScopeDetailsAreReturnedAsFollows(List<ApiScopeResponse> expectedDetails, String apiScopeName, CancellationToken cancellationToken){
         Result<ApiScopeResponse> apiScopeDetailsResult = await this.SecurityServiceClient.GetApiScope(this.AccessToken, apiScopeName, cancellationToken).ConfigureAwait(false);
-        apiScopeDetailsResult.IsFailed.ShouldBeFalse();
-        ApiScopeResponse? apiScopeDetails = apiScopeDetailsResult.Data;
+        var apiScopeDetailsResultValue = apiScopeDetailsResult.Value.ShouldBeOfType<Success<ApiScopeResponse>>().Value;
+        ApiScopeResponse? apiScopeDetails = apiScopeDetailsResultValue;
 
         ApiScopeResponse expectedRecord = expectedDetails.Single();
 
@@ -293,8 +293,8 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheClientWithClientIdTheClientDetailsAreReturnedAsFollows(List<ClientResponse> expectedDetails, String clientId, CancellationToken cancellationToken){
         Result<ClientResponse> clientDetailsResult = await this.SecurityServiceClient.GetClient(this.AccessToken, clientId, cancellationToken).ConfigureAwait(false);
-        clientDetailsResult.IsFailed.ShouldBeFalse();
-        ClientResponse clientDetails = clientDetailsResult.Data;
+        var clientDetailsResultValue = clientDetailsResult.Value.ShouldBeOfType<Success<ClientResponse>>().Value;
+        ClientResponse clientDetails = clientDetailsResultValue;
         ClientResponse expectedRecord = expectedDetails.Single();
 
         clientDetails.ShouldNotBeNull();
@@ -307,8 +307,8 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheClientsClientsDetailsAreReturnedAsFollows(List<ClientResponse> expectedDetails, CancellationToken cancellationToken){
         Result<List<ClientResponse>> clientDetailsListResult = await this.SecurityServiceClient.GetClients(this.AccessToken, cancellationToken).ConfigureAwait(false);
-        clientDetailsListResult.IsFailed.ShouldBeFalse();
-        List<ClientResponse>? clientDetailsList = clientDetailsListResult.Data;
+        var clientDetailsListResultValue = clientDetailsListResult.Value.ShouldBeOfType<Success<List<ClientResponse>>>().Value;
+        List<ClientResponse>? clientDetailsList = clientDetailsListResultValue;
         List<ClientResponse> expectedClientDetails = clientDetailsList!
             .Where(client => expectedDetails.Any(expected => expected.ClientId == client.ClientId))
             .ToList();
@@ -328,7 +328,7 @@ public class SecurityServiceSteps{
     public async Task GivenICreateTheFollowingIdentityResources(List<CreateIdentityResourceRequest> requests, CancellationToken cancellationToken){
         foreach (CreateIdentityResourceRequest createIdentityResourceRequest in requests){
             Result result = await this.SecurityServiceClient.CreateIdentityResource(this.AccessToken, createIdentityResourceRequest, cancellationToken).ConfigureAwait(false);
-            result.IsFailed.ShouldBeFalse();
+            result.IsSuccess().ShouldBeTrue();
             await this.VerifyIdentityResource(createIdentityResourceRequest).ConfigureAwait(false);
         }
     }
@@ -336,8 +336,8 @@ public class SecurityServiceSteps{
     public async Task WhenIGetTheIdentityResourceWithNameTheIdentityResourceDetailsAreReturnedAsFollows(List<IdentityResourceResponse> expectedDetails, String identityResourceName, CancellationToken cancellationToken)
     {
         Result<IdentityResourceResponse> identityResourceDetailsResult = await this.SecurityServiceClient.GetIdentityResource(this.AccessToken, identityResourceName, cancellationToken).ConfigureAwait(false);
-        identityResourceDetailsResult.IsFailed.ShouldBeFalse();
-        IdentityResourceResponse identityResourceDetails = identityResourceDetailsResult.Data;
+        var identityResourceDetailsResultValue = identityResourceDetailsResult.Value.ShouldBeOfType<Success<IdentityResourceResponse>>().Value;
+        IdentityResourceResponse identityResourceDetails = identityResourceDetailsResultValue;
         IdentityResourceResponse expectedRecord = expectedDetails.Single();
 
         identityResourceDetails.Name.ShouldBe(expectedRecord.Name);
@@ -349,8 +349,8 @@ public class SecurityServiceSteps{
 
     public async Task WhenIGetTheIdentityResourcesIdentityResourceDetailsAreReturnedAsFollows(List<IdentityResourceResponse> expectedDetails, CancellationToken cancellationToken){
         Result<List<IdentityResourceResponse>> getIdentityResourcesResult = await this.SecurityServiceClient.GetIdentityResources(this.AccessToken, cancellationToken).ConfigureAwait(false);
-        getIdentityResourcesResult.IsFailed.ShouldBeFalse();
-        List<IdentityResourceResponse>? identityResourceDetailsList = getIdentityResourcesResult.Data;
+        var getIdentityResourcesResultValue = getIdentityResourcesResult.Value.ShouldBeOfType<Success<List<IdentityResourceResponse>>>().Value;
+        List<IdentityResourceResponse>? identityResourceDetailsList = getIdentityResourcesResultValue;
         AssertExpectedResults(identityResourceDetailsList!, expectedDetails, resource => resource.Name);
         foreach (IdentityResourceResponse expectedRecord in expectedDetails){
             IdentityResourceResponse? foundRecord = identityResourceDetailsList.SingleOrDefault(a => a.Name == expectedRecord.Name);
@@ -368,18 +368,18 @@ public class SecurityServiceSteps{
         List<(String, String)> roleList = new List<(String, String)>();
         foreach (CreateRoleRequest request in requests){
             Result result = await this.SecurityServiceClient.CreateRole(this.AccessToken, request, cancellationToken).ConfigureAwait(false);
-            result.IsFailed.ShouldBeFalse();
+            result.IsSuccess().ShouldBeTrue();
         }
 
         Result<List<RoleResponse>> roles = await this.SecurityServiceClient.GetRoles(this.AccessToken, cancellationToken);
-        roles.IsFailed.ShouldBeFalse();
+        var rolesValue = roles.Value.ShouldBeOfType<Success<List<RoleResponse>>>().Value;
 
-        roles.Data.Count.ShouldBe(requests.Count);
-        roles.Data.Select(role => role.RoleName).Distinct().Count().ShouldBe(roles.Data.Count);
+        rolesValue.Count.ShouldBe(requests.Count);
+        rolesValue.Select(role => role.RoleName).Distinct().Count().ShouldBe(rolesValue.Count);
         requests.Select(request => request.RoleName).Distinct().Count().ShouldBe(requests.Count);
 
         foreach (CreateRoleRequest request in requests) {
-            RoleResponse r = roles.Data.Single(r => r.RoleName == request.RoleName);
+            RoleResponse r = rolesValue.Single(r => r.RoleName == request.RoleName);
             r.RoleId.ShouldNotBeNullOrWhiteSpace();
             roleList.Add((r.RoleName, r.RoleId));
         }
@@ -390,8 +390,8 @@ public class SecurityServiceSteps{
     public async Task WhenIGetTheRoleWithNameTheRoleDetailsAreReturnedAsFollows(List<RoleResponse> expectedDetails, String roleId, CancellationToken cancellationToken)
     {
         Result<RoleResponse> getRoleResult = await this.SecurityServiceClient.GetRole(this.AccessToken, roleId, cancellationToken).ConfigureAwait(false);
-        getRoleResult.IsFailed.ShouldBeFalse();
-        RoleResponse roleDetails =getRoleResult.Data;
+        var getRoleResultValue = getRoleResult.Value.ShouldBeOfType<Success<RoleResponse>>().Value;
+        RoleResponse roleDetails =getRoleResultValue;
         RoleResponse expectedRecord = expectedDetails.Single();
 
         roleDetails.RoleName.ShouldBe(expectedRecord.RoleName);
@@ -400,8 +400,8 @@ public class SecurityServiceSteps{
     public async Task WhenIGetTheRolesRolesDetailsAreReturnedAsFollows(List<RoleResponse> expectedDetails, CancellationToken cancellationToken)
     {
         Result<List<RoleResponse>> getRolesResult = await this.SecurityServiceClient.GetRoles(this.AccessToken, cancellationToken).ConfigureAwait(false);
-        getRolesResult.IsFailed.ShouldBeFalse();
-        List<RoleResponse>? rolesList = getRolesResult.Data;
+        var getRolesResultValue = getRolesResult.Value.ShouldBeOfType<Success<List<RoleResponse>>>().Value;
+        List<RoleResponse>? rolesList = getRolesResultValue;
         AssertExpectedResults(rolesList!, expectedDetails, role => role.RoleName);
         foreach (RoleResponse expectedRecord in expectedDetails)
         {
@@ -415,7 +415,7 @@ public class SecurityServiceSteps{
         List<(String, String)> results = new List<(String, String)>();
         foreach (CreateUserRequest createUserRequest in requests){
             Result result = await this.SecurityServiceClient.CreateUser(this.AccessToken, createUserRequest, cancellationToken).ConfigureAwait(false);
-            result.IsFailed.ShouldBeFalse();
+            result.IsSuccess().ShouldBeTrue();
 
             UserResponse user = await this.GetAndVerifyUser(createUserRequest, cancellationToken).ConfigureAwait(false);
 
@@ -442,8 +442,8 @@ public class SecurityServiceSteps{
     public async Task WhenIGetTheUsersUsersDetailsAreReturnedAsFollows(List<UserResponse> expectedDetails, CancellationToken cancellationToken)
     {
         Result<List<UserResponse>> getUsersResult = await this.SecurityServiceClient.GetUsers(this.AccessToken, String.Empty, cancellationToken).ConfigureAwait(false);
-        getUsersResult.IsFailed.ShouldBeFalse();
-        List<UserResponse>? usersList = getUsersResult.Data;
+        var getUsersResultValue = getUsersResult.Value.ShouldBeOfType<Success<List<UserResponse>>>().Value;
+        List<UserResponse>? usersList = getUsersResultValue;
         AssertExpectedResults(usersList!, expectedDetails, user => user.UserName);
         foreach (UserResponse expectedRecord in expectedDetails)
         {
@@ -469,23 +469,23 @@ public class SecurityServiceSteps{
         var userDetails = await this.SecurityServiceClient.GetUser(this.AccessToken, userId, cancellationToken).ConfigureAwait(false);
         var expectedRecord = expectedDetails.Single();
         
-        userDetails.IsFailed.ShouldBeFalse();
-        userDetails.Data.ShouldNotBeNull();
-        userDetails.Data.UserName.ShouldBe(expectedRecord.UserName);
-        userDetails.Data.EmailAddress.ShouldBe(expectedRecord.EmailAddress);
-        userDetails.Data.PhoneNumber.ShouldBe(expectedRecord.PhoneNumber);
+        var userDetailsValue = userDetails.Value.ShouldBeOfType<Success<UserResponse>>().Value;
+        userDetailsValue.ShouldNotBeNull();
+        userDetailsValue.UserName.ShouldBe(expectedRecord.UserName);
+        userDetailsValue.EmailAddress.ShouldBe(expectedRecord.EmailAddress);
+        userDetailsValue.PhoneNumber.ShouldBe(expectedRecord.PhoneNumber);
         foreach (String expectedRecordRole in expectedRecord.Roles){
-            userDetails.Data.Roles.ShouldContain(expectedRecordRole);
+            userDetailsValue.Roles.ShouldContain(expectedRecordRole);
         }
 
         foreach (KeyValuePair<String, String> expectedRecordClaim in expectedRecord.Claims){
             String claimType = GetClaimType(expectedRecordClaim.Key);
-            userDetails.Data.Claims.ContainsKey(claimType).ShouldBeTrue(expectedRecordClaim.Key);
-            String? claim = userDetails.Data.Claims[claimType];
+            userDetailsValue.Claims.ContainsKey(claimType).ShouldBeTrue(expectedRecordClaim.Key);
+            String? claim = userDetailsValue.Claims[claimType];
             claim.ShouldBe(expectedRecordClaim.Value);
         }
         // TODO: Add back in
-        //userDetails.Data.RegistrationDateTime.Date.ShouldBe(expectedRecord.RegistrationDateTime.Date);
+        //userDetailsValue.RegistrationDateTime.Date.ShouldBe(expectedRecord.RegistrationDateTime.Date);
     }
 
 }

@@ -10,6 +10,7 @@ using SecurityService.Models;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
 using TransactionProcessing.UnionResults;
+using UnionResults = TransactionProcessing.UnionResults.Results;
 
 namespace SecurityService.UnitTests.Pages;
 
@@ -45,7 +46,7 @@ public class GrantsPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<List<GrantDetails>>>>.Is(q => q is SecurityServiceQueries.GetUserGrantsQuery query && query.UserId == "user-1"), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success(grants));
+            .ReturnsAsync(UnionResults.Ok(grants));
 
         var model = CreateModel(userManager, mediator, new DefaultHttpContext());
 
@@ -82,7 +83,7 @@ public class GrantsPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success());
+            .ReturnsAsync(UnionResults.Ok());
 
         var model = CreateModel(userManager, mediator, new DefaultHttpContext());
 
@@ -101,9 +102,9 @@ public class GrantsPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Failure("The authorization could not be revoked."));
+            .ReturnsAsync(new Error(ErrorType.Failure, "The authorization could not be revoked."));
         mediator.Send(Arg<IRequest<Result<List<GrantDetails>>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success(new List<GrantDetails>()));
+            .ReturnsAsync(UnionResults.Ok(new List<GrantDetails>()));
 
         var model = CreateModel(userManager, mediator, new DefaultHttpContext());
 

@@ -1,3 +1,4 @@
+using TransactionProcessing.UnionResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using SecurityService.BusinessLogic.Mfa;
@@ -22,9 +23,9 @@ public sealed class MfaPolicyRequestHandlerTests
 
         var handler = new MfaPolicyRequestHandler(CreateService(scope));
 
-        (await handler.Handle(new SecurityServiceCommands.RequireUserMfaCommand(user.Id), CancellationToken.None)).IsSuccess.ShouldBeTrue();
-        (await handler.Handle(new SecurityServiceCommands.RequireUserMfaCommand(user.Id), CancellationToken.None)).IsSuccess.ShouldBeTrue();
-        (await handler.Handle(new SecurityServiceCommands.RemoveUserMfaCommand(user.Id), CancellationToken.None)).IsSuccess.ShouldBeTrue();
+        (await handler.Handle(new SecurityServiceCommands.RequireUserMfaCommand(user.Id), CancellationToken.None)).IsSuccess().ShouldBeTrue();
+        (await handler.Handle(new SecurityServiceCommands.RequireUserMfaCommand(user.Id), CancellationToken.None)).IsSuccess().ShouldBeTrue();
+        (await handler.Handle(new SecurityServiceCommands.RemoveUserMfaCommand(user.Id), CancellationToken.None)).IsSuccess().ShouldBeTrue();
 
         var service = CreateService(scope);
         (await service.IsMfaRequiredAsync(user, CancellationToken.None)).ShouldBeFalse();

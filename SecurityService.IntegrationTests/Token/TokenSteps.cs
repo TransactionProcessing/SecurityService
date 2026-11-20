@@ -2,6 +2,8 @@
 
 namespace SecurityService.IntegrationTests.Token
 {
+    using TransactionProcessing.UnionResults;
+    using SecurityService.DataTransferObjects;
     using System;
     using System.Collections.Generic;
     using System.IdentityModel.Tokens.Jwt;
@@ -51,9 +53,9 @@ namespace SecurityService.IntegrationTests.Token
             String password = table.Rows[0]["Password"];
 
             this.TestingContext.LastTokenResult = await this.SecurityServiceSteps.RequestPasswordToken(clientId, clientSecret, username, password, CancellationToken.None);
-            if (this.TestingContext.LastTokenResult.IsSuccess)
+            if (this.TestingContext.LastTokenResult.Value is Success<TokenResponse> token)
             {
-                this.TestingContext.AccessToken = this.TestingContext.LastTokenResult.Data.AccessToken;
+                this.TestingContext.AccessToken = token.Value.AccessToken;
             }
         }
 
@@ -74,7 +76,7 @@ namespace SecurityService.IntegrationTests.Token
         [Then(@"the password token request fails")]
         public void ThenThePasswordTokenRequestFails()
         {
-            this.TestingContext.LastTokenResult.IsFailed.ShouldBeTrue();
+            this.TestingContext.LastTokenResult.IsSuccess().ShouldBeFalse();
         }
 
     }

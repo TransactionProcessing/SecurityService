@@ -1,4 +1,5 @@
 ﻿using System;
+using TransactionProcessing.UnionResults;
 using SecurityService.DataTransferObjects;
 
 namespace SecurityService.IntegrationTests.Roles
@@ -84,7 +85,7 @@ namespace SecurityService.IntegrationTests.Roles
         [Then(@"the role MFA policy operation succeeds")]
         public void ThenTheMfaPolicyOperationSucceeds()
         {
-            this.TestingContext.LastMfaPolicyResult.IsFailed.ShouldBeFalse();
+            this.TestingContext.LastMfaPolicyResult.IsSuccess().ShouldBeTrue();
         }
 
     }

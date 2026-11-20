@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SecurityService.BusinessLogic.Mfa;
 using SecurityService.BusinessLogic.Requests;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Pages.Account.LoginWithMfa;
 
@@ -27,12 +28,12 @@ public sealed class IndexModel : PageModel
     public async Task<IActionResult> OnPostAsync()
     {
         var result = await _mediator.Send(new SecurityServiceCommands.CompleteMfaLoginCommand(Input.Transaction, Input.Code));
-        if (result.IsSuccess && result.Data is LoginCompleted completed)
+        if (result.Value is Success<LoginOutcome> { Value: LoginCompleted completed })
         {
             return LocalRedirect(string.IsNullOrWhiteSpace(completed.ReturnUrl) ? "/" : completed.ReturnUrl);
         }
 
-        var rejection = result.Data as LoginRejected;
+        var rejection = (result.Value as Success<LoginOutcome>)?.Value as LoginRejected;
         ModelState.AddModelError(string.Empty, rejection?.Message ?? "The authenticator or recovery code was invalid.");
         return Page();
     }

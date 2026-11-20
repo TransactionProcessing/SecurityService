@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using SecurityService.Models;
 using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
@@ -25,14 +26,14 @@ public class ApiResourceRequestHandlerTests
             ["payments"],
             ["merchant_id"]));
 
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
 
         var getResult = await mediator.Send(new SecurityServiceQueries.GetApiResourceQuery("payments-api"));
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.Scopes.ShouldContain("payments");
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<ApiResourceDetails>>().Value.Scopes.ShouldContain("payments");
 
         var listResult = await mediator.Send(new SecurityServiceQueries.GetApiResourcesQuery());
-        listResult.Data.ShouldHaveSingleItem();
+        listResult.Value.ShouldBeOfType<Success<List<ApiResourceDetails>>>().Value.ShouldHaveSingleItem();
     }
 
     [Fact]
@@ -49,8 +50,8 @@ public class ApiResourceRequestHandlerTests
             ["payments"],
             ["merchant_id"]));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     [Fact]
@@ -67,11 +68,11 @@ public class ApiResourceRequestHandlerTests
             ["payments"],
             ["merchant_id"]);
 
-        (await mediator.Send(command)).IsSuccess.ShouldBeTrue();
+        (await mediator.Send(command)).IsSuccess().ShouldBeTrue();
         var duplicateResult = await mediator.Send(command);
 
-        duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
+        duplicateResult.IsSuccess().ShouldBeFalse();
+        duplicateResult.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -82,8 +83,8 @@ public class ApiResourceRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceQueries.GetApiResourceQuery("missing-api-resource"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 
     [Fact]
@@ -100,10 +101,10 @@ public class ApiResourceRequestHandlerTests
             ["payments"],
             ["merchant_id"]));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
 
         var getResult = await mediator.Send(new SecurityServiceQueries.GetApiResourceQuery("payments-api"));
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.Scopes.ShouldContain("payments");
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<ApiResourceDetails>>().Value.Scopes.ShouldContain("payments");
     }
 }

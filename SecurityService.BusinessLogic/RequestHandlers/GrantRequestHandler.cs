@@ -32,7 +32,7 @@ public sealed class GrantRequestHandler : IRequestHandler<SecurityServiceQueries
 
         var sorted = grants.OrderByDescending(grant => grant.CreatedAt).ThenBy(grant => grant.DisplayName, StringComparer.OrdinalIgnoreCase).ToList();
 
-        return Result.Success(sorted);
+        return Results.Ok(sorted);
     }
 
     private async Task<GrantDetails?> BuildGrantDetailsAsync(object authorization,
@@ -68,14 +68,14 @@ public sealed class GrantRequestHandler : IRequestHandler<SecurityServiceQueries
                                      CancellationToken cancellationToken) {
         var authorization = await this.AuthorizationManager.FindByIdAsync(command.AuthorizationId, cancellationToken);
         if (authorization is null) {
-            return Result.NotFound($"No authorization found with id '{command.AuthorizationId}'.");
+            return Results.NotFound($"No authorization found with id '{command.AuthorizationId}'.");
         }
 
         var subject = await this.AuthorizationManager.GetSubjectAsync(authorization, cancellationToken);
         if (string.Equals(subject, command.UserId, StringComparison.Ordinal) == false) {
-            return Result.NotFound($"No authorization found with id '{command.AuthorizationId}'.");
+            return Results.NotFound($"No authorization found with id '{command.AuthorizationId}'.");
         }
 
-        return await this.AuthorizationManager.TryRevokeAsync(authorization, cancellationToken) ? Result.Success() : Result.Failure("The authorization could not be revoked.");
+        return await this.AuthorizationManager.TryRevokeAsync(authorization, cancellationToken) ? Results.Ok() : Results.Fail("The authorization could not be revoked.");
     }
 }

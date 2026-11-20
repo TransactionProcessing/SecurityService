@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SecurityService.BusinessLogic.Oidc;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Pages.Consent;
 
@@ -26,10 +27,10 @@ public sealed class IndexModel : PageModel
         this.Input.TransactionId = transactionId;
         var result = await this._mediator.Send(new OidcCommands.ConsentGetQuery(this.HttpContext, transactionId), cancellationToken);
 
-        return result.Data switch
+        return result.Value switch
         {
-            ConsentGetPageResult page => this.ApplyPageResult(page),
-            ConsentGetInvalidResult invalid => this.BadRequest(invalid.Message),
+            Success<ConsentGetQueryResult> { Value: ConsentGetPageResult page } => this.ApplyPageResult(page),
+            Success<ConsentGetQueryResult> { Value: ConsentGetInvalidResult invalid } => this.BadRequest(invalid.Message),
             _ => this.Page()
         };
     }
@@ -40,11 +41,11 @@ public sealed class IndexModel : PageModel
             new OidcCommands.ConsentPostCommand(this.HttpContext, this.Input.TransactionId, this.Input.Button, this.Input.SelectedScopes),
             cancellationToken);
 
-        return result.Data switch
+        return result.Value switch
         {
-            ConsentPostRedirectResult redirect => this.Redirect(redirect.Url),
-            ConsentPostPageResult page => this.HandlePageResult(page),
-            ConsentPostInvalidResult invalid => this.BadRequest(invalid.Message),
+            Success<ConsentPostCommandResult> { Value: ConsentPostRedirectResult redirect } => this.Redirect(redirect.Url),
+            Success<ConsentPostCommandResult> { Value: ConsentPostPageResult page } => this.HandlePageResult(page),
+            Success<ConsentPostCommandResult> { Value: ConsentPostInvalidResult invalid } => this.BadRequest(invalid.Message),
             _ => this.Page()
         };
     }
