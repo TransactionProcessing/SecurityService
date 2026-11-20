@@ -1,3 +1,4 @@
+using TransactionProcessing.UnionResults;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.DataProtection;
@@ -26,8 +27,8 @@ public class ConsentRequestHandlerTests
 
         var result = await handler.Handle(new OidcCommands.ConsentGetQuery(context, "/return"), CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        result.Data.ShouldBeOfType<ConsentGetInvalidResult>();
+        result.IsSuccess().ShouldBeTrue();
+        result.Value.ShouldBeOfType<Success<ConsentGetQueryResult>>().Value.ShouldBeOfType<ConsentGetInvalidResult>();
     }
 
     [Fact]
@@ -44,8 +45,8 @@ public class ConsentRequestHandlerTests
             new OidcCommands.ConsentPostCommand(new DefaultHttpContext(), "invalid", "deny", Array.Empty<string>()),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        result.Data.ShouldBeOfType<ConsentPostInvalidResult>();
+        result.IsSuccess().ShouldBeTrue();
+        result.Value.ShouldBeOfType<Success<ConsentPostCommandResult>>().Value.ShouldBeOfType<ConsentPostInvalidResult>();
     }
 
     [Fact]
@@ -62,8 +63,8 @@ public class ConsentRequestHandlerTests
             new OidcCommands.ConsentPostCommand(new DefaultHttpContext(), "invalid", "accept", Array.Empty<string>()),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        result.Data.ShouldBeOfType<ConsentPostInvalidResult>();
+        result.IsSuccess().ShouldBeTrue();
+        result.Value.ShouldBeOfType<Success<ConsentPostCommandResult>>().Value.ShouldBeOfType<ConsentPostInvalidResult>();
     }
 
     [Fact]
@@ -80,8 +81,8 @@ public class ConsentRequestHandlerTests
             new OidcCommands.ConsentPostCommand(new DefaultHttpContext(), "invalid", "accept", ["openid", "profile"]),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        result.Data.ShouldBeOfType<ConsentPostInvalidResult>();
+        result.IsSuccess().ShouldBeTrue();
+        result.Value.ShouldBeOfType<Success<ConsentPostCommandResult>>().Value.ShouldBeOfType<ConsentPostInvalidResult>();
     }
 
     private static ConsentTransactionProtector CreateProtector() => new(

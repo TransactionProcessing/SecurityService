@@ -1,4 +1,6 @@
 ﻿using DotNet.Testcontainers.Builders;
+using TransactionProcessing.UnionResults;
+using SecurityService.DataTransferObjects;
 using DotNet.Testcontainers.Configurations;
 using DotNet.Testcontainers.Containers;
 using DotNet.Testcontainers.Networks;
@@ -113,12 +115,12 @@ namespace SecurityService.IntergrationTests.Common
                 this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, this.httpClient, Serialise, Deserialise);
 
                 TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
-                if (bootstrapToken.IsFailed || String.IsNullOrWhiteSpace(bootstrapToken.Data?.AccessToken))
+                if (bootstrapToken.Value is not Success<TokenResponse> { Value.AccessToken: { } accessToken } || String.IsNullOrWhiteSpace(accessToken))
                 {
                     throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
                 }
 
-                this.AccessToken = bootstrapToken.Data.AccessToken;
+                this.AccessToken = accessToken;
 
                 DockerHelper.AddEntryToHostsFile("127.0.0.1", SecurityServiceContainerName);
                 DockerHelper.AddEntryToHostsFile("localhost", SecurityServiceContainerName);
@@ -138,8 +140,8 @@ namespace SecurityService.IntergrationTests.Common
                                 TransactionProcessing.UnionResults.Result<String> healthCheck =
                                     await this.HealthCheckClient.PerformHealthCheck("https", "127.0.0.1", this.SecurityServiceTestUIPort, CancellationToken.None);
 
-                                healthCheck.IsSuccess.ShouldBeTrue($"Health check for Test UI failed with [{healthCheck.Message}]");
-                                HealthCheckResult result = StringSerialiser.Deserialise<HealthCheckResult>(healthCheck.Data);
+                                var healthResponse = healthCheck.Value.ShouldBeOfType<Success<String>>($"Health check for Test UI failed with [{healthCheck.GetErrorMessage()}]");
+                                HealthCheckResult result = StringSerialiser.Deserialise<HealthCheckResult>(healthResponse.Value);
 
                                 this.Trace($"health check complete for Test UI result is [{healthCheck}]");
 
@@ -290,10 +292,10 @@ namespace SecurityService.IntergrationTests.Common
             }
 
             var imageDetailsResult = this.GetImageDetails(ContainerType.SecurityService);
-            if (imageDetailsResult.IsFailed)
+            if (imageDetailsResult.Value is not Success<(String imageName, Boolean useLatest)> imageDetails)
                 throw new Exception($"Image details not found for {ContainerType.SecurityService}");
 
-            ContainerBuilder securityServiceContainer = new ContainerBuilder(imageDetailsResult.Data.imageName)
+            ContainerBuilder securityServiceContainer = new ContainerBuilder(imageDetails.Value.imageName)
                 .WithName(this.SecurityServiceContainerName)
                 .WithEnvironment(environmentVariables)
                 .WithPortBinding(DockerPorts.SecurityServiceDockerPort, DockerPorts.SecurityServiceDockerPort)

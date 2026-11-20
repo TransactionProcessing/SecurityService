@@ -29,12 +29,12 @@ public sealed class IdentityResourceRequestHandler :
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
-            return Result.Failure("Identity resource name is required.");
+            return Results.Fail("Identity resource name is required.");
         }
 
         if (await this.DbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.IdentityResource, cancellationToken))
         {
-            return Result.Conflict($"An identity resource named '{command.Name}' already exists.");
+            return Results.Conflict($"An identity resource named '{command.Name}' already exists.");
         }
 
         var descriptor = new OpenIddictScopeDescriptor
@@ -62,20 +62,20 @@ public sealed class IdentityResourceRequestHandler :
         await this.DbContext.ResourceDefinitions.AddAsync(resource, cancellationToken);
         await this.DbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result<IdentityResourceDetails>> Handle(SecurityServiceQueries.GetIdentityResourceQuery query, CancellationToken cancellationToken)
     {
         var resource = await this.DbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.IdentityResource, cancellationToken);
         return resource is null
-            ? Result.NotFound($"No identity resource named '{query.Name}' was found.")
-            : Result.Success(new IdentityResourceDetails(resource.Name, resource.DisplayName, resource.Description, resource.Required, resource.Emphasize, resource.ShowInDiscoveryDocument, JsonListSerializer.Deserialize(resource.ClaimsJson)));
+            ? new Error(ErrorType.NotFound, $"No identity resource named '{query.Name}' was found.")
+            : Results.Ok(new IdentityResourceDetails(resource.Name, resource.DisplayName, resource.Description, resource.Required, resource.Emphasize, resource.ShowInDiscoveryDocument, JsonListSerializer.Deserialize(resource.ClaimsJson)));
     }
 
     public async Task<Result<List<IdentityResourceDetails>>> Handle(SecurityServiceQueries.GetIdentityResourcesQuery query, CancellationToken cancellationToken)
     {
         var resources = await this.DbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.IdentityResource).OrderBy(definition => definition.Name).ToListAsync(cancellationToken);
-        return Result.Success(resources.Select(resource => new IdentityResourceDetails(resource.Name, resource.DisplayName, resource.Description, resource.Required, resource.Emphasize, resource.ShowInDiscoveryDocument, JsonListSerializer.Deserialize(resource.ClaimsJson))).ToList());
+        return Results.Ok(resources.Select(resource => new IdentityResourceDetails(resource.Name, resource.DisplayName, resource.Description, resource.Required, resource.Emphasize, resource.ShowInDiscoveryDocument, JsonListSerializer.Deserialize(resource.ClaimsJson))).ToList());
     }
 }

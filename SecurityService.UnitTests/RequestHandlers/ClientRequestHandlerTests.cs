@@ -11,6 +11,7 @@ using SecurityService.Database.Entities;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using SecurityService.Models;
 using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
@@ -36,15 +37,15 @@ public class ClientRequestHandlerTests
             true,
             true));
 
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
         
         var getResult = await mediator.Send(new SecurityServiceQueries.GetClientQuery("test-client"));
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.AllowedScopes.ShouldContain("payments");
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<ClientDetails>>().Value.AllowedScopes.ShouldContain("payments");
 
         var listResult = await mediator.Send(new SecurityServiceQueries.GetClientsQuery());
-        listResult.IsSuccess.ShouldBeTrue();
-        listResult.Data.ShouldHaveSingleItem();
+        listResult.IsSuccess().ShouldBeTrue();
+        listResult.Value.ShouldBeOfType<Success<List<ClientDetails>>>().Value.ShouldHaveSingleItem();
     }
 
     [Fact]
@@ -69,12 +70,12 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
         var getResult = await mediator.Send(new SecurityServiceQueries.GetClientQuery("escaped-uri-client"));
 
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.RedirectUris.ShouldContain(redirectUri);
-        getResult.Data.PostLogoutRedirectUris.ShouldContain(postLogoutRedirectUri);
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<ClientDetails>>().Value.RedirectUris.ShouldContain(redirectUri);
+        getResult.Value.ShouldBeOfType<Success<ClientDetails>>().Value.PostLogoutRedirectUris.ShouldContain(postLogoutRedirectUri);
     }
 
     [Fact]
@@ -97,7 +98,7 @@ public class ClientRequestHandlerTests
             false,
             true));
 
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
 
         object application = (await applicationManager.FindByClientIdAsync("pkce-client"))!;
         var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
@@ -131,7 +132,7 @@ public class ClientRequestHandlerTests
             false,
             true));
 
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
 
         object application = (await applicationManager.FindByClientIdAsync("offline-client"))!;
         var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
@@ -159,9 +160,9 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
-        result.Message.ShouldContain("Unsupported grant types");
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.GetErrorMessage().ShouldContain("Unsupported grant types");
     }
 
     [Fact]
@@ -185,9 +186,9 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
-        result.Message.ShouldContain("Client id is required");
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.GetErrorMessage().ShouldContain("Client id is required");
         (await applicationManager.FindByClientIdAsync(" ")).ShouldBeNull();
         (await dbContext.ClientDefinitions.AnyAsync()).ShouldBeFalse();
     }
@@ -213,9 +214,9 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
-        result.Message.ShouldContain("At least one grant type is required");
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.GetErrorMessage().ShouldContain("At least one grant type is required");
         (await applicationManager.FindByClientIdAsync("no-grants-client")).ShouldBeNull();
         (await dbContext.ClientDefinitions.AnyAsync()).ShouldBeFalse();
     }
@@ -245,8 +246,8 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        rejected.IsFailed.ShouldBeTrue();
-        rejected.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
+        rejected.IsSuccess().ShouldBeFalse();
+        rejected.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
 
         var accepted = await mediator.Send(new SecurityServiceCommands.CreateClientCommand(
             "legacy-client",
@@ -261,7 +262,7 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        accepted.IsSuccess.ShouldBeTrue();
+        accepted.IsSuccess().ShouldBeTrue();
     }
 
     [Fact]
@@ -290,7 +291,7 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
 
         object application = (await applicationManager.FindByClientIdAsync("legacy-client"))!;
         var permissions = (await applicationManager.GetPermissionsAsync(application)).ToHashSet(StringComparer.Ordinal);
@@ -324,9 +325,9 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
-        result.Message.ShouldContain("ClientRedirectUris");
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.GetErrorMessage().ShouldContain("ClientRedirectUris");
         (await applicationManager.FindByClientIdAsync("invalid-redirect-client")).ShouldBeNull();
         (await dbContext.ClientDefinitions.AnyAsync(client => client.ClientId == "invalid-redirect-client")).ShouldBeFalse();
     }
@@ -352,9 +353,9 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
-        result.Message.ShouldContain("ClientPostLogoutRedirectUris");
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.GetErrorMessage().ShouldContain("ClientPostLogoutRedirectUris");
         (await applicationManager.FindByClientIdAsync("invalid-post-logout-client")).ShouldBeNull();
         (await dbContext.ClientDefinitions.AnyAsync(client => client.ClientId == "invalid-post-logout-client")).ShouldBeFalse();
     }
@@ -378,12 +379,12 @@ public class ClientRequestHandlerTests
             false,
             false);
 
-        (await mediator.Send(command)).IsSuccess.ShouldBeTrue();
+        (await mediator.Send(command)).IsSuccess().ShouldBeTrue();
 
         var duplicateResult = await mediator.Send(command);
 
-        duplicateResult.IsFailed.ShouldBeTrue();
-        duplicateResult.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
+        duplicateResult.IsSuccess().ShouldBeFalse();
+        duplicateResult.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -448,8 +449,8 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Conflict);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Conflict);
     }
 
     [Fact]
@@ -563,7 +564,7 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
     }
 
     [Fact]
@@ -585,12 +586,12 @@ public class ClientRequestHandlerTests
             false,
             false));
 
-        createResult.IsSuccess.ShouldBeTrue();
+        createResult.IsSuccess().ShouldBeTrue();
 
         var getResult = await mediator.Send(new SecurityServiceQueries.GetClientQuery("public-client"));
 
-        getResult.IsSuccess.ShouldBeTrue();
-        getResult.Data!.ClientType.ShouldBe(OpenIddictConstants.ClientTypes.Public);
+        getResult.IsSuccess().ShouldBeTrue();
+        getResult.Value.ShouldBeOfType<Success<ClientDetails>>().Value.ClientType.ShouldBe(OpenIddictConstants.ClientTypes.Public);
     }
 
     [Fact]
@@ -601,7 +602,7 @@ public class ClientRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceQueries.GetClientQuery("missing-client"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 }

@@ -1,3 +1,4 @@
+using TransactionProcessing.UnionResults;
 using System.Security.Claims;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -70,8 +71,8 @@ public class OidcEndpointTests
 
         var result = await handler.Handle(new OidcCommands.UserInfoCommand(context), CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var jsonResult = result.Data.ShouldBeOfType<UserInfoJsonResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var jsonResult = result.Value.ShouldBeOfType<Success<UserInfoCommandResult>>().Value.ShouldBeOfType<UserInfoJsonResult>();
         jsonResult.Data.ShouldContainKey("sub");
         jsonResult.Data["sub"].ShouldBe("user-1");
         jsonResult.Data.ShouldContainKey("email");

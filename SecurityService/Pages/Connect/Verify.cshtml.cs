@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SecurityService.BusinessLogic.Oidc;
+using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Pages.Connect;
 
@@ -32,12 +33,12 @@ public sealed class VerifyModel : PageModel
     {
         var result = await this._mediator.Send(new OidcCommands.VerifyGetQuery(this.HttpContext), cancellationToken);
 
-        if (result.Data is VerifyGetRedirectResult redirect)
+        if (result.Value is Success<VerifyGetQueryResult> { Value: VerifyGetRedirectResult redirect })
         {
             return this.Redirect(redirect.Url);
         }
 
-        if (result.Data is VerifyGetPageResult page)
+        if (result.Value is Success<VerifyGetQueryResult> { Value: VerifyGetPageResult page })
         {
             this.StatusMessage = page.StatusMessage;
             this.ApplyDisplayData(page.Data);
@@ -50,12 +51,12 @@ public sealed class VerifyModel : PageModel
     {
         var result = await this._mediator.Send(new OidcCommands.VerifyPostCommand(this.HttpContext, this.Input.Action, this.Input.UserCode), cancellationToken);
 
-        return result.Data switch
+        return result.Value switch
         {
-            VerifyPostRedirectResult redirect => this.Redirect(redirect.Url),
-            VerifyPostForbidResult forbid => this.Forbid(forbid.AuthenticationScheme),
-            VerifyPostSignInResult signIn => this.SignIn(signIn.Principal, signIn.Properties, signIn.AuthenticationScheme),
-            VerifyPostPageResult page => this.HandlePageResult(page),
+            Success<VerifyPostCommandResult> { Value: VerifyPostRedirectResult redirect } => this.Redirect(redirect.Url),
+            Success<VerifyPostCommandResult> { Value: VerifyPostForbidResult forbid } => this.Forbid(forbid.AuthenticationScheme),
+            Success<VerifyPostCommandResult> { Value: VerifyPostSignInResult signIn } => this.SignIn(signIn.Principal, signIn.Properties, signIn.AuthenticationScheme),
+            Success<VerifyPostCommandResult> { Value: VerifyPostPageResult page } => this.HandlePageResult(page),
             _ => this.Page()
         };
     }

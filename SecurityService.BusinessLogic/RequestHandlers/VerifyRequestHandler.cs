@@ -9,6 +9,7 @@ using SecurityService.BusinessLogic.Oidc;
 using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using TransactionProcessing.UnionResults;
+using UnionResults = TransactionProcessing.UnionResults.Results;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.BusinessLogic.RequestHandlers;
@@ -42,17 +43,17 @@ public sealed class VerifyRequestHandler :
         if (authenticationResult.Succeeded == false || authenticationResult.Principal?.GetClaim(Claims.ClientId) is null)
         {
             var statusMessage = string.IsNullOrWhiteSpace(userCode) ? string.Empty : "The specified user code is invalid.";
-            return Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult(statusMessage, null));
+            return UnionResults.Ok<VerifyGetQueryResult>(new VerifyGetPageResult(statusMessage, null));
         }
 
         if (context.User.Identity?.IsAuthenticated != true)
         {
             var loginUrl = $"/Account/Login?returnUrl={Uri.EscapeDataString(OidcHelpers.BuildCurrentRequestUrl(context.Request))}";
-            return Result.Success<VerifyGetQueryResult>(new VerifyGetRedirectResult(loginUrl));
+            return UnionResults.Ok<VerifyGetQueryResult>(new VerifyGetRedirectResult(loginUrl));
         }
 
         var data = await this.BuildDisplayDataAsync(authenticationResult, userCode, cancellationToken);
-        return Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, data));
+        return UnionResults.Ok<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, data));
     }
 
     public async Task<Result<VerifyPostCommandResult>> Handle(OidcCommands.VerifyPostCommand command, CancellationToken cancellationToken)
@@ -67,13 +68,13 @@ public sealed class VerifyRequestHandler :
         var authenticationResult = await context.AuthenticateAsync(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
         if (authenticationResult.Succeeded == false || authenticationResult.Principal?.GetClaim(Claims.ClientId) is null)
         {
-            return Result.Success<VerifyPostCommandResult>(new VerifyPostPageResult("The specified user code is invalid.", null));
+            return UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostPageResult("The specified user code is invalid.", null));
         }
 
         if (context.User.Identity?.IsAuthenticated != true)
         {
             var loginUrl = $"/Account/Login?returnUrl={Uri.EscapeDataString(OidcHelpers.BuildCurrentRequestUrl(context.Request))}";
-            return Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult(loginUrl));
+            return UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostRedirectResult(loginUrl));
         }
 
         return await this.HandleVerifiedPostAsync(command.Action, authenticationResult, context, cancellationToken);
@@ -83,31 +84,31 @@ public sealed class VerifyRequestHandler :
     {
         if (string.IsNullOrWhiteSpace(userCode))
         {
-            return Result.Success<VerifyPostCommandResult>(new VerifyPostPageResult("Enter the user code shown on the device.", null));
+            return UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostPageResult("Enter the user code shown on the device.", null));
         }
 
-        return Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult($"/connect/verify?user_code={Uri.EscapeDataString(userCode)}"));
+        return UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostRedirectResult($"/connect/verify?user_code={Uri.EscapeDataString(userCode)}"));
     }
 
     private async Task<Result<VerifyPostCommandResult>> HandleVerifiedPostAsync(string action, AuthenticateResult authenticationResult, HttpContext context, CancellationToken cancellationToken)
     {
         if (string.Equals(action, "deny", StringComparison.OrdinalIgnoreCase))
         {
-            return Result.Success<VerifyPostCommandResult>(new VerifyPostForbidResult(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme));
+            return UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostForbidResult(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme));
         }
 
         var user = await this.UserManager.GetUserAsync(context.User);
         if (user is null)
         {
             var loginUrl = $"/Account/Login?returnUrl={Uri.EscapeDataString(OidcHelpers.BuildCurrentRequestUrl(context.Request))}";
-            return Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult(loginUrl));
+            return UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostRedirectResult(loginUrl));
         }
 
         var scopes = authenticationResult.Principal!.GetScopes();
         var resources = await this.ScopeManager.ListResourcesAsync(ImmutableArray.CreateRange(scopes), cancellationToken).ToListAsync(cancellationToken);
         var principal = await OidcHelpers.CreatePrincipal(user, this.UserManager, scopes, resources, authorizationId: null);
 
-        return Result.Success<VerifyPostCommandResult>(new VerifyPostSignInResult(
+        return UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostSignInResult(
             principal,
             new AuthenticationProperties { RedirectUri = "/" },
             OpenIddictServerAspNetCoreDefaults.AuthenticationScheme));

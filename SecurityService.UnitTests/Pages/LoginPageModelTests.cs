@@ -9,6 +9,7 @@ using SecurityService.Models;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
 using TransactionProcessing.UnionResults;
+using UnionResults = TransactionProcessing.UnionResults.Results;
 
 namespace SecurityService.UnitTests.Pages;
 
@@ -51,7 +52,7 @@ public class LoginPageModelTests
     [Fact]
     public async Task OnPost_WhenLoginRejected_RedisplaysPageWithRejectionMessage()
     {
-        var mediator = CreateMediator(Result.Success<LoginOutcome>(new LoginRejected("The account is locked.")));
+        var mediator = CreateMediator(UnionResults.Ok<LoginOutcome>(new LoginRejected("The account is locked.")));
         var model = CreateModel(mediator);
 
         var result = await model.OnPostAsync();
@@ -63,7 +64,7 @@ public class LoginPageModelTests
     [Fact]
     public async Task OnPost_WhenLoginFailsWithoutRejection_UsesResultErrorMessage()
     {
-        var mediator = CreateMediator(Result.Failure("Login service unavailable."));
+        var mediator = CreateMediator(new Error(ErrorType.Failure, "Login service unavailable."));
         var model = CreateModel(mediator);
 
         var result = await model.OnPostAsync();
@@ -75,7 +76,7 @@ public class LoginPageModelTests
     [Fact]
     public async Task OnPost_WhenLoginCompletes_RedirectsToReturnUrl()
     {
-        var mediator = CreateMediator(Result.Success<LoginOutcome>(new LoginCompleted("/connect/authorize")));
+        var mediator = CreateMediator(UnionResults.Ok<LoginOutcome>(new LoginCompleted("/connect/authorize")));
         var model = CreateModel(mediator);
 
         var result = await model.OnPostAsync();
@@ -86,7 +87,7 @@ public class LoginPageModelTests
     [Fact]
     public async Task OnPost_WhenCompletedReturnUrlIsEmpty_RedirectsToHome()
     {
-        var mediator = CreateMediator(Result.Success<LoginOutcome>(new LoginCompleted(" ")));
+        var mediator = CreateMediator(UnionResults.Ok<LoginOutcome>(new LoginCompleted(" ")));
         var model = CreateModel(mediator);
 
         var result = await model.OnPostAsync();
@@ -97,7 +98,7 @@ public class LoginPageModelTests
     [Fact]
     public async Task OnPost_WhenMfaIsRequired_RedirectsToChallengeWithTransaction()
     {
-        var mediator = CreateMediator(Result.Success<LoginOutcome>(new LoginRequiresMfa("protected-transaction")));
+        var mediator = CreateMediator(UnionResults.Ok<LoginOutcome>(new LoginRequiresMfa("protected-transaction")));
         var model = CreateModel(mediator);
 
         var result = await model.OnPostAsync();
@@ -110,7 +111,7 @@ public class LoginPageModelTests
     [Fact]
     public async Task OnPost_WhenMfaEnrollmentIsRequired_RedirectsToEnrollmentWithTransaction()
     {
-        var mediator = CreateMediator(Result.Success<LoginOutcome>(new LoginRequiresMfaEnrollment("enrollment-transaction")));
+        var mediator = CreateMediator(UnionResults.Ok<LoginOutcome>(new LoginRequiresMfaEnrollment("enrollment-transaction")));
         var model = CreateModel(mediator);
 
         var result = await model.OnPostAsync();
@@ -123,7 +124,7 @@ public class LoginPageModelTests
     [Fact]
     public async Task OnPost_WhenLoginOutcomeIsUnsupported_RedisplaysPageWithError()
     {
-        var mediator = CreateMediator(Result.Success<LoginOutcome>(new UnsupportedLoginOutcome()));
+        var mediator = CreateMediator(UnionResults.Ok<LoginOutcome>(new UnsupportedLoginOutcome()));
         var model = CreateModel(mediator);
 
         var result = await model.OnPostAsync();
@@ -136,7 +137,7 @@ public class LoginPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<List<ExternalProviderDetails>>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success(new List<ExternalProviderDetails>()));
+            .ReturnsAsync(UnionResults.Ok(new List<ExternalProviderDetails>()));
         if (loginResult is not null)
         {
             mediator.Send(Arg<IRequest<Result<LoginOutcome>>>.Any(), Arg<CancellationToken>.Any())

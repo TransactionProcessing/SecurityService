@@ -76,8 +76,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                                                                              CancellationToken cancellationToken)
         {
             Result<List<IdentityResourceResponse>> identityResourceListResult = await this.TestingContext.DockerHelper.SecurityServiceClient.GetIdentityResources(this.TestingContext.DockerHelper.AccessToken,cancellationToken);
-            identityResourceListResult.IsSuccess.ShouldBeTrue();
-            List<IdentityResourceResponse> identityResourceList = identityResourceListResult.Data;
+            List<IdentityResourceResponse> identityResourceList = identityResourceListResult.Value.ShouldBeOfType<Success<List<IdentityResourceResponse>>>().Value;
             IdentityResourceResponse existingIdentityResource = identityResourceList?
                 .SingleOrDefault(identityResource => identityResource.Name == createIdentityResourceRequest.Name);
 
@@ -99,7 +98,7 @@ namespace SecurityService.OpenIdConnect.IntegrationTests.Common
                                                    .TestingContext.DockerHelper.SecurityServiceClient
                                                    .CreateIdentityResource(this.TestingContext.DockerHelper.AccessToken,createIdentityResourceRequest, cancellationToken)
                                                    .ConfigureAwait(false);
-            result.IsSuccess.ShouldBeTrue(result.Message);
+            result.IsSuccess().ShouldBeTrue(result.GetErrorMessage());
 
             this.TestingContext.IdentityResources.Add(createIdentityResourceRequest.Name);
         }

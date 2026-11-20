@@ -28,12 +28,12 @@ public sealed class ApiScopeRequestHandler :
     {
         if (string.IsNullOrWhiteSpace(command.Name))
         {
-            return Result.Invalid("Scope name is required.");
+            return Results.Validation("Scope name is required.");
         }
 
         if (await this.DbContext.ResourceDefinitions.AnyAsync(resource => resource.Name == command.Name && resource.Type == ResourceType.ApiScope, cancellationToken))
         {
-            return Result.Conflict($"An API scope named '{command.Name}' already exists.");
+            return Results.Conflict($"An API scope named '{command.Name}' already exists.");
         }
 
         var descriptor = new OpenIddictScopeDescriptor
@@ -57,20 +57,20 @@ public sealed class ApiScopeRequestHandler :
         await this.DbContext.ResourceDefinitions.AddAsync(resource, cancellationToken);
         await this.DbContext.SaveChangesAsync(cancellationToken);
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result<ApiScopeDetails>> Handle(SecurityServiceQueries.GetApiScopeQuery query, CancellationToken cancellationToken)
     {
         var resource = await this.DbContext.ResourceDefinitions.SingleOrDefaultAsync(definition => definition.Name == query.Name && definition.Type == ResourceType.ApiScope, cancellationToken);
         return resource is null
-            ? Result.NotFound($"No API scope named '{query.Name}' was found.")
-            : Result.Success(Factory.ConvertFrom(resource.Name, resource.DisplayName, resource.Description));
+            ? new Error(ErrorType.NotFound, $"No API scope named '{query.Name}' was found.")
+            : Results.Ok(Factory.ConvertFrom(resource.Name, resource.DisplayName, resource.Description));
     }
 
     public async Task<Result<List<ApiScopeDetails>>> Handle(SecurityServiceQueries.GetApiScopesQuery query, CancellationToken cancellationToken)
     {
         var scopes = await this.DbContext.ResourceDefinitions.Where(definition => definition.Type == ResourceType.ApiScope).OrderBy(definition => definition.Name).ToListAsync(cancellationToken);
-        return Result.Success(Factory.ConvertFrom(scopes.Select(definition => (definition.Name, definition.DisplayName, definition.Description)).ToList()));
+        return Results.Ok(Factory.ConvertFrom(scopes.Select(definition => (definition.Name, definition.DisplayName, definition.Description)).ToList()));
     }
 }

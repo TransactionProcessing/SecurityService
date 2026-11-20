@@ -1,3 +1,4 @@
+using TransactionProcessing.UnionResults;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
@@ -31,8 +32,8 @@ public class VerifyRequestHandlerTests
 
         var result = await handler.Handle(new OidcCommands.VerifyGetQuery(context), CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var page = result.Data.ShouldBeOfType<VerifyGetPageResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var page = result.Value.ShouldBeOfType<Success<VerifyGetQueryResult>>().Value.ShouldBeOfType<VerifyGetPageResult>();
         page.StatusMessage.ShouldBe(string.Empty);
         page.Data.ShouldBeNull();
     }
@@ -52,8 +53,8 @@ public class VerifyRequestHandlerTests
 
         var result = await handler.Handle(new OidcCommands.VerifyGetQuery(context), CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var page = result.Data.ShouldBeOfType<VerifyGetPageResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var page = result.Value.ShouldBeOfType<Success<VerifyGetQueryResult>>().Value.ShouldBeOfType<VerifyGetPageResult>();
         page.StatusMessage.ShouldBe("The specified user code is invalid.");
         page.Data.ShouldBeNull();
     }
@@ -74,8 +75,8 @@ public class VerifyRequestHandlerTests
 
         var result = await handler.Handle(new OidcCommands.VerifyGetQuery(context), CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var redirect = result.Data.ShouldBeOfType<VerifyGetRedirectResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var redirect = result.Value.ShouldBeOfType<Success<VerifyGetQueryResult>>().Value.ShouldBeOfType<VerifyGetRedirectResult>();
         redirect.Url.ShouldContain("/Account/Login");
     }
 
@@ -96,8 +97,8 @@ public class VerifyRequestHandlerTests
             new OidcCommands.VerifyPostCommand(context, "lookup", string.Empty),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var page = result.Data.ShouldBeOfType<VerifyPostPageResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var page = result.Value.ShouldBeOfType<Success<VerifyPostCommandResult>>().Value.ShouldBeOfType<VerifyPostPageResult>();
         page.ModelError.ShouldBe("Enter the user code shown on the device.");
     }
 
@@ -118,8 +119,8 @@ public class VerifyRequestHandlerTests
             new OidcCommands.VerifyPostCommand(context, "lookup", "ABCD-1234"),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var redirect = result.Data.ShouldBeOfType<VerifyPostRedirectResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var redirect = result.Value.ShouldBeOfType<Success<VerifyPostCommandResult>>().Value.ShouldBeOfType<VerifyPostRedirectResult>();
         redirect.Url.ShouldBe("/connect/verify?user_code=ABCD-1234");
     }
 
@@ -140,8 +141,8 @@ public class VerifyRequestHandlerTests
             new OidcCommands.VerifyPostCommand(context, "authorize", "ABCD-1234"),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var page = result.Data.ShouldBeOfType<VerifyPostPageResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var page = result.Value.ShouldBeOfType<Success<VerifyPostCommandResult>>().Value.ShouldBeOfType<VerifyPostPageResult>();
         page.ModelError.ShouldBe("The specified user code is invalid.");
     }
 
@@ -163,8 +164,8 @@ public class VerifyRequestHandlerTests
             new OidcCommands.VerifyPostCommand(context, "authorize", "ABCD-1234"),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var redirect = result.Data.ShouldBeOfType<VerifyPostRedirectResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var redirect = result.Value.ShouldBeOfType<Success<VerifyPostCommandResult>>().Value.ShouldBeOfType<VerifyPostRedirectResult>();
         redirect.Url.ShouldContain("/Account/Login");
     }
 
@@ -186,8 +187,8 @@ public class VerifyRequestHandlerTests
             new OidcCommands.VerifyPostCommand(context, "deny", "ABCD-1234"),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var forbid = result.Data.ShouldBeOfType<VerifyPostForbidResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var forbid = result.Value.ShouldBeOfType<Success<VerifyPostCommandResult>>().Value.ShouldBeOfType<VerifyPostForbidResult>();
         forbid.AuthenticationScheme.ShouldBe(OpenIddictServerAspNetCoreDefaults.AuthenticationScheme);
     }
 
@@ -210,8 +211,8 @@ public class VerifyRequestHandlerTests
             new OidcCommands.VerifyPostCommand(context, "authorize", "ABCD-1234"),
             CancellationToken.None);
 
-        result.IsSuccess.ShouldBeTrue();
-        var redirect = result.Data.ShouldBeOfType<VerifyPostRedirectResult>();
+        result.IsSuccess().ShouldBeTrue();
+        var redirect = result.Value.ShouldBeOfType<Success<VerifyPostCommandResult>>().Value.ShouldBeOfType<VerifyPostRedirectResult>();
         redirect.Url.ShouldContain("/Account/Login");
     }
 

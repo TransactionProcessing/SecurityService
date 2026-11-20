@@ -56,18 +56,18 @@ public sealed class IndexModel : PageModel
         SecurityServiceCommands.ProcessPasswordResetConfirmationCommand command = new(Input.Username, Input.Token, Input.Password, Input.ClientId);
         Result<String> result = await this.Mediator.Send(command, cancellationToken);
 
-        if (result.IsFailed)
+        if (result.Value is not Success<string> success)
         {
             this.View = new ViewModel
             {
                 Username = Input.Username,
                 Token = Input.Token,
-                UserMessage = $"Failed processing password reset for username {Input.Username}: {result.Errors.FirstOrDefault()?.Message ?? "Unknown error"}"
+                UserMessage = $"Failed processing password reset for username {Input.Username}: {result.GetErrors().FirstOrDefault()?.Message ?? "Unknown error"}"
             };
             return Page();
         }
 
-        return this.Redirect(result.Data);
+        return this.Redirect(success.Value);
     }
 
     private async Task BuildModelAsync(QueryString queryString)

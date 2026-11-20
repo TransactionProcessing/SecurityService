@@ -13,9 +13,9 @@ public sealed class ClientRedirectUriValidatorTests
             ["https://client.example/signin-oidc"],
             "ClientRedirectUris");
 
-        result.IsSuccess.ShouldBeTrue();
-        result.Data.ShouldHaveSingleItem();
-        result.Data![0].OriginalString.ShouldBe("https://client.example/signin-oidc");
+        result.IsSuccess().ShouldBeTrue();
+        result.Value.ShouldBeOfType<Success<List<Uri>>>().Value.ShouldHaveSingleItem();
+        result.Value.ShouldBeOfType<Success<List<Uri>>>().Value[0].OriginalString.ShouldBe("https://client.example/signin-oidc");
     }
 
     [Theory]
@@ -26,7 +26,7 @@ public sealed class ClientRedirectUriValidatorTests
     {
         var result = ClientRedirectUriValidator.Validate([value], "ClientRedirectUris");
 
-        result.IsSuccess.ShouldBeTrue();
+        result.IsSuccess().ShouldBeTrue();
     }
 
     [Theory]
@@ -38,8 +38,8 @@ public sealed class ClientRedirectUriValidatorTests
     {
         var result = ClientRedirectUriValidator.Validate([value], "ClientRedirectUris");
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
     }
 
     [Theory]
@@ -53,9 +53,9 @@ public sealed class ClientRedirectUriValidatorTests
     {
         var result = ClientRedirectUriValidator.Validate([value], "ClientPostLogoutRedirectUris");
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.Validation);
-        result.Message.ShouldContain("ClientPostLogoutRedirectUris");
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.Validation);
+        result.GetErrorMessage().ShouldContain("ClientPostLogoutRedirectUris");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public sealed class ClientRedirectUriValidatorTests
             ["", "  ", "https://client.example/callback", "HTTPS://CLIENT.EXAMPLE/callback"],
             "ClientRedirectUris");
 
-        result.IsSuccess.ShouldBeTrue();
-        result.Data.ShouldHaveSingleItem();
+        result.IsSuccess().ShouldBeTrue();
+        result.Value.ShouldBeOfType<Success<List<Uri>>>().Value.ShouldHaveSingleItem();
     }
 }

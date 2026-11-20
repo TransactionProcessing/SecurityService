@@ -17,13 +17,13 @@ public sealed class DiagnosticsRequestHandler :
         if (context.Connection.RemoteIpAddress is { } remoteIpAddress &&
             IPAddress.IsLoopback(remoteIpAddress) == false)
         {
-            return Result.Success<DiagnosticsQueryResult>(new DiagnosticsNotFoundResult());
+            return Results.Ok<DiagnosticsQueryResult>(new DiagnosticsNotFoundResult());
         }
 
         var result = await context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
         if (result.Succeeded == false || result.Principal is null)
         {
-            return Result.Success<DiagnosticsQueryResult>(new DiagnosticsChallengeResult(IdentityConstants.ApplicationScheme));
+            return Results.Ok<DiagnosticsQueryResult>(new DiagnosticsChallengeResult(IdentityConstants.ApplicationScheme));
         }
 
         var claims = result.Principal.Claims
@@ -36,6 +36,6 @@ public sealed class DiagnosticsRequestHandler :
             .Select(item => new DiagnosticItem(item.Key, item.Value ?? string.Empty))
             .ToArray() ?? Array.Empty<DiagnosticItem>();
 
-        return Result.Success<DiagnosticsQueryResult>(new DiagnosticsPageResult(claims, properties));
+        return Results.Ok<DiagnosticsQueryResult>(new DiagnosticsPageResult(claims, properties));
     }
 }

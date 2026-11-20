@@ -15,6 +15,7 @@ using SecurityService.Database.DbContexts;
 using SecurityService.Database.Entities;
 using SecurityService.BusinessLogic.Mfa;
 using TransactionProcessing.UnionResults;
+using UnionResults = TransactionProcessing.UnionResults.Results;
 using static OpenIddict.Abstractions.OpenIddictConstants;
 
 namespace SecurityService.BusinessLogic.Oidc;
@@ -63,19 +64,19 @@ public sealed class OidcRequestHandler :
         var authenticationResult = await context.AuthenticateAsync(IdentityConstants.ApplicationScheme);
         if (authenticationResult.Succeeded == false)
         {
-            return Result.Success<AuthorizeCommandResult>(HandleAuthenticationFailed(request, currentRequestUrl));
+            return UnionResults.Ok<AuthorizeCommandResult>(HandleAuthenticationFailed(request, currentRequestUrl));
         }
 
         var user = await this._userManager.GetUserAsync(authenticationResult.Principal);
         if (user is null)
         {
-            return Result.Success<AuthorizeCommandResult>(AuthorizeForbidServer(Errors.LoginRequired, "The user account could not be resolved."));
+            return UnionResults.Ok<AuthorizeCommandResult>(AuthorizeForbidServer(Errors.LoginRequired, "The user account could not be resolved."));
         }
 
         var application = await this._applicationManager.FindByClientIdAsync(request.ClientId!, cancellationToken);
         if (application is null)
         {
-            return Result.Success<AuthorizeCommandResult>(new AuthorizeBadRequestResult(new { error = "invalid_client", error_description = "The client application could not be found." }));
+            return UnionResults.Ok<AuthorizeCommandResult>(new AuthorizeBadRequestResult(new { error = "invalid_client", error_description = "The client application could not be found." }));
         }
 
         if (context.Request.Query.TryGetValue("consent", out var consentDecision))
@@ -86,14 +87,14 @@ public sealed class OidcRequestHandler :
                 !string.Equals(transaction.ClientId, request.ClientId, StringComparison.Ordinal) ||
                 !this.MatchesOriginalRequest(context, transaction))
             {
-                return Result.Success<AuthorizeCommandResult>(AuthorizeForbidServer(
+                return UnionResults.Ok<AuthorizeCommandResult>(AuthorizeForbidServer(
                     Errors.InvalidRequest, "The consent request is missing, invalid, or expired."));
             }
 
-            return Result.Success<AuthorizeCommandResult>(await this.HandleConsentDecision(user, request, application, context, consentDecision!, cancellationToken));
+            return UnionResults.Ok<AuthorizeCommandResult>(await this.HandleConsentDecision(user, request, application, context, consentDecision!, cancellationToken));
         }
 
-        return Result.Success<AuthorizeCommandResult>(await this.HandleConsentType(user, request, application, currentRequestUrl, cancellationToken));
+        return UnionResults.Ok<AuthorizeCommandResult>(await this.HandleConsentType(user, request, application, currentRequestUrl, cancellationToken));
     }
 
     public async Task<Result<TokenCommandResult>> Handle(OidcCommands.TokenCommand command, CancellationToken cancellationToken)
@@ -103,20 +104,20 @@ public sealed class OidcRequestHandler :
 
         if (request.IsAuthorizationCodeGrantType() || request.IsRefreshTokenGrantType())
         {
-            return Result.Success<TokenCommandResult>(await this.HandleCodeOrRefreshToken(context, cancellationToken));
+            return UnionResults.Ok<TokenCommandResult>(await this.HandleCodeOrRefreshToken(context, cancellationToken));
         }
 
         if (request.IsClientCredentialsGrantType())
         {
-            return Result.Success<TokenCommandResult>(await this.HandleClientCredentials(request, cancellationToken));
+            return UnionResults.Ok<TokenCommandResult>(await this.HandleClientCredentials(request, cancellationToken));
         }
 
         if (request.IsPasswordGrantType())
         {
-            return Result.Success<TokenCommandResult>(await this.HandlePasswordGrant(request, cancellationToken));
+            return UnionResults.Ok<TokenCommandResult>(await this.HandlePasswordGrant(request, cancellationToken));
         }
 
-        return Result.Success<TokenCommandResult>(new TokenBadRequestResult(new { error = "unsupported_grant_type", error_description = "The specified grant type is not supported by this service." }));
+        return UnionResults.Ok<TokenCommandResult>(new TokenBadRequestResult(new { error = "unsupported_grant_type", error_description = "The specified grant type is not supported by this service." }));
     }
 
     public Task<Result<LogoutCommandResult>> Handle(OidcCommands.LogoutCommand command, CancellationToken cancellationToken)
@@ -129,11 +130,11 @@ public sealed class OidcRequestHandler :
             LogoutCommandResult signOut = new LogoutSignOutResult(
                 new AuthenticationProperties { RedirectUri = "/Account/Logout/LoggedOut" },
                 [IdentityConstants.ApplicationScheme, OpenIddictServerAspNetCoreDefaults.AuthenticationScheme]);
-            return Task.FromResult(Result.Success(signOut));
+            return Task.FromResult(UnionResults.Ok(signOut));
         }
 
         LogoutCommandResult redirect = new LogoutRedirectResult($"/Account/Logout?returnUrl={Uri.EscapeDataString(currentRequestUrl)}");
-        return Task.FromResult(Result.Success(redirect));
+        return Task.FromResult(UnionResults.Ok(redirect));
     }
 
     public async Task<Result<UserInfoCommandResult>> Handle(OidcCommands.UserInfoCommand command, CancellationToken cancellationToken)
@@ -142,24 +143,24 @@ public sealed class OidcRequestHandler :
         var authenticationResult = await context.AuthenticateAsync(OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme);
         if (authenticationResult.Succeeded == false || authenticationResult.Principal is null)
         {
-            return Result.Success<UserInfoCommandResult>(InvalidToken("The access token is missing or invalid."));
+            return UnionResults.Ok<UserInfoCommandResult>(InvalidToken("The access token is missing or invalid."));
         }
 
         var subject = authenticationResult.Principal.GetClaim(Claims.Subject);
         if (string.IsNullOrWhiteSpace(subject))
         {
-            return Result.Success<UserInfoCommandResult>(InvalidToken("The access token does not contain a subject identifier."));
+            return UnionResults.Ok<UserInfoCommandResult>(InvalidToken("The access token does not contain a subject identifier."));
         }
 
         var user = await this._userManager.FindByIdAsync(subject);
         if (user is null)
         {
-            return Result.Success<UserInfoCommandResult>(InvalidToken("The user associated with the token could not be found."));
+            return UnionResults.Ok<UserInfoCommandResult>(InvalidToken("The user associated with the token could not be found."));
         }
 
         var scopes = authenticationResult.Principal.GetScopes().ToHashSet(StringComparer.OrdinalIgnoreCase);
         var response = await this.BuildUserInfoResponse(user, scopes);
-        return Result.Success<UserInfoCommandResult>(new UserInfoJsonResult(response.Where(pair => pair.Value is not null).ToDictionary(pair => pair.Key, pair => pair.Value)));
+        return UnionResults.Ok<UserInfoCommandResult>(new UserInfoJsonResult(response.Where(pair => pair.Value is not null).ToDictionary(pair => pair.Key, pair => pair.Value)));
     }
 
     private static AuthorizeCommandResult HandleAuthenticationFailed(OpenIddictRequest request, string currentRequestUrl)

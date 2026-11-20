@@ -35,11 +35,11 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
     private Result<(List<Uri> RedirectUris, List<Uri> PostLogoutRedirectUris)> ValidateCommand(
         SecurityServiceCommands.CreateClientCommand command) {
         if (string.IsNullOrWhiteSpace(command.ClientId)) {
-            return Result.Invalid("Client id is required.");
+            return new Error(ErrorType.Validation, "Client id is required.");
         }
 
         if (command.AllowedGrantTypes.Count == 0) {
-            return Result.Invalid("At least one grant type is required.");
+            return new Error(ErrorType.Validation, "At least one grant type is required.");
         }
 
         String[] invalidGrantTypes = command.AllowedGrantTypes
@@ -48,7 +48,7 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
                                                     this.OAuthOptions) == false)
                                             .Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         if (invalidGrantTypes.Length > 0) {
-            return Result.Invalid($"Unsupported grant types: {string.Join(", ", invalidGrantTypes)}.");
+            return new Error(ErrorType.Validation, $"Unsupported grant types: {string.Join(", ", invalidGrantTypes)}.");
         }
 
         List<string> redirectUris = command.ClientRedirectUris
@@ -57,8 +57,8 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
                                            .ToList();
         Result<List<Uri>> redirectUriValidation =
             ClientRedirectUriValidator.Validate(redirectUris, nameof(command.ClientRedirectUris));
-        if (redirectUriValidation.IsFailed) {
-            return Result.Invalid(redirectUriValidation.Message);
+        if (redirectUriValidation.Value is not Success<List<Uri>> redirectUrisSuccess) {
+            return redirectUriValidation.GetErrors()[0];
         }
 
         List<string> postLogoutRedirectUris = command.ClientPostLogoutRedirectUris
@@ -67,12 +67,12 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
                                                      .ToList();
         Result<List<Uri>> postLogoutRedirectUriValidation =
             ClientRedirectUriValidator.Validate(postLogoutRedirectUris, nameof(command.ClientPostLogoutRedirectUris));
-        if (postLogoutRedirectUriValidation.IsFailed) {
-            return Result.Invalid(postLogoutRedirectUriValidation.Message);
+        if (postLogoutRedirectUriValidation.Value is not Success<List<Uri>> postLogoutRedirectUrisSuccess) {
+            return postLogoutRedirectUriValidation.GetErrors()[0];
         }
 
-        return Result.Success<(List<Uri> RedirectUri, List<Uri> PostLogoutRedirectUri)>((redirectUriValidation.Data,
-            postLogoutRedirectUriValidation.Data));
+        return Results.Ok<(List<Uri> RedirectUri, List<Uri> PostLogoutRedirectUri)>((redirectUrisSuccess.Value,
+            postLogoutRedirectUrisSuccess.Value));
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.CreateClientCommand command,
@@ -80,13 +80,17 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
         Result<(List<Uri> RedirectUris, List<Uri> PostLogoutRedirectUris)> validateResult =
             this.ValidateCommand(command);
 
-        if (validateResult.IsFailed) {
-            return validateResult.ToResult();
+        if (validateResult.Value is not Success<(List<Uri> RedirectUris, List<Uri> PostLogoutRedirectUris)> validatedUris) {
+            return validateResult.Value switch {
+                Error error => error,
+                ErrorList errors => errors,
+                _ => validateResult.GetErrors()[0]
+            };
         }
 
         if (await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId,
                 cancellationToken)) {
-            return Result.Conflict($"A client with id '{command.ClientId}' already exists.");
+            return Results.Conflict($"A client with id '{command.ClientId}' already exists.");
         }
 
         OAuthGrantPolicyResult permissions =
@@ -115,11 +119,11 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
             descriptor.Permissions.Add(Permissions.GrantTypes.RefreshToken);
         }
 
-        foreach (Uri redirectUri in validateResult.Data.RedirectUris) {
+        foreach (Uri redirectUri in validatedUris.Value.RedirectUris) {
             descriptor.RedirectUris.Add(redirectUri);
         }
 
-        foreach (Uri postLogoutRedirectUri in validateResult.Data.PostLogoutRedirectUris) {
+        foreach (Uri postLogoutRedirectUri in validatedUris.Value.PostLogoutRedirectUris) {
             descriptor.PostLogoutRedirectUris.Add(postLogoutRedirectUri);
         }
 
@@ -138,10 +142,10 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
                                                 AllowedGrantTypesJson =
                                                     JsonListSerializer.Serialize(command.AllowedGrantTypes),
                                                 RedirectUrisJson =
-                                                    JsonListSerializer.Serialize(validateResult.Data.RedirectUris
+                                                    JsonListSerializer.Serialize(validatedUris.Value.RedirectUris
                                                                                                .Select(uri => uri.OriginalString).ToList()),
                                                 PostLogoutRedirectUrisJson =
-                                                    JsonListSerializer.Serialize(validateResult.Data
+                                                    JsonListSerializer.Serialize(validatedUris.Value
                                                                                                .PostLogoutRedirectUris.Select(uri => uri.OriginalString).ToList()),
                                                 RequireConsent = command.RequireConsent,
                                                 AllowOfflineAccess = command.AllowOfflineAccess,
@@ -156,13 +160,13 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
             if (await this.DbContext.ClientDefinitions.AnyAsync(client => client.ClientId == command.ClientId,
                     cancellationToken) ||
                 await this.ApplicationManager.FindByClientIdAsync(command.ClientId, cancellationToken) is not null) {
-                return Result.Conflict($"A client with id '{command.ClientId}' already exists.");
+                return Results.Conflict($"A client with id '{command.ClientId}' already exists.");
             }
 
             throw;
         }
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     private async Task PersistClientAsync(OpenIddictApplicationDescriptor descriptor,
@@ -232,14 +236,14 @@ public sealed class ClientRequestHandler : IRequestHandler<SecurityServiceComman
             await this.DbContext.ClientDefinitions.SingleOrDefaultAsync(client => client.ClientId == query.ClientId,
                 cancellationToken);
         return definition is null
-            ? Result.NotFound($"No client found with id '{query.ClientId}'.")
-            : Result.Success(Factory.ConvertFrom(definition));
+            ? new Error(ErrorType.NotFound, $"No client found with id '{query.ClientId}'.")
+            : Results.Ok(Factory.ConvertFrom(definition));
     }
 
     public async Task<Result<List<ClientDetails>>> Handle(SecurityServiceQueries.GetClientsQuery query,
                                                           CancellationToken cancellationToken) {
         List<ClientDefinition> definitions = await this.DbContext.ClientDefinitions.OrderBy(client => client.ClientId)
                                                        .ToListAsync(cancellationToken);
-        return Result.Success(definitions.Select(Factory.ConvertFrom).ToList());
+        return Results.Ok(definitions.Select(Factory.ConvertFrom).ToList());
     }
 }

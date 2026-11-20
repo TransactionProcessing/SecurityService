@@ -85,12 +85,12 @@ public sealed class UserRequestHandler :
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildEmailConfirmationRequest(newIdentityUser, uri);
         Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-        if (sendEmailResult.IsFailed) {
+        if (!sendEmailResult.IsSuccess()) {
             Logger.LogWarning("Error sending email to {emailaddress} as part of user creation {result}", newIdentityUser.Email, sendEmailResult);
-            return Result.Failure(sendEmailResult.Message);
+            return Results.Fail(sendEmailResult.GetErrorMessage()!);
         }
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     private SendEmailRequest BuildEmailConfirmationRequest(ApplicationUser user,
@@ -164,7 +164,7 @@ public sealed class UserRequestHandler :
         var existingUser = await this.UserManager.FindByNameAsync(command.UserName);
         if (existingUser is not null)
         {
-            return Result.Conflict($"A user named '{command.UserName}' already exists.");
+            return Results.Conflict($"A user named '{command.UserName}' already exists.");
         }
 
         var newIdentityUser = new ApplicationUser
@@ -187,15 +187,15 @@ public sealed class UserRequestHandler :
         {
             Result<String> passwordValueResult = String.IsNullOrEmpty(command.Password)
                 ? PasswordGenerator.GenerateRandomPassword(this.Options.Value.PasswordOptions)
-                : Result.Success(command.Password);
+                : Results.Ok(command.Password);
 
-            if (passwordValueResult.IsFailed)
-                return Result.Failure(passwordValueResult.Errors.FirstOrDefault()?.Message ?? "Unable to generate password.");
+            if (passwordValueResult.Value is not Success<String> password)
+                return Results.Fail(passwordValueResult.GetErrors().FirstOrDefault()?.Message ?? "Unable to generate password.");
 
-            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, passwordValueResult.Data);
+            newIdentityUser.PasswordHash = this.PasswordHasher.HashPassword(newIdentityUser, password.Value);
 
             if (String.IsNullOrEmpty(newIdentityUser.PasswordHash))
-                return Result.Failure("Error generating password hash value, hash was null or empty");
+                return Results.Fail("Error generating password hash value, hash was null or empty");
         }
 
         // Create the User
@@ -203,9 +203,9 @@ public sealed class UserRequestHandler :
         Result addRolesToUserResult = await this.AddRolesToUser(newIdentityUser, command.Roles);
         Result addClaimsToUserResult = await this.AddClaimsToUser(newIdentityUser, command);
 
-        Result result = (createResult.IsSuccess, addRolesToUserResult.IsSuccess, addClaimsToUserResult.IsSuccess) switch
+        Result result = (createResult.IsSuccess(), addRolesToUserResult.IsSuccess(), addClaimsToUserResult.IsSuccess()) switch
         {
-            (true, true, true) => hasEmailAddress ? await SendConfirmationEmail(newIdentityUser, cancellationToken) : Result.Success(),
+            (true, true, true) => hasEmailAddress ? await SendConfirmationEmail(newIdentityUser, cancellationToken) : Results.Ok(),
             _ => await this.DeleteUser(createResult, addRolesToUserResult, addClaimsToUserResult, newIdentityUser)
         };
         return result; }
@@ -217,10 +217,10 @@ public sealed class UserRequestHandler :
 
         if (deleteResult.Succeeded == false)
         {
-            return Result.Failure($"Error deleting user {identityUserToDelete.UserName} as part of cleanup {deleteResult}");
+            return Results.Fail($"Error deleting user {identityUserToDelete.UserName} as part of cleanup {deleteResult}");
         }
 
-        return Result.Failure($"At least one part of the user creation failed - createResult: {createResult.IsSuccess} addRolesToUserResult: {addRolesToUserResult.IsSuccess} addClaimsToUserResult: {addClaimsToUserResult.IsSuccess}");
+        return Results.Fail($"At least one part of the user creation failed - createResult: {createResult.IsSuccess()} addRolesToUserResult: {addRolesToUserResult.IsSuccess()} addClaimsToUserResult: {addClaimsToUserResult.IsSuccess()}");
     }
 
     private async Task<Result> CreateUser(ApplicationUser newIdentityUser)
@@ -229,9 +229,9 @@ public sealed class UserRequestHandler :
 
         if (!createResult.Succeeded)
         {
-            return Result.Failure($"Error creating user {newIdentityUser.UserName} {createResult}");
+            return Results.Fail($"Error creating user {newIdentityUser.UserName} {createResult}");
         }
-        return Result.Success();
+        return Results.Ok();
     }
 
     private async Task<Result> AddRolesToUser(ApplicationUser newIdentityUser, List<String> roles)
@@ -256,18 +256,18 @@ public sealed class UserRequestHandler :
 
             if (missingRoles.Count > 0)
             {
-                return Result.Failure($"Error adding roles [{String.Join(",", missingRoles)}] to user {newIdentityUser.UserName} because the roles do not exist");
+                return Results.Fail($"Error adding roles [{String.Join(",", missingRoles)}] to user {newIdentityUser.UserName} because the roles do not exist");
             }
 
             IdentityResult addRolesResult = await this.UserManager.AddToRolesAsync(newIdentityUser, roles);
 
             if (!addRolesResult.Succeeded)
             {
-                return Result.Failure($"Error adding roles [{String.Join(",", roles)}] to user {newIdentityUser.UserName} {addRolesResult}");
+                return Results.Fail($"Error adding roles [{String.Join(",", roles)}] to user {newIdentityUser.UserName} {addRolesResult}");
             }
         }
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     private async Task<Result> AddClaimsToUser(ApplicationUser newIdentityUser, SecurityServiceCommands.CreateUserCommand command)
@@ -306,18 +306,18 @@ public sealed class UserRequestHandler :
         {
             List<String> claimList = new List<String>();
             claimsToAdd.ForEach(c => claimList.Add($"Name: {c.Type} Value: {c.Value}"));
-            return Result.Failure($"Error adding claims [{String.Join(",", claimsToAdd)}] to user {newIdentityUser.UserName} {addClaimsResult}");
+            return Results.Fail($"Error adding claims [{String.Join(",", claimsToAdd)}] to user {newIdentityUser.UserName} {addClaimsResult}");
         }
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result<UserDetails>> Handle(SecurityServiceQueries.GetUserQuery query, CancellationToken cancellationToken)
     {
         var user = await this.UserManager.Users.SingleOrDefaultAsync(item => item.Id == query.UserId, cancellationToken);
         return user is null
-            ? Result.NotFound($"No user found with id '{query.UserId}'.")
-            : Result.Success(await this.MapAsync(user));
+            ? new Error(ErrorType.NotFound, $"No user found with id '{query.UserId}'.")
+            : Results.Ok(await this.MapAsync(user));
     }
 
     public async Task<Result<List<UserDetails>>> Handle(SecurityServiceQueries.GetUsersQuery query, CancellationToken cancellationToken)
@@ -335,7 +335,7 @@ public sealed class UserRequestHandler :
             results.Add(await this.MapAsync(user));
         }
 
-        return Result.Success(results);
+        return Results.Ok(results);
     }
 
     private async Task<UserDetails> MapAsync(ApplicationUser user)
@@ -363,16 +363,16 @@ public sealed class UserRequestHandler :
 
         if (identityUser == null)
         {
-            return Result.NotFound($"No user found with username {command.UserName}");
+            return Results.NotFound($"No user found with username {command.UserName}");
         }
 
         IdentityResult result = await this.UserManager.ConfirmEmailAsync(identityUser, command.ConfirmEmailToken);
         if (result.Succeeded == false)
         {
-            return Result.Failure($"Errors during confirm email for user [{command.UserName}]");
+            return Results.Fail($"Errors during confirm email for user [{command.UserName}]");
         }
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.SendWelcomeEmailCommand command,
@@ -381,7 +381,7 @@ public sealed class UserRequestHandler :
         ApplicationUser? user = await this.UserManager.FindByNameAsync(command.Username);
         if (user == null)
         {
-            return Result.NotFound($"No user found with username {command.Username}");
+            return Results.NotFound($"No user found with username {command.Username}");
         }
 
         return await this.SendActivationEmail(user, cancellationToken);
@@ -393,7 +393,7 @@ public sealed class UserRequestHandler :
         ApplicationUser? user = await this.UserManager.FindByNameAsync(command.Username);
         if (user == null)
         {
-            return Result.NotFound($"No user found with username {command.Username}");
+            return Results.NotFound($"No user found with username {command.Username}");
         }
 
         if (user.EmailConfirmed == false)
@@ -417,10 +417,10 @@ public sealed class UserRequestHandler :
         TokenResponse token = await this.GetToken();
         SendEmailRequest emailRequest = this.BuildActivationEmail(emailAddress, uri);
         Result sendEmailResult = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-        if (sendEmailResult.IsFailed)
-            return Result.Failure(sendEmailResult.Message);
+        if (!sendEmailResult.IsSuccess())
+            return Results.Fail(sendEmailResult.GetErrorMessage()!);
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.ProcessAccountActivationCommand command,
@@ -428,13 +428,13 @@ public sealed class UserRequestHandler :
     {
         ApplicationUser? user = await this.UserManager.FindByNameAsync(command.Username);
         if (user == null)
-            return Result.NotFound($"User '{command.Username}' was not found.");
+            return Results.NotFound($"User '{command.Username}' was not found.");
 
         IdentityResult result = await this.UserManager.ResetPasswordAsync(user, command.Token, command.Password);
         if (result.Succeeded == false)
-            return Result.Failure("The account activation link is invalid or has expired.");
+            return Results.Fail("The account activation link is invalid or has expired.");
 
-        return Result.Success();
+        return Results.Ok();
     }
 
 
@@ -446,8 +446,8 @@ public sealed class UserRequestHandler :
 
             var categories = BuildCategories(opts);
             var result = ValidateUniqueCharRequirement(opts, categories);
-            if (result.IsFailed)
-                return Result<string>.FromFailure(result);
+            if (!result.IsSuccess())
+                return result.GetErrors()[0];
 
             var chars = new List<char>();
 
@@ -455,7 +455,7 @@ public sealed class UserRequestHandler :
             FillRemainingChars(chars, opts, categories);
             SecureShuffle(chars);
 
-            return Result.Success<String>(new string(chars.ToArray()));
+            return Results.Ok<String>(new string(chars.ToArray()));
         }
 
         private static PasswordOptions DefaultOptions() =>
@@ -481,9 +481,9 @@ public sealed class UserRequestHandler :
                                                             List<string> categories) {
             var all = string.Concat(categories).Distinct().Count();
             if (opts.RequiredUniqueChars > all)
-                return Result.Failure($"RequiredUniqueChars ({opts.RequiredUniqueChars}) exceeds available unique characters ({all}).");
+                return Results.Fail($"RequiredUniqueChars ({opts.RequiredUniqueChars}) exceeds available unique characters ({all}).");
 
-            return Result.Success();
+            return Results.Ok();
         }
 
         private static void AddRequiredCategoryChars(List<char> chars,
@@ -517,7 +517,7 @@ public sealed class UserRequestHandler :
 
         if (user == null) {
             // this prevents giving away info to a potential hacker...
-            return Result.NotFound($"User '{command.UserName}' was not found.");
+            return new Error(ErrorType.NotFound, $"User '{command.UserName}' was not found.");
         }
 
         IdentityResult result = await this.UserManager.ChangePasswordAsync(user,
@@ -533,17 +533,17 @@ public sealed class UserRequestHandler :
                 errors.AppendLine($"Code {identityError.Code} Description {identityError.Description}");
             }
 
-            return Result.Failure($"Errors during password change for user [{command.UserName}] and Client [{command.ClientId}]: {errors}");
+            return new Error(ErrorType.Failure, $"Errors during password change for user [{command.UserName}] and Client [{command.ClientId}]: {errors}");
         }
 
         // build the redirect uri
         var client = await this.DbContext.ClientDefinitions.Where(c => c.ClientId == command.ClientId).SingleOrDefaultAsync(cancellationToken);
 
         if (client == null) {
-            return Result.Invalid($"Client not found for clientId {command.ClientId}");
+            return new Error(ErrorType.Validation, $"Client not found for clientId {command.ClientId}");
         }
 
-        return Result.Success(new ChangeUserPasswordResult { IsSuccessful = true, RedirectUri = client.ClientUri });
+        return Results.Ok(new ChangeUserPasswordResult { IsSuccessful = true, RedirectUri = client.ClientUri });
     }
 
     public async Task<Result> Handle(SecurityServiceCommands.ProcessPasswordResetRequestCommand command,
@@ -552,7 +552,7 @@ public sealed class UserRequestHandler :
         ApplicationUser user = await this.UserManager.FindByNameAsync(command.Username);
 
         if (user == null) {
-            return Result.Success();
+            return Results.Ok();
         }
 
         // User has been found so send an email with reset details
@@ -570,10 +570,10 @@ public sealed class UserRequestHandler :
         SendEmailRequest emailRequest = this.BuildPasswordResetEmailRequest(user, uri);
 
         Result result = await this.MessagingServiceClient.SendEmail(token.AccessToken, emailRequest, cancellationToken);
-        if (result.IsFailed)
-            return Result.Failure(result.Message);
+        if (!result.IsSuccess())
+            return Results.Fail(result.GetErrorMessage()!);
 
-        return Result.Success();
+        return Results.Ok();
     }
 
     private SendEmailRequest BuildPasswordResetEmailRequest(ApplicationUser user,
@@ -614,7 +614,7 @@ public sealed class UserRequestHandler :
         if (user == null)
         {
             // this prevents giving away info to a potential hacker...
-            return Result.NotFound($"user not found for username {command.Username}");
+            return new Error(ErrorType.NotFound, $"user not found for username {command.Username}");
         }
 
         IdentityResult result = await this.UserManager.ResetPasswordAsync(user, command.Token, command.Password);
@@ -629,7 +629,7 @@ public sealed class UserRequestHandler :
                 errors.AppendLine($"Code {identityError.Code} Description {identityError.Description}");
             }
 
-            return Result.Failure($"Errors during password reset for user [{command.Username}] and Client [{command.ClientId}]: {errors}");
+            return new Error(ErrorType.Failure, $"Errors during password reset for user [{command.Username}] and Client [{command.ClientId}]: {errors}");
         }
 
         // build the redirect uri
@@ -637,9 +637,9 @@ public sealed class UserRequestHandler :
 
         if (client == null)
         {
-            return Result.Invalid($"Client not found for clientId {command.ClientId}");
+            return new Error(ErrorType.Validation, $"Client not found for clientId {command.ClientId}");
         }
 
-        return Result.Success<String>(client.ClientUri);
+        return Results.Ok<String>(client.ClientUri);
     }
 }

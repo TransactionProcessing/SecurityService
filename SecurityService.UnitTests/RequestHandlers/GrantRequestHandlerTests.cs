@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SecurityService.BusinessLogic.Requests;
 using SecurityService.UnitTests.Infrastructure;
 using Shouldly;
+using SecurityService.Models;
 using TransactionProcessing.UnionResults;
 
 namespace SecurityService.UnitTests.RequestHandlers;
@@ -17,9 +18,9 @@ public class GrantRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceQueries.GetUserGrantsQuery("user-1"));
 
-        result.IsSuccess.ShouldBeTrue();
-        result.Data.ShouldNotBeNull();
-        result.Data.ShouldBeEmpty();
+        result.IsSuccess().ShouldBeTrue();
+        result.Value.ShouldBeOfType<Success<List<GrantDetails>>>().Value.ShouldNotBeNull();
+        result.Value.ShouldBeOfType<Success<List<GrantDetails>>>().Value.ShouldBeEmpty();
     }
 
     [Fact]
@@ -30,7 +31,7 @@ public class GrantRequestHandlerTests
 
         var result = await mediator.Send(new SecurityServiceCommands.RevokeGrantCommand("user-1", "nonexistent-authorization-id"));
 
-        result.IsFailed.ShouldBeTrue();
-        result.Errors.Single().ErrorType.ShouldBe(ErrorType.NotFound);
+        result.IsSuccess().ShouldBeFalse();
+        result.GetErrors().Single().ErrorType.ShouldBe(ErrorType.NotFound);
     }
 }

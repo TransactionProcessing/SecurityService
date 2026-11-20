@@ -8,6 +8,7 @@ using Imposter.Abstractions;
 using SecurityService.BusinessLogic.Oidc;
 using Shouldly;
 using TransactionProcessing.UnionResults;
+using UnionResults = TransactionProcessing.UnionResults.Results;
 
 namespace SecurityService.UnitTests.Pages;
 
@@ -18,7 +19,7 @@ public class VerifyPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetRedirectResult("/Account/Login?returnUrl=%2Fconnect%2Fverify")));
+            .ReturnsAsync(UnionResults.Ok<VerifyGetQueryResult>(new VerifyGetRedirectResult("/Account/Login?returnUrl=%2Fconnect%2Fverify")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
 
@@ -33,7 +34,7 @@ public class VerifyPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult("The specified user code is invalid.", null)));
+            .ReturnsAsync(UnionResults.Ok<VerifyGetQueryResult>(new VerifyGetPageResult("The specified user code is invalid.", null)));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
 
@@ -57,7 +58,7 @@ public class VerifyPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, displayData)));
+            .ReturnsAsync(UnionResults.Ok<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, displayData)));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
 
@@ -79,7 +80,7 @@ public class VerifyPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyGetQueryResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, null)))
+            .ReturnsAsync(UnionResults.Ok<VerifyGetQueryResult>(new VerifyGetPageResult(string.Empty, null)))
             .Callback((req, _) =>
             {
                 capturedQuery = req.ShouldBeOfType<OidcCommands.VerifyGetQuery>();
@@ -98,7 +99,7 @@ public class VerifyPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult("/connect/verify?user_code=ABCD-1234")));
+            .ReturnsAsync(UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostRedirectResult("/connect/verify?user_code=ABCD-1234")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Connect.VerifyModel.InputModel
@@ -118,7 +119,7 @@ public class VerifyPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostForbidResult("OpenIddict.Server.AspNetCore")));
+            .ReturnsAsync(UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostForbidResult("OpenIddict.Server.AspNetCore")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Connect.VerifyModel.InputModel { Action = "deny" };
@@ -136,7 +137,7 @@ public class VerifyPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostSignInResult(principal, properties, "OpenIddict.Server.AspNetCore")));
+            .ReturnsAsync(UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostSignInResult(principal, properties, "OpenIddict.Server.AspNetCore")));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Connect.VerifyModel.InputModel { Action = "authorize" };
@@ -153,7 +154,7 @@ public class VerifyPageModelTests
     {
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostPageResult("Enter the user code shown on the device.", null)));
+            .ReturnsAsync(UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostPageResult("Enter the user code shown on the device.", null)));
 
         var model = CreateModel(mediator, new DefaultHttpContext());
         model.Input = new SecurityService.Pages.Connect.VerifyModel.InputModel { Action = "lookup", UserCode = string.Empty };
@@ -171,7 +172,7 @@ public class VerifyPageModelTests
 
         var mediator = new IMediatorImposter();
         mediator.Send(Arg<IRequest<Result<VerifyPostCommandResult>>>.Any(), Arg<CancellationToken>.Any())
-            .ReturnsAsync(Result.Success<VerifyPostCommandResult>(new VerifyPostRedirectResult("/connect/verify?user_code=ABCD-1234")))
+            .ReturnsAsync(UnionResults.Ok<VerifyPostCommandResult>(new VerifyPostRedirectResult("/connect/verify?user_code=ABCD-1234")))
             .Callback((req, _) =>
             {
                 capturedCommand = req.ShouldBeOfType<OidcCommands.VerifyPostCommand>();

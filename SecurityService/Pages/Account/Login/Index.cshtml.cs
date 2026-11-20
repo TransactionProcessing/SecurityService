@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using SecurityService.BusinessLogic.Mfa;
 using SecurityService.BusinessLogic.Requests;
+using SecurityService.Models;
 using TransactionProcessing.UnionResults;
 
 namespace SecurityService.Pages.Account.Login;
@@ -50,17 +51,17 @@ public sealed class IndexModel : PageModel
 
         Result<LoginOutcome> result = await this._mediator.Send(new SecurityServiceCommands.BeginLoginCommand(this.Input.Username, this.Input.Password, this.Input.RememberLogin, this.Input.ReturnUrl));
 
-        if (result.IsFailed) {
-            this.ModelState.AddModelError(string.Empty, result.Errors.FirstOrDefault()?.Message ?? result.Message ?? "Invalid username or password.");
+        if (result.Value is not Success<LoginOutcome> success) {
+            this.ModelState.AddModelError(string.Empty, result.GetErrors().FirstOrDefault()?.Message ?? "Invalid username or password.");
             return this.Page();
         }
 
-        if (result.Data is LoginRejected rejection) {
+        if (success.Value is LoginRejected rejection) {
             this.ModelState.AddModelError(string.Empty, rejection.Message);
             return this.Page();
         }
 
-        return result.Data switch {
+        return success.Value switch {
                    LoginCompleted completed => this.LocalRedirect(string.IsNullOrWhiteSpace(completed.ReturnUrl) ? "/" : completed.ReturnUrl),
                    LoginRequiresMfa requiresMfa => this.RedirectToPage("/Account/LoginWithMfa/Index", new { transaction = requiresMfa.Transaction }),
                    LoginRequiresMfaEnrollment requiresMfaEnrollment => this.RedirectToPage("/Account/EnrollMfa/Index", new { transaction = requiresMfaEnrollment.Transaction }),
@@ -76,8 +77,8 @@ public sealed class IndexModel : PageModel
     private async Task LoadProvidersAsync()
     {
         var result = await this._mediator.Send(new SecurityServiceQueries.GetExternalProvidersQuery());
-        this.Providers = result.IsSuccess
-            ? result.Data.Select(p => new ExternalProviderViewModel(p.Name, p.DisplayName)).ToArray()
+        this.Providers = result.Value is Success<List<ExternalProviderDetails>> success
+            ? success.Value.Select(p => new ExternalProviderViewModel(p.Name, p.DisplayName)).ToArray()
             : Array.Empty<ExternalProviderViewModel>();
     }
 
