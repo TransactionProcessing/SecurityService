@@ -1,3 +1,5 @@
+using System.Runtime.CompilerServices;
+
 namespace SecurityService.Endpoints;
 
 using SecurityService.Authorization;
@@ -6,18 +8,12 @@ using TransactionProcessing.UnionResults.AspNetCore;
 
 public static class ManagementEndpoints
 {
-    public static void MapManagementEndpoints(this IEndpointRouteBuilder endpoints)
-    {
-        RouteGroupBuilder management = endpoints.MapGroup("/api")
-            .WithTags("Management")
-            .AddUnionResultFilter()
-            .RequireAuthorization(ManagementAuthorizationPolicies.ManagementApi);
-
+    private static void MapClientEndpoints(RouteGroupBuilder management) {
         management.MapPost("/clients", Handlers.ClientHandler.CreateClient).WithName("CreateClient")
-            .WithSummary("Register an OAuth client")
-            .WithDescription("Creates a client registration used by OAuth/OIDC flows. Supply allowed grant types, scopes, and exact callback URLs. A secret is used for confidential clients and is never returned by the read endpoints. Requires management API authorization. Invalid input returns 400; duplicate IDs may return 409.")
-            .WithRequestExample("""{"clientId":"orders-web","secret":"replace-with-a-secret","clientName":"Orders web app","allowedScopes":["openid","profile","orders.read"],"allowedGrantTypes":["authorization_code","refresh_token"],"clientUri":"https://orders.example.com","clientRedirectUris":["https://orders.example.com/signin-oidc"],"clientPostLogoutRedirectUris":["https://orders.example.com/signed-out"],"requireConsent":true,"allowOfflineAccess":true}""")
-            .ProducesUnionResult(404, 409);
+           .WithSummary("Register an OAuth client")
+           .WithDescription("Creates a client registration used by OAuth/OIDC flows. Supply allowed grant types, scopes, and exact callback URLs. A secret is used for confidential clients and is never returned by the read endpoints. Requires management API authorization. Invalid input returns 400; duplicate IDs may return 409.")
+           .WithRequestExample("""{"clientId":"orders-web","secret":"replace-with-a-secret","clientName":"Orders web app","allowedScopes":["openid","profile","orders.read"],"allowedGrantTypes":["authorization_code","refresh_token"],"clientUri":"https://orders.example.com","clientRedirectUris":["https://orders.example.com/signin-oidc"],"clientPostLogoutRedirectUris":["https://orders.example.com/signed-out"],"requireConsent":true,"allowOfflineAccess":true}""")
+           .ProducesUnionResult(404, 409);
         management.MapGet("/clients/{clientId}", Handlers.ClientHandler.GetClient).WithName("GetClient")
             .WithSummary("Get a client registration")
             .WithDescription("Returns the public configuration for one registered OAuth client. The client secret is never included. The caller must have management API authorization. Returns 404 when the ID is unknown.")
@@ -28,71 +24,81 @@ public static class ManagementEndpoints
             .WithDescription("Returns all registered OAuth clients as an array. No pagination or query filters are currently supported. Client secrets are never included.")
             .ProducesUnionResult<List<SecurityService.DataTransferObjects.ClientResponse>>()
             .WithResponseExample("""[{"clientId":"orders-web","clientName":"Orders web app","allowedScopes":["openid","orders.read"],"allowedGrantTypes":["authorization_code"],"clientRedirectUris":["https://orders.example.com/signin-oidc"],"clientPostLogoutRedirectUris":[],"requireConsent":true,"allowOfflineAccess":false,"clientType":"confidential"}]""");
+    }
 
+    private static void MapApiScopesEndpoints(RouteGroupBuilder management) {
         management.MapPost("/apiscopes", Handlers.ApiScopeHandler.CreateApiScope).WithName("CreateApiScope")
-            .WithSummary("Create an API scope")
-            .WithDescription("Registers a named permission that clients can request in access tokens. Requires management API authorization. Invalid input returns 400; a duplicate name may return 409.")
-            .WithRequestExample("""{"name":"orders.read","displayName":"Read orders","description":"View orders belonging to the signed-in user."}""")
-            .ProducesUnionResult(404, 409);
+                  .WithSummary("Create an API scope")
+                  .WithDescription("Registers a named permission that clients can request in access tokens. Requires management API authorization. Invalid input returns 400; a duplicate name may return 409.")
+                  .WithRequestExample("""{"name":"orders.read","displayName":"Read orders","description":"View orders belonging to the signed-in user."}""")
+                  .ProducesUnionResult(404, 409);
         management.MapGet("/apiscopes/{name}", Handlers.ApiScopeHandler.GetApiScope).WithName("GetApiScope")
-            .WithSummary("Get an API scope")
-            .WithDescription("Returns one API scope by its exact, case-sensitive configured name. Returns 404 when no scope has that name. Requires management API authorization.")
-            .ProducesUnionResult<SecurityService.DataTransferObjects.ApiScopeResponse>(404)
-            .WithResponseExample("""{"name":"orders.read","displayName":"Read orders","description":"View orders belonging to the signed-in user."}""");
+                  .WithSummary("Get an API scope")
+                  .WithDescription("Returns one API scope by its exact, case-sensitive configured name. Returns 404 when no scope has that name. Requires management API authorization.")
+                  .ProducesUnionResult<SecurityService.DataTransferObjects.ApiScopeResponse>(404)
+                  .WithResponseExample("""{"name":"orders.read","displayName":"Read orders","description":"View orders belonging to the signed-in user."}""");
         management.MapGet("/apiscopes", Handlers.ApiScopeHandler.GetApiScopes).WithName("GetApiScopes")
-            .WithSummary("List API scopes")
-            .WithDescription("Returns every configured API scope as an array. No pagination or query filters are currently supported. Requires management API authorization.")
-            .ProducesUnionResult<List<SecurityService.DataTransferObjects.ApiScopeResponse>>()
-            .WithResponseExample("""[{"name":"orders.read","displayName":"Read orders","description":"View orders belonging to the signed-in user."}]""");
+                  .WithSummary("List API scopes")
+                  .WithDescription("Returns every configured API scope as an array. No pagination or query filters are currently supported. Requires management API authorization.")
+                  .ProducesUnionResult<List<SecurityService.DataTransferObjects.ApiScopeResponse>>()
+                  .WithResponseExample("""[{"name":"orders.read","displayName":"Read orders","description":"View orders belonging to the signed-in user."}]""");
+    }
 
+    private static void MapApiResourcesEndpoints(RouteGroupBuilder management) {
         management.MapPost("/apiresources", Handlers.ApiResourceHandler.CreateApiResource).WithName("CreateApiResource")
-            .WithSummary("Create an API resource")
-            .WithDescription("Registers a protected API and associates it with scopes and user claims. Requires management API authorization. Invalid input returns 400; a duplicate name may return 409.")
-            .WithRequestExample("""{"name":"orders-api","displayName":"Orders API","description":"Order management service","secret":"replace-with-a-secret","scopes":["orders.read"],"userClaims":["sub","email"]}""")
-            .ProducesUnionResult(404, 409);
+                  .WithSummary("Create an API resource")
+                  .WithDescription("Registers a protected API and associates it with scopes and user claims. Requires management API authorization. Invalid input returns 400; a duplicate name may return 409.")
+                  .WithRequestExample("""{"name":"orders-api","displayName":"Orders API","description":"Order management service","secret":"replace-with-a-secret","scopes":["orders.read"],"userClaims":["sub","email"]}""")
+                  .ProducesUnionResult(404, 409);
         management.MapGet("/apiresources/{name}", Handlers.ApiResourceHandler.GetApiResource).WithName("GetApiResource")
-            .WithSummary("Get an API resource")
-            .WithDescription("Returns one API resource by its exact configured name. The resource secret is not returned. Returns 404 when unknown. Requires management API authorization.")
-            .ProducesUnionResult<SecurityService.DataTransferObjects.ApiResourceResponse>(404)
-            .WithResponseExample("""{"name":"orders-api","displayName":"Orders API","description":"Order management service","scopes":["orders.read"],"userClaims":["sub","email"]}""");
+                  .WithSummary("Get an API resource")
+                  .WithDescription("Returns one API resource by its exact configured name. The resource secret is not returned. Returns 404 when unknown. Requires management API authorization.")
+                  .ProducesUnionResult<SecurityService.DataTransferObjects.ApiResourceResponse>(404)
+                  .WithResponseExample("""{"name":"orders-api","displayName":"Orders API","description":"Order management service","scopes":["orders.read"],"userClaims":["sub","email"]}""");
         management.MapGet("/apiresources", Handlers.ApiResourceHandler.GetApiResources).WithName("GetApiResources")
-            .WithSummary("List API resources")
-            .WithDescription("Returns all configured API resources as an array. Resource secrets are not returned. No pagination or query filters are currently supported.")
-            .ProducesUnionResult<List<SecurityService.DataTransferObjects.ApiResourceResponse>>()
-            .WithResponseExample("""[{"name":"orders-api","displayName":"Orders API","description":"Order management service","scopes":["orders.read"],"userClaims":["sub","email"]}]""");
+                  .WithSummary("List API resources")
+                  .WithDescription("Returns all configured API resources as an array. Resource secrets are not returned. No pagination or query filters are currently supported.")
+                  .ProducesUnionResult<List<SecurityService.DataTransferObjects.ApiResourceResponse>>()
+                  .WithResponseExample("""[{"name":"orders-api","displayName":"Orders API","description":"Order management service","scopes":["orders.read"],"userClaims":["sub","email"]}]""");
+    }
 
+    private static void MapIdentityResourcesEndpoints(RouteGroupBuilder management) {
         management.MapPost("/identityresources", Handlers.IdentityResourceHandler.CreateIdentityResource).WithName("CreateIdentityResource")
-            .WithSummary("Create an identity resource")
-            .WithDescription("Registers an OIDC identity resource and the claims it exposes. Requires management API authorization.")
-            .WithRequestExample("""{"name":"profile","displayName":"Profile","description":"Basic profile claims","required":false,"emphasize":false,"showInDiscoveryDocument":true,"claims":["name","given_name","family_name"]}""")
-            .ProducesUnionResult(404, 409);
+                  .WithSummary("Create an identity resource")
+                  .WithDescription("Registers an OIDC identity resource and the claims it exposes. Requires management API authorization.")
+                  .WithRequestExample("""{"name":"profile","displayName":"Profile","description":"Basic profile claims","required":false,"emphasize":false,"showInDiscoveryDocument":true,"claims":["name","given_name","family_name"]}""")
+                  .ProducesUnionResult(404, 409);
         management.MapGet("/identityresources/{name}", Handlers.IdentityResourceHandler.GetIdentityResource).WithName("GetIdentityResource")
-            .WithSummary("Get an identity resource")
-            .WithDescription("Returns one OIDC identity resource by its exact configured name. Returns 404 when unknown. Requires management API authorization.")
-            .ProducesUnionResult<SecurityService.DataTransferObjects.IdentityResourceResponse>(404)
-            .WithResponseExample("""{"name":"profile","displayName":"Profile","description":"Basic profile claims","required":false,"emphasize":false,"showInDiscoveryDocument":true,"claims":["name","given_name","family_name"]}""");
+                  .WithSummary("Get an identity resource")
+                  .WithDescription("Returns one OIDC identity resource by its exact configured name. Returns 404 when unknown. Requires management API authorization.")
+                  .ProducesUnionResult<SecurityService.DataTransferObjects.IdentityResourceResponse>(404)
+                  .WithResponseExample("""{"name":"profile","displayName":"Profile","description":"Basic profile claims","required":false,"emphasize":false,"showInDiscoveryDocument":true,"claims":["name","given_name","family_name"]}""");
         management.MapGet("/identityresources", Handlers.IdentityResourceHandler.GetIdentityResources).WithName("GetIdentityResources")
-            .WithSummary("List identity resources")
-            .WithDescription("Returns all configured OIDC identity resources as an array. No pagination or query filters are currently supported.")
-            .ProducesUnionResult<List<SecurityService.DataTransferObjects.IdentityResourceResponse>>()
-            .WithResponseExample("""[{"name":"profile","displayName":"Profile","description":"Basic profile claims","required":false,"emphasize":false,"showInDiscoveryDocument":true,"claims":["name","given_name","family_name"]}]""");
+                  .WithSummary("List identity resources")
+                  .WithDescription("Returns all configured OIDC identity resources as an array. No pagination or query filters are currently supported.")
+                  .ProducesUnionResult<List<SecurityService.DataTransferObjects.IdentityResourceResponse>>()
+                  .WithResponseExample("""[{"name":"profile","displayName":"Profile","description":"Basic profile claims","required":false,"emphasize":false,"showInDiscoveryDocument":true,"claims":["name","given_name","family_name"]}]""");
+    }
 
+    private static void MapRolesEndpoints(RouteGroupBuilder management) {
         management.MapPost("/roles", Handlers.RoleHandler.CreateRole).WithName("CreateRole")
-            .WithSummary("Create a role")
-            .WithDescription("Creates a role that can be assigned to users and used in authorization decisions. Requires management API authorization.")
-            .WithRequestExample("""{"roleName":"OrderManager"}""")
-            .ProducesUnionResult(404, 409);
+                  .WithSummary("Create a role")
+                  .WithDescription("Creates a role that can be assigned to users and used in authorization decisions. Requires management API authorization.")
+                  .WithRequestExample("""{"roleName":"OrderManager"}""")
+                  .ProducesUnionResult(404, 409);
         management.MapGet("/roles/{roleId}", Handlers.RoleHandler.GetRole).WithName("GetRole")
-            .WithSummary("Get a role")
-            .WithDescription("Returns a role by its identity role ID (not its display name). Returns 404 when unknown. Requires management API authorization.")
-            .ProducesUnionResult<SecurityService.DataTransferObjects.RoleResponse>(404)
-            .WithResponseExample("""{"roleId":"2f0c1d2e-3456-4789-a123-123456789abc","roleName":"OrderManager"}""");
+                  .WithSummary("Get a role")
+                  .WithDescription("Returns a role by its identity role ID (not its display name). Returns 404 when unknown. Requires management API authorization.")
+                  .ProducesUnionResult<SecurityService.DataTransferObjects.RoleResponse>(404)
+                  .WithResponseExample("""{"roleId":"2f0c1d2e-3456-4789-a123-123456789abc","roleName":"OrderManager"}""");
         management.MapGet("/roles", Handlers.RoleHandler.GetRoles).WithName("GetRoles")
-            .WithSummary("List roles")
-            .WithDescription("Returns every role as an array. No pagination or query filters are currently supported. Requires management API authorization.")
-            .ProducesUnionResult<List<SecurityService.DataTransferObjects.RoleResponse>>()
-            .WithResponseExample("""[{"roleId":"2f0c1d2e-3456-4789-a123-123456789abc","roleName":"OrderManager"}]""");
+                  .WithSummary("List roles")
+                  .WithDescription("Returns every role as an array. No pagination or query filters are currently supported. Requires management API authorization.")
+                  .ProducesUnionResult<List<SecurityService.DataTransferObjects.RoleResponse>>()
+                  .WithResponseExample("""[{"roleId":"2f0c1d2e-3456-4789-a123-123456789abc","roleName":"OrderManager"}]""");
+    }
 
+    private static void MapUsersEndpoints(RouteGroupBuilder management) {
         management.MapPost("/users", Handlers.UserHandler.CreateUser).WithName("CreateUser")
             .WithSummary("Create a user")
             .WithDescription("Creates a local account and assigns the supplied claims and roles. Password must satisfy the configured identity password policy. Requires management API authorization.")
@@ -116,5 +122,20 @@ public static class ManagementEndpoints
             .WithSummary("Require MFA for a role").WithDescription("Enables the MFA-required policy for the specified role; users in that role must satisfy MFA according to the service policy. Example: `PUT /api/roles/role-id/mfa-policy`. Requires management API authorization.").ProducesUnionResult(404);
         management.MapDelete("/roles/{roleId}/mfa-policy", Handlers.RoleHandler.RemoveMfa).WithName("RemoveRoleMfa")
             .WithSummary("Remove the role MFA requirement").WithDescription("Removes the MFA-required policy from the specified role. Example: `DELETE /api/roles/role-id/mfa-policy`. Requires management API authorization.").ProducesUnionResult(404);
+    }
+
+    public static void MapManagementEndpoints(this IEndpointRouteBuilder endpoints)
+    {
+        RouteGroupBuilder management = endpoints.MapGroup("/api")
+            .WithTags("Management")
+            .AddUnionResultFilter()
+            .RequireAuthorization(ManagementAuthorizationPolicies.ManagementApi);
+
+        MapClientEndpoints(management);
+        MapApiScopesEndpoints(management);
+        MapApiResourcesEndpoints(management);
+        MapIdentityResourcesEndpoints(management);
+        MapUsersEndpoints(management);
+        MapRolesEndpoints(management);
     }
 }
