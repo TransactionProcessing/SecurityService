@@ -72,7 +72,7 @@ public sealed class IntegrationTestCertificate : IDisposable
 
             byte[] serialNumber = RandomNumberGenerator.GetBytes(16);
             serialNumber[0] &= 0x7f;
-            using X509Certificate2 publicCertificate = serverRequest.Create(rootCertificate, DateTimeOffset.UtcNow.AddDays(-1), DateTimeOffset.UtcNow.AddDays(30), serialNumber);
+            using X509Certificate2 publicCertificate = serverRequest.Create(rootCertificate, rootCertificate.NotBefore, rootCertificate.NotAfter, serialNumber);
             using X509Certificate2 certificate = publicCertificate.CopyWithPrivateKey(serverRsa);
             byte[] pfxBytes = certificate.Export(X509ContentType.Pfx, PasswordValue);
             byte[] certificateBytes = System.Text.Encoding.ASCII.GetBytes(rootCertificate.ExportCertificatePem());
