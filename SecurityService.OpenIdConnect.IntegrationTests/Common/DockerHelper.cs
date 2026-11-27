@@ -243,7 +243,7 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add($"AppSettings:ClientSecret",clientDetails.Item2);
             environmentVariables.Add("ServiceOptions:KestrelOptions:Path", this.IntegrationTestCertificate!.GetContainerCertificatePath());
             environmentVariables.Add("ServiceOptions:KestrelOptions:Password", this.IntegrationTestCertificate.Password);
-            environmentVariables.Add("SSL_CERT_FILE", this.IntegrationTestCertificate.ContainerRootCertificatePath);
+            environmentVariables.Add("SSL_CERT_FILE", $"{this.IntegrationTestCertificate.ContainerCertificateDirectory}/integration-root.crt");
             //environmentVariables.Add("urls","https://*:5004");
             environmentVariables.Add("Logging:LogLevel:Microsoft","Information");
             environmentVariables.Add("Logging:LogLevel:Default","Information");
