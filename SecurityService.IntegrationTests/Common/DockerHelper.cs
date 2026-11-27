@@ -16,14 +16,14 @@ namespace SecurityService.IntergrationTests.Common
     using System;
     using System.Collections.Generic;
     using System.Net;
+using System.Net.Security;
     using System.Net.Http;
+using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
 
     public class DockerHelper : TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper
     {
-        private IntegrationTestRootCertificateTrust? _rootCertificateTrust;
-
         public ISecurityServiceClient? SecurityServiceClient;
 
         String Serialise(Object arg)
@@ -48,8 +48,6 @@ namespace SecurityService.IntergrationTests.Common
                 {
                     throw new InvalidOperationException("Integration test certificate was not initialised.");
                 }
-
-                this._rootCertificateTrust = IntegrationTestRootCertificateTrust.Install(this.IntegrationTestCertificate.RootCertificatePath);
 
                 Func<String, String> securityServiceBaseAddressResolver = _ => $"https://localhost:{this.SecurityServicePort}";
                 HttpClient httpClient = this.CreateHttpClient();
@@ -79,8 +77,6 @@ namespace SecurityService.IntergrationTests.Common
         {
             try
             {
-                this._rootCertificateTrust?.Dispose();
-                this._rootCertificateTrust = null;
             }
             finally
             {
@@ -166,7 +162,21 @@ namespace SecurityService.IntergrationTests.Common
                 throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
             }
 
-            return new HttpClient();
+            using X509Certificate2 expectedCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+                this.IntegrationTestCertificate.ServerCertificatePath,
+                this.IntegrationTestCertificate.Password,
+                X509KeyStorageFlags.EphemeralKeySet);
+            String expectedThumbprint = expectedCertificate.Thumbprint;
+
+            HttpClientHandler handler = new()
+            {
+                ServerCertificateCustomValidationCallback = (_, certificate, _, sslPolicyErrors) =>
+                    certificate is not null
+                    && String.Equals(certificate.GetCertHashString(), expectedThumbprint, StringComparison.OrdinalIgnoreCase)
+                    && (sslPolicyErrors & (SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable)) == SslPolicyErrors.None
+            };
+
+            return new HttpClient(handler, disposeHandler: true);
         }
     }
 }
