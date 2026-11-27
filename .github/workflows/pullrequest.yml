@@ -25,24 +25,6 @@ jobs:
       with:
         dotnet-version: 11.0.x
 
-    - name: Trust Root Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-        password="password"
-
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
-        sudo update-ca-certificates
-
-    - name: Trust Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-        password="password"
-
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
-        sudo update-ca-certificates
-
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.slnx --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
@@ -101,24 +83,6 @@ jobs:
       with:
         dotnet-version: 11.0.x
 
-    - name: Trust Root Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-        password="password"
-
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
-        sudo update-ca-certificates
-
-    - name: Trust Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-        password="password"
-
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
-        sudo update-ca-certificates
-
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.slnx --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
@@ -173,25 +137,6 @@ jobs:
       with:
         dotnet-version: 11.0.x
 
-    - name: Trust Root Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-        password="password"
-
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
-        sudo update-ca-certificates
-
-    - name: Trust Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-        password="password"
-
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
-        sudo update-ca-certificates
-
-
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.slnx --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}
 
@@ -229,25 +174,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 11.0.x
-
-    - name: Trust Root Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-root-cert.pfx"
-        password="password"
-
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-root-cert.crt
-        sudo update-ca-certificates
-
-    - name: Trust Certificate
-      run: |
-        certPath="$GITHUB_WORKSPACE/Certificates/aspnetapp-web-api.pfx"
-        password="password"
-
-        openssl pkcs12 -in "$certPath" -out temp.pem -nodes -password "pass:$password"
-        sudo cp temp.pem /usr/local/share/ca-certificates/aspnetapp-web-api.crt
-        sudo update-ca-certificates
-
 
     - name: Restore Nuget Packages
       run: dotnet restore SecurityService.slnx --source ${{ secrets.PUBLICFEEDURL }} --source ${{ secrets.PRIVATEFEED_URL }}

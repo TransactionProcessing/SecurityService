@@ -1,11 +1,3 @@
 {
-  "urls": "https://*:5001",
-  "ServiceOptions": {
-    "KestrelCertificate": {
-      "Path": "",
-      "Password": "",
-      "AutoDiscoverFromContentRoot": false,
-      "SearchPattern": "*.pfx"
-    }
-  }
+  "urls": "https://*:5001"
 }

@@ -4,6 +4,7 @@ using SecurityService.DataTransferObjects;
 using DotNet.Testcontainers.Builders;
 using DotNet.Testcontainers.Configurations;
 using TransactionProcessing.Shared.Serialisation;
+using System.IO;
 
 namespace SecurityService.IntergrationTests.Common
 {
@@ -15,8 +16,9 @@ namespace SecurityService.IntergrationTests.Common
     using System;
     using System.Collections.Generic;
     using System.Net;
+using System.Net.Security;
     using System.Net.Http;
-    using System.Security.Cryptography.X509Certificates;
+using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -42,8 +44,13 @@ namespace SecurityService.IntergrationTests.Common
             {
                 await base.StartContainersForScenarioRun(scenarioName, dockerServices, cancellationToken).ConfigureAwait(false);
 
+                if (this.IntegrationTestCertificate is null)
+                {
+                    throw new InvalidOperationException("Integration test certificate was not initialised.");
+                }
+
                 Func<String, String> securityServiceBaseAddressResolver = _ => $"https://localhost:{this.SecurityServicePort}";
-                HttpClient httpClient = this.CreatePinnedHttpClient();
+                HttpClient httpClient = this.CreateHttpClient();
                 this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
 
                 TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken =
@@ -53,7 +60,7 @@ namespace SecurityService.IntergrationTests.Common
 
                 if (bootstrapToken.Value is not Success<TokenResponse> { Value.AccessToken: { } accessToken } || String.IsNullOrWhiteSpace(accessToken))
                 {
-                    throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
+                    throw new InvalidOperationException($"Unable to obtain the integration-test management bootstrap token: {bootstrapToken.GetErrorMessage() ?? "No error details were returned."}");
                 }
 
                 this.AccessToken = accessToken;
@@ -63,6 +70,17 @@ namespace SecurityService.IntergrationTests.Common
             {
                 this.DisposeIntegrationTestCertificate();
                 throw;
+            }
+        }
+
+        public new void DisposeIntegrationTestCertificate()
+        {
+            try
+            {
+            }
+            finally
+            {
+                base.DisposeIntegrationTestCertificate();
             }
         }
 
@@ -137,18 +155,25 @@ namespace SecurityService.IntergrationTests.Common
             return Task.CompletedTask;
         }
 
-        private HttpClient CreatePinnedHttpClient()
+        private HttpClient CreateHttpClient()
         {
             if (this.IntegrationTestCertificate is null)
             {
                 throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
             }
 
-            HttpClientHandler handler = new HttpClientHandler
+            using X509Certificate2 expectedCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+                this.IntegrationTestCertificate.ServerCertificatePath,
+                this.IntegrationTestCertificate.Password,
+                X509KeyStorageFlags.EphemeralKeySet);
+            String expectedThumbprint = expectedCertificate.Thumbprint;
+
+            HttpClientHandler handler = new()
             {
-                ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
-                    certificate is X509Certificate2 certificate2 &&
-                    String.Equals(certificate2.Thumbprint, this.IntegrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
+                ServerCertificateCustomValidationCallback = (_, certificate, _, sslPolicyErrors) =>
+                    certificate is not null
+                    && String.Equals(certificate.GetCertHashString(), expectedThumbprint, StringComparison.OrdinalIgnoreCase)
+                    && (sslPolicyErrors & (SslPolicyErrors.RemoteCertificateNameMismatch | SslPolicyErrors.RemoteCertificateNotAvailable)) == SslPolicyErrors.None
             };
 
             return new HttpClient(handler, disposeHandler: true);

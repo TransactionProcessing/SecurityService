@@ -34,6 +34,8 @@ namespace SecurityService.IntergrationTests.Common
     /// <seealso cref="TransactionProcessing.Shared.IntegrationTesting.DockerHelper" />
     public class DockerHelper : TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper
     {
+        private SecurityService.IntegrationTesting.Helpers.IntegrationTestCertificate? _httpsTestCertificate;
+
         #region Fields
 
         /// <summary>
@@ -107,17 +109,22 @@ namespace SecurityService.IntergrationTests.Common
             {
                 await base.StartContainersForScenarioRun(scenarioName,dockerServices, cancellationToken);
 
+                if (this.IntegrationTestCertificate is null)
+                {
+                    throw new InvalidOperationException("Integration test certificate was not initialised.");
+                }
+
                 await StartContainer(SetupSecurityServiceTestUIContainer, this.TestNetworks);
 
                 securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
-                this.httpClient = this.CreatePinnedHttpClient();
+                this.httpClient = this.CreateHttpClient();
                 this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, this.httpClient, Serialise, Deserialise);
 
                 TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
                 if (bootstrapToken.Value is not Success<TokenResponse> { Value.AccessToken: { } accessToken } || String.IsNullOrWhiteSpace(accessToken))
                 {
-                    throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
+                    throw new InvalidOperationException($"Unable to obtain the integration-test management bootstrap token: {bootstrapToken.GetErrorMessage() ?? "No error details were returned."}");
                 }
 
                 this.AccessToken = accessToken;
@@ -231,11 +238,19 @@ namespace SecurityService.IntergrationTests.Common
         
         private ContainerBuilder SetupSecurityServiceTestUIContainer(){
 
+            if (this.IntegrationTestCertificate is null)
+            {
+                throw new InvalidOperationException("Integration test certificate was not initialised before test UI setup.");
+            }
+
             var clientDetails = ("estateUIClient", "Secret1");
             Dictionary<String, String> environmentVariables = new Dictionary<String, String>();
             environmentVariables.Add($"AppSettings:Authority",$"https://identity-server:{this.SecurityServicePort}");
             environmentVariables.Add($"AppSettings:ClientId",clientDetails.Item1);
             environmentVariables.Add($"AppSettings:ClientSecret",clientDetails.Item2);
+            environmentVariables.Add("ServiceOptions:KestrelOptions:Path", this.IntegrationTestCertificate!.GetContainerCertificatePath());
+            environmentVariables.Add("ServiceOptions:KestrelOptions:Password", this.IntegrationTestCertificate.Password);
+            environmentVariables.Add("SSL_CERT_FILE", $"{this.IntegrationTestCertificate.ContainerCertificateDirectory}/integration-root.crt");
             //environmentVariables.Add("urls","https://*:5004");
             environmentVariables.Add("Logging:LogLevel:Microsoft","Information");
             environmentVariables.Add("Logging:LogLevel:Default","Information");
@@ -246,6 +261,7 @@ namespace SecurityService.IntergrationTests.Common
             ContainerBuilder securityServiceTestUIContainer = new ContainerBuilder("securityservicetestui")
                 .WithName(this.SecurityServiceTestUIContainerName)
                 .WithEnvironment(environmentVariables)
+                .WithResourceMapping(this.IntegrationTestCertificate.CertificateDirectory, this.IntegrationTestCertificate.ContainerCertificateDirectory)
                 .WithPortBinding(5004, true);
 
             return securityServiceTestUIContainer;
@@ -259,6 +275,10 @@ namespace SecurityService.IntergrationTests.Common
             {
                 throw new InvalidOperationException("Integration test certificate was not initialised before container setup.");
             }
+
+            this._httpsTestCertificate = SecurityService.IntegrationTesting.Helpers.IntegrationTestCertificate.Create();
+            System.IO.File.Copy(this._httpsTestCertificate.ServerCertificatePath, System.IO.Path.Combine(this.IntegrationTestCertificate.CertificateDirectory, "aspnetapp-web-api.pfx"), overwrite: true);
+            System.IO.File.Copy(this._httpsTestCertificate.RootCertificatePath, System.IO.Path.Combine(this.IntegrationTestCertificate.CertificateDirectory, "integration-root.crt"), overwrite: true);
 
             var environmentVariables = this.GetCommonEnvironmentVariables();
             environmentVariables.Add($"ServiceOptions:PublicOrigin",$"https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
@@ -305,21 +325,27 @@ namespace SecurityService.IntergrationTests.Common
             return securityServiceContainer;
         }
 
-        private HttpClient CreatePinnedHttpClient()
+        private HttpClient CreateHttpClient()
         {
             if (this.IntegrationTestCertificate is null)
             {
                 throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
             }
 
-            HttpClientHandler handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
-                    certificate is X509Certificate2 certificate2 &&
-                    String.Equals(certificate2.Thumbprint, this.IntegrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
-            };
+            return new HttpClient();
+        }
 
-            return new HttpClient(handler, disposeHandler: true);
+        public new void DisposeIntegrationTestCertificate()
+        {
+            try
+            {
+                this._httpsTestCertificate?.Dispose();
+                this._httpsTestCertificate = null;
+            }
+            finally
+            {
+                base.DisposeIntegrationTestCertificate();
+            }
         }
 
         #endregion

@@ -7,12 +7,10 @@ FROM mcr.microsoft.com/dotnet/sdk:11.0 AS build
 ARG NUGET_TOKEN
 
 WORKDIR /src
-COPY ["Certificates/*.*", "Certificates/"]
 COPY ["SecurityService/NuGet.Config", "."]
 # Replace the placeholders in the NuGet.config file with the GitHub Secret
 RUN sed -i "s|NUGET_TOKEN|${NUGET_TOKEN}|g" NuGet.Config
 
-COPY ["Certificates/*.*", "Certificates/"]
 COPY ["SecurityServiceTestUI/SecurityServiceTestUI.csproj", "SecurityServiceTestUI/"]
 COPY ["Directory.Packages.props", "."]
 COPY . .
@@ -20,12 +18,6 @@ RUN dotnet restore "SecurityServiceTestUI/SecurityServiceTestUI.csproj"
 COPY . .
 WORKDIR "/src/SecurityServiceTestUI"
 RUN dotnet build "SecurityServiceTestUI.csproj" -c Release -o /app/build
-
-# Sort out certificate stuff here
-WORKDIR /src/Certificates
-# Sort out certificate stuff here
-RUN cp aspnetapp-root-cert.cer /usr/local/share/ca-certificates/
-RUN update-ca-certificates
 
 WORKDIR /src/SecurityServiceTestUI
 FROM build AS publish

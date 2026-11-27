@@ -34,6 +34,7 @@
     <PackageReference Include="OpenIddict.Server.AspNetCore" />
     <PackageReference Include="OpenIddict.Validation.AspNetCore" />
     <PackageReference Include="TransactionProcessing.Shared" />
+    <PackageReference Include="TransactionProcessing.CertificateDefaults" />
     <PackageReference Include="TransactionProcessing.ClientProxyBase" />
     <PackageReference Include="TransactionProcessing.UnionResults.AspNetCore" />
     <PackageReference Include="Sentry.AspNetCore" />
@@ -63,14 +64,6 @@
     <Content Update="nlog.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Update="aspnetapp-root-cert.cer">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="aspnetapp-web-api.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Pages\Account\ExternalLogin\" />

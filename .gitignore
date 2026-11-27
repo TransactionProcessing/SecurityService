@@ -332,3 +332,9 @@ ASALocalRun/
 .mfractor/
 /SecurityService/appsettings.development.json
 /SecurityService/appsettings.development.json
+/SecurityService/appsettings.local.json
+
+# Deployment certificate bundles and private keys
+*.pfx
+*.p12
+*.key

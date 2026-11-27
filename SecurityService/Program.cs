@@ -36,6 +36,7 @@ using TransactionProcessing.Shared.Serialisation;
 using System.Reflection;
 using System.Security.Cryptography;
 using TransactionProcessing.ApiDefaults;
+using TransactionProcessing.CertificateDefaults;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 using Logger = TransactionProcessing.Shared.Logger.Logger;
 using LogLevel = Microsoft.Extensions.Logging.LogLevel;
@@ -60,6 +61,7 @@ builder.WebHost.ConfigureAppConfiguration((context, configBuilder) =>
         .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true)
         .AddJsonFile($"/home/txnproc/config/appsettings.local.json", optional: true, reloadOnChange: true)
+        .AddJsonFile("appsettings.local.json", optional: true, reloadOnChange: true)
         .AddEnvironmentVariables()
         .AddInMemoryCollection(new Dictionary<string, string?>
         {
@@ -101,17 +103,7 @@ if (string.IsNullOrWhiteSpace(hostingUrls) == false)
 builder.Services.Configure<ServiceOptions>(builder.Configuration.GetSection("ServiceOptions"));
 ServiceOptions options = new ServiceOptions();
 builder.Configuration.GetSection("ServiceOptions").Bind(options);
-var kestrelCertificate = KestrelCertificateLoader.LoadCertificate(options.KestrelOptions, builder.Environment.ContentRootPath);
-if (kestrelCertificate is not null)
-{
-    builder.WebHost.ConfigureKestrel(serverOptions =>
-    {
-        serverOptions.ConfigureHttpsDefaults(httpsOptions =>
-        {
-            httpsOptions.ServerCertificate = kestrelCertificate;
-        });
-    });
-}
+builder.WebHost.ConfigureTransactionProcessingHttps();
 
 if (options.UseInMemoryDatabase)
 {
