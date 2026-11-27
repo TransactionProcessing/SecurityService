@@ -111,7 +111,7 @@ namespace SecurityService.IntergrationTests.Common
 
                 securityServiceBaseAddressResolver = api => $"https://localhost:{this.SecurityServicePort}";
 
-                this.httpClient = this.CreatePinnedHttpClient();
+                this.httpClient = this.CreateHttpClient();
                 this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, this.httpClient, Serialise, Deserialise);
 
                 TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
@@ -231,11 +231,19 @@ namespace SecurityService.IntergrationTests.Common
         
         private ContainerBuilder SetupSecurityServiceTestUIContainer(){
 
+            if (this.IntegrationTestCertificate is null)
+            {
+                throw new InvalidOperationException("Integration test certificate was not initialised before test UI setup.");
+            }
+
             var clientDetails = ("estateUIClient", "Secret1");
             Dictionary<String, String> environmentVariables = new Dictionary<String, String>();
             environmentVariables.Add($"AppSettings:Authority",$"https://identity-server:{this.SecurityServicePort}");
             environmentVariables.Add($"AppSettings:ClientId",clientDetails.Item1);
             environmentVariables.Add($"AppSettings:ClientSecret",clientDetails.Item2);
+            environmentVariables.Add("ServiceOptions:KestrelOptions:Path", this.IntegrationTestCertificate!.GetContainerCertificatePath());
+            environmentVariables.Add("ServiceOptions:KestrelOptions:Password", this.IntegrationTestCertificate.Password);
+            environmentVariables.Add("SSL_CERT_FILE", this.IntegrationTestCertificate.ContainerRootCertificatePath);
             //environmentVariables.Add("urls","https://*:5004");
             environmentVariables.Add("Logging:LogLevel:Microsoft","Information");
             environmentVariables.Add("Logging:LogLevel:Default","Information");
@@ -246,6 +254,7 @@ namespace SecurityService.IntergrationTests.Common
             ContainerBuilder securityServiceTestUIContainer = new ContainerBuilder("securityservicetestui")
                 .WithName(this.SecurityServiceTestUIContainerName)
                 .WithEnvironment(environmentVariables)
+                .WithResourceMapping(this.IntegrationTestCertificate.CertificateDirectory, this.IntegrationTestCertificate.ContainerCertificateDirectory)
                 .WithPortBinding(5004, true);
 
             return securityServiceTestUIContainer;
@@ -305,21 +314,14 @@ namespace SecurityService.IntergrationTests.Common
             return securityServiceContainer;
         }
 
-        private HttpClient CreatePinnedHttpClient()
+        private HttpClient CreateHttpClient()
         {
             if (this.IntegrationTestCertificate is null)
             {
                 throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
             }
 
-            HttpClientHandler handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
-                    certificate is X509Certificate2 certificate2 &&
-                    String.Equals(certificate2.Thumbprint, this.IntegrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
-            };
-
-            return new HttpClient(handler, disposeHandler: true);
+            return new HttpClient();
         }
 
         #endregion

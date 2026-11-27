@@ -4,7 +4,6 @@ WORKDIR /app
 
 FROM mcr.microsoft.com/dotnet/sdk:11.0-windowsservercore-ltsc2022 AS build
 WORKDIR /src
-COPY ["Certificates/*.*", "Certificates/"]
 COPY ["SecurityService/NuGet.Config", "."]
 
 COPY ["SecurityService/SecurityService.csproj", "SecurityService/"]
@@ -19,9 +18,6 @@ RUN dotnet restore "SecurityService/SecurityService.csproj"
 COPY . .
 WORKDIR "/src/SecurityService"
 RUN dotnet build "SecurityService.csproj" -c Release -o /app
-WORKDIR "/src/Certificates"
-RUN powershell -Command Import-PfxCertificate -FilePath "aspnetapp-root-cert.pfx" -Password (ConvertTo-SecureString -String 'password' -AsPlainText -Force) -CertStoreLocation Cert:\LocalMachine\Root
-
 WORKDIR "/src/SecurityService"
 FROM build AS publish
 RUN dotnet publish "SecurityService.csproj" -c Release -o /app

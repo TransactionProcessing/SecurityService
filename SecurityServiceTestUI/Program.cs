@@ -1,10 +1,5 @@
 using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication;
@@ -13,8 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.IdentityModel.Tokens;
+using TransactionProcessing.CertificateDefaults;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,12 +42,6 @@ builder.Services.AddAuthentication(options =>
     .AddCookie("Cookies")
     .AddOpenIdConnect("oidc", options =>
     {
-        var handler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
-        options.BackchannelHttpHandler = handler;
-
         options.Authority = authority;
         options.TokenValidationParameters = new TokenValidationParameters
         {
@@ -81,14 +70,7 @@ builder.Services.AddAuthentication(options =>
         };
     });
 
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.Listen(IPAddress.Any, 5004, listenOptions =>
-    {
-        listenOptions.Protocols = HttpProtocols.Http1AndHttp2;
-        listenOptions.UseHttps(LoadCertificate());
-    });
-});
+builder.WebHost.ConfigureTransactionProcessingHttps();
 
 var app = builder.Build();
 
@@ -112,12 +94,3 @@ app.MapHealthChecks("healthui", new HealthCheckOptions
 });
 
 app.Run();
-
-static X509Certificate2 LoadCertificate()
-{
-    var certificateFile = Directory.GetFiles(Directory.GetCurrentDirectory())
-        .First(name => name.Contains("pfx", StringComparison.OrdinalIgnoreCase));
-    Console.WriteLine(certificateFile);
-
-    return new X509Certificate2(certificateFile, "password");
-}

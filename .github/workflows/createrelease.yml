@@ -76,12 +76,28 @@ jobs:
       needs: build
       environment: staging
       name: "Deploy to Staging"
+      env:
+        SECURITYSERVICE_CERTIFICATE_PATH: ${{ secrets.SECURITYSERVICE_CERTIFICATE_PATH }}
+        SECURITYSERVICE_CERTIFICATE_PASSWORD: ${{ secrets.SECURITYSERVICE_CERTIFICATE_PASSWORD }}
+        AUTHENTICATION_DB_CONNECTION_STRING: ${{ secrets.AUTHENTICATION_DB_CONNECTION_STRING }}
 
       steps:
       - name: Download the artifact
         uses: actions/download-artifact@v4.1.8
         with:
           name: securityservice
+
+      - name: Validate HTTPS certificate configuration
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SECURITYSERVICE_CERTIFICATE_PATH) -or [string]::IsNullOrWhiteSpace($env:SECURITYSERVICE_CERTIFICATE_PASSWORD)) {
+            throw "The staging environment must define SECURITYSERVICE_CERTIFICATE_PATH and SECURITYSERVICE_CERTIFICATE_PASSWORD."
+          }
+          if ([string]::IsNullOrWhiteSpace($env:AUTHENTICATION_DB_CONNECTION_STRING)) {
+            throw "The staging environment must define AUTHENTICATION_DB_CONNECTION_STRING."
+          }
+          if (-not (Test-Path -LiteralPath $env:SECURITYSERVICE_CERTIFICATE_PATH -PathType Leaf)) {
+            throw "The configured SecurityService certificate file is missing on the staging host."
+          }
           
       - name: Remove existing  Windows service
         run: |
@@ -100,8 +116,22 @@ jobs:
         run: |
           $serviceName = "Transaction Processing - Security Service"
           $servicePath = "C:\txnproc\transactionprocessing\securityservice\SecurityService.exe"
-                   
+          $configurationPath = "C:\txnproc\transactionprocessing\securityservice\appsettings.local.json"
+          $configuration = @{
+            ConnectionStrings = @{
+              AuthenticationDbContext = $env:AUTHENTICATION_DB_CONNECTION_STRING
+            }
+          } | ConvertTo-Json -Depth 5
+          [System.IO.File]::WriteAllText($configurationPath, $configuration, [System.Text.UTF8Encoding]::new($false))
+          icacls $configurationPath /inheritance:r /grant:r "*S-1-5-18:(R)" "*S-1-5-32-544:(M)"
+          if ($LASTEXITCODE -ne 0) { throw "Could not restrict access to the deployment configuration file." }
           New-Service -Name $serviceName -BinaryPathName $servicePath -Description $serviceName -DisplayName $serviceName -StartupType Automatic
+          $serviceKey = "HKLM:\SYSTEM\CurrentControlSet\Services\$serviceName"
+          $serviceEnvironment = @(
+            "ServiceOptions__KestrelOptions__Path=$($env:SECURITYSERVICE_CERTIFICATE_PATH)",
+            "ServiceOptions__KestrelOptions__Password=$($env:SECURITYSERVICE_CERTIFICATE_PASSWORD)"
+          )
+          New-ItemProperty -Path $serviceKey -Name Environment -PropertyType MultiString -Value $serviceEnvironment -Force | Out-Null
           Start-Service -Name $serviceName
 
   deployproduction:
@@ -109,12 +139,28 @@ jobs:
     needs: [build, deploystaging]
     environment: production
     name: "Deploy to Production"
+    env:
+      SECURITYSERVICE_CERTIFICATE_PATH: ${{ secrets.SECURITYSERVICE_CERTIFICATE_PATH }}
+      SECURITYSERVICE_CERTIFICATE_PASSWORD: ${{ secrets.SECURITYSERVICE_CERTIFICATE_PASSWORD }}
+      AUTHENTICATION_DB_CONNECTION_STRING: ${{ secrets.AUTHENTICATION_DB_CONNECTION_STRING }}
     
     steps:
       - name: Download the artifact
         uses: actions/download-artifact@v4.1.8
         with:
           name: securityservice
+
+      - name: Validate HTTPS certificate configuration
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:SECURITYSERVICE_CERTIFICATE_PATH) -or [string]::IsNullOrWhiteSpace($env:SECURITYSERVICE_CERTIFICATE_PASSWORD)) {
+            throw "The production environment must define SECURITYSERVICE_CERTIFICATE_PATH and SECURITYSERVICE_CERTIFICATE_PASSWORD."
+          }
+          if ([string]::IsNullOrWhiteSpace($env:AUTHENTICATION_DB_CONNECTION_STRING)) {
+            throw "The production environment must define AUTHENTICATION_DB_CONNECTION_STRING."
+          }
+          if (-not (Test-Path -LiteralPath $env:SECURITYSERVICE_CERTIFICATE_PATH -PathType Leaf)) {
+            throw "The configured SecurityService certificate file is missing on the production host."
+          }
   
       - name: Remove existing  Windows service
         run: |
@@ -133,6 +179,20 @@ jobs:
         run: |
           $serviceName = "Transaction Processing - Security Service"
           $servicePath = "C:\txnproc\transactionprocessing\securityservice\SecurityService.exe"
-                   
+          $configurationPath = "C:\txnproc\transactionprocessing\securityservice\appsettings.local.json"
+          $configuration = @{
+            ConnectionStrings = @{
+              AuthenticationDbContext = $env:AUTHENTICATION_DB_CONNECTION_STRING
+            }
+          } | ConvertTo-Json -Depth 5
+          [System.IO.File]::WriteAllText($configurationPath, $configuration, [System.Text.UTF8Encoding]::new($false))
+          icacls $configurationPath /inheritance:r /grant:r "*S-1-5-18:(R)" "*S-1-5-32-544:(M)"
+          if ($LASTEXITCODE -ne 0) { throw "Could not restrict access to the deployment configuration file." }
           New-Service -Name $serviceName -BinaryPathName $servicePath -Description $serviceName -DisplayName $serviceName -StartupType Automatic
+          $serviceKey = "HKLM:\SYSTEM\CurrentControlSet\Services\$serviceName"
+          $serviceEnvironment = @(
+            "ServiceOptions__KestrelOptions__Path=$($env:SECURITYSERVICE_CERTIFICATE_PATH)",
+            "ServiceOptions__KestrelOptions__Password=$($env:SECURITYSERVICE_CERTIFICATE_PASSWORD)"
+          )
+          New-ItemProperty -Path $serviceKey -Name Environment -PropertyType MultiString -Value $serviceEnvironment -Force | Out-Null
           Start-Service -Name $serviceName      

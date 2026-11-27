@@ -12,15 +12,7 @@
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" />
     <PackageReference Include="TransactionProcessing.Shared" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="aspnetapp-root-cert.cer">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="aspnetapp-web-api.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <PackageReference Include="TransactionProcessing.CertificateDefaults" />
   </ItemGroup>
 
   <ItemGroup>

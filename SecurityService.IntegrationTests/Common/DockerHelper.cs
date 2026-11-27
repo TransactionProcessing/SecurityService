@@ -16,7 +16,6 @@ namespace SecurityService.IntergrationTests.Common
     using System.Collections.Generic;
     using System.Net;
     using System.Net.Http;
-    using System.Security.Cryptography.X509Certificates;
     using System.Threading;
     using System.Threading.Tasks;
 
@@ -43,7 +42,7 @@ namespace SecurityService.IntergrationTests.Common
                 await base.StartContainersForScenarioRun(scenarioName, dockerServices, cancellationToken).ConfigureAwait(false);
 
                 Func<String, String> securityServiceBaseAddressResolver = _ => $"https://localhost:{this.SecurityServicePort}";
-                HttpClient httpClient = this.CreatePinnedHttpClient();
+                HttpClient httpClient = this.CreateHttpClient();
                 this.SecurityServiceClient = new SecurityServiceClient(securityServiceBaseAddressResolver, httpClient, Serialise, Deserialise);
 
                 TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken =
@@ -137,21 +136,14 @@ namespace SecurityService.IntergrationTests.Common
             return Task.CompletedTask;
         }
 
-        private HttpClient CreatePinnedHttpClient()
+        private HttpClient CreateHttpClient()
         {
             if (this.IntegrationTestCertificate is null)
             {
                 throw new InvalidOperationException("Integration test certificate was not initialised before HttpClient creation.");
             }
 
-            HttpClientHandler handler = new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (_, certificate, _, _) =>
-                    certificate is X509Certificate2 certificate2 &&
-                    String.Equals(certificate2.Thumbprint, this.IntegrationTestCertificate.Thumbprint, StringComparison.OrdinalIgnoreCase)
-            };
-
-            return new HttpClient(handler, disposeHandler: true);
+            return new HttpClient();
         }
     }
 }

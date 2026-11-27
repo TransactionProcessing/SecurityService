@@ -81,13 +81,9 @@ public sealed class ManagementBootstrapOptions
 
 public class KestrelOptions
 {
-    public bool AutoDiscoverFromContentRoot { get; set; }
-
     public string Password { get; set; } = string.Empty;
 
     public string Path { get; set; } = string.Empty;
-
-    public string SearchPattern { get; set; } = "*.pfx";
 }
 
 public class TokenOptions
