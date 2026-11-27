@@ -21,6 +21,8 @@ namespace SecurityService.IntergrationTests.Common
 
     public class DockerHelper : TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper
     {
+        private IntegrationTestRootCertificateTrust? _rootCertificateTrust;
+
         public ISecurityServiceClient? SecurityServiceClient;
 
         String Serialise(Object arg)
@@ -40,6 +42,13 @@ namespace SecurityService.IntergrationTests.Common
             try
             {
                 await base.StartContainersForScenarioRun(scenarioName, dockerServices, cancellationToken).ConfigureAwait(false);
+
+                if (this.IntegrationTestCertificate is null)
+                {
+                    throw new InvalidOperationException("Integration test certificate was not initialised.");
+                }
+
+                this._rootCertificateTrust = IntegrationTestRootCertificateTrust.Install(this.IntegrationTestCertificate.RootCertificatePath);
 
                 Func<String, String> securityServiceBaseAddressResolver = _ => $"https://localhost:{this.SecurityServicePort}";
                 HttpClient httpClient = this.CreateHttpClient();
@@ -62,6 +71,19 @@ namespace SecurityService.IntergrationTests.Common
             {
                 this.DisposeIntegrationTestCertificate();
                 throw;
+            }
+        }
+
+        public new void DisposeIntegrationTestCertificate()
+        {
+            try
+            {
+                this._rootCertificateTrust?.Dispose();
+                this._rootCertificateTrust = null;
+            }
+            finally
+            {
+                base.DisposeIntegrationTestCertificate();
             }
         }
 

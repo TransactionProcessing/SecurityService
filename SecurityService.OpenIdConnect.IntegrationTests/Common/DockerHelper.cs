@@ -34,6 +34,8 @@ namespace SecurityService.IntergrationTests.Common
     /// <seealso cref="TransactionProcessing.Shared.IntegrationTesting.DockerHelper" />
     public class DockerHelper : TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper
     {
+        private IntegrationTestRootCertificateTrust? _rootCertificateTrust;
+
         #region Fields
 
         /// <summary>
@@ -106,6 +108,19 @@ namespace SecurityService.IntergrationTests.Common
             try
             {
                 await base.StartContainersForScenarioRun(scenarioName,dockerServices, cancellationToken);
+
+                if (this.IntegrationTestCertificate is null)
+                {
+                    throw new InvalidOperationException("Integration test certificate was not initialised.");
+                }
+
+                this._rootCertificateTrust = IntegrationTestRootCertificateTrust.Install(this.IntegrationTestCertificate.RootCertificatePath);
+                using (X509Certificate2 rootCertificate = X509CertificateLoader.LoadCertificate(System.IO.File.ReadAllBytes(this.IntegrationTestCertificate.RootCertificatePath)))
+                {
+                    System.IO.File.WriteAllText(
+                        System.IO.Path.Combine(this.IntegrationTestCertificate.CertificateDirectory, "aspnetapp-root-cert.pem"),
+                        rootCertificate.ExportCertificatePem());
+                }
 
                 await StartContainer(SetupSecurityServiceTestUIContainer, this.TestNetworks);
 
@@ -243,7 +258,7 @@ namespace SecurityService.IntergrationTests.Common
             environmentVariables.Add($"AppSettings:ClientSecret",clientDetails.Item2);
             environmentVariables.Add("ServiceOptions:KestrelOptions:Path", this.IntegrationTestCertificate!.GetContainerCertificatePath());
             environmentVariables.Add("ServiceOptions:KestrelOptions:Password", this.IntegrationTestCertificate.Password);
-            environmentVariables.Add("SSL_CERT_FILE", $"{this.IntegrationTestCertificate.ContainerCertificateDirectory}/integration-root.crt");
+            environmentVariables.Add("SSL_CERT_FILE", $"{this.IntegrationTestCertificate.ContainerCertificateDirectory}/aspnetapp-root-cert.pem");
             //environmentVariables.Add("urls","https://*:5004");
             environmentVariables.Add("Logging:LogLevel:Microsoft","Information");
             environmentVariables.Add("Logging:LogLevel:Default","Information");
@@ -322,6 +337,19 @@ namespace SecurityService.IntergrationTests.Common
             }
 
             return new HttpClient();
+        }
+
+        public new void DisposeIntegrationTestCertificate()
+        {
+            try
+            {
+                this._rootCertificateTrust?.Dispose();
+                this._rootCertificateTrust = null;
+            }
+            finally
+            {
+                base.DisposeIntegrationTestCertificate();
+            }
         }
 
         #endregion
