@@ -22,7 +22,7 @@ namespace SecurityService.IntergrationTests.Common
 
     public class DockerHelper : TransactionProcessing.Shared.IntegrationTesting.TestContainers.DockerHelper
     {
-        private SecurityService.IntegrationTesting.Helpers.IntegrationTestCertificate? _httpsTestCertificate;
+        private IntegrationTestRootCertificateTrust? _rootCertificateTrust;
 
         public ISecurityServiceClient? SecurityServiceClient;
 
@@ -48,6 +48,8 @@ namespace SecurityService.IntergrationTests.Common
                 {
                     throw new InvalidOperationException("Integration test certificate was not initialised.");
                 }
+
+                this._rootCertificateTrust = IntegrationTestRootCertificateTrust.Install(this.IntegrationTestCertificate.RootCertificatePath);
 
                 Func<String, String> securityServiceBaseAddressResolver = _ => $"https://localhost:{this.SecurityServicePort}";
                 HttpClient httpClient = this.CreateHttpClient();
@@ -77,8 +79,8 @@ namespace SecurityService.IntergrationTests.Common
         {
             try
             {
-                this._httpsTestCertificate?.Dispose();
-                this._httpsTestCertificate = null;
+                this._rootCertificateTrust?.Dispose();
+                this._rootCertificateTrust = null;
             }
             finally
             {
@@ -94,10 +96,6 @@ namespace SecurityService.IntergrationTests.Common
             {
                 throw new InvalidOperationException("Integration test certificate was not initialised before container setup.");
             }
-
-            this._httpsTestCertificate = SecurityService.IntegrationTesting.Helpers.IntegrationTestCertificate.Create();
-            File.Copy(this._httpsTestCertificate.ServerCertificatePath, Path.Combine(this.IntegrationTestCertificate.CertificateDirectory, "aspnetapp-web-api.pfx"), overwrite: true);
-            File.Copy(this._httpsTestCertificate.RootCertificatePath, Path.Combine(this.IntegrationTestCertificate.CertificateDirectory, "integration-root.crt"), overwrite: true);
 
             Dictionary<String, String> environmentVariables = this.GetCommonEnvironmentVariables();
             environmentVariables.Add("ServiceOptions:PublicOrigin", $"https://{this.SecurityServiceContainerName}:{DockerPorts.SecurityServiceDockerPort}");
