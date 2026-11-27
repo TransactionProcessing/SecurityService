@@ -117,7 +117,7 @@ namespace SecurityService.IntergrationTests.Common
                 TransactionProcessing.UnionResults.Result<SecurityService.DataTransferObjects.TokenResponse> bootstrapToken = await this.SecurityServiceClient.GetToken("management-bootstrap", "management-bootstrap-secret", CancellationToken.None);
                 if (bootstrapToken.Value is not Success<TokenResponse> { Value.AccessToken: { } accessToken } || String.IsNullOrWhiteSpace(accessToken))
                 {
-                    throw new InvalidOperationException("Unable to obtain the integration-test management bootstrap token.");
+                    throw new InvalidOperationException($"Unable to obtain the integration-test management bootstrap token: {bootstrapToken.GetErrorMessage() ?? "No error details were returned."}");
                 }
 
                 this.AccessToken = accessToken;
